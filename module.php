@@ -18,6 +18,11 @@ class MailModule extends AApiModule
 				'UseThreads'				=> array('bool', true), //'use_threads'),
 			)
 		);
+
+		$this->AddEntries(array(
+				'autodiscover' => 'EntryAutodiscover'
+			)
+		);
 		
 		$this->subscribeEvent('Login', array($this, 'checkAuth'));
 	}
@@ -1364,4 +1369,94 @@ class MailModule extends AApiModule
 		
 		return $mResult;
 	}
+	
+	public function EntryAutodiscover()
+	{
+		$sInput = \file_get_contents('php://input');
+
+		\CApi::Log('#autodiscover:');
+		\CApi::LogObject($sInput);
+
+		$aMatches = array();
+		$aEmailAddress = array();
+		\preg_match("/\<AcceptableResponseSchema\>(.*?)\<\/AcceptableResponseSchema\>/i", $sInput, $aMatches);
+		\preg_match("/\<EMailAddress\>(.*?)\<\/EMailAddress\>/", $sInput, $aEmailAddress);
+		if (!empty($aMatches[1]) && !empty($aEmailAddress[1]))
+		{
+			$sIncMailServer = trim(\CApi::GetSettingsConf('WebMail/ExternalHostNameOfLocalImap'));
+			$sOutMailServer = trim(\CApi::GetSettingsConf('WebMail/ExternalHostNameOfLocalSmtp'));
+
+			if (0 < \strlen($sIncMailServer) && 0 < \strlen($sOutMailServer))
+			{
+				$iIncMailPort = 143;
+				$iOutMailPort = 25;
+
+				$aMatch = array();
+				if (\preg_match('/:([\d]+)$/', $sIncMailServer, $aMatch) && !empty($aMatch[1]) && is_numeric($aMatch[1]))
+				{
+					$sIncMailServer = preg_replace('/:[\d]+$/', $sIncMailServer, '');
+					$iIncMailPort = (int) $aMatch[1];
+				}
+
+				$aMatch = array();
+				if (\preg_match('/:([\d]+)$/', $sOutMailServer, $aMatch) && !empty($aMatch[1]) && is_numeric($aMatch[1]))
+				{
+					$sOutMailServer = preg_replace('/:[\d]+$/', $sOutMailServer, '');
+					$iOutMailPort = (int) $aMatch[1];
+				}
+
+				$sResult = \implode("\n", array(
+'<Autodiscover xmlns="http://schemas.microsoft.com/exchange/autodiscover/responseschema/2006">',
+'	<Response xmlns="'.$aMatches[1].'">',
+'		<Account>',
+'			<AccountType>email</AccountType>',
+'			<Action>settings</Action>',
+'			<Protocol>',
+'				<Type>IMAP</Type>',
+'				<Server>'.$sIncMailServer.'</Server>',
+'				<LoginName>'.$aEmailAddress[1].'</LoginName>',
+'				<Port>'.$iIncMailPort.'</Port>',
+'				<SSL>'.(993 === $iIncMailPort ? 'on' : 'off').'</SSL>',
+'				<SPA>off</SPA>',
+'				<AuthRequired>on</AuthRequired>',
+'			</Protocol>',
+'			<Protocol>',
+'				<Type>SMTP</Type>',
+'				<Server>'.$sOutMailServer.'</Server>',
+'				<LoginName>'.$aEmailAddress[1].'</LoginName>',
+'				<Port>'.$iOutMailPort.'</Port>',
+'				<SSL>'.(465 === $iOutMailPort ? 'on' : 'off').'</SSL>',
+'				<SPA>off</SPA>',
+'				<AuthRequired>on</AuthRequired>',
+'			</Protocol>',
+'		</Account>',
+'	</Response>',
+'</Autodiscover>'));
+			}
+		}
+
+		if (empty($sResult))
+		{
+			$usec = $sec = 0;
+			list($usec, $sec) = \explode(' ', microtime());
+			$sResult = \implode("\n", array('<Autodiscover xmlns="http://schemas.microsoft.com/exchange/autodiscover/responseschema/2006">',
+(empty($aMatches[1]) ?
+'	<Response>' :
+'	<Response xmlns="'.$aMatches[1].'">'
+),
+'		<Error Time="'.\gmdate('H:i:s', $sec).\substr($usec, 0, \strlen($usec) - 2).'" Id="2477272013">',
+'			<ErrorCode>600</ErrorCode>',
+'			<Message>Invalid Request</Message>',
+'			<DebugData />',
+'		</Error>',
+'	</Response>',
+'</Autodiscover>'));
+		}
+
+		header('Content-Type: text/xml');
+		$sResult = '<'.'?xml version="1.0" encoding="utf-8"?'.'>'."\n".$sResult;
+
+		\CApi::Log('');
+		\CApi::Log($sResult);		
+	}	
 }
