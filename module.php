@@ -42,7 +42,7 @@ class MailModule extends AApiModule
 	
 	public function GetAppData($oUser = null)
 	{
-		$aAcc = $this->oApiAccountsManager->getUserAccounts($oUser->iObjectId);
+		$aAcc = $this->oApiAccountsManager->getUserAccounts($oUser->iId);
 		return array(
 			'Accounts' => array_values($aAcc),
 			'AllowAddNewAccounts' => false, // AppData.App.AllowUsersAddNewAccounts
@@ -91,7 +91,7 @@ class MailModule extends AApiModule
 		{
 			$oAccount = \CMailAccount::createInstance();
 			
-			$oAccount->IdUser = $oEventResult->iObjectId;
+			$oAccount->IdUser = $oEventResult->iId;
 			$oAccount->Email = $sEmail;
 			$oAccount->IncomingMailLogin = $sEmail;
 			$oAccount->IncomingMailPassword = $sPassword;
@@ -103,7 +103,7 @@ class MailModule extends AApiModule
 
 			$this->oApiAccountsManager->createAccount($oAccount);
 			return $oAccount ? array(
-				'iObjectId' => $oAccount->iObjectId
+				'iObjectId' => $oAccount->iId
 			) : false;
 		}
 		else
@@ -177,7 +177,7 @@ class MailModule extends AApiModule
 			}
 			
 			return $oAccount ? array(
-				'iObjectId' => $oAccount->iObjectId
+				'iObjectId' => $oAccount->iId
 			) : false;
 		}
 		else
@@ -240,7 +240,7 @@ class MailModule extends AApiModule
 	{
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 		return array(
-			'Id' => $oAccount->iObjectId,
+			'Id' => $oAccount->iId,
 			'IsDefault' => $oAccount->IsDefaultAccount,
 			'Email' => $oAccount->Email,
 			'FriendlyName' => $oAccount->FriendlyName,

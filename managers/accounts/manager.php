@@ -51,7 +51,7 @@ class CApiMailAccountsManager extends AApiManager
 				if (null === $oAccount)
 				{
 //					$oAccount = $this->oStorage->getUserById($iUserId);
-					$oAccount = $this->oEavManager->getObjectById($iAccountId);
+					$oAccount = $this->oEavManager->getEntityById($iAccountId);
 					
 					if ($oAccount instanceof \CMailAccount)
 					{
@@ -94,7 +94,7 @@ class CApiMailAccountsManager extends AApiManager
 		$oAccount = null;
 		try
 		{
-			$aResults = $this->oEavManager->getObjects(
+			$aResults = $this->oEavManager->getEntities(
 				'CMailAccount', 
 				array(
 					'IsDisabled', 'Email', 'IncomingMailPassword', 'IncomingMailLogin', 'IncomingMailServer', 'IdUser'
@@ -136,7 +136,7 @@ class CApiMailAccountsManager extends AApiManager
 		
 		try
 		{
-			$aResults = $this->oEavManager->getObjects(
+			$aResults = $this->oEavManager->getEntities(
 				'CMailAccount', 
 				array(
 					'IdUser'
@@ -191,7 +191,7 @@ class CApiMailAccountsManager extends AApiManager
 				$aFilters['Email'] = '%'.$sSearchDesc.'%';
 			}
 				
-			$aResults = $this->oEavManager->getObjects(
+			$aResults = $this->oEavManager->getEntities(
 				'CMailAccount', 
 				array(
 					'IsDisabled', 'Email', 'IncomingMailPassword', 'IncomingMailServer', 'IsDefaultAccount', 'IdUser'
@@ -207,7 +207,7 @@ class CApiMailAccountsManager extends AApiManager
 			{
 				foreach($aResults as $oItem)
 				{
-					$aResult[$oItem->iObjectId] = array(
+					$aResult[$oItem->iId] = array(
 						$oItem->Email,
 						$oItem->IncomingMailPassword,
 						$oItem->IncomingMailServer,
@@ -236,7 +236,7 @@ class CApiMailAccountsManager extends AApiManager
 		$mResult = false;
 		try
 		{
-			$aResults = $this->oEavManager->getObjects(
+			$aResults = $this->oEavManager->getEntities(
 				'CMailAccount',
 				array('Email', 'FriendlyName', 'IsDefaultAccount'),
 				0,
@@ -249,8 +249,8 @@ class CApiMailAccountsManager extends AApiManager
 				$mResult = array();
 				foreach($aResults as $oItem)
 				{
-					$mResult[$oItem->iObjectId] = array(
-						'AccountID' => $oItem->iObjectId,
+					$mResult[$oItem->iId] = array(
+						'AccountID' => $oItem->iId,
 						'IsDefault' => $oItem->IsDefaultAccount,
 						'Email' => $oItem->Email,
 						'FriendlyName' => $oItem->FriendlyName,
@@ -278,7 +278,7 @@ class CApiMailAccountsManager extends AApiManager
 		$bResult = false;
 		try
 		{
-			$aResults = $this->oEavManager->getObjects(
+			$aResults = $this->oEavManager->getEntities(
 				'CMailAccount',
 				array('Email'),
 				0,
@@ -290,7 +290,7 @@ class CApiMailAccountsManager extends AApiManager
 			{
 				foreach($aResults as $oObject)
 				{
-					if ($oObject->iObjectId !== $oAccount->iObjectId)
+					if ($oObject->iId !== $oAccount->iId)
 					{
 						$bResult = true;
 						break;
@@ -319,7 +319,7 @@ class CApiMailAccountsManager extends AApiManager
 			{
 				if (!$this->isExists($oAccount))
 				{
-					if (!$this->oEavManager->saveObject($oAccount))
+					if (!$this->oEavManager->saveEntity($oAccount))
 					{
 						throw new CApiManagerException(Errs::UsersManager_UserCreateFailed);
 					}
@@ -355,7 +355,7 @@ class CApiMailAccountsManager extends AApiManager
 			{
 //				if ($this->isExists($oAccount))
 //				{
-					if (!$this->oEavManager->saveObject($oAccount))
+					if (!$this->oEavManager->saveEntity($oAccount))
 					{
 						throw new CApiManagerException(Errs::UsersManager_UserCreateFailed);
 					}
@@ -389,7 +389,7 @@ class CApiMailAccountsManager extends AApiManager
 		$bResult = false;
 		try
 		{
-			$bResult = $this->oEavManager->deleteObject($oAccount->iObjectId);
+			$bResult = $this->oEavManager->deleteEntity($oAccount->iId);
 		}
 		catch (CApiBaseException $oException)
 		{
