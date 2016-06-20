@@ -33,7 +33,7 @@ class CMailAccount extends AEntity
 		
 		CApi::Plugin()->RunHook('api-account-construct', array(&$this));
 
-		$this->aStaticMap = array(
+		$this->setStaticMap(array(
 			'IsDisabled'			=> array('bool', false),
 			'IdUser'				=> array('int', 0),
 			'IsInternal'			=> array('bool', false),
@@ -58,9 +58,7 @@ class CMailAccount extends AEntity
 			'OutgoingMailAuth'		=> array('int',  ESMTPAuthType::NoAuth),//'mail_out_auth'),
 			'OutgoingMailUseSSL'	=> array('bool', false),//'mail_out_ssl'),
 			'OutgoingSendingMethod'	=> array('int', ESendingMethod::Specified)
-		);
-		
-		$this->SetDefaults();
+		));
 	}
 
 	/**
