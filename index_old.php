@@ -154,7 +154,7 @@ class MailModule extends AApiModule
 					$bIsLinked = '1' === (string) $aData[3];
 					$sContentLocation = isset($aData[4]) ? (string) $aData[4] : '';
 
-					$oApiFileCache = \CApi::GetCoreManager('filecache');
+					$oApiFileCache = \CApi::GetSystemManager('filecache');
 					$rResource = $oApiFileCache->getFile($oAccount, $sTempName);
 					if (is_resource($rResource))
 					{
@@ -310,7 +310,7 @@ class MailModule extends AApiModule
 			if ('' !== $sClientTimeZone)
 			{
 				$oAccount->User->ClientTimeZone = $sClientTimeZone;
-				$oApiUsers = \CApi::GetCoreManager('users');
+				$oApiUsers = \CApi::GetSystemManager('users');
 				if ($oApiUsers)
 				{
 					$oApiUsers->updateAccount($oAccount);
@@ -876,7 +876,7 @@ class MailModule extends AApiModule
 
 			if (0 < strlen($sFromEmail))
 			{
-				$oApiUsersManager = /* @var CApiUsersManager */ CApi::GetCoreManager('users');
+				$oApiUsersManager = /* @var CApiUsersManager */ CApi::GetSystemManager('users');
 				$bAlwaysShowImagesInMessage = !!\CApi::GetSettingsConf('WebMail/AlwaysShowImagesInMessage');
 				$oMessage->setSafety($bAlwaysShowImagesInMessage ? true : 
 						$oApiUsersManager->getSafetySender($oAccount->IdUser, $sFromEmail, true));
@@ -985,7 +985,7 @@ class MailModule extends AApiModule
 		$oIdentity = null;
 		if (!empty($sIdIdentity) && is_numeric($sIdIdentity) && 0 < (int) $sIdIdentity)
 		{
-			$oApiUsers = \CApi::GetCoreManager('users');
+			$oApiUsers = \CApi::GetSystemManager('users');
 			$oIdentity = $oApiUsers->getIdentity((int) $sIdIdentity);
 		}
 
@@ -1054,7 +1054,7 @@ class MailModule extends AApiModule
 		}
 
 		$oIdentity = null;
-		$oApiUsers = CApi::GetCoreManager('users');
+		$oApiUsers = CApi::GetSystemManager('users');
 		if ($oApiUsers && !empty($sIdIdentity) && is_numeric($sIdIdentity) && 0 < (int) $sIdIdentity)
 		{
 			$oIdentity = $oApiUsers->getIdentity((int) $sIdIdentity);
@@ -1301,7 +1301,7 @@ class MailModule extends AApiModule
 				$oSnappy->setOption('quiet', true);
 				$oSnappy->setOption('disable-javascript', true);
 
-				$oApiFileCache = \CApi::GetCoreManager('filecache');
+				$oApiFileCache = \CApi::GetSystemManager('filecache');
 				$oSnappy->generateFromHtml($oCssToInlineStyles->convert(),
 					$oApiFileCache->generateFullFilePath($oAccount, $sSavedName), array(), true);
 
@@ -1336,7 +1336,7 @@ class MailModule extends AApiModule
 
 		$oAccount = $this->getAccountFromParam();
 
-		$oApiUsers = \CApi::GetCoreManager('users');
+		$oApiUsers = \CApi::GetSystemManager('users');
 		$oApiUsers->setSafetySender($oAccount->IdUser, $sEmail);
 
 		return true;
@@ -1354,7 +1354,7 @@ class MailModule extends AApiModule
 		$oAccount = $this->getDefaultAccountFromParam();
 		if ($oAccount)
 		{
-			$oApiUsersManager = \CApi::GetCoreManager('users');
+			$oApiUsersManager = \CApi::GetSystemManager('users');
 			$mResult = $oApiUsersManager->getUserIdentities($oAccount->IdUser);
 		}
 		
@@ -1396,7 +1396,7 @@ class MailModule extends AApiModule
 					$sFolder = isset($aAdditionalData['Folder']) ? $aAdditionalData['Folder'] : '';
 					$sMimeType = \MailSo\Base\Utils::MimeContentType($sUploadName);
 
-					$oApiFileCacheManager = \CApi::GetCoreManager('filecache');
+					$oApiFileCacheManager = \CApi::GetSystemManager('filecache');
 					$sSavedName = 'upload-post-' . md5($aFileData['name'] . $aFileData['tmp_name']);
 					if ($oApiFileCacheManager->moveUploadedFile($oAccount, $sSavedName, $aFileData['tmp_name'])) {
 						$sSavedFullName = $oApiFileCacheManager->generateFullFilePath($oAccount, $sSavedName);
@@ -1452,7 +1452,7 @@ class MailModule extends AApiModule
 				}
 				else
 				{
-					$oApiFileCacheManager = \CApi::GetCoreManager('filecache');
+					$oApiFileCacheManager = \CApi::GetSystemManager('filecache');
 
 					$sSavedName = 'upload-post-'.md5($aFileData['name'].$aFileData['tmp_name']);
 					if ($oApiFileCacheManager->moveUploadedFile($oAccount, $sSavedName, $aFileData['tmp_name']))

@@ -273,7 +273,7 @@ class MailModule extends AApiModule
 			if ('' !== $ClientTimeZone)
 			{
 				$oAccount->User->ClientTimeZone = $ClientTimeZone;
-				$oApiUsers = \CApi::GetCoreManager('users');
+				$oApiUsers = \CApi::GetSystemManager('users');
 				if ($oApiUsers)
 				{
 					$oApiUsers->updateAccount($oAccount);
@@ -596,7 +596,7 @@ class MailModule extends AApiModule
 
 			if (0 < strlen($sFromEmail))
 			{
-				$oApiUsersManager = /* @var CApiUsersManager */ CApi::GetCoreManager('users');
+				$oApiUsersManager = /* @var CApiUsersManager */ CApi::GetSystemManager('users');
 				$bAlwaysShowImagesInMessage = !!\CApi::GetSettingsConf('WebMail/AlwaysShowImagesInMessage');
 				$oMessage->setSafety($bAlwaysShowImagesInMessage ? true : 
 						$oApiUsersManager->getSafetySender($oAccount->IdUser, $sFromEmail, true));
@@ -1023,7 +1023,7 @@ class MailModule extends AApiModule
 		$oIdentity = null;
 		if (!empty($IdentityID) && is_numeric($IdentityID) && 0 < (int) $IdentityID)
 		{
-			$oApiUsers = \CApi::GetCoreManager('users');
+			$oApiUsers = \CApi::GetSystemManager('users');
 			$oIdentity = $oApiUsers->getIdentity((int) $IdentityID);
 		}
 
@@ -1093,7 +1093,7 @@ class MailModule extends AApiModule
 		}
 
 		$oIdentity = null;
-		$oApiUsers = CApi::GetCoreManager('users');
+		$oApiUsers = CApi::GetSystemManager('users');
 		if ($oApiUsers && !empty($IdentityID) && is_numeric($IdentityID) && 0 < (int) $IdentityID)
 		{
 			$oIdentity = $oApiUsers->getIdentity((int) $IdentityID);
@@ -1303,7 +1303,7 @@ class MailModule extends AApiModule
 				$oSnappy->setOption('quiet', true);
 				$oSnappy->setOption('disable-javascript', true);
 
-				$oApiFileCache = \CApi::GetCoreManager('filecache');
+				$oApiFileCache = \CApi::GetSystemManager('filecache');
 				$oSnappy->generateFromHtml($oCssToInlineStyles->convert(),
 					$oApiFileCache->generateFullFilePath($oAccount, $sSavedName), array(), true);
 
@@ -1340,7 +1340,7 @@ class MailModule extends AApiModule
 
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 
-		$oApiUsers = \CApi::GetCoreManager('users');
+		$oApiUsers = \CApi::GetSystemManager('users');
 		$oApiUsers->setSafetySender($oAccount->IdUser, $Email);
 
 		return true;
@@ -1363,7 +1363,7 @@ class MailModule extends AApiModule
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 		if ($oAccount)
 		{
-			$oApiUsersManager = \CApi::GetCoreManager('users');
+			$oApiUsersManager = \CApi::GetSystemManager('users');
 			$mResult = $oApiUsersManager->getUserIdentities($oAccount->IdUser);
 		}
 		

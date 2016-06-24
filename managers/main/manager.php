@@ -1621,7 +1621,7 @@ class CApiMailMainManager extends AApiManagerWithStorage
 
 			if (0 < strlen($sFromEmail))
 			{
-				$oApiUsersManager = /* @var CApiUsersManager */ CApi::GetCoreManager('users');
+				$oApiUsersManager = /* @var CApiUsersManager */ CApi::GetSystemManager('users');
 				$oSettings =& CApi::GetSettings();
 				$bAlwaysShowImagesInMessage = !!$oSettings->GetConf('WebMail/AlwaysShowImagesInMessage');
 				$oMessage->setSafety($bAlwaysShowImagesInMessage ? true : 
