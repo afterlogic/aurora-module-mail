@@ -56,34 +56,67 @@ class MailModule extends AApiModule
 	
 	public function GetAppData($oUser = null)
 	{
-		$aAcc = $this->oApiAccountsManager->getUserAccounts($oUser->iId);
-		return array(
-			'Accounts' => array_values($aAcc),
-			'AllowAddNewAccounts' => false, // AppData.App.AllowUsersAddNewAccounts
-			'AllowAppRegisterMailto' => false, // AppData.App.AllowAppRegisterMailto
-			'AllowAutosaveInDrafts' => $oUser->{'Mail::AllowAutosaveInDrafts'},
-			'AllowChangeEmailSettings' => false, // AppData.App.AllowUsersChangeEmailSettings
-			'AllowChangeInputDirection' => $oUser->{'Mail::AllowChangeInputDirection'},
-			'AllowExpandFolders' => false, // AppData.MailExpandFolders
-			'AllowFetchers' => false, // AppData.User.AllowFetcher
-			'AllowIdentities' => false, // AppData.AllowIdentities
-			'AllowInsertImage' => false, // AppData.App.AllowInsertImage
-			'AllowSaveMessageAsPdf' => false, // AppData.AllowSaveAsPdf
-			'AllowThreads' => false, // AppData.User.ThreadsEnabled
-			'AllowZipAttachments' => false, // AppData.ZipAttachments
-			'AutoSave' => false, // AppData.App.AutoSave ??? uses in OpenPgp
-			'AutoSaveIntervalSeconds' => false, // add to settings
-			'AutosignOutgoingEmails' => false, // AppData.User.AutosignOutgoingEmails
-			'ComposeToolbarOrder' => array('back', 'send', 'save', 'importance', 'MailSensitivity', 'confirmation', 'OpenPgp'), // add to settings
-			'DefaultFontName' => 'Tahoma', // AppData.HtmlEditorDefaultFontName
-			'DefaultFontSize' => 3, // AppData.HtmlEditorDefaultFontSize
-			'ImageUploadSizeLimit' => 0, // AppData.App.ImageUploadSizeLimit
-			'JoinReplyPrefixes' => false, // AppData.App.JoinReplyPrefixes
-			'MailsPerPage' => $oUser->{'Mail::MailsPerPage'},
-			'MaxMessagesBodiesSizeToPrefetch' => 50000, // add to settings
-			'SaveRepliesToCurrFolder' => $oUser->{'Mail::SaveRepliesToCurrFolder'},
-			'UseThreads' => $oUser->{'Mail::UseThreads'}
-		);
+		if ($oUser === null || $oUser->Role === 0)
+		{
+			return array(
+				'Accounts' => array(),
+				'AllowAddNewAccounts' => false, // AppData.App.AllowUsersAddNewAccounts
+				'AllowAppRegisterMailto' => false, // AppData.App.AllowAppRegisterMailto
+				'AllowAutosaveInDrafts' => false,
+				'AllowChangeEmailSettings' => false, // AppData.App.AllowUsersChangeEmailSettings
+				'AllowChangeInputDirection' => false,
+				'AllowExpandFolders' => false, // AppData.MailExpandFolders
+				'AllowFetchers' => false, // AppData.User.AllowFetcher
+				'AllowIdentities' => false, // AppData.AllowIdentities
+				'AllowInsertImage' => false, // AppData.App.AllowInsertImage
+				'AllowSaveMessageAsPdf' => false, // AppData.AllowSaveAsPdf
+				'AllowThreads' => false, // AppData.User.ThreadsEnabled
+				'AllowZipAttachments' => false, // AppData.ZipAttachments
+				'AutoSave' => false, // AppData.App.AutoSave ??? uses in OpenPgp
+				'AutoSaveIntervalSeconds' => false, // add to settings
+				'AutosignOutgoingEmails' => false, // AppData.User.AutosignOutgoingEmails
+				'ComposeToolbarOrder' => array('back', 'send', 'save', 'importance', 'MailSensitivity', 'confirmation', 'OpenPgp'), // add to settings
+				'DefaultFontName' => 'Tahoma', // AppData.HtmlEditorDefaultFontName
+				'DefaultFontSize' => 3, // AppData.HtmlEditorDefaultFontSize
+				'ImageUploadSizeLimit' => 0, // AppData.App.ImageUploadSizeLimit
+				'JoinReplyPrefixes' => false, // AppData.App.JoinReplyPrefixes
+				'MailsPerPage' => 20,
+				'MaxMessagesBodiesSizeToPrefetch' => 50000, // add to settings
+				'SaveRepliesToCurrFolder' => false,
+				'UseThreads' => true
+			);
+		}
+		else
+		{
+			$aAcc = $this->oApiAccountsManager->getUserAccounts($oUser->iId);
+			return array(
+				'Accounts' => array_values($aAcc),
+				'AllowAddNewAccounts' => false, // AppData.App.AllowUsersAddNewAccounts
+				'AllowAppRegisterMailto' => false, // AppData.App.AllowAppRegisterMailto
+				'AllowAutosaveInDrafts' => $oUser->{'Mail::AllowAutosaveInDrafts'},
+				'AllowChangeEmailSettings' => false, // AppData.App.AllowUsersChangeEmailSettings
+				'AllowChangeInputDirection' => $oUser->{'Mail::AllowChangeInputDirection'},
+				'AllowExpandFolders' => false, // AppData.MailExpandFolders
+				'AllowFetchers' => false, // AppData.User.AllowFetcher
+				'AllowIdentities' => false, // AppData.AllowIdentities
+				'AllowInsertImage' => false, // AppData.App.AllowInsertImage
+				'AllowSaveMessageAsPdf' => false, // AppData.AllowSaveAsPdf
+				'AllowThreads' => false, // AppData.User.ThreadsEnabled
+				'AllowZipAttachments' => false, // AppData.ZipAttachments
+				'AutoSave' => false, // AppData.App.AutoSave ??? uses in OpenPgp
+				'AutoSaveIntervalSeconds' => false, // add to settings
+				'AutosignOutgoingEmails' => false, // AppData.User.AutosignOutgoingEmails
+				'ComposeToolbarOrder' => array('back', 'send', 'save', 'importance', 'MailSensitivity', 'confirmation', 'OpenPgp'), // add to settings
+				'DefaultFontName' => 'Tahoma', // AppData.HtmlEditorDefaultFontName
+				'DefaultFontSize' => 3, // AppData.HtmlEditorDefaultFontSize
+				'ImageUploadSizeLimit' => 0, // AppData.App.ImageUploadSizeLimit
+				'JoinReplyPrefixes' => false, // AppData.App.JoinReplyPrefixes
+				'MailsPerPage' => $oUser->{'Mail::MailsPerPage'},
+				'MaxMessagesBodiesSizeToPrefetch' => 50000, // add to settings
+				'SaveRepliesToCurrFolder' => $oUser->{'Mail::SaveRepliesToCurrFolder'},
+				'UseThreads' => $oUser->{'Mail::UseThreads'}
+			);
+		}
 	}
 	
 	/**
