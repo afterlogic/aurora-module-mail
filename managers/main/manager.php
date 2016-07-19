@@ -25,16 +25,6 @@ class CApiMailMainManager extends AApiManagerWithStorage
 	{
 		parent::__construct('main', $oManager, $sForcedStorage, $oModule);
 
-		$this->incClass('enum');
-		$this->incClass('folder');
-		$this->incClass('folder-collection');
-		$this->incClass('message');
-		$this->incClass('message-collection');
-		$this->incClass('attachment');
-		$this->incClass('attachment-collection');
-		$this->incClass('ics');
-		$this->incClass('vcard');
-
 		$this->aImapClientCache = array();
 	}
 

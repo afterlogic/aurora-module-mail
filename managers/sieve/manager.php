@@ -51,9 +51,6 @@ class CApiSieveManager extends AApiManager
 
 		CApi::Inc('common.net.protocols.sieve');
 		
-		$this->inc('classes.enum');
-		$this->inc('classes.filter');
-
 		$this->aSieves = array();
 		$this->sGeneralPassword = '';
 		$this->sSieveFileName = CApi::GetConf('sieve.config.file', 'sieve');

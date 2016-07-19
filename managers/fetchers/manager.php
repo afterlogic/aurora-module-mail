@@ -15,8 +15,6 @@ class CApiMailFetchersManager extends AApiManagerWithStorage
 	public function __construct(CApiGlobalManager &$oManager, $sForcedStorage = '', AApiModule $oModule = null)
 	{
 		parent::__construct('fetchers', $oManager, $sForcedStorage, $oModule);
-
-		$this->incClass('fetcher');
 	}
 
 	/**
