@@ -127,10 +127,12 @@ class MailModule extends AApiModule
 	{
 		$oEventResult = null;
 		$this->broadcastEvent('CreateAccount', array(
-			'IdTenant' => null,
-			'IdUser' => $iUserId,
-			'email' => $sEmail,
-			'password' => $sPassword,
+			array(
+				'TenantId' => $mIdTenant,
+				'UserId' => $iUserId,
+				'login' => $sLogin,
+				'password' => $sPassword
+			),
 			'result' => &$oEventResult
 		));
 		
