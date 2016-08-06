@@ -54,8 +54,9 @@ class MailModule extends AApiModule
 		$oUser->{'Mail::UseThreads'}				= $oDomain->UseThreads;
 	}
 	
-	public function GetAppData($oUser = null)
+	public function GetAppData()
 	{
+		$oUser = \CApi::getAuthenticatedUser();
 		if ($oUser === null || $oUser->Role === 0)
 		{
 			return array(
