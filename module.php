@@ -57,7 +57,7 @@ class MailModule extends AApiModule
 	public function GetAppData()
 	{
 		$oUser = \CApi::getAuthenticatedUser();
-		if ($oUser === null || $oUser->Role === 0)
+		if (empty($oUser) || $oUser->Role === \EUserRole::SuperAdmin)
 		{
 			return array(
 				'Accounts' => array(),
