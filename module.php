@@ -158,7 +158,7 @@ class MailModule extends AApiModule
 		}
 		else
 		{
-			throw new \System\Exceptions\ClientException(\System\Notifications::NonUserPassed);
+			throw new \System\Exceptions\AuroraApiException(\System\Notifications::NonUserPassed);
 		}
 
 		return false;
@@ -232,7 +232,7 @@ class MailModule extends AApiModule
 		}
 		else
 		{
-			throw new \System\Exceptions\ClientException(\System\Notifications::UserNotAllowed);
+			throw new \System\Exceptions\AuroraApiException(\System\Notifications::UserNotAllowed);
 		}
 
 		return false;
@@ -241,7 +241,7 @@ class MailModule extends AApiModule
 	/**
 	 * @param int $AccountID
 	 * @return boolean
-	 * @throws \System\Exceptions\ClientException
+	 * @throws \System\Exceptions\AuroraApiException
 	 */
 	public function DeleteAccount($AccountID)
 	{
@@ -260,7 +260,7 @@ class MailModule extends AApiModule
 		}
 		else
 		{
-			throw new \System\Exceptions\ClientException(\System\Notifications::UserNotAllowed);
+			throw new \System\Exceptions\AuroraApiException(\System\Notifications::UserNotAllowed);
 		}
 	}
 	
@@ -377,7 +377,7 @@ class MailModule extends AApiModule
 	 * @param int $UseThreads
 	 * @param string $InboxUidnext
 	 * @return array
-	 * @throws \System\Exceptions\ClientException
+	 * @throws \System\Exceptions\AuroraApiException
 	 */
 	public function GetMessages($AccountID, $Folder, $Offset = 0, $Limit = 20, $Search = '', $Filters = '', $UseThreads = 0, $InboxUidnext = '')
 	{
@@ -401,7 +401,7 @@ class MailModule extends AApiModule
 
 		if (0 === strlen(trim($Folder)) || 0 > $iOffset || 0 >= $iLimit || 200 < $sLimit)
 		{
-			throw new \System\Exceptions\ClientException(\System\Notifications::InvalidInputParameter);
+			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
 		}
 
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
@@ -415,14 +415,14 @@ class MailModule extends AApiModule
 	 * @param array $Folders
 	 * @param string $InboxUidnext
 	 * @return array
-	 * @throws \ProjectSystem\Exceptions\ClientException
+	 * @throws \System\Exceptions\AuroraApiException
 	 * @throws \MailSo\Net\Exceptions\ConnectionException
 	 */
 	public function GetRelevantFoldersInformation($AccountID, $Folders, $InboxUidnext = '')
 	{
 		if (!is_array($Folders) || 0 === count($Folders))
 		{
-			throw new \ProjectSystem\Exceptions\ClientException(\ProjectSystem\Notifications::InvalidInputParameter);
+			throw new \System\Exceptions\AuroraApiException(\ProjectSystem\Notifications::InvalidInputParameter);
 		}
 
 		$aResult = array();
@@ -468,13 +468,13 @@ class MailModule extends AApiModule
 	 * @param string $Folder
 	 * @param array $Uids
 	 * @return array
-	 * @throws \System\Exceptions\ClientException
+	 * @throws \System\Exceptions\AuroraApiException
 	 */
 	public function GetMessagesBodies($AccountID, $Folder, $Uids)
 	{
 		if (0 === strlen(trim($Folder)) || !is_array($Uids) || 0 === count($Uids))
 		{
-			throw new \System\Exceptions\ClientException(\System\Notifications::InvalidInputParameter);
+			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
 		}
 
 		$aList = array();
@@ -501,7 +501,7 @@ class MailModule extends AApiModule
 	 * @param string $Uid
 	 * @param string $Rfc822MimeIndex
 	 * @return \CApiMailMessage
-	 * @throws \System\Exceptions\ClientException
+	 * @throws \System\Exceptions\AuroraApiException
 	 * @throws CApiInvalidArgumentException
 	 */
 	public function GetMessage($AccountID, $Folder, $Uid, $Rfc822MimeIndex = '')
@@ -512,7 +512,7 @@ class MailModule extends AApiModule
 
 		if (0 === strlen(trim($Folder)) || 0 >= $iUid)
 		{
-			throw new \System\Exceptions\ClientException(\System\Notifications::InvalidInputParameter);
+			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
 		}
 
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
@@ -674,7 +674,7 @@ class MailModule extends AApiModule
 
 		if (!($oMessage instanceof \CApiMailMessage))
 		{
-			throw new \System\Exceptions\ClientException(\System\Notifications::CanNotGetMessage);
+			throw new \System\Exceptions\AuroraApiException(\System\Notifications::CanNotGetMessage);
 		}
 
 		return $oMessage;
@@ -711,7 +711,7 @@ class MailModule extends AApiModule
 	 * @param int $iSetAction
 	 * @param string $sFlagName
 	 * @return boolean
-	 * @throws \System\Exceptions\ClientException
+	 * @throws \System\Exceptions\AuroraApiException
 	 */
 	private function setMessageFlag($AccountID, $sFolderFullNameRaw, $sUids, $iSetAction, $sFlagName)
 	{
@@ -720,7 +720,7 @@ class MailModule extends AApiModule
 
 		if (0 === strlen(trim($sFolderFullNameRaw)) || !is_array($aUids) || 0 === count($aUids))
 		{
-			throw new \System\Exceptions\ClientException(\System\Notifications::InvalidInputParameter);
+			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
 		}
 
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
@@ -733,13 +733,13 @@ class MailModule extends AApiModule
 	 * @param int $AccountID
 	 * @param string $Folder
 	 * @return boolean
-	 * @throws \System\Exceptions\ClientException
+	 * @throws \System\Exceptions\AuroraApiException
 	 */
 	public function SetAllMessagesSeen($AccountID, $Folder)
 	{
 		if (0 === strlen(trim($Folder)))
 		{
-			throw new \System\Exceptions\ClientException(\System\Notifications::InvalidInputParameter);
+			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
 		}
 
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
@@ -754,7 +754,7 @@ class MailModule extends AApiModule
 	 * @param string $ToFolder
 	 * @param string $Uids
 	 * @return boolean
-	 * @throws \System\Exceptions\ClientException
+	 * @throws \System\Exceptions\AuroraApiException
 	 */
 	public function MoveMessages($AccountID, $Folder, $ToFolder, $Uids)
 	{
@@ -762,7 +762,7 @@ class MailModule extends AApiModule
 
 		if (0 === strlen(trim($Folder)) || 0 === strlen(trim($ToFolder)) || !is_array($aUids) || 0 === count($aUids))
 		{
-			throw new \System\Exceptions\ClientException(\System\Notifications::InvalidInputParameter);
+			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
 		}
 
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
@@ -774,12 +774,12 @@ class MailModule extends AApiModule
 		catch (\MailSo\Imap\Exceptions\NegativeResponseException $oException)
 		{
 			$oResponse = /* @var $oResponse \MailSo\Imap\Response */ $oException->GetLastResponse();
-			throw new \System\Exceptions\ClientException(\System\Notifications::CanNotMoveMessageQuota, $oException,
+			throw new \System\Exceptions\AuroraApiException(\System\Notifications::CanNotMoveMessageQuota, $oException,
 				$oResponse instanceof \MailSo\Imap\Response ? $oResponse->Tag.' '.$oResponse->StatusOrIndex.' '.$oResponse->HumanReadable : '');
 		}
 		catch (\Exception $oException)
 		{
-			throw new \System\Exceptions\ClientException(\System\Notifications::CanNotMoveMessage, $oException,
+			throw new \System\Exceptions\AuroraApiException(\System\Notifications::CanNotMoveMessage, $oException,
 				$oException->getMessage());
 		}
 
@@ -791,7 +791,7 @@ class MailModule extends AApiModule
 	 * @param string $Folder
 	 * @param string $Uids
 	 * @return boolean
-	 * @throws \System\Exceptions\ClientException
+	 * @throws \System\Exceptions\AuroraApiException
 	 */
 	public function DeleteMessages($AccountID, $Folder, $Uids)
 	{
@@ -799,7 +799,7 @@ class MailModule extends AApiModule
 
 		if (0 === strlen(trim($Folder)) || !is_array($aUids) || 0 === count($aUids))
 		{
-			throw new \System\Exceptions\ClientException(\System\Notifications::InvalidInputParameter);
+			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
 		}
 
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
@@ -816,13 +816,13 @@ class MailModule extends AApiModule
 	 * @param string $FolderParentFullNameRaw
 	 * @param string $Delimiter
 	 * @return boolean
-	 * @throws \System\Exceptions\ClientException
+	 * @throws \System\Exceptions\AuroraApiException
 	 */
 	public function CreateFolder($AccountID, $FolderNameInUtf8, $FolderParentFullNameRaw, $Delimiter)
 	{
 		if (0 === strlen($FolderNameInUtf8) || 1 !== strlen($Delimiter))
 		{
-			throw new \System\Exceptions\ClientException(\System\Notifications::InvalidInputParameter);
+			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
 		}
 
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
@@ -884,13 +884,13 @@ class MailModule extends AApiModule
 	 * @param string $PrevFolderFullNameRaw
 	 * @param string $NewFolderNameInUtf8
 	 * @return array | boolean
-	 * @throws \System\Exceptions\ClientException
+	 * @throws \System\Exceptions\AuroraApiException
 	 */
 	public function RenameFolder($AccountID, $PrevFolderFullNameRaw, $NewFolderNameInUtf8)
 	{
 		if (0 === strlen($PrevFolderFullNameRaw) || 0 === strlen($NewFolderNameInUtf8))
 		{
-			throw new \System\Exceptions\ClientException(\System\Notifications::InvalidInputParameter);
+			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
 		}
 
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
@@ -907,13 +907,13 @@ class MailModule extends AApiModule
 	 * @param int $AccountID
 	 * @param string $Folder
 	 * @return boolean
-	 * @throws \System\Exceptions\ClientException
+	 * @throws \System\Exceptions\AuroraApiException
 	 */
 	public function DeleteFolder($AccountID, $Folder)
 	{
 		if (0 === strlen(trim($Folder)))
 		{
-			throw new \System\Exceptions\ClientException(\System\Notifications::InvalidInputParameter);
+			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
 		}
 
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
@@ -928,7 +928,7 @@ class MailModule extends AApiModule
 	 * @param string $Folder
 	 * @param type $SetAction
 	 * @return int
-	 * @throws \System\Exceptions\ClientException
+	 * @throws \System\Exceptions\AuroraApiException
 	 */
 	public function SubscribeFolder($AccountID, $Folder, $SetAction)
 	{
@@ -936,7 +936,7 @@ class MailModule extends AApiModule
 
 		if (0 === strlen(trim($Folder)))
 		{
-			throw new \System\Exceptions\ClientException(\System\Notifications::InvalidInputParameter);
+			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
 		}
 
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
@@ -954,13 +954,13 @@ class MailModule extends AApiModule
 	 * @param int $AccountID
 	 * @param array $FolderList
 	 * @return boolean
-	 * @throws \System\Exceptions\ClientException
+	 * @throws \System\Exceptions\AuroraApiException
 	 */
 	public function UpdateFoldersOrder($AccountID, $FolderList)
 	{
 		if (!is_array($FolderList))
 		{
-			throw new \System\Exceptions\ClientException(\System\Notifications::InvalidInputParameter);
+			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
 		}
 
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
@@ -976,13 +976,13 @@ class MailModule extends AApiModule
 	 * @param int $AccountID
 	 * @param string $Folder
 	 * @return boolean
-	 * @throws \System\Exceptions\ClientException
+	 * @throws \System\Exceptions\AuroraApiException
 	 */
 	public function ClearFolder($AccountID, $Folder)
 	{
 		if (0 === strlen(trim($Folder)))
 		{
-			throw new \System\Exceptions\ClientException(\System\Notifications::InvalidInputParameter);
+			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
 		}
 
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
@@ -997,13 +997,13 @@ class MailModule extends AApiModule
 	 * @param string $Folder
 	 * @param array $Uids
 	 * @return array
-	 * @throws \System\Exceptions\ClientException
+	 * @throws \System\Exceptions\AuroraApiException
 	 */
 	public function GetMessagesByUids($AccountID, $Folder, $Uids)
 	{
 		if (0 === strlen(trim($Folder)) || !is_array($Uids))
 		{
-			throw new \System\Exceptions\ClientException(\System\Notifications::InvalidInputParameter);
+			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
 		}
 
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
@@ -1016,13 +1016,13 @@ class MailModule extends AApiModule
 	 * @param string $Folder
 	 * @param array $Uids
 	 * @return array
-	 * @throws \System\Exceptions\ClientException
+	 * @throws \System\Exceptions\AuroraApiException
 	 */
 	public function GetMessagesFlags($AccountID, $Folder, $Uids)
 	{
 		if (0 === strlen(trim($Folder)) || !is_array($Uids))
 		{
-			throw new \System\Exceptions\ClientException(\System\Notifications::InvalidInputParameter);
+			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
 		}
 
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
@@ -1037,7 +1037,7 @@ class MailModule extends AApiModule
 	 * @param string $FetcherID
 	 * @param string $IdentityID
 	 * @return array
-	 * @throws \System\Exceptions\ClientException
+	 * @throws \System\Exceptions\AuroraApiException
 	 */
 	public function SaveMessage($AccountID, $DraftFolder, $DraftUid, $FetcherID, $IdentityID)
 	{
@@ -1047,7 +1047,7 @@ class MailModule extends AApiModule
 
 		if (0 === strlen($DraftFolder))
 		{
-			throw new \System\Exceptions\ClientException(\System\Notifications::InvalidInputParameter);
+			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
 		}
 
 		$oFetcher = null;
@@ -1089,7 +1089,7 @@ class MailModule extends AApiModule
 			catch (\CApiManagerException $oException)
 			{
 				$iCode = \System\Notifications::CanNotSaveMessage;
-				throw new \System\Exceptions\ClientException($iCode, $oException);
+				throw new \System\Exceptions\AuroraApiException($iCode, $oException);
 			}
 		}
 
@@ -1117,7 +1117,7 @@ class MailModule extends AApiModule
 	 * @param string $FetcherID
 	 * @param string $IdentityID
 	 * @return array
-	 * @throws \System\Exceptions\ClientException
+	 * @throws \System\Exceptions\AuroraApiException
 	 */
 	public function SendMessage($AccountID, $SentFolder, $DraftFolder, $DraftUid, $DraftInfo, $FetcherID, $IdentityID)
 	{
@@ -1179,7 +1179,7 @@ class MailModule extends AApiModule
 						break;
 				}
 
-				throw new \System\Exceptions\ClientException($iCode, $oException, $oException->GetPreviousMessage(), $oException->GetObjectParams());
+				throw new \System\Exceptions\AuroraApiException($iCode, $oException, $oException->GetPreviousMessage(), $oException->GetObjectParams());
 			}
 
 			if ($mResult)
@@ -1239,7 +1239,7 @@ class MailModule extends AApiModule
 	 * @param string $ConfirmFolder
 	 * @param string $ConfirmUid
 	 * @return array
-	 * @throws \System\Exceptions\ClientException
+	 * @throws \System\Exceptions\AuroraApiException
 	 */
 	public function SendConfirmationMessage($AccountID, $ConfirmFolder, $ConfirmUid)
 	{
@@ -1265,7 +1265,7 @@ class MailModule extends AApiModule
 						break;
 				}
 
-				throw new \System\Exceptions\ClientException($iCode, $oException);
+				throw new \System\Exceptions\AuroraApiException($iCode, $oException);
 			}
 
 			if (0 < \strlen($ConfirmFolder) && 0 < \strlen($ConfirmUid))
@@ -1379,13 +1379,13 @@ class MailModule extends AApiModule
 	 * @param int $AccountID
 	 * @param string $Email
 	 * @return boolean
-	 * @throws \System\Exceptions\ClientException
+	 * @throws \System\Exceptions\AuroraApiException
 	 */
 	public function SetEmailSafety($AccountID, $Email)
 	{
 		if (0 === strlen(trim($Email)))
 		{
-			throw new \System\Exceptions\ClientException(\System\Notifications::InvalidInputParameter);
+			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
 		}
 
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
