@@ -45,17 +45,19 @@ class MailModule extends AApiModule
 	 * 
 	 * @return boolean
 	 */
-	public function SetInheritedUserSettings($oUser, $oDomain)
-	{
-		$oUser->{'Mail::AllowAutosaveInDrafts'}		= $oDomain->AllowAutosaveInDrafts;
-		$oUser->{'Mail::AllowChangeInputDirection'}	= $oDomain->AllowChangeInputDirection;
-		$oUser->{'Mail::MailsPerPage'}				= $oDomain->MailsPerPage;
-		$oUser->{'Mail::SaveRepliesToCurrFolder'}	= $oDomain->SaveRepliesToCurrFolder;
-		$oUser->{'Mail::UseThreads'}				= $oDomain->UseThreads;
-	}
+//	public function SetInheritedUserSettings($oUser, $oDomain)
+//	{
+//		$oUser->{'Mail::AllowAutosaveInDrafts'}		= $oDomain->AllowAutosaveInDrafts;
+//		$oUser->{'Mail::AllowChangeInputDirection'}	= $oDomain->AllowChangeInputDirection;
+//		$oUser->{'Mail::MailsPerPage'}				= $oDomain->MailsPerPage;
+//		$oUser->{'Mail::SaveRepliesToCurrFolder'}	= $oDomain->SaveRepliesToCurrFolder;
+//		$oUser->{'Mail::UseThreads'}				= $oDomain->UseThreads;
+//	}
 	
 	public function GetAppData()
 	{
+		\CApi::checkUserRoleIsAtLeast(\EUserRole::Anonymous);
+		
 		$oUser = \CApi::getAuthenticatedUser();
 		if (empty($oUser) || $oUser->Role === \EUserRole::SuperAdmin)
 		{
@@ -126,6 +128,8 @@ class MailModule extends AApiModule
 	 */
 	public function CreateAccount($iUserId = 0, $sEmail = '', $sPassword = '', $sServer = '')
 	{
+		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
 		$oEventResult = null;
 		$this->broadcastEvent('CreateAccount', array(
 			array(
@@ -168,6 +172,8 @@ class MailModule extends AApiModule
 			$IncomingMailLogin = null, $IncomingMailPort = null, $IncomingMailSsl = null, $OutgoingMailLogin = null, $OutgoingMailServer = null, 
 			$OutgoingMailPort = null, $OutgoingMailSsl = null, $OutgoingMailAuth = null)
 	{
+		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
 		if ($AccountID > 0)
 		{
 			$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
@@ -245,6 +251,8 @@ class MailModule extends AApiModule
 	 */
 	public function DeleteAccount($AccountID)
 	{
+		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
 		$bResult = false;
 
 		if ($AccountID > 0)
@@ -288,6 +296,8 @@ class MailModule extends AApiModule
 /**** Ajax methods ****/
 	public function GetAccountSettings($AccountID)
 	{
+		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 		return array(
 			'Id' => $oAccount->iId,
@@ -298,7 +308,7 @@ class MailModule extends AApiModule
 			'IncomingMailServer' => $oAccount->IncomingMailServer,
 			'IncomingMailPort' => $oAccount->IncomingMailPort,
 			'IncomingMailLogin' => $oAccount->IncomingMailLogin,
-			'IncomingMailPassword' => $oAccount->IncomingMailPassword,
+//			'IncomingMailPassword' => $oAccount->IncomingMailPassword,
 			'IncomingMailUseSSL' => $oAccount->IncomingMailUseSSL,
 			'OutgoingMailServer' => $oAccount->OutgoingMailServer,
 			'OutgoingMailPort' => $oAccount->OutgoingMailPort,
@@ -316,6 +326,8 @@ class MailModule extends AApiModule
 	 */
 	public function GetExtensions($AccountID, $ClientTimeZone = '')
 	{
+		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
 		$mResult = false;
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 		if ($oAccount)
@@ -359,6 +371,8 @@ class MailModule extends AApiModule
 	 */
 	public function GetFolders($AccountID)
 	{
+		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 		$oFolderCollection = $this->oApiMailManager->getFolders($oAccount);
 		return array(
@@ -381,6 +395,8 @@ class MailModule extends AApiModule
 	 */
 	public function GetMessages($AccountID, $Folder, $Offset = 0, $Limit = 20, $Search = '', $Filters = '', $UseThreads = 0, $InboxUidnext = '')
 	{
+		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
 		$sOffset = trim((string) $Offset);
 		$sLimit = trim((string) $Limit);
 		$sSearch = trim((string) $Search);
@@ -420,6 +436,8 @@ class MailModule extends AApiModule
 	 */
 	public function GetRelevantFoldersInformation($AccountID, $Folders, $InboxUidnext = '')
 	{
+		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
 		if (!is_array($Folders) || 0 === count($Folders))
 		{
 			throw new \System\Exceptions\AuroraApiException(\ProjectSystem\Notifications::InvalidInputParameter);
@@ -459,6 +477,8 @@ class MailModule extends AApiModule
 	 */
 	public function GetQuota($AccountID)
 	{
+		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 		return $this->oApiMailManager->getQuota($oAccount);
 	}
@@ -472,6 +492,8 @@ class MailModule extends AApiModule
 	 */
 	public function GetMessagesBodies($AccountID, $Folder, $Uids)
 	{
+		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
 		if (0 === strlen(trim($Folder)) || !is_array($Uids) || 0 === count($Uids))
 		{
 			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
@@ -506,6 +528,8 @@ class MailModule extends AApiModule
 	 */
 	public function GetMessage($AccountID, $Folder, $Uid, $Rfc822MimeIndex = '')
 	{
+		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
 		$iBodyTextLimit = 600000;
 		
 		$iUid = 0 < strlen($Uid) && is_numeric($Uid) ? (int) $Uid : 0;
@@ -689,6 +713,8 @@ class MailModule extends AApiModule
 	 */
 	public function SetMessagesSeen($AccountID, $Folder, $Uids, $SetAction)
 	{
+		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
 		return $this->setMessageFlag($AccountID, $Folder, $Uids, $SetAction, \MailSo\Imap\Enumerations\MessageFlag::SEEN);
 	}	
 	
@@ -701,6 +727,8 @@ class MailModule extends AApiModule
 	 */
 	public function SetMessageFlagged($AccountID, $Folder, $Uids, $SetAction)
 	{
+		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
 		return $this->setMessageFlag($AccountID, $Folder, $Uids, $SetAction, \MailSo\Imap\Enumerations\MessageFlag::FLAGGED);
 	}
 	
@@ -737,6 +765,8 @@ class MailModule extends AApiModule
 	 */
 	public function SetAllMessagesSeen($AccountID, $Folder)
 	{
+		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
 		if (0 === strlen(trim($Folder)))
 		{
 			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
@@ -758,6 +788,8 @@ class MailModule extends AApiModule
 	 */
 	public function MoveMessages($AccountID, $Folder, $ToFolder, $Uids)
 	{
+		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
 		$aUids = \api_Utils::ExplodeIntUids((string) $Uids);
 
 		if (0 === strlen(trim($Folder)) || 0 === strlen(trim($ToFolder)) || !is_array($aUids) || 0 === count($aUids))
@@ -795,6 +827,8 @@ class MailModule extends AApiModule
 	 */
 	public function DeleteMessages($AccountID, $Folder, $Uids)
 	{
+		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
 		$aUids = \api_Utils::ExplodeIntUids((string) $Uids);
 
 		if (0 === strlen(trim($Folder)) || !is_array($aUids) || 0 === count($aUids))
@@ -820,6 +854,8 @@ class MailModule extends AApiModule
 	 */
 	public function CreateFolder($AccountID, $FolderNameInUtf8, $FolderParentFullNameRaw, $Delimiter)
 	{
+		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
 		if (0 === strlen($FolderNameInUtf8) || 1 !== strlen($Delimiter))
 		{
 			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
@@ -888,6 +924,8 @@ class MailModule extends AApiModule
 	 */
 	public function RenameFolder($AccountID, $PrevFolderFullNameRaw, $NewFolderNameInUtf8)
 	{
+		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
 		if (0 === strlen($PrevFolderFullNameRaw) || 0 === strlen($NewFolderNameInUtf8))
 		{
 			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
@@ -911,6 +949,8 @@ class MailModule extends AApiModule
 	 */
 	public function DeleteFolder($AccountID, $Folder)
 	{
+		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
 		if (0 === strlen(trim($Folder)))
 		{
 			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
@@ -932,6 +972,8 @@ class MailModule extends AApiModule
 	 */
 	public function SubscribeFolder($AccountID, $Folder, $SetAction)
 	{
+		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
 		$bSetAction = 1 === $SetAction;
 
 		if (0 === strlen(trim($Folder)))
@@ -958,6 +1000,8 @@ class MailModule extends AApiModule
 	 */
 	public function UpdateFoldersOrder($AccountID, $FolderList)
 	{
+		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
 		if (!is_array($FolderList))
 		{
 			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
@@ -980,6 +1024,8 @@ class MailModule extends AApiModule
 	 */
 	public function ClearFolder($AccountID, $Folder)
 	{
+		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
 		if (0 === strlen(trim($Folder)))
 		{
 			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
@@ -1001,6 +1047,8 @@ class MailModule extends AApiModule
 	 */
 	public function GetMessagesByUids($AccountID, $Folder, $Uids)
 	{
+		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
 		if (0 === strlen(trim($Folder)) || !is_array($Uids))
 		{
 			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
@@ -1020,6 +1068,8 @@ class MailModule extends AApiModule
 	 */
 	public function GetMessagesFlags($AccountID, $Folder, $Uids)
 	{
+		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
 		if (0 === strlen(trim($Folder)) || !is_array($Uids))
 		{
 			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
@@ -1041,6 +1091,8 @@ class MailModule extends AApiModule
 	 */
 	public function SaveMessage($AccountID, $DraftFolder, $DraftUid, $FetcherID, $IdentityID)
 	{
+		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
 		$mResult = false;
 
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
@@ -1121,6 +1173,8 @@ class MailModule extends AApiModule
 	 */
 	public function SendMessage($AccountID, $SentFolder, $DraftFolder, $DraftUid, $DraftInfo, $FetcherID, $IdentityID)
 	{
+		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 
 		$oFetcher = null;
@@ -1243,6 +1297,8 @@ class MailModule extends AApiModule
 	 */
 	public function SendConfirmationMessage($AccountID, $ConfirmFolder, $ConfirmUid)
 	{
+		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 		
 		$oMessage = $this->buildConfirmationMessage($oAccount);
@@ -1292,6 +1348,8 @@ class MailModule extends AApiModule
 	 */
 	public function SetupSystemFolders($AccountID, $Sent, $Drafts, $Trash, $Spam)
 	{
+		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 		
 		$aData = array();
@@ -1323,6 +1381,8 @@ class MailModule extends AApiModule
 	 */
 	public function GeneratePdfFile($AccountID, $FileName, $Html)
 	{
+		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 		if ($oAccount)
 		{
@@ -1383,6 +1443,8 @@ class MailModule extends AApiModule
 	 */
 	public function SetEmailSafety($AccountID, $Email)
 	{
+		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
 		if (0 === strlen(trim($Email)))
 		{
 			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
@@ -1409,6 +1471,8 @@ class MailModule extends AApiModule
 	 */
 	public function GetIdentities($AccountID)
 	{
+		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
 		$mResult = false;
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 		if ($oAccount)
