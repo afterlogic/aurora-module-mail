@@ -54,6 +54,11 @@ class MailModule extends AApiModule
 //		$oUser->{'Mail::UseThreads'}				= $oDomain->UseThreads;
 //	}
 	
+	/**
+	 * Obtaines list of module settings for authenticated user.
+	 * 
+	 * @return array
+	 */
 	public function GetAppData()
 	{
 		\CApi::checkUserRoleIsAtLeast(\EUserRole::Anonymous);
