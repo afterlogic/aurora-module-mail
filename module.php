@@ -20,6 +20,7 @@ class MailModule extends AApiModule
 		$this->incClass('vcard');
 		$this->incClass('sieve-enum');
 		$this->incClass('filter');
+		$this->incClass('databyref');
 		
 		$this->oApiAccountsManager = $this->GetManager('accounts');
 		$this->oApiMailManager = $this->GetManager('main');
@@ -454,7 +455,7 @@ class MailModule extends AApiModule
 		try
 		{
 			$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
-			$oReturnInboxNewData = \System\DataByRef::createInstance(array());
+			$oReturnInboxNewData = \DataByRef::createInstance(array());
 			$aResult = $this->oApiMailManager->getFolderListInformation($oAccount, $Folders, $InboxUidnext, $oReturnInboxNewData);
 		}
 		catch (\MailSo\Net\Exceptions\ConnectionException $oException)
