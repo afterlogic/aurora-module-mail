@@ -59,9 +59,6 @@ class CApiMailMainManager extends AApiManagerWithStorage
 					$iSocketTimeOut = $iForceSocketTimeOut;
 				}
 
-				CApi::Plugin()->RunHook('webmail-imap-update-socket-timeouts',
-					array(&$iConnectTimeOut, &$iSocketTimeOut));
-
 				$this->aImapClientCache[$sCacheKey] = \MailSo\Imap\ImapClient::NewInstance();
 				$this->aImapClientCache[$sCacheKey]->SetTimeOuts($iConnectTimeOut, $iSocketTimeOut); // TODO
 				$this->aImapClientCache[$sCacheKey]->SetLogger(\CApi::MailSoLogger());
@@ -1077,9 +1074,6 @@ class CApiMailMainManager extends AApiManagerWithStorage
 					$iSocketTimeOut = CApi::GetConf('socket.get-timeout', 5);
 					$bVerifySsl = !!CApi::GetConf('socket.verify-ssl', false);
 
-					CApi::Plugin()->RunHook('webmail-smtp-update-socket-timeouts',
-						array(&$iConnectTimeOut, &$iSocketTimeOut));
-
 					$oSmtpClient = \MailSo\Smtp\SmtpClient::NewInstance();
 					$oSmtpClient->SetTimeOuts($iConnectTimeOut, $iSocketTimeOut);
 
@@ -1124,7 +1118,6 @@ class CApiMailMainManager extends AApiManagerWithStorage
 					}
 
 					$sEhlo = \MailSo\Smtp\SmtpClient::EhloHelper();
-					CApi::Plugin()->RunHook('api-smtp-send-ehlo', array($oAccount, &$sEhlo));
 
 					if ($oFetcher)
 					{
@@ -1143,7 +1136,6 @@ class CApiMailMainManager extends AApiManagerWithStorage
 					$oSmtpClient->MailFrom($oFetcher ? $oFetcher->Email : $oAccount->Email, (string) $iMessageStreamSize);
 
 					$aRcpt =& $oRcpt->GetAsArray();
-					CApi::Plugin()->RunHook('api-smtp-send-rcpt', array($oAccount, &$aRcpt));
 
 					foreach ($aRcpt as /* @var $oEmail \MailSo\Mime\Email */ $oEmail)
 					{

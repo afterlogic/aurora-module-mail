@@ -933,8 +933,6 @@ class CApiMailMessage
 					$this->aDraftInfo = array($sType, $sUid, $sFolder);
 				}
 			}
-
-			\CApi::Plugin()->RunHook('api-mail-message-headers-parse', array(&$this, $oHeaders));
 		}
 
 		if (is_array($aTextParts) && 0 < count($aTextParts))
@@ -1043,8 +1041,6 @@ class CApiMailMessage
 				});
 			}
 		}
-
-		\CApi::Plugin()->RunHook('api-mail-message-parse', array(&$this, $oFetchResponse, $oBodyStructure, $sRfc822SubMimeIndex));
 
 		return $this;
 	}

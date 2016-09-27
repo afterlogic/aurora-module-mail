@@ -31,8 +31,6 @@ class CMailAccount extends AEntity
 		
 		$this->__USE_TRIM_IN_STRINGS__ = true;
 		
-		CApi::Plugin()->RunHook('api-account-construct', array(&$this));
-
 		$this->setStaticMap(array(
 			'IsDisabled'			=> array('bool', false),
 			'IdUser'				=> array('int', 0),

@@ -1139,8 +1139,6 @@ class MailModule extends AApiModule
 		{
 			try
 			{
-				\CApi::Plugin()->RunHook('webmail.build-message-for-save', array(&$oMessage));
-				
 				$mResult = $this->oApiMailManager->saveMessage($oAccount, $oMessage, $DraftFolder, $DraftUid);
 			}
 			catch (\CApiManagerException $oException)
@@ -1211,12 +1209,8 @@ class MailModule extends AApiModule
 		$oMessage = $this->buildMessage($oAccount, $oFetcher, false, $oIdentity);
 		if ($oMessage)
 		{
-			\CApi::Plugin()->RunHook('webmail.validate-message-for-send', array(&$oAccount, &$oMessage));
-
 			try
 			{
-				\CApi::Plugin()->RunHook('webmail.build-message-for-send', array(&$oMessage));
-
 				$mResult = $this->oApiMailManager->sendMessage($oAccount, $oMessage, $oFetcher, $SentFolder, $DraftFolder, $DraftUid);
 			}
 			catch (\CApiManagerException $oException)
@@ -1243,8 +1237,6 @@ class MailModule extends AApiModule
 
 			if ($mResult)
 			{
-				\CApi::Plugin()->RunHook('webmail.message-success-send', array(&$oAccount, &$oMessage));
-
 				$aCollection = $oMessage->GetRcpt();
 
 				$aEmails = array();
@@ -1254,8 +1246,6 @@ class MailModule extends AApiModule
 
 				if (is_array($aEmails))
 				{
-					\CApi::Plugin()->RunHook('webmail.message-suggest-email', array(&$oAccount, &$aEmails));
-
 					\CApi::ExecuteMethod('Contacs::updateSuggestTable', array('Emails' => $aEmails));
 				}
 			}
