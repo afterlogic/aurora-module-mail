@@ -5,7 +5,6 @@
 /**
  * CApiMailAccountsManager class summary
  * 
- * @api
  * @package Accounts
  */
 class CApiMailAccountsManager extends AApiManager
@@ -30,7 +29,6 @@ class CApiMailAccountsManager extends AApiManager
 	/**
 	 * Retrieves information on particular WebMail Pro user. 
 	 * 
-	 * @api
 	 * @todo not used
 	 * 
 	 * @param int $iAccountId Account identifier.
@@ -78,7 +76,6 @@ class CApiMailAccountsManager extends AApiManager
 	/**
 	 * Retrieves information on particular WebMail Pro user. 
 	 * 
-	 * @api
 	 * @todo not used
 	 * 
 	 * @param int $iUserId User identifier.
@@ -120,7 +117,6 @@ class CApiMailAccountsManager extends AApiManager
 	/**
 	 * Retrieves information on particular WebMail Pro user. 
 	 * 
-	 * @api
 	 * 
 	 * @param int $iUserId User identifier.
 	 * 
@@ -162,7 +158,6 @@ class CApiMailAccountsManager extends AApiManager
 	 * Obtains list of information about users for specific domain. Domain identifier is used for look up.
 	 * The answer contains information only about default account of founded user.
 	 * 
-	 * @api
 	 * 
 	 * @param int $iDomainId Domain identifier.
 	 * @param int $iPage List page.
