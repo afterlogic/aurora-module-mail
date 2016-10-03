@@ -1163,7 +1163,7 @@ class CApiMailMessage
 
 			if (0 < \strlen($sHtml) && \CApi::GetConf('labs.webmail.display-inline-css', false))
 			{
-				include_once PSEVEN_APP_ROOT_PATH.'libraries/other/CssToInlineStyles.php';
+				include_once AURORA_APP_ROOT_PATH.'libraries/other/CssToInlineStyles.php';
 
 				$oCssToInlineStyles = new \TijsVerkoyen\CssToInlineStyles\CssToInlineStyles($sHtml);
 				$oCssToInlineStyles->setEncoding('utf-8');

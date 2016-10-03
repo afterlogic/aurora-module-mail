@@ -1387,7 +1387,7 @@ class MailModule extends AApiModule
 
 			$sSavedName = 'pdf-'.$oAccount->IdAccount.'-'.md5($sFileName.microtime(true)).'.pdf';
 			
-			include_once PSEVEN_APP_ROOT_PATH.'vendors/other/CssToInlineStyles.php';
+			include_once AURORA_APP_ROOT_PATH.'vendors/other/CssToInlineStyles.php';
 
 			$oCssToInlineStyles = new \TijsVerkoyen\CssToInlineStyles\CssToInlineStyles($Html);
 			$oCssToInlineStyles->setEncoding('utf-8');
