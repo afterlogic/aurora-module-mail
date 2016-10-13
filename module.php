@@ -137,15 +137,15 @@ class MailModule extends AApiModule
 		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
 		$oEventResult = null;
-		$this->broadcastEvent('CreateAccount', array(
+		$this->broadcastEvent('CreateAccount', 
 			array(
 				'TenantId' => $mIdTenant,
 				'UserId' => $iUserId,
 				'login' => $sLogin,
 				'password' => $sPassword
 			),
-			'result' => &$oEventResult
-		));
+			$oEventResult
+		);
 		
 		if ($oEventResult instanceOf \CUser)
 		{
@@ -278,20 +278,16 @@ class MailModule extends AApiModule
 		}
 	}
 	
-	public function checkAuth($aParams, &$mResult)
+	public function checkAuth($Login, $Password, $SignMe, &$mResult)
 	{
-		$sLogin = $aParams['Login'];
-		$sPassword = $aParams['Password'];
-		$bSignMe = $aParams['SignMe'];
-		
-		$oAccount = $this->oApiAccountsManager->getAccountByCredentials($sLogin, $sPassword);
+		$oAccount = $this->oApiAccountsManager->getAccountByCredentials($Login, $Password);
 
 		if ($oAccount)
 		{
 			$this->oApiMailManager->validateAccountConnection($oAccount);
 			$mResult = array(
 				'token' => 'auth',
-				'sign-me' => $bSignMe,
+				'sign-me' => $SignMe,
 				'id' => $oAccount->IdUser
 //				'email' => $oAccount->Email
 			);
