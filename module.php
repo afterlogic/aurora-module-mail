@@ -39,7 +39,7 @@ class MailModule extends AApiModule
 			)
 		);
 		
-		$this->subscribeEvent('Login', array($this, 'checkAuth'));
+		$this->subscribeEvent('Login', array($this, 'onLogin'));
 	}
 	
 	/**
@@ -137,13 +137,15 @@ class MailModule extends AApiModule
 		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
 		$oEventResult = null;
-		$this->broadcastEvent('CreateAccount', 
-			array(
-				'TenantId' => $mIdTenant,
-				'UserId' => $iUserId,
-				'login' => $sLogin,
-				'password' => $sPassword
-			),
+		$aArgs = array(
+			'TenantId' => $mIdTenant,
+			'UserId' => $iUserId,
+			'login' => $sLogin,
+			'password' => $sPassword
+		);
+		$this->broadcastEvent(
+			'CreateAccount', 
+			$aArgs,
 			$oEventResult
 		);
 		
@@ -278,16 +280,19 @@ class MailModule extends AApiModule
 		}
 	}
 	
-	public function checkAuth($Login, $Password, $SignMe, &$mResult)
+	public function onLogin($aArgs, &$mResult)
 	{
-		$oAccount = $this->oApiAccountsManager->getAccountByCredentials($Login, $Password);
+		$oAccount = $this->oApiAccountsManager->getAccountByCredentials(
+			$aArgs['Login'], 
+			$aArgs['Password']
+		);
 
 		if ($oAccount)
 		{
 			$this->oApiMailManager->validateAccountConnection($oAccount);
 			$mResult = array(
 				'token' => 'auth',
-				'sign-me' => $SignMe,
+				'sign-me' => $aArgs['SignMe'],
 				'id' => $oAccount->IdUser
 //				'email' => $oAccount->Email
 			);
@@ -576,7 +581,10 @@ class MailModule extends AApiModule
 
 			$aParts = $oBodyStructure->GetAllParts();
 					
-			$this->broadcastEvent('GetBodyStructureParts', array($aParts, &$aCustomParts));
+			$this->broadcastEvent(
+				'GetBodyStructureParts', 
+				array($aParts, &$aCustomParts)
+			);
 			
 			$bParseAsc = true;
 			if ($bParseAsc)
@@ -695,7 +703,11 @@ class MailModule extends AApiModule
 				);
 			}
 			
-			$this->broadcastEvent('ExtendMessageData', array($oAccount, &$oMessage, $aData));
+			$this->broadcastEvent(
+				'ExtendMessageData', 
+				array($oAccount, &$oMessage, $aData
+				)
+			);
 		}
 
 		if (!($oMessage instanceof \CApiMailMessage))
