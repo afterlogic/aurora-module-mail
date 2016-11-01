@@ -7,7 +7,9 @@
                 "type":"zip"
         },
 	"require":{
-		"php":">=5.4.0"
+		"php":">=5.4.0",
+		"tijsverkoyen/css-to-inline-styles": "~1.3.0",
+		"knplabs/knp-snappy": "*"
 	},
 	"extra": {
 		"installer-name": "Mail"
