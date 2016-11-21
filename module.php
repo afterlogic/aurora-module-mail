@@ -293,8 +293,8 @@ class MailModule extends AApiModule
 			$mResult = array(
 				'token' => 'auth',
 				'sign-me' => $aArgs['SignMe'],
-				'id' => $oAccount->IdUser
-//				'email' => $oAccount->Email
+				'id' => $oAccount->IdUser,
+				'account' => $oAccount->iId
 			);
 		}
 	}
