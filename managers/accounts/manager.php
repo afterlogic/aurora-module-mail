@@ -46,7 +46,7 @@ class CApiMailAccountsManager extends AApiManager
 				if (null === $oAccount)
 				{
 //					$oAccount = $this->oStorage->getUserById($iUserId);
-					$oAccount = $this->oEavManager->getEntityById($iAccountId);
+					$oAccount = $this->oEavManager->getEntity($iAccountId);
 					
 					if ($oAccount instanceof \CMailAccount)
 					{
