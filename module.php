@@ -19,7 +19,7 @@ class MailModule extends AApiModule
 		'AllowThreads' => array(false, 'bool'),
 		'AllowZipAttachments' => array(false, 'bool'),
 		'AutoSave' => array(false, 'bool'),
-		'AutoSaveIntervalSeconds' => array(60, 'bool'),
+		'AutoSaveIntervalSeconds' => array(60, 'int'),
 		'AutosignOutgoingEmails' => array(false, 'bool'),
 		'ComposeToolbarOrder' => array(array('back', 'send', 'save', 'importance', 'MailSensitivity', 'confirmation', 'OpenPgp'), 'array'),
 		'DefaultFontName' => array('Tahoma', 'string'),
