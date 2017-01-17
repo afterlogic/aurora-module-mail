@@ -135,25 +135,26 @@ class MailModule extends AApiModule
 	public function CreateAccount($iUserId = 0, $sEmail = '', $sPassword = '', $sServer = '')
 	{
 		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
-		
-		$oEventResult = null;
-		$aArgs = array(
-			'TenantId' => $mIdTenant,
-			'UserId' => $iUserId,
-			'login' => $sLogin,
-			'password' => $sPassword
-		);
-		$this->broadcastEvent(
-			'CreateAccount', 
-			$aArgs,
-			$oEventResult
-		);
-		
-		if ($oEventResult instanceOf \CUser)
-		{
+		/* TODO: doesn't work with event broadcasting */
+//		$oEventResult = null;
+//		$aArgs = array(
+//			'TenantId' => $mIdTenant,
+//			'UserId' => $iUserId,
+//			'login' => $sLogin,
+//			'password' => $sPassword
+//		);
+//		$this->broadcastEvent(
+//			'CreateAccount', 
+//			$aArgs,
+//			$oEventResult
+//		);
+//		
+//		if ($oEventResult instanceOf \CUser)
+//		{
 			$oAccount = \CMailAccount::createInstance();
 			
-			$oAccount->IdUser = $oEventResult->iId;
+//			$oAccount->IdUser = $oEventResult->iId;
+			$oAccount->IdUser = $iUserId;
 			$oAccount->Email = $sEmail;
 			$oAccount->IncomingMailLogin = $sEmail;
 			$oAccount->IncomingMailPassword = $sPassword;
@@ -167,11 +168,11 @@ class MailModule extends AApiModule
 			return $oAccount ? array(
 				'iObjectId' => $oAccount->iId
 			) : false;
-		}
-		else
-		{
-			throw new \System\Exceptions\AuroraApiException(\System\Notifications::NonUserPassed);
-		}
+//		}
+//		else
+//		{
+//			throw new \System\Exceptions\AuroraApiException(\System\Notifications::NonUserPassed);
+//		}
 
 		return false;
 	}
@@ -579,12 +580,13 @@ class MailModule extends AApiModule
 				}
 			}
 
-			$aParts = $oBodyStructure->GetAllParts();
-					
-			$this->broadcastEvent(
-				'GetBodyStructureParts', 
-				array($aParts, &$aCustomParts)
-			);
+			/* TODO: broadcast of events doesn't work */
+//			$aParts = $oBodyStructure->GetAllParts();
+//			
+//			$this->broadcastEvent(
+//				'GetBodyStructureParts', 
+//				array($aParts, &$aCustomParts)
+//			);
 			
 			$bParseAsc = true;
 			if ($bParseAsc)
@@ -680,10 +682,12 @@ class MailModule extends AApiModule
 
 			if (0 < strlen($sFromEmail))
 			{
-				$oApiUsersManager = /* @var CApiUsersManager */ CApi::GetSystemManager('users');
+//				$oApiUsersManager = /* @var CApiUsersManager */ CApi::GetSystemManager('users');
 				$bAlwaysShowImagesInMessage = !!\CApi::GetSettingsConf('WebMail/AlwaysShowImagesInMessage');
-				$oMessage->setSafety($bAlwaysShowImagesInMessage ? true : 
-						$oApiUsersManager->getSafetySender($oAccount->IdUser, $sFromEmail, true));
+				$oMessage->setSafety($bAlwaysShowImagesInMessage);
+				/*TODO: $oApiUsersManager->getSafetySender doesn't work */
+//				$oMessage->setSafety($bAlwaysShowImagesInMessage ? true : 
+//						$oApiUsersManager->getSafetySender($oAccount->IdUser, $sFromEmail, true));
 			}
 			
 			$aData = array();
@@ -703,11 +707,12 @@ class MailModule extends AApiModule
 				);
 			}
 			
-			$this->broadcastEvent(
-				'ExtendMessageData', 
-				array($oAccount, &$oMessage, $aData
-				)
-			);
+			/* TODO: broadcast of events doesn't work */
+//			$this->broadcastEvent(
+//				'ExtendMessageData', 
+//				array($oAccount, &$oMessage, $aData
+//				)
+//			);
 		}
 
 		if (!($oMessage instanceof \CApiMailMessage))

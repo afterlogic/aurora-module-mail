@@ -193,15 +193,16 @@ class CApiMailMainManager extends AApiManagerWithStorage
 		$bAddSystemFolder = false;
 		try
 		{
-			$aFoldersMap = $oAccount->Domain->GetFoldersMap();
-			unset($aFoldersMap[EFolderType::Inbox]);
+			/* TODO: $oAccount->Domain is not exists. $aTypes should be dependent from some settings */
+//			$aFoldersMap = $oAccount->Domain->GetFoldersMap();
+//			unset($aFoldersMap[EFolderType::Inbox]);
+//
+//			if (!$oAccount->isExtensionEnabled(CAccount::SpamFolderExtension) && isset($aFoldersMap[EFolderType::Spam]))
+//			{
+//				unset($aFoldersMap[EFolderType::Spam]);
+//			}
 
-			if (!$oAccount->isExtensionEnabled(CAccount::SpamFolderExtension) && isset($aFoldersMap[EFolderType::Spam]))
-			{
-				unset($aFoldersMap[EFolderType::Spam]);
-			}
-
-			$aTypes = array_keys($aFoldersMap);
+			$aTypes = [EFolderType::Inbox, EFolderType::Sent, EFolderType::Drafts, EFolderType::Spam, EFolderType::Trash];
 
 			$aUnExistenSystemNames = array();
 			$aSystemNames = $this->getSystemFolderNames($oAccount);
