@@ -5,6 +5,33 @@ class MailModule extends AApiModule
 	public $oApiMailManager = null;
 	public $oApiAccountsManager = null;
 	
+	protected $aSettingsMap = array(
+		'AllowAddNewAccounts' => array(false, 'bool'),
+		'AllowAppRegisterMailto' => array(false, 'bool'),
+		'AllowAutosaveInDrafts' => array(false, 'bool'),
+		'AllowChangeEmailSettings' => array(false, 'bool'),
+		'AllowChangeInputDirection' => array(false, 'bool'),
+		'AllowExpandFolders' => array(false, 'bool'),
+		'AllowFetchers' => array(false, 'bool'),
+		'AllowIdentities' => array(false, 'bool'),
+		'AllowInsertImage' => array(false, 'bool'),
+		'AllowSaveMessageAsPdf' => array(false, 'bool'),
+		'AllowThreads' => array(false, 'bool'),
+		'AllowZipAttachments' => array(false, 'bool'),
+		'AutoSave' => array(false, 'bool'),
+		'AutoSaveIntervalSeconds' => array(60, 'bool'),
+		'AutosignOutgoingEmails' => array(false, 'bool'),
+		'ComposeToolbarOrder' => array(array('back', 'send', 'save', 'importance', 'MailSensitivity', 'confirmation', 'OpenPgp'), 'array'),
+		'DefaultFontName' => array('Tahoma', 'string'),
+		'DefaultFontSize' => array(3, 'int'),
+		'ImageUploadSizeLimit' => array(0, 'int'),
+		'JoinReplyPrefixes' => array(false, 'bool'),
+		'MailsPerPage' => array(20, 'int'),
+		'MaxMessagesBodiesSizeToPrefetch' => array(50000, 'int'),
+		'SaveRepliesToCurrFolder' => array(false, 'bool'),
+		'UseThreads' => array(true, 'bool'),
+	);
+	
 	public function init() 
 	{
 		$this->incClass('account');
@@ -26,11 +53,11 @@ class MailModule extends AApiModule
 		$this->oApiMailManager = $this->GetManager('main');
 		
 		$this->setObjectMap('CUser', array(
-				'AllowAutosaveInDrafts'		=> array('bool', true), //'allow_autosave_in_drafts'),
-				'AllowChangeInputDirection'	=> array('bool', false), //'allow_change_input_direction'),
-				'MailsPerPage'				=> array('int', 20), //'msgs_per_page'),
-				'SaveRepliesToCurrFolder'	=> array('bool', false), //'save_replied_messages_to_current_folder'),
-				'UseThreads'				=> array('bool', true), //'use_threads'),
+				'AllowAutosaveInDrafts'		=> array('bool', true),
+				'AllowChangeInputDirection'	=> array('bool', false),
+				'MailsPerPage'				=> array('int', 20),
+				'SaveRepliesToCurrFolder'	=> array('bool', false),
+				'UseThreads'				=> array('bool', true),
 			)
 		);
 
@@ -64,68 +91,78 @@ class MailModule extends AApiModule
 	{
 		\CApi::checkUserRoleIsAtLeast(\EUserRole::Anonymous);
 		
+		$aSettings = array(
+			'Accounts' => array(),
+			'AllowAddNewAccounts' => $this->getConfig('AllowAddNewAccounts', false),
+			'AllowAppRegisterMailto' => $this->getConfig('AllowAppRegisterMailto', false),
+			'AllowAutosaveInDrafts' => $this->getConfig('AllowAutosaveInDrafts', false),
+			'AllowChangeEmailSettings' => $this->getConfig('AllowChangeEmailSettings', false),
+			'AllowChangeInputDirection' => $this->getConfig('AllowChangeInputDirection', false),
+			'AllowExpandFolders' => $this->getConfig('AllowExpandFolders', false),
+			'AllowFetchers' => $this->getConfig('AllowFetchers', false),
+			'AllowIdentities' => $this->getConfig('AllowIdentities', false),
+			'AllowInsertImage' => $this->getConfig('AllowInsertImage', false),
+			'AllowSaveMessageAsPdf' => $this->getConfig('AllowSaveMessageAsPdf', false),
+			'AllowThreads' => $this->getConfig('AllowThreads', false),
+			'AllowZipAttachments' => $this->getConfig('AllowZipAttachments', false),
+			'AutoSave' => $this->getConfig('AutoSave', false),
+			'AutoSaveIntervalSeconds' => $this->getConfig('AutoSaveIntervalSeconds', 60),
+			'AutosignOutgoingEmails' => $this->getConfig('AutosignOutgoingEmails', false),
+			'ComposeToolbarOrder' => $this->getConfig('ComposeToolbarOrder', array()),
+			'DefaultFontName' => $this->getConfig('DefaultFontName', 'Tahoma'),
+			'DefaultFontSize' => $this->getConfig('DefaultFontSize', 3),
+			'ImageUploadSizeLimit' => $this->getConfig('ImageUploadSizeLimit', 0),
+			'JoinReplyPrefixes' => $this->getConfig('JoinReplyPrefixes', false),
+			'MailsPerPage' => $this->getConfig('MailsPerPage', 20),
+			'MaxMessagesBodiesSizeToPrefetch' => $this->getConfig('MaxMessagesBodiesSizeToPrefetch', 50000),
+			'SaveRepliesToCurrFolder' => $this->getConfig('SaveRepliesToCurrFolder', false),
+			'UseThreads' => $this->getConfig('UseThreads', true)
+		);
+
+		
 		$oUser = \CApi::getAuthenticatedUser();
-		if (empty($oUser) || $oUser->Role === \EUserRole::SuperAdmin)
-		{
-			return array(
-				'Accounts' => array(),
-				'AllowAddNewAccounts' => false, // AppData.App.AllowUsersAddNewAccounts
-				'AllowAppRegisterMailto' => false, // AppData.App.AllowAppRegisterMailto
-				'AllowAutosaveInDrafts' => false,
-				'AllowChangeEmailSettings' => false, // AppData.App.AllowUsersChangeEmailSettings
-				'AllowChangeInputDirection' => false,
-				'AllowExpandFolders' => false, // AppData.MailExpandFolders
-				'AllowFetchers' => false, // AppData.User.AllowFetcher
-				'AllowIdentities' => false, // AppData.AllowIdentities
-				'AllowInsertImage' => false, // AppData.App.AllowInsertImage
-				'AllowSaveMessageAsPdf' => false, // AppData.AllowSaveAsPdf
-				'AllowThreads' => false, // AppData.User.ThreadsEnabled
-				'AllowZipAttachments' => false, // AppData.ZipAttachments
-				'AutoSave' => false, // AppData.App.AutoSave ??? uses in OpenPgp
-				'AutoSaveIntervalSeconds' => false, // add to settings
-				'AutosignOutgoingEmails' => false, // AppData.User.AutosignOutgoingEmails
-				'ComposeToolbarOrder' => array('back', 'send', 'save', 'importance', 'MailSensitivity', 'confirmation', 'OpenPgp'), // add to settings
-				'DefaultFontName' => 'Tahoma', // AppData.HtmlEditorDefaultFontName
-				'DefaultFontSize' => 3, // AppData.HtmlEditorDefaultFontSize
-				'ImageUploadSizeLimit' => 0, // AppData.App.ImageUploadSizeLimit
-				'JoinReplyPrefixes' => false, // AppData.App.JoinReplyPrefixes
-				'MailsPerPage' => 20,
-				'MaxMessagesBodiesSizeToPrefetch' => 50000, // add to settings
-				'SaveRepliesToCurrFolder' => false,
-				'UseThreads' => true
-			);
-		}
-		else
+		if ($oUser && $oUser->Role !== \EUserRole::SuperAdmin)
 		{
 			$aAcc = $this->oApiAccountsManager->getUserAccounts($oUser->iId);
-			return array(
-				'Accounts' => array_values($aAcc),
-				'AllowAddNewAccounts' => false, // AppData.App.AllowUsersAddNewAccounts
-				'AllowAppRegisterMailto' => false, // AppData.App.AllowAppRegisterMailto
-				'AllowAutosaveInDrafts' => $oUser->{'Mail::AllowAutosaveInDrafts'},
-				'AllowChangeEmailSettings' => false, // AppData.App.AllowUsersChangeEmailSettings
-				'AllowChangeInputDirection' => $oUser->{'Mail::AllowChangeInputDirection'},
-				'AllowExpandFolders' => false, // AppData.MailExpandFolders
-				'AllowFetchers' => false, // AppData.User.AllowFetcher
-				'AllowIdentities' => false, // AppData.AllowIdentities
-				'AllowInsertImage' => false, // AppData.App.AllowInsertImage
-				'AllowSaveMessageAsPdf' => false, // AppData.AllowSaveAsPdf
-				'AllowThreads' => false, // AppData.User.ThreadsEnabled
-				'AllowZipAttachments' => false, // AppData.ZipAttachments
-				'AutoSave' => false, // AppData.App.AutoSave ??? uses in OpenPgp
-				'AutoSaveIntervalSeconds' => false, // add to settings
-				'AutosignOutgoingEmails' => false, // AppData.User.AutosignOutgoingEmails
-				'ComposeToolbarOrder' => array('back', 'send', 'save', 'importance', 'MailSensitivity', 'confirmation', 'OpenPgp'), // add to settings
-				'DefaultFontName' => 'Tahoma', // AppData.HtmlEditorDefaultFontName
-				'DefaultFontSize' => 3, // AppData.HtmlEditorDefaultFontSize
-				'ImageUploadSizeLimit' => 0, // AppData.App.ImageUploadSizeLimit
-				'JoinReplyPrefixes' => false, // AppData.App.JoinReplyPrefixes
-				'MailsPerPage' => $oUser->{'Mail::MailsPerPage'},
-				'MaxMessagesBodiesSizeToPrefetch' => 50000, // add to settings
-				'SaveRepliesToCurrFolder' => $oUser->{'Mail::SaveRepliesToCurrFolder'},
-				'UseThreads' => $oUser->{'Mail::UseThreads'}
-			);
+			$aSettings['Accounts'] = array_values($aAcc);
+			$aSettings['AllowAutosaveInDrafts'] = $oUser->{$this->GetName().'::AllowAutosaveInDrafts'};
+			$aSettings['AllowChangeInputDirection'] = $oUser->{$this->GetName().'::AllowChangeInputDirection'};
+			$aSettings['MailsPerPage'] = $oUser->{$this->GetName().'::MailsPerPage'};
+			$aSettings['SaveRepliesToCurrFolder'] = $oUser->{$this->GetName().'::SaveRepliesToCurrFolder'};
+			$aSettings['UseThreads'] = $oUser->{$this->GetName().'::UseThreads'};
 		}
+		
+		return $aSettings;
+	}
+	
+	public function UpdateSettings($MailsPerPage, $UseThreads, $SaveRepliesToCurrFolder, $AllowChangeInputDirection)
+	{
+		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
+		$oUser = \CApi::getAuthenticatedUser();
+		if ($oUser)
+		{
+			if ($oUser->Role === \EUserRole::NormalUser)
+			{
+				$oCoreDecorator = \CApi::GetModuleDecorator('Core');
+				$oUser->{$this->GetName().'::MailsPerPage'} = $MailsPerPage;
+				$oUser->{$this->GetName().'::UseThreads'} = $UseThreads;
+				$oUser->{$this->GetName().'::SaveRepliesToCurrFolder'} = $SaveRepliesToCurrFolder;
+				$oUser->{$this->GetName().'::AllowChangeInputDirection'} = $AllowChangeInputDirection;
+				return $oCoreDecorator->UpdateUserObject($oUser);
+			}
+			if ($oUser->Role === \EUserRole::SuperAdmin)
+			{
+				$oSettings =& CApi::GetSettings();
+				$oSettings->SetConf('MailsPerPage', $MailsPerPage);
+				$oSettings->SetConf('UseThreads', $UseThreads);
+				$oSettings->SetConf('SaveRepliesToCurrFolder', $SaveRepliesToCurrFolder);
+				$oSettings->SetConf('AllowChangeInputDirection', $AllowChangeInputDirection);
+				return $oSettings->Save();
+			}
+		}
+		
+		return false;
 	}
 	
 	/**
