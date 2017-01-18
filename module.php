@@ -1530,6 +1530,105 @@ class MailModule extends AApiModule
 		return $mResult;
 	}
 	
+	/**
+	 * @param int $iUserId
+	 * @return string
+	 */
+	private function getUUIDById($iUserId)
+	{
+		$sUUID = '';
+		
+		if (is_numeric($iUserId))
+		{
+			$oManagerApi = \CApi::GetSystemManager('eav', 'db');
+			$oEntity = $oManagerApi->getEntity((int) \CApi::getAuthenticatedUserId());
+			if ($oEntity instanceof \AEntity)
+			{
+				$sUUID = $oEntity->sUUID;
+			}
+		}
+		
+		return $sUUID;
+	}
+	
+	/**
+	 * @param int $UserId
+	 * @param int $AccountID
+	 * @param array $UploadData
+	 * @return array
+	 */
+	public function UploadAttachment($UserId, $AccountID, $UploadData)
+	{
+		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
+		$sUUID = $this->getUUIDById($UserId);
+		
+		$sError = '';
+		$aResponse = array();
+
+		if ($sUUID)
+		{
+			if (is_array($UploadData))
+			{
+				$sSavedName = 'upload-post-'.md5($UploadData['name'].$UploadData['tmp_name']);
+				$rData = false;
+				if (is_resource($UploadData['tmp_name']))
+				{
+					$rData = $UploadData['tmp_name'];
+				}
+				else
+				{
+					$oApiFileCacheManager = \CApi::GetSystemManager('filecache');
+					if ($oApiFileCacheManager->moveUploadedFile($sUUID, $sSavedName, $UploadData['tmp_name']))
+					{
+						$rData = $oApiFileCacheManager->getFile($sUUID, $sSavedName);
+					}
+				}
+				if ($rData)
+				{
+					$sUploadName = $UploadData['name'];
+					$iSize = $UploadData['size'];
+					$sMimeType = \MailSo\Base\Utils::MimeContentType($sUploadName);
+
+					$bIframed = \CApi::isIframedMimeTypeSupported($sMimeType, $sUploadName);
+					$aResponse['Attachment'] = array(
+						'Name' => $sUploadName,
+						'TempName' => $sSavedName,
+						'MimeType' => $sMimeType,
+						'Size' =>  (int) $iSize,
+						'Iframed' => $bIframed,
+						'Hash' => \CApi::EncodeKeyValues(array(
+							'TempFile' => true,
+							'AccountID' => $AccountID,
+							'Iframed' => $bIframed,
+							'Name' => $sUploadName,
+							'TempName' => $sSavedName
+						))
+					);
+				}
+				else
+				{
+					$sError = 'unknown';
+				}
+			}
+			else
+			{
+				$sError = 'unknown';
+			}
+		}
+		else
+		{
+			$sError = 'auth';
+		}
+
+		if (0 < strlen($sError))
+		{
+			$aResponse['Error'] = $sError;
+		}
+
+		return $aResponse;
+	}
+	
 	public function EntryAutodiscover()
 	{
 		$sInput = \file_get_contents('php://input');
