@@ -1,1 +1,26 @@
-[]
+{
+	"AllowAddNewAccounts": false,
+	"AllowAppRegisterMailto": false,
+	"AllowAutosaveInDrafts": false,
+	"AllowChangeEmailSettings": false,
+	"AllowChangeInputDirection": false,
+	"AllowExpandFolders": false,
+	"AllowFetchers": false,
+	"AllowIdentities": false,
+	"AllowInsertImage": false,
+	"AllowSaveMessageAsPdf": false,
+	"AllowThreads": false,
+	"AllowZipAttachments": false,
+	"AutoSave": false,
+	"AutoSaveIntervalSeconds": 60,
+	"AutosignOutgoingEmails": false,
+	"ComposeToolbarOrder": [["back", "send", "save", "importance", "MailSensitivity", "confirmation", "OpenPgp"], "array"],
+	"DefaultFontName": "Tahoma",
+	"DefaultFontSize": 3,
+	"ImageUploadSizeLimit": 0,
+	"JoinReplyPrefixes": false,
+	"MailsPerPage": 20,
+	"MaxMessagesBodiesSizeToPrefetch": 50000,
+	"SaveRepliesToCurrFolder": false,
+	"UseThreads": true
+}
