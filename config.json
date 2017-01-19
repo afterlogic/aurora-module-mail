@@ -1,4 +1,8 @@
 {
+	"Disabled": [
+		false,
+		"bool"
+	],
 	"AllowAddNewAccounts": [
 		false,
 		"bool"
