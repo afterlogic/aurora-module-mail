@@ -1,26 +1,98 @@
 {
-	"AllowAddNewAccounts": false,
-	"AllowAppRegisterMailto": false,
-	"AllowAutosaveInDrafts": false,
-	"AllowChangeEmailSettings": false,
-	"AllowChangeInputDirection": false,
-	"AllowExpandFolders": false,
-	"AllowFetchers": false,
-	"AllowIdentities": false,
-	"AllowInsertImage": false,
-	"AllowSaveMessageAsPdf": false,
-	"AllowThreads": false,
-	"AllowZipAttachments": false,
-	"AutoSave": false,
-	"AutoSaveIntervalSeconds": 60,
-	"AutosignOutgoingEmails": false,
-	"ComposeToolbarOrder": [["back", "send", "save", "importance", "MailSensitivity", "confirmation", "OpenPgp"], "array"],
-	"DefaultFontName": "Tahoma",
-	"DefaultFontSize": 3,
-	"ImageUploadSizeLimit": 0,
-	"JoinReplyPrefixes": false,
-	"MailsPerPage": 20,
-	"MaxMessagesBodiesSizeToPrefetch": 50000,
-	"SaveRepliesToCurrFolder": false,
-	"UseThreads": true
+	"AllowAddNewAccounts": [
+		false,
+		"bool"
+	],
+	"AllowAppRegisterMailto": [
+		false,
+		"bool"
+	],
+	"AllowAutosaveInDrafts": [
+		false,
+		"bool"
+	],
+	"AllowChangeEmailSettings": [
+		false,
+		"bool"
+	],
+	"AllowChangeInputDirection": [
+		false,
+		"bool"
+	],
+	"AllowExpandFolders": [
+		false,
+		"bool"
+	],
+	"AllowFetchers": [
+		false,
+		"bool"
+	],
+	"AllowIdentities": [
+		false,
+		"bool"
+	],
+	"AllowInsertImage": [
+		false,
+		"bool"
+	],
+	"AllowSaveMessageAsPdf": [
+		false,
+		"bool"
+	],
+	"AllowThreads": [
+		false,
+		"bool"
+	],
+	"AllowZipAttachments": [
+		false,
+		"bool"
+	],
+	"AutoSave": [
+		false,
+		"bool"
+	],
+	"AutoSaveIntervalSeconds": [
+		60,
+		"int"
+	],
+	"AutosignOutgoingEmails": [
+		false,
+		"bool"
+	],
+	"ComposeToolbarOrder": [
+		["back", "send", "save", "importance", "MailSensitivity", "confirmation", "OpenPgp"],
+		"array"
+	],
+	"DefaultFontName": [
+		"Tahoma",
+		"string"
+	],
+	"DefaultFontSize": [
+		3,
+		"int"
+	],
+	"ImageUploadSizeLimit": [
+		0,
+		"int"
+	],
+	"JoinReplyPrefixes": [
+		false,
+		"bool"
+	],
+	"MailsPerPage": [
+		20,
+		"int"
+	],
+	"MaxMessagesBodiesSizeToPrefetch": [
+		50000,
+		"int"
+	],
+	"SaveRepliesToCurrFolder": [
+		false,
+		"bool"
+	],
+	"UseThreads": [
+		true,
+		"bool"
+	]
 }

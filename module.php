@@ -5,33 +5,6 @@ class MailModule extends AApiModule
 	public $oApiMailManager = null;
 	public $oApiAccountsManager = null;
 	
-	protected $aSettingsMap = array(
-		'AllowAddNewAccounts' => array(false, 'bool'),
-		'AllowAppRegisterMailto' => array(false, 'bool'),
-		'AllowAutosaveInDrafts' => array(false, 'bool'),
-		'AllowChangeEmailSettings' => array(false, 'bool'),
-		'AllowChangeInputDirection' => array(false, 'bool'),
-		'AllowExpandFolders' => array(false, 'bool'),
-		'AllowFetchers' => array(false, 'bool'),
-		'AllowIdentities' => array(false, 'bool'),
-		'AllowInsertImage' => array(false, 'bool'),
-		'AllowSaveMessageAsPdf' => array(false, 'bool'),
-		'AllowThreads' => array(false, 'bool'),
-		'AllowZipAttachments' => array(false, 'bool'),
-		'AutoSave' => array(false, 'bool'),
-		'AutoSaveIntervalSeconds' => array(60, 'int'),
-		'AutosignOutgoingEmails' => array(false, 'bool'),
-		'ComposeToolbarOrder' => array(array('back', 'send', 'save', 'importance', 'MailSensitivity', 'confirmation', 'OpenPgp'), 'array'),
-		'DefaultFontName' => array('Tahoma', 'string'),
-		'DefaultFontSize' => array(3, 'int'),
-		'ImageUploadSizeLimit' => array(0, 'int'),
-		'JoinReplyPrefixes' => array(false, 'bool'),
-		'MailsPerPage' => array(20, 'int'),
-		'MaxMessagesBodiesSizeToPrefetch' => array(50000, 'int'),
-		'SaveRepliesToCurrFolder' => array(false, 'bool'),
-		'UseThreads' => array(true, 'bool'),
-	);
-	
 	public function init() 
 	{
 		$this->incClass('account');
