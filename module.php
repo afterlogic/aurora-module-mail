@@ -25,7 +25,7 @@ class MailModule extends AApiModule
 		$this->oApiAccountsManager = $this->GetManager('accounts');
 		$this->oApiMailManager = $this->GetManager('main');
 		
-		$this->setObjectMap('CUser', array(
+		$this->extendObject('CUser', array(
 				'AllowAutosaveInDrafts'		=> array('bool', true),
 				'AllowChangeInputDirection'	=> array('bool', false),
 				'MailsPerPage'				=> array('int', 20),
