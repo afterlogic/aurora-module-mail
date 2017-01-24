@@ -142,9 +142,16 @@ class MailModule extends AApiModule
 	 * 
 	 * @return boolean
 	 */
-	public function CreateAccount($iUserId = 0, $sEmail = '', $sPassword = '', $sServer = '')
+	public function CreateAccount($iUserId = 0, $FriendlyName = '', $Email = '', $IncomingMailLogin = '', $IncomingMailPassword = '', 
+			$IncomingMailServer = '', $IncomingMailPort = 143, $IncomingMailSsl = false, $OutgoingMailLogin = '', $OutgoingMailServer = '',
+			$OutgoingMailPort = 25, $OutgoingMailSsl = false, $OutgoingMailAuth = false)
 	{
 		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
+		if ($iUserId === 0)
+		{
+			$iUserId = \CApi::getAuthenticatedUserId();
+		}
 		/* TODO: doesn't work with event broadcasting */
 //		$oEventResult = null;
 //		$aArgs = array(
@@ -165,10 +172,18 @@ class MailModule extends AApiModule
 			
 //			$oAccount->IdUser = $oEventResult->iId;
 			$oAccount->IdUser = $iUserId;
-			$oAccount->Email = $sEmail;
-			$oAccount->IncomingMailLogin = $sEmail;
-			$oAccount->IncomingMailPassword = $sPassword;
-			$oAccount->IncomingMailServer = $sServer;
+			$oAccount->FriendlyName = $FriendlyName;
+			$oAccount->Email = $Email;
+			$oAccount->IncomingMailLogin = $IncomingMailLogin;
+			$oAccount->IncomingMailPassword = $IncomingMailPassword;
+			$oAccount->IncomingMailServer = $IncomingMailServer;
+			$oAccount->IncomingMailPort = $IncomingMailPort;
+			$oAccount->IncomingMailUseSSL = $IncomingMailSsl;
+			$oAccount->OutgoingMailLogin = $OutgoingMailLogin;
+			$oAccount->OutgoingMailServer = $OutgoingMailServer;
+			$oAccount->OutgoingMailPort = $OutgoingMailPort;
+			$oAccount->OutgoingMailUseSSL = $OutgoingMailSsl;
+			$oAccount->OutgoingMailAuth = $OutgoingMailAuth;
 			if (!$this->oApiAccountsManager->isDefaultUserAccountExists($iUserId))
 			{
 				$oAccount->IsDefaultAccount = true;
@@ -176,7 +191,7 @@ class MailModule extends AApiModule
 
 			$this->oApiAccountsManager->createAccount($oAccount);
 			return $oAccount ? array(
-				'iObjectId' => $oAccount->iId
+				'IdAccount' => $oAccount->iId
 			) : false;
 //		}
 //		else
