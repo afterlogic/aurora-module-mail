@@ -214,51 +214,51 @@ class MailModule extends AApiModule
 			
 			if ($oAccount)
 			{
-				if ($Email !== null)
+				if (!empty($Email))
 				{
 					$oAccount->Email = $Email;
 				}
-				if ($IncomingMailPassword !== null)
+				if (!empty($IncomingMailPassword))
 				{
 					$oAccount->IncomingMailPassword = $IncomingMailPassword;
 				}
-				if ($IncomingMailServer !== null)
+				if (!empty($IncomingMailServer))
 				{
 					$oAccount->IncomingMailServer = $IncomingMailServer;
 				}
-				if ($FriendlyName !== null)
+				if (!empty($FriendlyName))
 				{
 					$oAccount->FriendlyName = $FriendlyName;
 				}
-				if ($IncomingMailLogin !== null)
+				if (!empty($IncomingMailLogin))
 				{
 					$oAccount->IncomingMailLogin = $IncomingMailLogin;
 				}
-				if ($IncomingMailPort !== null)
+				if (!empty($IncomingMailPort))
 				{
 					$oAccount->IncomingMailPort = $IncomingMailPort;
 				}
-				if ($IncomingMailSsl !== null)
+				if (!empty($IncomingMailSsl))
 				{
 					$oAccount->IncomingMailUseSSL = $IncomingMailSsl;
 				}
-				if ($OutgoingMailLogin !== null)
+				if (!empty($OutgoingMailLogin))
 				{
 					$oAccount->OutgoingMailLogin = $OutgoingMailLogin;
 				}
-				if ($OutgoingMailServer !== null)
+				if (!empty($OutgoingMailServer))
 				{
 					$oAccount->OutgoingMailServer = $OutgoingMailServer;
 				}
-				if ($OutgoingMailPort !== null)
+				if (!empty($OutgoingMailPort))
 				{
 					$oAccount->OutgoingMailPort = $OutgoingMailPort;
 				}
-				if ($OutgoingMailSsl !== null)
+				if (!empty($OutgoingMailSsl))
 				{
 					$oAccount->OutgoingMailUseSSL = $OutgoingMailSsl;
 				}
-				if ($OutgoingMailAuth !== null)
+				if (!empty($OutgoingMailAuth))
 				{
 					$oAccount->OutgoingMailAuth = $OutgoingMailAuth;
 				}
