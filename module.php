@@ -379,10 +379,10 @@ class MailModule extends AApiModule
 			$mResult['Extensions'] = array();
 
 			// extensions
-//			if ($oAccount->isExtensionEnabled(\CAccount::IgnoreSubscribeStatus) &&
-//				!$oAccount->isExtensionEnabled(\CAccount::DisableManageSubscribe))
+//			if ($oAccount->isExtensionEnabled(\CMailAccount::IgnoreSubscribeStatus) &&
+//				!$oAccount->isExtensionEnabled(\CMailAccount::DisableManageSubscribe))
 //			{
-//				$oAccount->enableExtension(\CAccount::DisableManageSubscribe);
+//				$oAccount->enableExtension(\CMailAccount::DisableManageSubscribe);
 //			}
 //
 //			$aExtensions = $oAccount->getExtensionList();
@@ -909,7 +909,7 @@ class MailModule extends AApiModule
 
 		$this->oApiMailManager->createFolder($oAccount, $FolderNameInUtf8, $Delimiter, $FolderParentFullNameRaw);
 
-		if (!$oAccount->isExtensionEnabled(\CAccount::DisableFoldersManualSort))
+		if (!$oAccount->isExtensionEnabled(\CMailAccount::DisableFoldersManualSort))
 		{
 			$aFoldersOrderList = $this->oApiMailManager->getFoldersOrder($oAccount);
 			if (is_array($aFoldersOrderList) && 0 < count($aFoldersOrderList))
@@ -1027,7 +1027,7 @@ class MailModule extends AApiModule
 
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 
-		if (!$oAccount->isExtensionEnabled(\CAccount::DisableManageSubscribe))
+		if (!$oAccount->isExtensionEnabled(\CMailAccount::DisableManageSubscribe))
 		{
 			$this->oApiMailManager->subscribeFolder($oAccount, $Folder, $bSetAction);
 			return true;
@@ -1052,7 +1052,7 @@ class MailModule extends AApiModule
 		}
 
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
-		if ($oAccount->isExtensionEnabled(\CAccount::DisableFoldersManualSort))
+		if ($oAccount->isExtensionEnabled(\CMailAccount::DisableFoldersManualSort))
 		{
 			return false;
 		}
