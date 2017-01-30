@@ -35,7 +35,8 @@ class MailModule extends AApiModule
 		);
 
 		$this->AddEntries(array(
-				'autodiscover' => 'EntryAutodiscover'
+				'autodiscover' => 'EntryAutodiscover',
+				'message-newtab' => 'EntryMessageNewtab'
 			)
 		);
 		
@@ -1705,5 +1706,35 @@ class MailModule extends AApiModule
 
 		\CApi::Log('');
 		\CApi::Log($sResult);		
-	}	
+	}
+	
+	public function EntryMessageNewtab()
+	{
+		\CApi::checkUserRoleIsAtLeast(\EUserRole::Anonymous);
+
+		$oApiIntegrator = \CApi::GetSystemManager('integrator');
+
+		if ($oApiIntegrator)
+		{
+			$aConfig = array(
+				'new_tab' => true,
+				'modules_list' => array('MailWebclient', 'ContactsWebclient', 'CalendarWebclient', 'MailSensitivityWebclientPlugin', 'OpenPgpWebclient')
+			);
+
+			$oCoreWebclientModule = \CApi::GetModule('CoreWebclient');
+			if ($oCoreWebclientModule instanceof \AApiModule) 
+			{
+				$sResult = file_get_contents($oCoreWebclientModule->GetPath().'/templates/Index.html');
+				if (is_string($sResult)) 
+				{
+					return strtr($sResult, array(
+						'{{AppVersion}}' => AURORA_APP_VERSION,
+						'{{IntegratorDir}}' => $oApiIntegrator->isRtl() ? 'rtl' : 'ltr',
+						'{{IntegratorLinks}}' => $oApiIntegrator->buildHeadersLink(),
+						'{{IntegratorBody}}' => $oApiIntegrator->buildBody($aConfig)
+					));
+				}
+			}
+		}
+	}
 }
