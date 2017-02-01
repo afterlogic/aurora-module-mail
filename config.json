@@ -4,7 +4,7 @@
 		"bool"
 	],
 	"AllowAddNewAccounts": [
-		false,
+		true,
 		"bool"
 	],
 	"AllowAppRegisterMailto": [
