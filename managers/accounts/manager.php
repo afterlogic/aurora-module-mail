@@ -245,7 +245,7 @@ class CApiMailAccountsManager extends AApiManager
 		{
 			$aResults = $this->oEavManager->getEntities(
 				'CMailAccount',
-				array('Email', 'FriendlyName', 'IsDefaultAccount'),
+				array(),
 				0,
 				0,
 				array('IdUser' => $iUserId, 'IsDisabled' => false)
@@ -258,10 +258,11 @@ class CApiMailAccountsManager extends AApiManager
 				{
 					$mResult[$oItem->iId] = array(
 						'AccountID' => $oItem->iId,
-						'IsDefault' => $oItem->IsDefaultAccount,
+						'IsDefault' => (bool) $oItem->IsDefaultAccount,
 						'Email' => $oItem->Email,
 						'FriendlyName' => $oItem->FriendlyName,
-						'Signature' => array('Signature' => '', 'Type' => 1, 'Options' =>0),
+						'Signature' => $oItem->Signature,
+						'UseSignature' => (bool) $oItem->UseSignature,
 						'IsPasswordSpecified' => true,
 						'AllowMail' => true
 					);
@@ -360,17 +361,10 @@ class CApiMailAccountsManager extends AApiManager
 		{
 			if ($oAccount->validate())
 			{
-//				if ($this->isExists($oAccount))
-//				{
-					if (!$this->oEavManager->saveEntity($oAccount))
-					{
-						throw new CApiManagerException(Errs::UsersManager_UserCreateFailed);
-					}
-//				}
-//				else
-//				{
-//					throw new CApiManagerException(Errs::UsersManager_UserAlreadyExists);
-//				}
+				if (!$this->oEavManager->saveEntity($oAccount))
+				{
+					throw new CApiManagerException(Errs::UsersManager_UserCreateFailed);
+				}
 			}
 
 			$bResult = true;

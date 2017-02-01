@@ -71,7 +71,9 @@ class CMailAccount extends AEntity
 			'OutgoingMailPassword'	=> array('string', ''),//'password', 'mail_out_pass'),
 			'OutgoingMailAuth'		=> array('int',  ESMTPAuthType::NoAuth),//'mail_out_auth'),
 			'OutgoingMailUseSSL'	=> array('bool', false),//'mail_out_ssl'),
-			'OutgoingSendingMethod'	=> array('int', ESendingMethod::Specified)
+			'OutgoingSendingMethod'	=> array('int', ESendingMethod::Specified),
+			'UseSignature'			=> array('bool', false),
+			'Signature'				=> array('string', ''),
 		));
 	}
 

@@ -1519,6 +1519,36 @@ class MailModule extends AApiModule
 		return $mResult;
 	}
 	
+	public function UpdateSignature($AccountID, $UseSignature = null, $Signature = null)
+	{
+		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
+		if ($AccountID > 0)
+		{
+			$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
+			
+			if ($oAccount)
+			{
+				if ($UseSignature !== null)
+				{
+					$oAccount->UseSignature = $UseSignature;
+				}
+				if ($Signature !== null)
+				{
+					$oAccount->Signature = $Signature;
+				}
+				
+				return $this->oApiAccountsManager->updateAccount($oAccount);
+			}
+		}
+		else
+		{
+			throw new \System\Exceptions\AuroraApiException(\System\Notifications::UserNotAllowed);
+		}
+
+		return false;
+	}
+	
 	/**
 	 * @param int $iUserId
 	 * @return string
