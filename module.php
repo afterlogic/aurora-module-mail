@@ -316,13 +316,17 @@ class MailModule extends AApiModule
 
 		if ($oAccount)
 		{
-			$this->oApiMailManager->validateAccountConnection($oAccount);
-			$mResult = array(
-				'token' => 'auth',
-				'sign-me' => $aArgs['SignMe'],
-				'id' => $oAccount->IdUser,
-				'account' => $oAccount->iId
-			);
+			try
+			{
+				$this->oApiMailManager->validateAccountConnection($oAccount);
+				$mResult = array(
+					'token' => 'auth',
+					'sign-me' => $aArgs['SignMe'],
+					'id' => $oAccount->IdUser,
+					'account' => $oAccount->iId
+				);
+			}
+			catch (\Exception $oEx) {}
 		}
 	}
 	
