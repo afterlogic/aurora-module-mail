@@ -1015,7 +1015,7 @@ class MailModule extends AApiModule
 	/**
 	 * @param int $AccountID
 	 * @param string $Folder
-	 * @param type $SetAction
+	 * @param bool $SetAction
 	 * @return int
 	 * @throws \System\Exceptions\AuroraApiException
 	 */
@@ -1023,8 +1023,6 @@ class MailModule extends AApiModule
 	{
 		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
-		$bSetAction = 1 === $SetAction;
-
 		if (0 === strlen(trim($Folder)))
 		{
 			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
@@ -1034,7 +1032,7 @@ class MailModule extends AApiModule
 
 		if (!$oAccount->isExtensionEnabled(\CMailAccount::DisableManageSubscribe))
 		{
-			$this->oApiMailManager->subscribeFolder($oAccount, $Folder, $bSetAction);
+			$this->oApiMailManager->subscribeFolder($oAccount, $Folder, $SetAction);
 			return true;
 		}
 
