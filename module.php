@@ -4,6 +4,7 @@ class MailModule extends AApiModule
 {
 	public $oApiMailManager = null;
 	public $oApiAccountsManager = null;
+	public $oApiServersManager = null;
 	
 	public function init() 
 	{
@@ -23,6 +24,7 @@ class MailModule extends AApiModule
 		$this->incClass('databyref');
 		
 		$this->oApiAccountsManager = $this->GetManager('accounts');
+		$this->oApiServersManager = $this->GetManager('servers');
 		$this->oApiMailManager = $this->GetManager('main');
 		
 		$this->extendObject('CUser', array(
@@ -330,8 +332,67 @@ class MailModule extends AApiModule
 		}
 	}
 	
+	/**** Ajax methods ****/
+	public function GetServers($TenantId = 0)
+	{
+		if ($TenantId === 0)
+		{
+			\CApi::checkUserRoleIsAtLeast(\EUserRole::SuperAdmin);
+		}
+		else
+		{
+			\CApi::checkUserRoleIsAtLeast(\EUserRole::TenantAdmin);
+		}
+		
+		return $this->oApiServersManager->getServerList($TenantId);
+	}
 	
-/**** Ajax methods ****/
+	public function CreateServer($Name, $IncomingMailServer, $IncomingMailPort, $IncomingMailUseSSL,
+			$OutgoingMailServer, $OutgoingMailPort, $OutgoingMailAuth, $OutgoingMailUseSSL, $TenantId = 0)
+	{
+		if ($TenantId === 0)
+		{
+			\CApi::checkUserRoleIsAtLeast(\EUserRole::SuperAdmin);
+		}
+		else
+		{
+			\CApi::checkUserRoleIsAtLeast(\EUserRole::TenantAdmin);
+		}
+		
+		return $this->oApiServersManager->createServer($Name, $IncomingMailServer, $IncomingMailPort, $IncomingMailUseSSL,
+			$OutgoingMailServer, $OutgoingMailPort, $OutgoingMailAuth, $OutgoingMailUseSSL, $TenantId);
+	}
+	
+	public function UpdateServer($ServerId, $Name, $IncomingMailServer, $IncomingMailPort, $IncomingMailUseSSL,
+			$OutgoingMailServer, $OutgoingMailPort, $OutgoingMailAuth, $OutgoingMailUseSSL, $TenantId = 0)
+	{
+		if ($TenantId === 0)
+		{
+			\CApi::checkUserRoleIsAtLeast(\EUserRole::SuperAdmin);
+		}
+		else
+		{
+			\CApi::checkUserRoleIsAtLeast(\EUserRole::TenantAdmin);
+		}
+		
+		return $this->oApiServersManager->createServer($ServerId, $Name, $IncomingMailServer, $IncomingMailPort, $IncomingMailUseSSL,
+			$OutgoingMailServer, $OutgoingMailPort, $OutgoingMailAuth, $OutgoingMailUseSSL, $TenantId);
+	}
+	
+	public function DeleteServer($ServerId, $TenantId = 0)
+	{
+		if ($TenantId === 0)
+		{
+			\CApi::checkUserRoleIsAtLeast(\EUserRole::SuperAdmin);
+		}
+		else
+		{
+			\CApi::checkUserRoleIsAtLeast(\EUserRole::TenantAdmin);
+		}
+		
+		return $this->oApiServersManager->deleteServer($ServerId, $TenantId);
+	}
+	
 	public function GetAccountSettings($AccountID)
 	{
 		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
@@ -342,11 +403,9 @@ class MailModule extends AApiModule
 			'IsDefault' => $oAccount->IsDefaultAccount,
 			'Email' => $oAccount->Email,
 			'FriendlyName' => $oAccount->FriendlyName,
-			'IncomingMailProtocol' => $oAccount->IncomingMailProtocol,
 			'IncomingMailServer' => $oAccount->IncomingMailServer,
 			'IncomingMailPort' => $oAccount->IncomingMailPort,
 			'IncomingMailLogin' => $oAccount->IncomingMailLogin,
-//			'IncomingMailPassword' => $oAccount->IncomingMailPassword,
 			'IncomingMailUseSSL' => $oAccount->IncomingMailUseSSL,
 			'OutgoingMailServer' => $oAccount->OutgoingMailServer,
 			'OutgoingMailPort' => $oAccount->OutgoingMailPort,

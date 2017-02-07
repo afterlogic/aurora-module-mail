@@ -55,3 +55,53 @@ class EMailMessageFlag extends AEnumeration
 	const Answered = '\Answered';
 	const Draft = '\Draft';
 }
+
+/**
+ * @package Api
+ * @subpackage Enum
+ */
+class ESMTPAuthType extends AEnumeration
+{
+	const NoAuth = 0;
+	const AuthSpecified = 1;
+	const AuthCurrentUser = 2;
+
+	/**
+	 * @var array
+	 */
+	protected $aConsts = array(
+		'NoAuth' => self::NoAuth,
+		'AuthSpecified' => self::AuthSpecified,
+		'AuthCurrentUser' => self::AuthCurrentUser
+	);
+}
+
+/**
+ * @package Api
+ * @subpackage Enum
+ */
+class EFolderType extends AEnumeration
+{
+	const Inbox = 1;
+	const Sent = 2;
+	const Drafts = 3;
+	const Spam = 4;
+	const Trash = 5;
+	const Virus = 6;
+	const System = 9;
+	const Custom = 10;
+
+	/**
+	 * @var array
+	 */
+	protected $aConsts = array(
+		'Inbox' => self::Inbox,
+		'Sent' => self::Sent,
+		'Drafts' => self::Drafts,
+		'Spam' => self::Spam,
+		'Trash' => self::Trash,
+		'Quarantine' => self::Virus,
+		'System' => self::System,
+		'Custom' => self::Custom
+	);
+}

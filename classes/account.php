@@ -58,7 +58,6 @@ class CMailAccount extends AEntity
 			'Email'					=> array('string', ''),//'email', true, false),
 			'FriendlyName'			=> array('string', ''),//'friendly_nm'),
 			'DetectSpecialFoldersWithXList' => array('bool', false),
-			'IncomingMailProtocol'	=> array('int',  EMailProtocol::IMAP4),//'mail_protocol'),
 			'IncomingMailServer'	=> array('string', ''),//'mail_inc_host'),
 			'IncomingMailPort'		=> array('int',  143),//'mail_inc_port'),
 			'IncomingMailLogin'		=> array('string', ''),//'mail_inc_login'),
@@ -71,29 +70,11 @@ class CMailAccount extends AEntity
 			'OutgoingMailPassword'	=> array('string', ''),//'password', 'mail_out_pass'),
 			'OutgoingMailAuth'		=> array('int',  ESMTPAuthType::NoAuth),//'mail_out_auth'),
 			'OutgoingMailUseSSL'	=> array('bool', false),//'mail_out_ssl'),
-			'OutgoingSendingMethod'	=> array('int', ESendingMethod::Specified),
 			'UseSignature'			=> array('bool', false),
 			'Signature'				=> array('string', ''),
 		));
 	}
 
-	/**
-	 * Checks if the user has only valid data.
-	 * 
-	 * @return bool
-	 */
-	public function isValid()
-	{
-		switch (true)
-		{
-			case false:
-				throw new CApiValidationException(Errs::Validation_FieldIsEmpty, null, array(
-					'{{ClassName}}' => 'CUser', '{{ClassField}}' => 'Error'));
-		}
-
-		return true;
-	}
-	
 	public static function createInstance($sModule = 'Mail', $oParams = array())
 	{
 		return new CMailAccount($sModule, $oParams);
