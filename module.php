@@ -19,6 +19,7 @@ class MailModule extends AApiModule
 		$this->incClass('attachment-collection');
 		$this->incClass('ics');
 		$this->incClass('vcard');
+		$this->incClass('server');
 		$this->incClass('sieve-enum');
 		$this->incClass('filter');
 		$this->incClass('databyref');
@@ -375,7 +376,7 @@ class MailModule extends AApiModule
 			\CApi::checkUserRoleIsAtLeast(\EUserRole::TenantAdmin);
 		}
 		
-		return $this->oApiServersManager->createServer($ServerId, $Name, $IncomingMailServer, $IncomingMailPort, $IncomingMailUseSSL,
+		return $this->oApiServersManager->updateServer($ServerId, $Name, $IncomingMailServer, $IncomingMailPort, $IncomingMailUseSSL,
 			$OutgoingMailServer, $OutgoingMailPort, $OutgoingMailAuth, $OutgoingMailUseSSL, $TenantId);
 	}
 	

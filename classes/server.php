@@ -48,4 +48,9 @@ class CMailServer extends AEntity
 			'OutgoingMailAuth'		=> array('int',  ESMTPAuthType::NoAuth),
 		));
 	}
+	
+	public static function createInstance()
+	{
+		return new CMailServer();
+	}
 }
