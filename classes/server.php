@@ -37,15 +37,15 @@ class CMailServer extends AEntity
 		$this->__USE_TRIM_IN_STRINGS__ = true;
 		
 		$this->setStaticMap(array(
-			'TenantId'				=> array('int',  0),
-			'Name'					=> array('string', ''),
-			'IncomingMailServer'	=> array('string', ''),
-			'IncomingMailPort'		=> array('int',  143),
-			'IncomingMailUseSSL'	=> array('bool', false),
-			'OutgoingMailServer'	=> array('string', ''),
-			'OutgoingMailPort'		=> array('int',  25),
-			'OutgoingMailUseSSL'	=> array('bool', false),
-			'OutgoingMailAuth'		=> array('int',  ESMTPAuthType::NoAuth),
+			'TenantId'			=> array('int',  0),
+			'Name'				=> array('string', ''),
+			'IncomingServer'	=> array('string', ''),
+			'IncomingPort'		=> array('int',  143),
+			'IncomingUseSsl'	=> array('bool', false),
+			'OutgoingServer'	=> array('string', ''),
+			'OutgoingPort'		=> array('int',  25),
+			'OutgoingUseSsl'	=> array('bool', false),
+			'OutgoingUseAuth'	=> array('bool', false),
 		));
 	}
 	

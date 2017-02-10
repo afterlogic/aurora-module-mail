@@ -60,26 +60,6 @@ class EMailMessageFlag extends AEnumeration
  * @package Api
  * @subpackage Enum
  */
-class ESMTPAuthType extends AEnumeration
-{
-	const NoAuth = 0;
-	const AuthSpecified = 1;
-	const AuthCurrentUser = 2;
-
-	/**
-	 * @var array
-	 */
-	protected $aConsts = array(
-		'NoAuth' => self::NoAuth,
-		'AuthSpecified' => self::AuthSpecified,
-		'AuthCurrentUser' => self::AuthCurrentUser
-	);
-}
-
-/**
- * @package Api
- * @subpackage Enum
- */
 class EFolderType extends AEnumeration
 {
 	const Inbox = 1;

@@ -33,15 +33,15 @@
  * @property string $Signature
  * @property int $SignatureOptions
  * @property bool $LeaveMessagesOnServer
- * @property string $IncomingMailServer
- * @property int $IncomingMailPort
- * @property string $IncomingMailLogin
- * @property string $IncomingMailPassword
+ * @property string $IncomingServer
+ * @property int $IncomingPort
+ * @property string $IncomingLogin
+ * @property string $IncomingPassword
  * @property int $IncomingMailSecurity
  * @property bool $IsOutgoingEnabled
- * @property string $OutgoingMailServer
- * @property int $OutgoingMailPort
- * @property bool $OutgoingMailAuth
+ * @property string $OutgoingServer
+ * @property int $OutgoingPort
+ * @property bool $OutgoingUseAuth
  * @property int $OutgoingMailSecurity
  * @property string $Folder
  *
@@ -57,37 +57,37 @@ class CFetcher extends api_AContainer
 	{
 		parent::__construct(get_class($this));
 
-		$this->SetTrimer(array('Name', 'Signature', 'IncomingMailServer', 'IncomingMailLogin', 'IncomingMailPassword',
-			'OutgoingMailServer'));
+		$this->SetTrimer(array('Name', 'Signature', 'IncomingServer', 'IncomingLogin', 'IncomingPassword',
+			'OutgoingServer'));
 
-		$this->SetLower(array('IncomingMailServer', 'OutgoingMailServer'));
+		$this->SetLower(array('IncomingServer', 'OutgoingServer'));
 
 		$this->SetDefaults(array(
-			'IdFetcher'		=> 0,
-			'IdAccount'		=> $oAccount->IdAccount,
-			'IdUser'		=> $oAccount->IdUser,
-			'IdDomain'		=> $oAccount->IdDomain,
-			'IdTenant'		=> $oAccount->IdTenant,
-			'IsEnabled'		=> true,
-			'IsLocked'		=> false,
-			'CheckInterval'	=> 0,
-			'CheckLastTime'	=> 0,
-			'Name'			=> '',
-			'Email'			=> '',
-			'Signature'		=> '',
+			'IdFetcher'				=> 0,
+			'IdAccount'				=> $oAccount->IdAccount,
+			'IdUser'				=> $oAccount->IdUser,
+			'IdDomain'				=> $oAccount->IdDomain,
+			'IdTenant'				=> $oAccount->IdTenant,
+			'IsEnabled'				=> true,
+			'IsLocked'				=> false,
+			'CheckInterval'			=> 0,
+			'CheckLastTime'			=> 0,
+			'Name'					=> '',
+			'Email'					=> '',
+			'Signature'				=> '',
 			'SignatureOptions'		=> EAccountSignatureOptions::DontAdd,
 			'LeaveMessagesOnServer'	=> true,
-			'IncomingMailServer'	=> '',
-			'IncomingMailPort'		=> 110,
-			'IncomingMailLogin'		=> '',
-			'IncomingMailPassword'	=> '',
+			'IncomingServer'		=> '',
+			'IncomingPort'			=> 110,
+			'IncomingLogin'			=> '',
+			'IncomingPassword'		=> '',
 			'IncomingMailSecurity'	=> \MailSo\Net\Enumerations\ConnectionSecurityType::NONE,
 			'IsOutgoingEnabled'		=> false,
-			'OutgoingMailServer'	=> '',
-			'OutgoingMailPort'		=> 25,
-			'OutgoingMailAuth'		=> true,
+			'OutgoingServer'		=> '',
+			'OutgoingPort'			=> 25,
+			'OutgoingUseAuth'		=> true,
 			'OutgoingMailSecurity'	=>  \MailSo\Net\Enumerations\ConnectionSecurityType::NONE,
-			'Folder'			=> 'INBOX'
+			'Folder'				=> 'INBOX'
 		));
 	}
 	
@@ -105,35 +105,35 @@ class CFetcher extends api_AContainer
 	public static function getStaticMap()
 	{
 		return array(
-			'IdFetcher'		=> array('int', 'id_fetcher', false, false),
-			'IdAccount'		=> array('int', 'id_acct', true, false),
-			'IdUser'		=> array('int', 'id_user', true, false),
-			'IdDomain'		=> array('int', 'id_domain', true, false),
-			'IdTenant'		=> array('int', 'id_tenant', true, false),
+			'IdFetcher'				=> array('int', 'id_fetcher', false, false),
+			'IdAccount'				=> array('int', 'id_acct', true, false),
+			'IdUser'				=> array('int', 'id_user', true, false),
+			'IdDomain'				=> array('int', 'id_domain', true, false),
+			'IdTenant'				=> array('int', 'id_tenant', true, false),
 
-			'IsEnabled'		=> array('bool', 'enabled'),
-			'IsLocked'		=> array('bool', 'locked', false, false),
-			'CheckInterval'	=> array('int', 'mail_check_interval'),
-			'CheckLastTime'	=> array('int', 'mail_check_lasttime', false, false),
+			'IsEnabled'				=> array('bool', 'enabled'),
+			'IsLocked'				=> array('bool', 'locked', false, false),
+			'CheckInterval'			=> array('int', 'mail_check_interval'),
+			'CheckLastTime'			=> array('int', 'mail_check_lasttime', false, false),
 			
 			'LeaveMessagesOnServer' => array('bool', 'leave_messages'),
 			
-			'Name'			=> array('string', 'frienly_name'),
-			'Email'			=> array('string', 'email'),
-			'Signature'		=> array('string', 'signature'),
+			'Name'					=> array('string', 'frienly_name'),
+			'Email'					=> array('string', 'email'),
+			'Signature'				=> array('string', 'signature'),
 			'SignatureOptions'		=> array('int', 'signature_opt'),
 
-			'IncomingMailServer'	=> array('string', 'inc_host'),
-			'IncomingMailPort'		=> array('int', 'inc_port'),
-			'IncomingMailLogin'		=> array('string', 'inc_login'),
-			'IncomingMailPassword'	=> array('string', 'inc_password'),
+			'IncomingServer'		=> array('string', 'inc_host'),
+			'IncomingPort'			=> array('int', 'inc_port'),
+			'IncomingLogin'			=> array('string', 'inc_login'),
+			'IncomingPassword'		=> array('string', 'inc_password'),
 			'IncomingMailSecurity'	=> array('int', 'inc_security'),
 
 			'IsOutgoingEnabled'		=> array('bool', 'out_enabled'),
 
-			'OutgoingMailServer'	=> array('string', 'out_host'),
-			'OutgoingMailPort'		=> array('int', 'out_port'),
-			'OutgoingMailAuth'		=> array('bool', 'out_auth'),
+			'OutgoingServer'		=> array('string', 'out_host'),
+			'OutgoingPort'			=> array('int', 'out_port'),
+			'OutgoingUseAuth'		=> array('bool', 'out_auth'),
 			'OutgoingMailSecurity'	=> array('int', 'out_security'),
 
 			'Folder'				=> array('string', 'dest_folder')
@@ -153,15 +153,15 @@ class CFetcher extends api_AContainer
 			'Signature' => $this->Signature,
 			'SignatureOptions' => $this->SignatureOptions,
 			'LeaveMessagesOnServer' => $this->LeaveMessagesOnServer,
-			'IncomingMailServer' => $this->IncomingMailServer,
-			'IncomingMailPort' => $this->IncomingMailPort,
-			'IncomingMailLogin' => $this->IncomingMailLogin,
+			'IncomingServer' => $this->IncomingServer,
+			'IncomingPort' => $this->IncomingPort,
+			'IncomingLogin' => $this->IncomingLogin,
 			'IsOutgoingEnabled' => $this->IsOutgoingEnabled,
-			'OutgoingMailServer' => $this->OutgoingMailServer,
-			'OutgoingMailPort' => $this->OutgoingMailPort,
-			'OutgoingMailAuth' => $this->OutgoingMailAuth,
-			'IncomingMailSsl' => $this->IncomingMailSecurity === \MailSo\Net\Enumerations\ConnectionSecurityType::SSL,
-			'OutgoingMailSsl' => $this->OutgoingMailSecurity === \MailSo\Net\Enumerations\ConnectionSecurityType::SSL
+			'OutgoingServer' => $this->OutgoingServer,
+			'OutgoingPort' => $this->OutgoingPort,
+			'OutgoingUseAuth' => $this->OutgoingUseAuth,
+			'IncomingUseSsl' => $this->IncomingMailSecurity === \MailSo\Net\Enumerations\ConnectionSecurityType::SSL,
+			'OutgoingUseSsl' => $this->OutgoingMailSecurity === \MailSo\Net\Enumerations\ConnectionSecurityType::SSL
 		);		
 	}
 }

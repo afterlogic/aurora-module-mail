@@ -49,12 +49,12 @@ class CApiMailFetchersManager extends AApiManagerWithStorage
 			
 			if (!$oPop3Client->IsConnected())
 			{
-				$oPop3Client->Connect($oFetcher->IncomingMailServer, $oFetcher->IncomingMailPort, $oFetcher->IncomingMailSecurity);
+				$oPop3Client->Connect($oFetcher->IncomingServer, $oFetcher->IncomingPort, $oFetcher->IncomingMailSecurity);
 			}
 
 			if (!$oPop3Client->IsLoggined())
 			{
-				$oPop3Client->Login($oFetcher->IncomingMailLogin, $oFetcher->IncomingMailPassword);
+				$oPop3Client->Login($oFetcher->IncomingLogin, $oFetcher->IncomingPassword);
 			}
 		}
 

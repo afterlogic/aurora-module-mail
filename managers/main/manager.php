@@ -83,8 +83,8 @@ class CApiMailMainManager extends AApiManagerWithStorage
 			$oResult =& $this->aImapClientCache[$sCacheKey];
 			if (!$oResult->IsConnected())
 			{
-				$oResult->Connect($oAccount->IncomingMailServer, $oAccount->IncomingMailPort,
-					$oAccount->IncomingMailUseSSL
+				$oResult->Connect($oAccount->IncomingServer, $oAccount->IncomingPort,
+					$oAccount->IncomingUseSsl
 						? \MailSo\Net\Enumerations\ConnectionSecurityType::SSL
 						: \MailSo\Net\Enumerations\ConnectionSecurityType::NONE, $bVerifySsl);
 			}
@@ -94,7 +94,7 @@ class CApiMailMainManager extends AApiManagerWithStorage
 //				$sProxyAuthUser = !empty($oAccount->CustomFields['ProxyAuthUser'])
 //					? $oAccount->CustomFields['ProxyAuthUser'] : '';
 
-				$oResult->Login($oAccount->IncomingMailLogin, $oAccount->IncomingMailPassword, '');
+				$oResult->Login($oAccount->IncomingLogin, $oAccount->IncomingPassword, '');
 			}
 		}
 
@@ -1105,49 +1105,49 @@ class CApiMailMainManager extends AApiManagerWithStorage
 					{
 						$iSecure = $oFetcher->OutgoingMailSecurity;
 					}
-					else if ($oAccount->OutgoingMailUseSSL)
+					else if ($oAccount->OutgoingUseSsl)
 					{
 						$iSecure = \MailSo\Net\Enumerations\ConnectionSecurityType::SSL;
 					}
 
-					$sOutgoingMailLogin = '';
+					$sOutgoingLogin = '';
 					if ($oFetcher)
 					{
-						$sOutgoingMailLogin = $oFetcher->IncomingMailLogin;
+						$sOutgoingLogin = $oFetcher->IncomingLogin;
 					}
 
-					if (0 === strlen($sOutgoingMailLogin))
+					if (0 === strlen($sOutgoingLogin))
 					{
-						$sOutgoingMailLogin = $oAccount->OutgoingMailLogin;
-						$sOutgoingMailLogin = 0 < strlen($sOutgoingMailLogin) ? $sOutgoingMailLogin : $oAccount->IncomingMailLogin;
+						$sOutgoingLogin = $oAccount->OutgoingLogin;
+						$sOutgoingLogin = 0 < strlen($sOutgoingLogin) ? $sOutgoingLogin : $oAccount->IncomingLogin;
 					}
 
-					$sOutgoingMailPassword = '';
+					$sOutgoingPassword = '';
 					if ($oFetcher)
 					{
-						$sOutgoingMailPassword = $oFetcher->IncomingMailPassword;
+						$sOutgoingPassword = $oFetcher->IncomingPassword;
 					}
 
-					if (0 === strlen($sOutgoingMailPassword))
+					if (0 === strlen($sOutgoingPassword))
 					{
-						$sOutgoingMailPassword = $oAccount->OutgoingMailPassword;
-						$sOutgoingMailPassword = 0 < strlen($sOutgoingMailPassword) ? $sOutgoingMailPassword : $oAccount->IncomingMailPassword;
+						$sOutgoingPassword = $oAccount->OutgoingPassword;
+						$sOutgoingPassword = 0 < strlen($sOutgoingPassword) ? $sOutgoingPassword : $oAccount->IncomingPassword;
 					}
 
 					$sEhlo = \MailSo\Smtp\SmtpClient::EhloHelper();
 
 					if ($oFetcher)
 					{
-						$oSmtpClient->Connect($oFetcher->OutgoingMailServer, $oFetcher->OutgoingMailPort, $sEhlo, $iSecure, $bVerifySsl);
+						$oSmtpClient->Connect($oFetcher->OutgoingServer, $oFetcher->OutgoingPort, $sEhlo, $iSecure, $bVerifySsl);
 					}
 					else
 					{
-						$oSmtpClient->Connect($oAccount->OutgoingMailServer, $oAccount->OutgoingMailPort, $sEhlo, $iSecure, $bVerifySsl);
+						$oSmtpClient->Connect($oAccount->OutgoingServer, $oAccount->OutgoingPort, $sEhlo, $iSecure, $bVerifySsl);
 					}
 					
-					if (($oFetcher && $oFetcher->OutgoingMailAuth) || (!$oFetcher && $oAccount->OutgoingMailAuth))
+					if (($oFetcher && $oFetcher->OutgoingUseAuth) || (!$oFetcher && $oAccount->OutgoingUseAuth))
 					{
-						$oSmtpClient->Login($sOutgoingMailLogin, $sOutgoingMailPassword);
+						$oSmtpClient->Login($sOutgoingLogin, $sOutgoingPassword);
 					}
 
 					$oSmtpClient->MailFrom($oFetcher ? $oFetcher->Email : $oAccount->Email, (string) $iMessageStreamSize);

@@ -45,47 +45,44 @@ class CApiMailServersManager extends AApiManager
 	/**
 	 * 
 	 * @param string $sName
-	 * @param string $sIncomingMailServer
-	 * @param int $iIncomingMailPort
-	 * @param boolean $bIncomingMailUseSSL
-	 * @param string $sOutgoingMailServer
-	 * @param int $iOutgoingMailPort
-	 * @param boolean $bOutgoingMailAuth
-	 * @param boolean $bOutgoingMailUseSSL
+	 * @param string $sIncomingServer
+	 * @param int $iIncomingPort
+	 * @param boolean $bIncomingUseSsl
+	 * @param string $sOutgoingServer
+	 * @param int $iOutgoingPort
+	 * @param boolean $bOutgoingUseAuth
+	 * @param boolean $bOutgoingUseSsl
 	 * @param int $iTenantId
 	 * @return boolean
 	 * @throws CApiManagerException
 	 */
-	public function createServer ($sName, $sIncomingMailServer, $iIncomingMailPort, $bIncomingMailUseSSL,
-			$sOutgoingMailServer, $iOutgoingMailPort, $bOutgoingMailAuth, $bOutgoingMailUseSSL, $iTenantId = 0)
+	public function createServer ($sName, $sIncomingServer, $iIncomingPort, $bIncomingUseSsl,
+			$sOutgoingServer, $iOutgoingPort, $bOutgoingUseAuth, $bOutgoingUseSsl, $iTenantId = 0)
 	{
-		$bResult = false;
-		
 		try
 		{
 			$oServer = new CMailServer();
 			$oServer->TenantId = $iTenantId;
 			$oServer->Name = $sName;
-			$oServer->IncomingMailServer = $sIncomingMailServer;
-			$oServer->IncomingMailPort = $iIncomingMailPort;
-			$oServer->IncomingMailUseSSL = $bIncomingMailUseSSL;
-			$oServer->OutgoingMailServer = $sOutgoingMailServer;
-			$oServer->OutgoingMailPort = $iOutgoingMailPort;
-			$oServer->OutgoingMailAuth = $bOutgoingMailAuth;
-			$oServer->OutgoingMailUseSSL = $bOutgoingMailUseSSL;
+			$oServer->IncomingServer = $sIncomingServer;
+			$oServer->IncomingPort = $iIncomingPort;
+			$oServer->IncomingUseSsl = $bIncomingUseSsl;
+			$oServer->OutgoingServer = $sOutgoingServer;
+			$oServer->OutgoingPort = $iOutgoingPort;
+			$oServer->OutgoingUseAuth = $bOutgoingUseAuth;
+			$oServer->OutgoingUseSsl = $bOutgoingUseSsl;
 			if (!$this->oEavManager->saveEntity($oServer))
 			{
 				throw new CApiManagerException(Errs::UsersManager_UserCreateFailed);
 			}
-			$bResult = true;
+			return $oServer->iId;
 		}
 		catch (CApiBaseException $oException)
 		{
-			$bResult = false;
 			$this->setLastException($oException);
 		}
 
-		return $bResult;
+		return false;
 	}
 	
 	/**
@@ -175,19 +172,19 @@ class CApiMailServersManager extends AApiManager
 	 * 
 	 * @param int $iServerId
 	 * @param string $sName
-	 * @param string $sIncomingMailServer
-	 * @param int $iIncomingMailPort
-	 * @param boolean $bIncomingMailUseSSL
-	 * @param string $sOutgoingMailServer
-	 * @param int $iOutgoingMailPort
-	 * @param boolean $bOutgoingMailAuth
-	 * @param boolean $bOutgoingMailUseSSL
+	 * @param string $sIncomingServer
+	 * @param int $iIncomingPort
+	 * @param boolean $bIncomingUseSsl
+	 * @param string $sOutgoingServer
+	 * @param int $iOutgoingPort
+	 * @param boolean $bOutgoingUseAuth
+	 * @param boolean $bOutgoingUseSsl
 	 * @param int $iTenantId
 	 * @return boolean
 	 * @throws CApiManagerException
 	 */
-	public function updateServer($iServerId, $sName, $sIncomingMailServer, $iIncomingMailPort, $bIncomingMailUseSSL,
-			$sOutgoingMailServer, $iOutgoingMailPort, $bOutgoingMailAuth, $bOutgoingMailUseSSL, $iTenantId = 0)
+	public function updateServer($iServerId, $sName, $sIncomingServer, $iIncomingPort, $bIncomingUseSsl,
+			$sOutgoingServer, $iOutgoingPort, $bOutgoingUseAuth, $bOutgoingUseSsl, $iTenantId = 0)
 	{
 		$bResult = false;
 		
@@ -197,13 +194,13 @@ class CApiMailServersManager extends AApiManager
 			if ($oServer && $oServer->TenantId === $iTenantId)
 			{
 				$oServer->Name = $sName;
-				$oServer->IncomingMailServer = $sIncomingMailServer;
-				$oServer->IncomingMailPort = $iIncomingMailPort;
-				$oServer->IncomingMailUseSSL = $bIncomingMailUseSSL;
-				$oServer->OutgoingMailServer = $sOutgoingMailServer;
-				$oServer->OutgoingMailPort = $iOutgoingMailPort;
-				$oServer->OutgoingMailAuth = $bOutgoingMailAuth;
-				$oServer->OutgoingMailUseSSL = $bOutgoingMailUseSSL;
+				$oServer->IncomingServer = $sIncomingServer;
+				$oServer->IncomingPort = $iIncomingPort;
+				$oServer->IncomingUseSsl = $bIncomingUseSsl;
+				$oServer->OutgoingServer = $sOutgoingServer;
+				$oServer->OutgoingPort = $iOutgoingPort;
+				$oServer->OutgoingUseAuth = $bOutgoingUseAuth;
+				$oServer->OutgoingUseSsl = $bOutgoingUseSsl;
 				if (!$this->oEavManager->saveEntity($oServer))
 				{
 					throw new CApiManagerException(Errs::UsersManager_UserCreateFailed);

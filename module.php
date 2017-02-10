@@ -146,9 +146,8 @@ class MailModule extends AApiModule
 	 * 
 	 * @return boolean
 	 */
-	public function CreateAccount($iUserId = 0, $FriendlyName = '', $Email = '', $IncomingMailLogin = '', $IncomingMailPassword = '', 
-			$IncomingMailServer = '', $IncomingMailPort = 143, $IncomingMailSsl = false, $OutgoingMailLogin = '', $OutgoingMailServer = '',
-			$OutgoingMailPort = 25, $OutgoingMailSsl = false, $OutgoingMailAuth = false)
+	public function CreateAccount($iUserId = 0, $FriendlyName = '', $Email = '', $IncomingLogin = '', $IncomingPassword = '', 
+			$OutgoingLogin = '', $ServerId = 0, $Server = null)
 	{
 		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
@@ -172,22 +171,22 @@ class MailModule extends AApiModule
 //		
 //		if ($oEventResult instanceOf \CUser)
 //		{
+			if ($ServerId === 0 && $Server !== null)
+			{
+				$ServerId = $this->oApiServersManager->createServer($Server->IncomingServer, $Server->IncomingServer, $Server->IncomingPort, $Server->IncomingUseSsl,
+					$Server->OutgoingServer, $Server->OutgoingPort, $Server->OutgoingUseSsl, $Server->OutgoingUseAuth);
+			}
+			
 			$oAccount = \CMailAccount::createInstance();
 			
 //			$oAccount->IdUser = $oEventResult->iId;
 			$oAccount->IdUser = $iUserId;
 			$oAccount->FriendlyName = $FriendlyName;
 			$oAccount->Email = $Email;
-			$oAccount->IncomingMailLogin = $IncomingMailLogin;
-			$oAccount->IncomingMailPassword = $IncomingMailPassword;
-			$oAccount->IncomingMailServer = $IncomingMailServer;
-			$oAccount->IncomingMailPort = $IncomingMailPort;
-			$oAccount->IncomingMailUseSSL = $IncomingMailSsl;
-			$oAccount->OutgoingMailLogin = $OutgoingMailLogin;
-			$oAccount->OutgoingMailServer = $OutgoingMailServer;
-			$oAccount->OutgoingMailPort = $OutgoingMailPort;
-			$oAccount->OutgoingMailUseSSL = $OutgoingMailSsl;
-			$oAccount->OutgoingMailAuth = $OutgoingMailAuth;
+			$oAccount->IncomingLogin = $IncomingLogin;
+			$oAccount->IncomingPassword = $IncomingPassword;
+			$oAccount->OutgoingLogin = $OutgoingLogin;
+			$oAccount->ServerId = $ServerId;
 			if (!$this->oApiAccountsManager->isDefaultUserAccountExists($iUserId))
 			{
 				$oAccount->IsDefaultAccount = true;
@@ -206,9 +205,9 @@ class MailModule extends AApiModule
 		return false;
 	}
 	
-	public function UpdateAccount($AccountID, $Email = null, $IncomingMailPassword = null, $IncomingMailServer = null, $FriendlyName = null, 
-			$IncomingMailLogin = null, $IncomingMailPort = null, $IncomingMailSsl = null, $OutgoingMailLogin = null, $OutgoingMailServer = null, 
-			$OutgoingMailPort = null, $OutgoingMailSsl = null, $OutgoingMailAuth = null)
+	public function UpdateAccount($AccountID, $Email = null, $IncomingPassword = null, $IncomingServer = null, $FriendlyName = null, 
+			$IncomingLogin = null, $IncomingPort = null, $IncomingUseSsl = null, $OutgoingLogin = null, $OutgoingServer = null, 
+			$OutgoingPort = null, $OutgoingUseSsl = null, $OutgoingUseAuth = null)
 	{
 		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
@@ -222,49 +221,49 @@ class MailModule extends AApiModule
 				{
 					$oAccount->Email = $Email;
 				}
-				if (!empty($IncomingMailPassword))
+				if (!empty($IncomingPassword))
 				{
-					$oAccount->IncomingMailPassword = $IncomingMailPassword;
+					$oAccount->IncomingPassword = $IncomingPassword;
 				}
-				if (!empty($IncomingMailServer))
+				if (!empty($IncomingServer))
 				{
-					$oAccount->IncomingMailServer = $IncomingMailServer;
+					$oAccount->IncomingServer = $IncomingServer;
 				}
 				if (!empty($FriendlyName))
 				{
 					$oAccount->FriendlyName = $FriendlyName;
 				}
-				if (!empty($IncomingMailLogin))
+				if (!empty($IncomingLogin))
 				{
-					$oAccount->IncomingMailLogin = $IncomingMailLogin;
+					$oAccount->IncomingLogin = $IncomingLogin;
 				}
-				if (!empty($IncomingMailPort))
+				if (!empty($IncomingPort))
 				{
-					$oAccount->IncomingMailPort = $IncomingMailPort;
+					$oAccount->IncomingPort = $IncomingPort;
 				}
-				if (!empty($IncomingMailSsl))
+				if (!empty($IncomingUseSsl))
 				{
-					$oAccount->IncomingMailUseSSL = $IncomingMailSsl;
+					$oAccount->IncomingUseSsl = $IncomingUseSsl;
 				}
-				if (!empty($OutgoingMailLogin))
+				if (!empty($OutgoingLogin))
 				{
-					$oAccount->OutgoingMailLogin = $OutgoingMailLogin;
+					$oAccount->OutgoingLogin = $OutgoingLogin;
 				}
-				if (!empty($OutgoingMailServer))
+				if (!empty($OutgoingServer))
 				{
-					$oAccount->OutgoingMailServer = $OutgoingMailServer;
+					$oAccount->OutgoingServer = $OutgoingServer;
 				}
-				if (!empty($OutgoingMailPort))
+				if (!empty($OutgoingPort))
 				{
-					$oAccount->OutgoingMailPort = $OutgoingMailPort;
+					$oAccount->OutgoingPort = $OutgoingPort;
 				}
-				if (!empty($OutgoingMailSsl))
+				if (!empty($OutgoingUseSsl))
 				{
-					$oAccount->OutgoingMailUseSSL = $OutgoingMailSsl;
+					$oAccount->OutgoingUseSsl = $OutgoingUseSsl;
 				}
-				if (!empty($OutgoingMailAuth))
+				if (!empty($OutgoingUseAuth))
 				{
-					$oAccount->OutgoingMailAuth = $OutgoingMailAuth;
+					$oAccount->OutgoingUseAuth = $OutgoingUseAuth;
 				}
 				
 				$this->oApiAccountsManager->updateAccount($oAccount);
@@ -336,20 +335,22 @@ class MailModule extends AApiModule
 	/**** Ajax methods ****/
 	public function GetServers($TenantId = 0)
 	{
-		if ($TenantId === 0)
-		{
-			\CApi::checkUserRoleIsAtLeast(\EUserRole::SuperAdmin);
-		}
-		else
-		{
-			\CApi::checkUserRoleIsAtLeast(\EUserRole::TenantAdmin);
-		}
+//		if ($TenantId === 0)
+//		{
+//			\CApi::checkUserRoleIsAtLeast(\EUserRole::SuperAdmin);
+//		}
+//		else
+//		{
+//			\CApi::checkUserRoleIsAtLeast(\EUserRole::TenantAdmin);
+//		}
+		
+		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
 		return $this->oApiServersManager->getServerList($TenantId);
 	}
 	
-	public function CreateServer($Name, $IncomingMailServer, $IncomingMailPort, $IncomingMailUseSSL,
-			$OutgoingMailServer, $OutgoingMailPort, $OutgoingMailAuth, $OutgoingMailUseSSL, $TenantId = 0)
+	public function CreateServer($Name, $IncomingServer, $IncomingPort, $IncomingUseSsl,
+			$OutgoingServer, $OutgoingPort, $OutgoingUseAuth, $OutgoingUseSsl, $TenantId = 0)
 	{
 		if ($TenantId === 0)
 		{
@@ -360,12 +361,12 @@ class MailModule extends AApiModule
 			\CApi::checkUserRoleIsAtLeast(\EUserRole::TenantAdmin);
 		}
 		
-		return $this->oApiServersManager->createServer($Name, $IncomingMailServer, $IncomingMailPort, $IncomingMailUseSSL,
-			$OutgoingMailServer, $OutgoingMailPort, $OutgoingMailAuth, $OutgoingMailUseSSL, $TenantId);
+		return $this->oApiServersManager->createServer($Name, $IncomingServer, $IncomingPort, $IncomingUseSsl,
+			$OutgoingServer, $OutgoingPort, $OutgoingUseAuth, $OutgoingUseSsl, $TenantId);
 	}
 	
-	public function UpdateServer($ServerId, $Name, $IncomingMailServer, $IncomingMailPort, $IncomingMailUseSSL,
-			$OutgoingMailServer, $OutgoingMailPort, $OutgoingMailAuth, $OutgoingMailUseSSL, $TenantId = 0)
+	public function UpdateServer($ServerId, $Name, $IncomingServer, $IncomingPort, $IncomingUseSsl,
+			$OutgoingServer, $OutgoingPort, $OutgoingUseAuth, $OutgoingUseSsl, $TenantId = 0)
 	{
 		if ($TenantId === 0)
 		{
@@ -376,8 +377,8 @@ class MailModule extends AApiModule
 			\CApi::checkUserRoleIsAtLeast(\EUserRole::TenantAdmin);
 		}
 		
-		return $this->oApiServersManager->updateServer($ServerId, $Name, $IncomingMailServer, $IncomingMailPort, $IncomingMailUseSSL,
-			$OutgoingMailServer, $OutgoingMailPort, $OutgoingMailAuth, $OutgoingMailUseSSL, $TenantId);
+		return $this->oApiServersManager->updateServer($ServerId, $Name, $IncomingServer, $IncomingPort, $IncomingUseSsl,
+			$OutgoingServer, $OutgoingPort, $OutgoingUseAuth, $OutgoingUseSsl, $TenantId);
 	}
 	
 	public function DeleteServer($ServerId, $TenantId = 0)
@@ -399,21 +400,17 @@ class MailModule extends AApiModule
 		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
+		$oServer = $this->oApiServersManager->getServer($oAccount->ServerId);
 		return array(
 			'Id' => $oAccount->iId,
 			'IsDefault' => $oAccount->IsDefaultAccount,
 			'Email' => $oAccount->Email,
 			'FriendlyName' => $oAccount->FriendlyName,
-			'IncomingMailServer' => $oAccount->IncomingMailServer,
-			'IncomingMailPort' => $oAccount->IncomingMailPort,
-			'IncomingMailLogin' => $oAccount->IncomingMailLogin,
-			'IncomingMailUseSSL' => $oAccount->IncomingMailUseSSL,
-			'OutgoingMailServer' => $oAccount->OutgoingMailServer,
-			'OutgoingMailPort' => $oAccount->OutgoingMailPort,
-			'OutgoingMailLogin' => $oAccount->OutgoingMailLogin,
-			'OutgoingMailPassword' => $oAccount->OutgoingMailPassword,
-			'OutgoingMailAuth' => $oAccount->OutgoingMailAuth,
-			'OutgoingMailUseSSL' => $oAccount->OutgoingMailUseSSL
+			'IncomingLogin' => $oAccount->IncomingLogin,
+			'OutgoingLogin' => $oAccount->OutgoingLogin,
+			'OutgoingPassword' => $oAccount->OutgoingPassword,
+			'ServerId' => $oAccount->ServerId,
+			'Server' => $oServer,
 		);
 	}
 	
@@ -1723,26 +1720,26 @@ class MailModule extends AApiModule
 		\preg_match("/\<EMailAddress\>(.*?)\<\/EMailAddress\>/", $sInput, $aEmailAddress);
 		if (!empty($aMatches[1]) && !empty($aEmailAddress[1]))
 		{
-			$sIncMailServer = trim(\CApi::GetSettingsConf('WebMail/ExternalHostNameOfLocalImap'));
-			$sOutMailServer = trim(\CApi::GetSettingsConf('WebMail/ExternalHostNameOfLocalSmtp'));
+			$sIncomingServer = trim(\CApi::GetSettingsConf('WebMail/ExternalHostNameOfLocalImap'));
+			$sOutgoingServer = trim(\CApi::GetSettingsConf('WebMail/ExternalHostNameOfLocalSmtp'));
 
-			if (0 < \strlen($sIncMailServer) && 0 < \strlen($sOutMailServer))
+			if (0 < \strlen($sIncomingServer) && 0 < \strlen($sOutgoingServer))
 			{
-				$iIncMailPort = 143;
-				$iOutMailPort = 25;
+				$iIncomingPort = 143;
+				$iOutgoingPort = 25;
 
 				$aMatch = array();
-				if (\preg_match('/:([\d]+)$/', $sIncMailServer, $aMatch) && !empty($aMatch[1]) && is_numeric($aMatch[1]))
+				if (\preg_match('/:([\d]+)$/', $sIncomingServer, $aMatch) && !empty($aMatch[1]) && is_numeric($aMatch[1]))
 				{
-					$sIncMailServer = preg_replace('/:[\d]+$/', $sIncMailServer, '');
-					$iIncMailPort = (int) $aMatch[1];
+					$sIncomingServer = preg_replace('/:[\d]+$/', $sIncomingServer, '');
+					$iIncomingPort = (int) $aMatch[1];
 				}
 
 				$aMatch = array();
-				if (\preg_match('/:([\d]+)$/', $sOutMailServer, $aMatch) && !empty($aMatch[1]) && is_numeric($aMatch[1]))
+				if (\preg_match('/:([\d]+)$/', $sOutgoingServer, $aMatch) && !empty($aMatch[1]) && is_numeric($aMatch[1]))
 				{
-					$sOutMailServer = preg_replace('/:[\d]+$/', $sOutMailServer, '');
-					$iOutMailPort = (int) $aMatch[1];
+					$sOutgoingServer = preg_replace('/:[\d]+$/', $sOutgoingServer, '');
+					$iOutgoingPort = (int) $aMatch[1];
 				}
 
 				$sResult = \implode("\n", array(
@@ -1753,19 +1750,19 @@ class MailModule extends AApiModule
 '			<Action>settings</Action>',
 '			<Protocol>',
 '				<Type>IMAP</Type>',
-'				<Server>'.$sIncMailServer.'</Server>',
+'				<Server>'.$sIncomingServer.'</Server>',
 '				<LoginName>'.$aEmailAddress[1].'</LoginName>',
-'				<Port>'.$iIncMailPort.'</Port>',
-'				<SSL>'.(993 === $iIncMailPort ? 'on' : 'off').'</SSL>',
+'				<Port>'.$iIncomingPort.'</Port>',
+'				<SSL>'.(993 === $iIncomingPort ? 'on' : 'off').'</SSL>',
 '				<SPA>off</SPA>',
 '				<AuthRequired>on</AuthRequired>',
 '			</Protocol>',
 '			<Protocol>',
 '				<Type>SMTP</Type>',
-'				<Server>'.$sOutMailServer.'</Server>',
+'				<Server>'.$sOutgoingServer.'</Server>',
 '				<LoginName>'.$aEmailAddress[1].'</LoginName>',
-'				<Port>'.$iOutMailPort.'</Port>',
-'				<SSL>'.(465 === $iOutMailPort ? 'on' : 'off').'</SSL>',
+'				<Port>'.$iOutgoingPort.'</Port>',
+'				<SSL>'.(465 === $iOutgoingPort ? 'on' : 'off').'</SSL>',
 '				<SPA>off</SPA>',
 '				<AuthRequired>on</AuthRequired>',
 '			</Protocol>',

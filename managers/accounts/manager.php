@@ -98,7 +98,7 @@ class CApiMailAccountsManager extends AApiManager
 	 * 
 	 * @return CUser | false
 	 */
-	public function getAccountByCredentials($sEmail, $sIncomingMailPassword)
+	public function getAccountByCredentials($sEmail, $sIncomingPassword)
 	{
 		$oAccount = null;
 		try
@@ -106,13 +106,13 @@ class CApiMailAccountsManager extends AApiManager
 			$aResults = $this->oEavManager->getEntities(
 				'CMailAccount', 
 				array(
-					'IsDisabled', 'Email', 'IncomingMailPassword', 'IncomingMailLogin', 'IncomingMailServer', 'IdUser'
+					'IsDisabled', 'Email', 'IncomingPassword', 'IncomingLogin', 'IncomingServer', 'IdUser'
 				),
 				0,
 				0,
 				array(
 					'Email' => $sEmail,
-					'IncomingMailPassword' => $sIncomingMailPassword,
+					'IncomingPassword' => $sIncomingPassword,
 					'IsDisabled' => false
 				)
 			);
@@ -201,7 +201,7 @@ class CApiMailAccountsManager extends AApiManager
 			$aResults = $this->oEavManager->getEntities(
 				'CMailAccount', 
 				array(
-					'IsDisabled', 'Email', 'IncomingMailPassword', 'IncomingMailServer', 'IsDefaultAccount', 'IdUser'
+					'IsDisabled', 'Email', 'IncomingPassword', 'IncomingServer', 'IsDefaultAccount', 'IdUser'
 				),
 				$iPage,
 				$iUsersPerPage,
@@ -216,8 +216,8 @@ class CApiMailAccountsManager extends AApiManager
 				{
 					$aResult[$oItem->iId] = array(
 						$oItem->Email,
-						$oItem->IncomingMailPassword,
-						$oItem->IncomingMailServer,
+						$oItem->IncomingPassword,
+						$oItem->IncomingServer,
 						$oItem->IsDefaultAccount,
 						$oItem->IdUser,
 						$oItem->IsDisabled
