@@ -36,6 +36,8 @@ class CMailAccount extends AEntity
 	const DisableFoldersManualSort = 'DisableFoldersManualSort';
 	const IgnoreSubscribeStatus = 'IgnoreSubscribeStatus';
 	
+	private $oServer = null;
+	
 	/**
 	 * Creates a new instance of the object.
 	 * 
@@ -61,7 +63,6 @@ class CMailAccount extends AEntity
 			'IncomingLogin'		=> array('string', ''),
 			'IncomingPassword'	=> array('string', ''),
 			'OutgoingLogin'		=> array('string', ''),
-			'OutgoingPassword'	=> array('string', ''),
 			'UseSignature'		=> array('bool', false),
 			'Signature'			=> array('string', ''),
 			'ServerId'			=> array('int',  0),
@@ -71,6 +72,16 @@ class CMailAccount extends AEntity
 	public static function createInstance($sModule = 'Mail', $oParams = array())
 	{
 		return new CMailAccount($sModule, $oParams);
+	}
+	
+	public function getServer()
+	{
+		if ($this->oServer === null && $this->ServerId !== 0)
+		{
+			$oMailModule = \CApi::GetModule('Mail');
+			$this->oServer = $oMailModule->oApiServersManager->getServer($this->ServerId);
+		}
+		return $this->oServer;
 	}
 	
 	public function isExtensionEnabled($sExtention)

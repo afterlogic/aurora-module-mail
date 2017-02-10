@@ -83,8 +83,8 @@ class CApiMailMainManager extends AApiManagerWithStorage
 			$oResult =& $this->aImapClientCache[$sCacheKey];
 			if (!$oResult->IsConnected())
 			{
-				$oResult->Connect($oAccount->IncomingServer, $oAccount->IncomingPort,
-					$oAccount->IncomingUseSsl
+				$oServer = $oAccount->getServer();
+				$oResult->Connect($oServer->IncomingServer, $oServer->IncomingPort, $oServer->IncomingUseSsl
 						? \MailSo\Net\Enumerations\ConnectionSecurityType::SSL
 						: \MailSo\Net\Enumerations\ConnectionSecurityType::NONE, $bVerifySsl);
 			}
@@ -1130,8 +1130,7 @@ class CApiMailMainManager extends AApiManagerWithStorage
 
 					if (0 === strlen($sOutgoingPassword))
 					{
-						$sOutgoingPassword = $oAccount->OutgoingPassword;
-						$sOutgoingPassword = 0 < strlen($sOutgoingPassword) ? $sOutgoingPassword : $oAccount->IncomingPassword;
+						$sOutgoingPassword = $oAccount->IncomingPassword;
 					}
 
 					$sEhlo = \MailSo\Smtp\SmtpClient::EhloHelper();

@@ -494,9 +494,10 @@ class CApiSieveManager extends AApiManager
 			{
 				$sGeneralHost = CApi::GetConf('sieve.config.host', '');
 				$sGeneralPassword = CApi::GetConf('sieve.config.general-password', '');
+				$oServer = $oAccount->getServer();
 				$bResult = $oSieve
-					->Connect($oAccount->IsInternal || 0 === strlen($sGeneralHost) ? $oAccount->IncomingServer : $sGeneralHost, (int) CApi::GetConf('sieve.config.port', 2000), \MailSo\Net\Enumerations\ConnectionSecurityType::NONE)
-					->Login($oAccount->IncomingLogin, 0 === strlen($sGeneralPassword) ? $oAccount->IncomingPassword : $sGeneralPassword)
+					->Connect($oAccount->IsInternal || 0 === strlen($sGeneralHost) ? $oServer->IncomingServer : $sGeneralHost, (int) CApi::GetConf('sieve.config.port', 2000), \MailSo\Net\Enumerations\ConnectionSecurityType::NONE)
+					->Login($oServer->IncomingLogin, 0 === strlen($sGeneralPassword) ? $oServer->IncomingPassword : $sGeneralPassword)
 				;
 			}
 			else

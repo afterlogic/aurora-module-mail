@@ -147,7 +147,7 @@ class MailModule extends AApiModule
 	 * @return boolean
 	 */
 	public function CreateAccount($iUserId = 0, $FriendlyName = '', $Email = '', $IncomingLogin = '', $IncomingPassword = '', 
-			$OutgoingLogin = '', $ServerId = 0, $Server = null)
+			$OutgoingLogin = '', $Server = null)
 	{
 		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
@@ -171,7 +171,7 @@ class MailModule extends AApiModule
 //		
 //		if ($oEventResult instanceOf \CUser)
 //		{
-			if ($ServerId === 0 && $Server !== null)
+			if ($Server !== null)
 			{
 				$ServerId = $this->oApiServersManager->createServer($Server->IncomingServer, $Server->IncomingServer, $Server->IncomingPort, $Server->IncomingUseSsl,
 					$Server->OutgoingServer, $Server->OutgoingPort, $Server->OutgoingUseSsl, $Server->OutgoingUseAuth);
@@ -205,9 +205,8 @@ class MailModule extends AApiModule
 		return false;
 	}
 	
-	public function UpdateAccount($AccountID, $Email = null, $IncomingPassword = null, $IncomingServer = null, $FriendlyName = null, 
-			$IncomingLogin = null, $IncomingPort = null, $IncomingUseSsl = null, $OutgoingLogin = null, $OutgoingServer = null, 
-			$OutgoingPort = null, $OutgoingUseSsl = null, $OutgoingUseAuth = null)
+	public function UpdateAccount($AccountID, $Email = null, $FriendlyName = null, $IncomingLogin = null, $IncomingPassword = null, 
+			$OutgoingLogin = null, $ServerId = 0, $Server = null)
 	{
 		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
@@ -221,14 +220,6 @@ class MailModule extends AApiModule
 				{
 					$oAccount->Email = $Email;
 				}
-				if (!empty($IncomingPassword))
-				{
-					$oAccount->IncomingPassword = $IncomingPassword;
-				}
-				if (!empty($IncomingServer))
-				{
-					$oAccount->IncomingServer = $IncomingServer;
-				}
 				if (!empty($FriendlyName))
 				{
 					$oAccount->FriendlyName = $FriendlyName;
@@ -237,33 +228,24 @@ class MailModule extends AApiModule
 				{
 					$oAccount->IncomingLogin = $IncomingLogin;
 				}
-				if (!empty($IncomingPort))
+				if (!empty($IncomingPassword))
 				{
-					$oAccount->IncomingPort = $IncomingPort;
-				}
-				if (!empty($IncomingUseSsl))
-				{
-					$oAccount->IncomingUseSsl = $IncomingUseSsl;
+					$oAccount->IncomingPassword = $IncomingPassword;
 				}
 				if (!empty($OutgoingLogin))
 				{
 					$oAccount->OutgoingLogin = $OutgoingLogin;
 				}
-				if (!empty($OutgoingServer))
+				if (!empty($ServerId))
 				{
-					$oAccount->OutgoingServer = $OutgoingServer;
+					$oAccount->ServerId = $ServerId;
 				}
-				if (!empty($OutgoingPort))
+				$oAccServer = $oAccount->getServer();
+				if ($oAccServer)
 				{
-					$oAccount->OutgoingPort = $OutgoingPort;
-				}
-				if (!empty($OutgoingUseSsl))
-				{
-					$oAccount->OutgoingUseSsl = $OutgoingUseSsl;
-				}
-				if (!empty($OutgoingUseAuth))
-				{
-					$oAccount->OutgoingUseAuth = $OutgoingUseAuth;
+					$this->oApiServersManager->updateServer($ServerId, $Server->IncomingServer, $Server->IncomingServer, 
+						$Server->IncomingPort, $Server->IncomingUseSsl, $Server->OutgoingServer, 
+						$Server->OutgoingPort, $Server->OutgoingUseAuth, $Server->OutgoingUseSsl, 0);
 				}
 				
 				$this->oApiAccountsManager->updateAccount($oAccount);
@@ -400,7 +382,7 @@ class MailModule extends AApiModule
 		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
-		$oServer = $this->oApiServersManager->getServer($oAccount->ServerId);
+		
 		return array(
 			'Id' => $oAccount->iId,
 			'IsDefault' => $oAccount->IsDefaultAccount,
@@ -408,9 +390,8 @@ class MailModule extends AApiModule
 			'FriendlyName' => $oAccount->FriendlyName,
 			'IncomingLogin' => $oAccount->IncomingLogin,
 			'OutgoingLogin' => $oAccount->OutgoingLogin,
-			'OutgoingPassword' => $oAccount->OutgoingPassword,
 			'ServerId' => $oAccount->ServerId,
-			'Server' => $oServer,
+			'Server' => $oAccount->getServer(),
 		);
 	}
 	

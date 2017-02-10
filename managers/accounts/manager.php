@@ -100,33 +100,37 @@ class CApiMailAccountsManager extends AApiManager
 	 */
 	public function getAccountByCredentials($sEmail, $sIncomingPassword)
 	{
-		$oAccount = null;
+		$oAccount = false;
 		try
 		{
 			$aResults = $this->oEavManager->getEntities(
 				'CMailAccount', 
-				array(
-					'IsDisabled', 'Email', 'IncomingPassword', 'IncomingLogin', 'IncomingServer', 'IdUser'
-				),
+				array(),
 				0,
 				0,
 				array(
 					'Email' => $sEmail,
-					'IncomingPassword' => $sIncomingPassword,
 					'IsDisabled' => false
 				)
 			);
 			
-			if (is_array($aResults) && count($aResults) === 1)
+			if (is_array($aResults))
 			{
-				$oAccount = $aResults[0];
+				foreach ($aResults as $oTmpAccount)
+				{
+					$oServer = $oTmpAccount->getServer();
+					if ($oServer->IncomingPassword === $sIncomingPassword)
+					{
+						$oAccount = $oTmpAccount;
+					}
+				}
 			}
 		}
 		catch (CApiBaseException $oException)
 		{
-			$oAccount = false;
 			$this->setLastException($oException);
 		}
+		
 		return $oAccount;
 	}
 	
@@ -168,69 +172,6 @@ class CApiMailAccountsManager extends AApiManager
 		}
 		
 		return $bExists;
-	}
-
-	/**
-	 * Obtains list of information about users for specific domain. Domain identifier is used for look up.
-	 * The answer contains information only about default account of founded user.
-	 * 
-	 * 
-	 * @param int $iDomainId Domain identifier.
-	 * @param int $iPage List page.
-	 * @param int $iUsersPerPage Number of users on a single page.
-	 * @param string $sOrderBy = 'email'. Field by which to sort.
-	 * @param bool $bAscOrderType = true. If **true** the sort order type is ascending.
-	 * @param string $sSearchDesc = ''. If specified, the search goes on by substring in the name and email of default account.
-	 * 
-	 * @return array | false [IdAccount => [IsMailingList, Email, FriendlyName, IsDisabled, IdUser, StorageQuota, LastLogin]]
-	 */
-	public function getAccountList($iPage, $iUsersPerPage, $sOrderBy = 'Email', $iOrderType = \ESortOrder::ASC, $sSearchDesc = '')
-	{
-		$aResult = false;
-		try
-		{
-//			$aResult = $this->oStorage->getUserList($iDomainId, $iPage, $iUsersPerPage, $sOrderBy, $bAscOrderType, $sSearchDesc);
-			
-			$aFilters =  array();
-			
-			if ($sSearchDesc !== '')
-			{
-				$aFilters['Email'] = '%'.$sSearchDesc.'%';
-			}
-				
-			$aResults = $this->oEavManager->getEntities(
-				'CMailAccount', 
-				array(
-					'IsDisabled', 'Email', 'IncomingPassword', 'IncomingServer', 'IsDefaultAccount', 'IdUser'
-				),
-				$iPage,
-				$iUsersPerPage,
-				$aFilters,
-				$sOrderBy,
-				$iOrderType
-			);
-
-			if (is_array($aResults))
-			{
-				foreach($aResults as $oItem)
-				{
-					$aResult[$oItem->iId] = array(
-						$oItem->Email,
-						$oItem->IncomingPassword,
-						$oItem->IncomingServer,
-						$oItem->IsDefaultAccount,
-						$oItem->IdUser,
-						$oItem->IsDisabled
-					);
-				}
-			}
-		}
-		catch (CApiBaseException $oException)
-		{
-			$aResult = false;
-			$this->setLastException($oException);
-		}
-		return $aResult;
 	}
 
 	/**
