@@ -21,6 +21,7 @@ class MailModule extends AApiModule
 				'attachment-collection',
 				'ics',
 				'vcard',
+				'server',
 				'sieve-enum',
 				'filter',
 				'databyref',
