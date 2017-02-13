@@ -95,9 +95,12 @@ class CApiMailMainManager extends AApiManagerWithStorage
 			if (!$oResult->IsConnected())
 			{
 				$oServer = $oAccount->getServer();
-				$oResult->Connect($oServer->IncomingServer, $oServer->IncomingPort, $oServer->IncomingUseSsl
-						? \MailSo\Net\Enumerations\ConnectionSecurityType::SSL
-						: \MailSo\Net\Enumerations\ConnectionSecurityType::NONE, $bVerifySsl);
+				if ($oServer instanceof \CMailServer)
+				{
+					$oResult->Connect($oServer->IncomingServer, $oServer->IncomingPort, $oServer->IncomingUseSsl
+							? \MailSo\Net\Enumerations\ConnectionSecurityType::SSL
+							: \MailSo\Net\Enumerations\ConnectionSecurityType::NONE, $bVerifySsl);
+				}
 			}
 
 			if (!$oResult->IsLoggined())

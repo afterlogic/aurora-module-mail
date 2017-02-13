@@ -165,6 +165,7 @@ class MailModule extends AApiModule
 //		{
 			if ($Server !== null)
 			{
+				$Server = (object)$Server;
 				$ServerId = $this->oApiServersManager->createServer($Server->IncomingServer, $Server->IncomingServer, $Server->IncomingPort, $Server->IncomingUseSsl,
 					$Server->OutgoingServer, $Server->OutgoingPort, $Server->OutgoingUseSsl, $Server->OutgoingUseAuth);
 			}
