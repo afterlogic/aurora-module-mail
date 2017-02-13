@@ -95,7 +95,7 @@ class CApiMailMainDbStorage extends CApiMailMainStorage
 	{
 		$this->oConnection->Execute($this->oCommandCreator->getClearSystemFoldersQuery($oAccount));
 		$aSystemNames = is_array($aSystemNames) && 0 < count($aSystemNames) ? $aSystemNames : array();
-		$aSystemNames['INBOX'] = 'INBOX';
+		$aSystemNames['INBOX'] = \EFolderType::Inbox;
 
 		$this->oConnection->Execute($this->oCommandCreator->getUpdateSystemFoldersQuery($oAccount, $aSystemNames));
 		$this->throwDbExceptionIfExist();

@@ -29,6 +29,12 @@ class CApiMailMainManager extends AApiManagerWithStorage
 	 * @var array List of ImapClient objects.
 	 */
 	protected $aImapClientCache;
+	
+	/**
+	 * @var CApiEavManager
+	 */
+	private $oEavManager = null;
+	
 
 	/**
 	 * Initializes manager property.
@@ -42,6 +48,11 @@ class CApiMailMainManager extends AApiManagerWithStorage
 		parent::__construct('main', $oManager, $sForcedStorage, $oModule);
 
 		$this->aImapClientCache = array();
+		
+		if ($oModule instanceof AApiModule)
+		{
+			$this->oEavManager = \CApi::GetSystemManager('eav', 'db');
+		}
 	}
 
 	/**
@@ -164,7 +175,33 @@ class CApiMailMainManager extends AApiManagerWithStorage
 	 */
 	public function setSystemFolderNames($oAccount, $aSystemNames)
 	{
-		return $this->oStorage->setSystemFolderNames($oAccount, $aSystemNames);
+		foreach ($aSystemNames as $sKey => $iTypeValue)
+		{
+			$aEntities = $this->oEavManager->getEntities(
+				'CSystemFolder', 
+				array(),
+				0,
+				1,
+				array(
+					'IdUser' => $oAccount->iId,
+					'Type' => $iTypeValue
+				)
+			);
+			$oSystemFolder = new \CSystemFolder();
+			if (count($aEntities) > 0 && $aEntities[0] instanceof \CSystemFolder)
+			{
+				$oSystemFolder = $aEntities[0];
+			}
+			else 
+			{
+				$oSystemFolder->IdUser = $oAccount->iId;
+			}
+			$oSystemFolder->FolderFullName = $sKey;
+			$oSystemFolder->Type = $iTypeValue;
+			$this->oEavManager->saveEntity($oSystemFolder);
+		}
+		
+		return true;
 	}
 
 	/**
@@ -176,7 +213,25 @@ class CApiMailMainManager extends AApiManagerWithStorage
 	 */
 	public function getSystemFolderNames($oAccount)
 	{
-		return $this->oStorage->getSystemFolderNames($oAccount);
+		$aFolders = array();
+		$aEntities = $this->oEavManager->getEntities(
+			'CSystemFolder', 
+			array(),
+			0,
+			9,
+			array(
+				'IdUser' => $oAccount->iId
+			)
+		);
+		if (count($aEntities) > 0)
+		{
+			foreach ($aEntities as $oEntity)
+			{
+				$aFolders[$oEntity->FolderFullName] = $oEntity->Type;
+			}
+		}
+		
+		return $aFolders;
 	}
 
 	/**
@@ -193,16 +248,28 @@ class CApiMailMainManager extends AApiManagerWithStorage
 		$bAddSystemFolder = false;
 		try
 		{
-			/* TODO: $oAccount->Domain is not exists. $aTypes should be dependent from some settings */
-//			$aFoldersMap = $oAccount->Domain->GetFoldersMap();
-//			unset($aFoldersMap[EFolderType::Inbox]);
-//
-//			if (!$oAccount->isExtensionEnabled(CAccount::SpamFolderExtension) && isset($aFoldersMap[EFolderType::Spam]))
-//			{
-//				unset($aFoldersMap[EFolderType::Spam]);
-//			}
-
-			$aTypes = [EFolderType::Inbox, EFolderType::Sent, EFolderType::Drafts, EFolderType::Spam, EFolderType::Trash];
+			$aFoldersMap = array(
+				EFolderType::Inbox => array('INBOX', 'Inbox'),
+				EFolderType::Drafts => array('Drafts', 'Draft'),
+				EFolderType::Sent => array('Sent', 'Sent Items', 'Sent Mail'),
+				EFolderType::Spam => array('Spam', 'Junk', 'Junk Mail', 'Junk E-mail', 'Bulk Mail'),
+				EFolderType::Trash => array('Trash', 'Bin', 'Deleted', 'Deleted Items'),
+			);
+			
+			unset($aFoldersMap[EFolderType::Inbox]);
+/*
+			if (!$oAccount->isExtensionEnabled(CAccount::SpamFolderExtension) && isset($aFoldersMap[EFolderType::Spam]))
+			{
+				unset($aFoldersMap[EFolderType::Spam]);
+			}
+*/
+			$aTypes = [
+				EFolderType::Inbox, 
+				EFolderType::Drafts, 
+				EFolderType::Sent, 
+				EFolderType::Spam, 
+				EFolderType::Trash
+			];
 
 			$aUnExistenSystemNames = array();
 			$aSystemNames = $this->getSystemFolderNames($oAccount);

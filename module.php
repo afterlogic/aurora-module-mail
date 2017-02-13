@@ -8,21 +8,25 @@ class MailModule extends AApiModule
 	
 	public function init() 
 	{
-		$this->incClass('account');
-		$this->incClass('fetcher');
-		$this->incClass('enum');
-		$this->incClass('folder');
-		$this->incClass('folder-collection');
-		$this->incClass('message');
-		$this->incClass('message-collection');
-		$this->incClass('attachment');
-		$this->incClass('attachment-collection');
-		$this->incClass('ics');
-		$this->incClass('vcard');
-		$this->incClass('server');
-		$this->incClass('sieve-enum');
-		$this->incClass('filter');
-		$this->incClass('databyref');
+		$this->incClasses(
+			array(
+				'account',
+				'fetcher',
+				'enum',
+				'folder',
+				'folder-collection',
+				'message',
+				'message-collection',
+				'attachment',
+				'attachment-collection',
+				'ics',
+				'vcard',
+				'sieve-enum',
+				'filter',
+				'databyref',
+				'system-folder'
+			)
+		);
 		
 		$this->oApiAccountsManager = $this->GetManager('accounts');
 		$this->oApiServersManager = $this->GetManager('servers');
@@ -45,19 +49,6 @@ class MailModule extends AApiModule
 		
 		$this->subscribeEvent('Login', array($this, 'onLogin'));
 	}
-	
-	/**
-	 * 
-	 * @return boolean
-	 */
-//	public function SetInheritedUserSettings($oUser, $oDomain)
-//	{
-//		$oUser->{'Mail::AllowAutosaveInDrafts'}		= $oDomain->AllowAutosaveInDrafts;
-//		$oUser->{'Mail::AllowChangeInputDirection'}	= $oDomain->AllowChangeInputDirection;
-//		$oUser->{'Mail::MailsPerPage'}				= $oDomain->MailsPerPage;
-//		$oUser->{'Mail::SaveRepliesToCurrFolder'}	= $oDomain->SaveRepliesToCurrFolder;
-//		$oUser->{'Mail::UseThreads'}				= $oDomain->UseThreads;
-//	}
 	
 	/**
 	 * Obtains list of module settings for authenticated user.
@@ -1603,7 +1594,7 @@ class MailModule extends AApiModule
 			$oEntity = $oManagerApi->getEntity((int) \CApi::getAuthenticatedUserId());
 			if ($oEntity instanceof \AEntity)
 			{
-				$sUUID = $oEntity->sUUID;
+				$sUUID = $oEntity->UUID;
 			}
 		}
 		
