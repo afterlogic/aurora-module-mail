@@ -57,51 +57,6 @@ class CApiMailMainDbStorage extends CApiMailMainStorage
 			)
 		);
 	}
-
-	/**
-	 * Gets information about system folders of the account.
-	 * 
-	 * @param CAccount $oAccount Account object.
-	 *
-	 * @return array|bool
-	 */
-	public function getSystemFolderNames($oAccount)
-	{
-		$mSystemNames = false;
-		if ($this->oConnection->Execute($this->oCommandCreator->getSelectSystemFoldersQuery($oAccount)))
-		{
-			$mSystemNames = array();
-
-			$oRow = null;
-			while (false !== ($oRow = $this->oConnection->GetNextRecord()))
-			{
-				$mSystemNames[$oRow->folder_full_name] = (int) $oRow->system_type;
-			}
-		}
-
-		$this->throwDbExceptionIfExist();
-		return $mSystemNames;
-	}
-
-	/**
-	 * Updates information on system folders use.
-	 * 
-	 * @param CAccount $oAccount Account object.
-	 * @param array $aSystemNames Array containing mapping of folder types and their actual IMAP names: [FolderFullName => FolderType, ...].
-	 *
-	 * @return bool
-	 */
-	public function setSystemFolderNames($oAccount, $aSystemNames)
-	{
-		$this->oConnection->Execute($this->oCommandCreator->getClearSystemFoldersQuery($oAccount));
-		$aSystemNames = is_array($aSystemNames) && 0 < count($aSystemNames) ? $aSystemNames : array();
-		$aSystemNames['INBOX'] = \EFolderType::Inbox;
-
-		$this->oConnection->Execute($this->oCommandCreator->getUpdateSystemFoldersQuery($oAccount, $aSystemNames));
-		$this->throwDbExceptionIfExist();
-		
-		return true;
-	}
 	
 	/**
 	 * Obtains folders order.
