@@ -1373,7 +1373,11 @@ class MailModule extends AApiModule
 	 * @return array
 	 * @throws \System\Exceptions\AuroraApiException
 	 */
-	public function SaveMessage($AccountID, $DraftFolder, $DraftUid, $FetcherID, $IdentityID)
+	public function SaveMessage($AccountID, $FetcherID = "", $IdentityID = "", 
+			$DraftInfo = [], $DraftUid = "", $To = "", $Cc = "", $Bcc = "", 
+			$Subject = "", $Text = "", $IsHtml = false, $Importance = 1, 
+			$ReadingConfirmation = 0, $Attachments = array(), $InReplyTo = "", 
+			$References = "", $Sensitivity = 0, $ShowReport = true, $SentFolder = "", $DraftFolder = "")
 	{
 		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
@@ -1413,7 +1417,9 @@ class MailModule extends AApiModule
 			$oIdentity = $oApiUsers->getIdentity((int) $IdentityID);
 		}
 
-		$oMessage = $this->buildMessage($oAccount, $oFetcher, true, $oIdentity);
+		$oMessage = $this->buildMessage($oAccount, $To, $Cc, $Bcc, 
+			$Subject, $IsHtml, $Text, $Attachments, $DraftInfo, $InReplyTo, $References, $Importance,
+			$Sensitivity, $ReadingConfirmation, $oFetcher, true, $oIdentity);
 		if ($oMessage)
 		{
 			try

@@ -1185,7 +1185,7 @@ class CApiMailMainManager extends AApiManager
 					{
 						$iSecure = $oFetcher->OutgoingMailSecurity;
 					}
-					else if ($oAccount->OutgoingUseSsl)
+					else if ($oAccount->getServer()->OutgoingUseSsl)
 					{
 						$iSecure = \MailSo\Net\Enumerations\ConnectionSecurityType::SSL;
 					}
@@ -1221,10 +1221,10 @@ class CApiMailMainManager extends AApiManager
 					}
 					else
 					{
-						$oSmtpClient->Connect($oAccount->OutgoingServer, $oAccount->OutgoingPort, $sEhlo, $iSecure, $bVerifySsl);
+						$oSmtpClient->Connect($oAccount->getServer()->OutgoingServer, $oAccount->getServer()->OutgoingPort, $sEhlo, $iSecure, $bVerifySsl);
 					}
 					
-					if (($oFetcher && $oFetcher->OutgoingUseAuth) || (!$oFetcher && $oAccount->OutgoingUseAuth))
+					if (($oFetcher && $oFetcher->OutgoingUseAuth) || (!$oFetcher && $oAccount->getServer()->OutgoingUseAuth))
 					{
 						$oSmtpClient->Login($sOutgoingLogin, $sOutgoingPassword);
 					}
