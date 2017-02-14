@@ -66,6 +66,7 @@ class CMailAccount extends AEntity
 			'UseSignature'		=> array('bool', false),
 			'Signature'			=> array('string', ''),
 			'ServerId'			=> array('int',  0),
+			'FoldersOrder'		=> array('text', '')
 		));
 	}
 

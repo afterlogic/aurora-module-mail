@@ -23,7 +23,7 @@
  * 
  * @package Mail
  */
-class CApiMailMainManager extends AApiManagerWithStorage
+class CApiMailMainManager extends AApiManager
 {
 	/**
 	 * @var array List of ImapClient objects.
@@ -45,7 +45,7 @@ class CApiMailMainManager extends AApiManagerWithStorage
 	 */
 	public function __construct(CApiGlobalManager &$oManager, $sForcedStorage = '', AApiModule $oModule = null)
 	{
-		parent::__construct('main', $oManager, $sForcedStorage, $oModule);
+		parent::__construct('main', $oManager, $oModule);
 
 		$this->aImapClientCache = array();
 		
@@ -524,7 +524,16 @@ class CApiMailMainManager extends AApiManagerWithStorage
 	 */
 	public function getFoldersOrder($oAccount)
 	{
-		return $this->oStorage->getFoldersOrder($oAccount);
+		$aList = array();
+		
+		$aOrder = @json_decode($oAccount->FoldersOrder, 3);
+		if (is_array($aOrder) && 0 < count($aOrder))
+		{
+			$aList = $aOrder;
+		}
+
+		
+		return $aList;
 	}
 
 	/**
@@ -537,7 +546,8 @@ class CApiMailMainManager extends AApiManagerWithStorage
 	 */
 	public function updateFoldersOrder($oAccount, $aOrder)
 	{
-		return $this->oStorage->updateFoldersOrder($oAccount, $aOrder);
+		$oAccount->FoldersOrder = @json_encode($aOrder);
+		return $oEavManager->saveEntity($oAccount);
 	}
 
 	/**
@@ -948,7 +958,7 @@ class CApiMailMainManager extends AApiManagerWithStorage
 			}
 		}
 
-		$aOrders = $this->oStorage->getFoldersOrder($oAccount);
+		$aOrders = $this->getFoldersOrder($oAccount);
 		if (is_array($aOrders))
 		{
 			foreach ($aOrders as &$sName)
@@ -956,7 +966,7 @@ class CApiMailMainManager extends AApiManagerWithStorage
 				if ($sPrevFolderFullNameRaw === $sName)
 				{
 					$sName = $sNewFolderFullNameRaw;
-					$this->oStorage->updateFoldersOrder($oAccount, $aOrders);
+					$this->updateFoldersOrder($oAccount, $aOrders);
 					break;
 				}
 			}

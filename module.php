@@ -1161,6 +1161,210 @@ class MailModule extends AApiModule
 	}
 	
 	/**
+	 * When using a memory stream and the read
+	 * filter "convert.base64-encode" the last 
+	 * character is missing from the output if 
+	 * the base64 conversion needs padding bytes. 
+	 * 
+	 * @return bool
+	 */
+	private function FixBase64EncodeOmitsPaddingBytes($sRaw)
+	{
+		$rStream = fopen('php://memory','r+');
+		fwrite($rStream, '0');
+		rewind($rStream);
+		$rFilter = stream_filter_append($rStream, 'convert.base64-encode');
+		
+		if (0 === strlen(stream_get_contents($rStream)))
+		{
+			$iFileSize = \strlen($sRaw);
+			$sRaw = str_pad($sRaw, $iFileSize + ($iFileSize % 3));
+		}
+		
+		return $sRaw;
+	}	
+	
+	/**
+	 * @param \CAccount $oAccount
+	 * @param \CFetcher $oFetcher = null
+	 * @param bool $bWithDraftInfo = true
+	 * @param \CIdentity $oIdentity = null
+	 *
+	 * @return \MailSo\Mime\Message
+	 */
+	private function buildMessage($oAccount, $sTo = '', $sCc = '', $sBcc = '', 
+			$sSubject = '', $bTextIsHtml = false, $sText = '', $aAttachments = null, 
+			$aDraftInfo = null, $sInReplyTo = '', $sReferences = '', $sImportance = '',
+			$sSensitivity = '', $bReadingConfirmation = false,
+			$oFetcher = null, $bWithDraftInfo = true, $oIdentity = null)
+	{
+		$oMessage = \MailSo\Mime\Message::NewInstance();
+		$oMessage->RegenerateMessageId();
+
+		$sXMailer = \CApi::GetConf('webmail.xmailer-value', '');
+		if (0 < strlen($sXMailer))
+		{
+			$oMessage->SetXMailer($sXMailer);
+		}
+
+		if ($oIdentity)
+		{
+			$oFrom = \MailSo\Mime\Email::NewInstance($oIdentity->Email, $oIdentity->FriendlyName);
+		}
+		else
+		{
+			$oFrom = $oFetcher
+				? \MailSo\Mime\Email::NewInstance($oFetcher->Email, $oFetcher->Name)
+				: \MailSo\Mime\Email::NewInstance($oAccount->Email, $oAccount->FriendlyName);
+		}
+
+		$oMessage
+			->SetFrom($oFrom)
+			->SetSubject($sSubject)
+		;
+
+		$oToEmails = \MailSo\Mime\EmailCollection::NewInstance($sTo);
+		if ($oToEmails && $oToEmails->Count())
+		{
+			$oMessage->SetTo($oToEmails);
+		}
+
+		$oCcEmails = \MailSo\Mime\EmailCollection::NewInstance($sCc);
+		if ($oCcEmails && $oCcEmails->Count())
+		{
+			$oMessage->SetCc($oCcEmails);
+		}
+
+		$oBccEmails = \MailSo\Mime\EmailCollection::NewInstance($sBcc);
+		if ($oBccEmails && $oBccEmails->Count())
+		{
+			$oMessage->SetBcc($oBccEmails);
+		}
+
+		if ($bWithDraftInfo && is_array($aDraftInfo) && !empty($aDraftInfo[0]) && !empty($aDraftInfo[1]) && !empty($aDraftInfo[2]))
+		{
+			$oMessage->SetDraftInfo($aDraftInfo[0], $aDraftInfo[1], $aDraftInfo[2]);
+		}
+
+		if (0 < strlen($sInReplyTo))
+		{
+			$oMessage->SetInReplyTo($sInReplyTo);
+		}
+
+		if (0 < strlen($sReferences))
+		{
+			$oMessage->SetReferences($sReferences);
+		}
+		
+		if (0 < strlen($sImportance) && in_array((int) $sImportance, array(
+			\MailSo\Mime\Enumerations\MessagePriority::HIGH,
+			\MailSo\Mime\Enumerations\MessagePriority::NORMAL,
+			\MailSo\Mime\Enumerations\MessagePriority::LOW
+		)))
+		{
+			$oMessage->SetPriority((int) $sImportance);
+		}
+
+		if (0 < strlen($sSensitivity) && in_array((int) $sSensitivity, array(
+			\MailSo\Mime\Enumerations\Sensitivity::NOTHING,
+			\MailSo\Mime\Enumerations\Sensitivity::CONFIDENTIAL,
+			\MailSo\Mime\Enumerations\Sensitivity::PRIVATE_,
+			\MailSo\Mime\Enumerations\Sensitivity::PERSONAL,
+		)))
+		{
+			$oMessage->SetSensitivity((int) $sSensitivity);
+		}
+
+		if ($bReadingConfirmation)
+		{
+			$oMessage->SetReadConfirmation($oFetcher ? $oFetcher->Email : $oAccount->Email);
+		}
+
+		$aFoundCids = array();
+
+		if ($bTextIsHtml)
+		{
+			$sTextConverted = \MailSo\Base\HtmlUtils::ConvertHtmlToPlain($sText);
+			$oMessage->AddText($sTextConverted, false);
+		}
+
+		$mFoundDataURL = array();
+		$aFoundedContentLocationUrls = array();
+
+		$sTextConverted = $bTextIsHtml ? 
+			\MailSo\Base\HtmlUtils::BuildHtml($sText, $aFoundCids, $mFoundDataURL, $aFoundedContentLocationUrls) : $sText;
+		
+		$oMessage->AddText($sTextConverted, $bTextIsHtml);
+
+		if (is_array($aAttachments))
+		{
+			foreach ($aAttachments as $sTempName => $aData)
+			{
+				if (is_array($aData) && isset($aData[0], $aData[1], $aData[2], $aData[3]))
+				{
+					$sFileName = (string) $aData[0];
+					$sCID = (string) $aData[1];
+					$bIsInline = '1' === (string) $aData[2];
+					$bIsLinked = '1' === (string) $aData[3];
+					$sContentLocation = isset($aData[4]) ? (string) $aData[4] : '';
+
+					$oApiFileCache = /* @var $oApiFileCache \CApiFilecacheManager */ \CApi::GetSystemManager('filecache');
+					$rResource = $oApiFileCache->getFile($oAccount->UUID, $sTempName);
+					if (is_resource($rResource))
+					{
+						$iFileSize = $oApiFileCache->fileSize($oAccount->UUID, $sTempName);
+
+						$sCID = trim(trim($sCID), '<>');
+						$bIsFounded = 0 < strlen($sCID) ? in_array($sCID, $aFoundCids) : false;
+
+						if (!$bIsLinked || $bIsFounded)
+						{
+							$oMessage->Attachments()->Add(
+								\MailSo\Mime\Attachment::NewInstance($rResource, $sFileName, $iFileSize, $bIsInline,
+									$bIsLinked, $bIsLinked ? '<'.$sCID.'>' : '', array(), $sContentLocation)
+							);
+						}
+					}
+				}
+			}
+		}
+
+		if ($mFoundDataURL && \is_array($mFoundDataURL) && 0 < \count($mFoundDataURL))
+		{
+			foreach ($mFoundDataURL as $sCidHash => $sDataUrlString)
+			{
+				$aMatch = array();
+				$sCID = '<'.$sCidHash.'>';
+				if (\preg_match('/^data:(image\/[a-zA-Z0-9]+\+?[a-zA-Z0-9]+);base64,(.+)$/i', $sDataUrlString, $aMatch) &&
+					!empty($aMatch[1]) && !empty($aMatch[2]))
+				{
+					$sRaw = \MailSo\Base\Utils::Base64Decode($aMatch[2]);
+					$iFileSize = \strlen($sRaw);
+					if (0 < $iFileSize)
+					{
+						$sFileName = \preg_replace('/[^a-z0-9]+/i', '.', \MailSo\Base\Utils::NormalizeContentType($aMatch[1]));
+						
+						// fix bug #68532 php < 5.5.21 or php < 5.6.5
+						$sRaw = $this->FixBase64EncodeOmitsPaddingBytes($sRaw);
+						
+						$rResource = \MailSo\Base\ResourceRegistry::CreateMemoryResourceFromString($sRaw);
+
+						$sRaw = '';
+						unset($sRaw);
+						unset($aMatch);
+
+						$oMessage->Attachments()->Add(
+							\MailSo\Mime\Attachment::NewInstance($rResource, $sFileName, $iFileSize, true, true, $sCID)
+						);
+					}
+				}
+			}
+		}
+
+		return $oMessage;
+	}	
+	
+	/**
 	 * @param int $AccountID
 	 * @param string $DraftFolder
 	 * @param string $DraftUid
@@ -1249,7 +1453,11 @@ class MailModule extends AApiModule
 	 * @return array
 	 * @throws \System\Exceptions\AuroraApiException
 	 */
-	public function SendMessage($AccountID, $SentFolder, $DraftFolder, $DraftUid, $DraftInfo, $FetcherID, $IdentityID)
+	public function SendMessage($AccountID, $FetcherID = "", $IdentityID = "", 
+			$DraftInfo = [], $DraftUid = "", $To = "", $Cc = "", $Bcc = "", 
+			$Subject = "", $Text = "", $IsHtml = false, $Importance = 1, 
+			$ReadingConfirmation = 0, $Attachments = array(), $InReplyTo = "", 
+			$References = "", $Sensitivity = 0, $ShowReport = true, $SentFolder = "", $DraftFolder = "")
 	{
 		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
@@ -1281,7 +1489,9 @@ class MailModule extends AApiModule
 			$oIdentity = $oApiUsers->getIdentity((int) $IdentityID);
 		}
 
-		$oMessage = $this->buildMessage($oAccount, $oFetcher, false, $oIdentity);
+		$oMessage = $this->buildMessage($oAccount, $To, $Cc, $Bcc, 
+			$Subject, $IsHtml, $Text, $Attachments, $DraftInfo, $InReplyTo, $References, $Importance,
+			$Sensitivity, $ReadingConfirmation, $oFetcher, false, $oIdentity);
 		if ($oMessage)
 		{
 			try
@@ -1615,13 +1825,15 @@ class MailModule extends AApiModule
 	{
 		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
-		$sUUID = $this->getUUIDById($UserId);
+		$sUUID = $this->getUUIDById($AccountID);
+		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 		
 		$sError = '';
 		$aResponse = array();
 
-		if ($sUUID)
+		if ($oAccount instanceof \CMailAccount)
 		{
+			$sUUID = $oAccount->UUID;
 			if (is_array($UploadData))
 			{
 				$sSavedName = 'upload-post-'.md5($UploadData['name'].$UploadData['tmp_name']);
