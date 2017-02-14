@@ -85,3 +85,14 @@ class EFolderType extends AEnumeration
 		'Custom' => self::Custom
 	);
 }
+
+/**
+ * @package Mail
+ * @subpackage Enum
+ */
+class EMailServerOwnerType extends AEnumeration
+{
+	const Account = 'account';
+	const Tenant = 'tenant';
+	const SuperAdmin = 'superadmin';
+}

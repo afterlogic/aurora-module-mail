@@ -50,18 +50,19 @@ class CApiMailServersManager extends AApiManager
 	 * @param boolean $bIncomingUseSsl
 	 * @param string $sOutgoingServer
 	 * @param int $iOutgoingPort
-	 * @param boolean $bOutgoingUseAuth
 	 * @param boolean $bOutgoingUseSsl
+	 * @param boolean $bOutgoingUseAuth
 	 * @param int $iTenantId
 	 * @return boolean
 	 * @throws CApiManagerException
 	 */
-	public function createServer ($sName, $sIncomingServer, $iIncomingPort, $bIncomingUseSsl,
-			$sOutgoingServer, $iOutgoingPort, $bOutgoingUseAuth, $bOutgoingUseSsl, $iTenantId = 0)
+	public function createServer($sName, $sIncomingServer, $iIncomingPort, $bIncomingUseSsl,
+			$sOutgoingServer, $iOutgoingPort, $bOutgoingUseSsl, $bOutgoingUseAuth, $sOwnerType = \EMailServerOwnerType::Account, $iTenantId = 0)
 	{
 		try
 		{
 			$oServer = new CMailServer();
+			$oServer->OwnerType = $sOwnerType;
 			$oServer->TenantId = $iTenantId;
 			$oServer->Name = $sName;
 			$oServer->IncomingServer = $sIncomingServer;
@@ -69,8 +70,8 @@ class CApiMailServersManager extends AApiManager
 			$oServer->IncomingUseSsl = $bIncomingUseSsl;
 			$oServer->OutgoingServer = $sOutgoingServer;
 			$oServer->OutgoingPort = $iOutgoingPort;
-			$oServer->OutgoingUseAuth = $bOutgoingUseAuth;
 			$oServer->OutgoingUseSsl = $bOutgoingUseSsl;
+			$oServer->OutgoingUseAuth = $bOutgoingUseAuth;
 			if (!$this->oEavManager->saveEntity($oServer))
 			{
 				throw new CApiManagerException(Errs::UsersManager_UserCreateFailed);
@@ -145,7 +146,22 @@ class CApiMailServersManager extends AApiManager
 		$iLimit = 0;
 		$sOrderBy = 'Name';
 		$iOrderType = \ESortOrder::ASC;
-		$aFilters = ($iTenantId !== 0) ? ['$TenantId' => [$iTenantId, '=']] : [];
+		
+		$aFilters = [];
+		if ($iTenantId === 0)
+		{
+			$aFilters = ['OwnerType' => [\EMailServerOwnerType::SuperAdmin, '=']];
+		}
+		else
+		{
+			$aFilters = ['OR' => [
+				'OwnerType' => [\EMailServerOwnerType::SuperAdmin, '='],
+				'AND' => [
+					'TenantId' => [$iTenantId, '='],
+					'OwnerType' => [\EMailServerOwnerType::Tenant, '='],
+				],
+			]];
+		}
 		
 		try
 		{
@@ -184,7 +200,7 @@ class CApiMailServersManager extends AApiManager
 	 * @throws CApiManagerException
 	 */
 	public function updateServer($iServerId, $sName, $sIncomingServer, $iIncomingPort, $bIncomingUseSsl,
-			$sOutgoingServer, $iOutgoingPort, $bOutgoingUseAuth, $bOutgoingUseSsl, $iTenantId = 0)
+			$sOutgoingServer, $iOutgoingPort, $bOutgoingUseSsl, $bOutgoingUseAuth, $iTenantId = 0)
 	{
 		$bResult = false;
 		
@@ -199,8 +215,8 @@ class CApiMailServersManager extends AApiManager
 				$oServer->IncomingUseSsl = $bIncomingUseSsl;
 				$oServer->OutgoingServer = $sOutgoingServer;
 				$oServer->OutgoingPort = $iOutgoingPort;
-				$oServer->OutgoingUseAuth = $bOutgoingUseAuth;
 				$oServer->OutgoingUseSsl = $bOutgoingUseSsl;
+				$oServer->OutgoingUseAuth = $bOutgoingUseAuth;
 				if (!$this->oEavManager->saveEntity($oServer))
 				{
 					throw new CApiManagerException(Errs::UsersManager_UserCreateFailed);

@@ -46,6 +46,7 @@ class CMailServer extends AEntity
 			'OutgoingPort'		=> array('int',  25),
 			'OutgoingUseSsl'	=> array('bool', false),
 			'OutgoingUseAuth'	=> array('bool', false),
+			'OwnerType'			=> array('string', \EMailServerOwnerType::Account),
 		));
 	}
 	

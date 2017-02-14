@@ -163,11 +163,11 @@ class MailModule extends AApiModule
 //		
 //		if ($oEventResult instanceOf \CUser)
 //		{
-			if ($Server !== null)
+			$iServerId = $Server['ServerId'];
+			if ($Server !== null && $iServerId === 0)
 			{
-				$Server = (object)$Server;
-				$ServerId = $this->oApiServersManager->createServer($Server->IncomingServer, $Server->IncomingServer, $Server->IncomingPort, $Server->IncomingUseSsl,
-					$Server->OutgoingServer, $Server->OutgoingPort, $Server->OutgoingUseSsl, $Server->OutgoingUseAuth);
+				$iServerId = $this->oApiServersManager->createServer($Server['IncomingServer'], $Server['IncomingServer'], $Server['IncomingPort'], $Server['IncomingUseSsl'],
+					$Server['OutgoingServer'], $Server['OutgoingPort'], $Server['OutgoingUseSsl'], $Server['OutgoingUseAuth']);
 			}
 			
 			$oAccount = \CMailAccount::createInstance();
@@ -179,7 +179,7 @@ class MailModule extends AApiModule
 			$oAccount->IncomingLogin = $IncomingLogin;
 			$oAccount->IncomingPassword = $IncomingPassword;
 			$oAccount->OutgoingLogin = $OutgoingLogin;
-			$oAccount->ServerId = $ServerId;
+			$oAccount->ServerId = $iServerId;
 			if (!$this->oApiAccountsManager->isDefaultUserAccountExists($iUserId))
 			{
 				$oAccount->IsDefaultAccount = true;
@@ -236,9 +236,9 @@ class MailModule extends AApiModule
 				$oAccServer = $oAccount->getServer();
 				if ($oAccServer)
 				{
-					$this->oApiServersManager->updateServer($ServerId, $Server->IncomingServer, $Server->IncomingServer, 
-						$Server->IncomingPort, $Server->IncomingUseSsl, $Server->OutgoingServer, 
-						$Server->OutgoingPort, $Server->OutgoingUseAuth, $Server->OutgoingUseSsl, 0);
+					$this->oApiServersManager->updateServer($ServerId, $Server['IncomingServer'], $Server['IncomingServer'], 
+						$Server['IncomingPort'], $Server['IncomingUseSsl'], $Server['OutgoingServer'], 
+						$Server['OutgoingPort'], $Server['OutgoingUseAuth'], $Server['OutgoingUseSsl'], 0);
 				}
 				
 				$this->oApiAccountsManager->updateAccount($oAccount);
@@ -325,8 +325,10 @@ class MailModule extends AApiModule
 	}
 	
 	public function CreateServer($Name, $IncomingServer, $IncomingPort, $IncomingUseSsl,
-			$OutgoingServer, $OutgoingPort, $OutgoingUseAuth, $OutgoingUseSsl, $TenantId = 0)
+			$OutgoingServer, $OutgoingPort, $OutgoingUseSsl, $OutgoingUseAuth, $TenantId = 0)
 	{
+		$sOwnerType = ($TenantId === 0) ? \EMailServerOwnerType::SuperAdmin : \EMailServerOwnerType::Tenant;
+		
 		if ($TenantId === 0)
 		{
 			\CApi::checkUserRoleIsAtLeast(\EUserRole::SuperAdmin);
@@ -337,11 +339,11 @@ class MailModule extends AApiModule
 		}
 		
 		return $this->oApiServersManager->createServer($Name, $IncomingServer, $IncomingPort, $IncomingUseSsl,
-			$OutgoingServer, $OutgoingPort, $OutgoingUseAuth, $OutgoingUseSsl, $TenantId);
+			$OutgoingServer, $OutgoingPort, $OutgoingUseSsl, $OutgoingUseAuth, $sOwnerType, $TenantId);
 	}
 	
 	public function UpdateServer($ServerId, $Name, $IncomingServer, $IncomingPort, $IncomingUseSsl,
-			$OutgoingServer, $OutgoingPort, $OutgoingUseAuth, $OutgoingUseSsl, $TenantId = 0)
+			$OutgoingServer, $OutgoingPort, $OutgoingUseSsl, $OutgoingUseAuth, $TenantId = 0)
 	{
 		if ($TenantId === 0)
 		{
@@ -353,7 +355,7 @@ class MailModule extends AApiModule
 		}
 		
 		return $this->oApiServersManager->updateServer($ServerId, $Name, $IncomingServer, $IncomingPort, $IncomingUseSsl,
-			$OutgoingServer, $OutgoingPort, $OutgoingUseAuth, $OutgoingUseSsl, $TenantId);
+			$OutgoingServer, $OutgoingPort, $OutgoingUseSsl, $OutgoingUseAuth, $TenantId);
 	}
 	
 	public function DeleteServer($ServerId, $TenantId = 0)
