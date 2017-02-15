@@ -186,7 +186,7 @@ class MailModule extends AApiModule
 	}
 	
 	public function UpdateAccount($AccountID, $Email = null, $FriendlyName = null, $IncomingLogin = null, $IncomingPassword = null, 
-			$OutgoingLogin = null, $ServerId = 0, $Server = null)
+			$OutgoingLogin = null, $Server = null)
 	{
 		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
@@ -216,16 +216,22 @@ class MailModule extends AApiModule
 				{
 					$oAccount->OutgoingLogin = $OutgoingLogin;
 				}
-				if (!empty($ServerId))
+				if ($Server !== null && !empty($Server['ServerId']))
 				{
-					$oAccount->ServerId = $ServerId;
-				}
-				$oAccServer = $oAccount->getServer();
-				if ($oAccServer)
-				{
-					$this->oApiServersManager->updateServer($ServerId, $Server['IncomingServer'], $Server['IncomingServer'], 
-						$Server['IncomingPort'], $Server['IncomingUseSsl'], $Server['OutgoingServer'], 
-						$Server['OutgoingPort'], $Server['OutgoingUseAuth'], $Server['OutgoingUseSsl'], 0);
+					if ($oAccount->ServerId === $Server['ServerId'])
+					{
+						$oAccServer = $oAccount->getServer();
+						if ($oAccServer && $oAccServer->OwnerType === \EMailServerOwnerType::Account)
+						{
+							$this->oApiServersManager->updateServer($Server['ServerId'], $Server['IncomingServer'], $Server['IncomingServer'], 
+								$Server['IncomingPort'], $Server['IncomingUseSsl'], $Server['OutgoingServer'], 
+								$Server['OutgoingPort'], $Server['OutgoingUseAuth'], $Server['OutgoingUseSsl'], 0);
+						}
+					}
+					else
+					{
+						$oAccount->ServerId = $Server['ServerId'];
+					}
 				}
 				
 				$this->oApiAccountsManager->updateAccount($oAccount);
@@ -260,7 +266,16 @@ class MailModule extends AApiModule
 			
 			if ($oAccount)
 			{
-				$bResult = $this->oApiAccountsManager->deleteAccount($oAccount);
+				$bServerRemoved = true;
+				$oServer = $oAccount->getServer();
+				if ($oServer->OwnerType === \EMailServerOwnerType::Account)
+				{
+					$bServerRemoved = $this->oApiServersManager->deleteServer($oServer->iId);
+				}
+				if ($bServerRemoved)
+				{
+					$bResult = $this->oApiAccountsManager->deleteAccount($oAccount);
+				}
 			}
 			
 			return $bResult;
@@ -379,10 +394,9 @@ class MailModule extends AApiModule
 	
 	/**
 	 * @param int $AccountID
-	 * @param string $ClientTimeZone
 	 * @return array | boolean
 	 */
-	public function GetExtensions($AccountID, $ClientTimeZone = '')
+	public function GetExtensions($AccountID)
 	{
 		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
@@ -390,16 +404,6 @@ class MailModule extends AApiModule
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 		if ($oAccount)
 		{
-			if ('' !== $ClientTimeZone)
-			{
-				$oAccount->User->ClientTimeZone = $ClientTimeZone;
-				$oApiUsers = \CApi::GetSystemManager('users');
-				if ($oApiUsers)
-				{
-					$oApiUsers->updateAccount($oAccount);
-				}
-			}
-
 			$mResult = array();
 			$mResult['Extensions'] = array();
 

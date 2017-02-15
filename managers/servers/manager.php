@@ -92,14 +92,14 @@ class CApiMailServersManager extends AApiManager
 	 * @param int $iTenantId
 	 * @return boolean
 	 */
-	public function deleteServer($iServerId, $iTenantId)
+	public function deleteServer($iServerId, $iTenantId = 0)
 	{
 		$bResult = false;
 		
 		try
 		{
 			$oServer = $this->getServer($iServerId);
-			if ($oServer && $oServer->TenantId === $iTenantId)
+			if ($oServer && ($oServer->OwnerType !== \EMailServerOwnerType::Tenant || $oServer->TenantId === $iTenantId))
 			{
 				$bResult = $this->oEavManager->deleteEntity($iServerId);
 			}
