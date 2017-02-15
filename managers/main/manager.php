@@ -887,7 +887,6 @@ class CApiMailMainManager extends AApiManager
 
 		if (0 < strlen($sDelimiter) && false !== strpos($sNameToCreate, $sDelimiter))
 		{
-			// TODO
 			throw new CApiBaseException(Errs::Mail_FolderNameContainDelimiter);
 		}
 
@@ -946,7 +945,6 @@ class CApiMailMainManager extends AApiManager
 		$aFolders = $oImapClient->FolderList('', $sPrevFolderFullNameRaw);
 		if (!is_array($aFolders) || !isset($aFolders[0]))
 		{
-			// TODO
 			throw new CApiBaseException(Errs::Mail_CannotRenameNonExistenFolder);
 		}
 
@@ -969,7 +967,6 @@ class CApiMailMainManager extends AApiManager
 
 		if (0 < strlen($sDelimiter) && false !== strpos($sNewFolderFullNameRaw, $sDelimiter))
 		{
-			// TODO
 			throw new CApiBaseException(Errs::Mail_FolderNameContainDelimiter);
 		}
 
