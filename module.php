@@ -153,7 +153,7 @@ class MailModule extends AApiModule
 		if ($Server !== null && $iServerId === 0)
 		{
 			$iServerId = $this->oApiServersManager->createServer(
-				Server['IncomingServer'], 
+				$Server['IncomingServer'], 
 				$Server['IncomingServer'], 
 				$Server['IncomingPort'], 
 				$Server['IncomingUseSsl'],
