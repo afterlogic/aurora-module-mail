@@ -386,7 +386,41 @@ class CApiMailMainManager extends AApiManager
 
 		return $bAddSystemFolder;
 	}
+	
+	public function isSafetySender($iIdUser, $sEmail)
+	{
+		$bResult = false;
+		$aEntities = $this->oEavManager->getEntities(
+			'CSender', 
+			array(),
+			0,
+			1,
+			array(
+				'IdUser' => $iIdUser,
+				'Email' => $sEmail
+			)
+		);
+		if (count($aEntities) > 0)
+		{
+			$bResult = true;
+		}
+		
+		return $bResult;
+	}
 
+	public function setSafetySender($iIdUser, $sEmail)
+	{
+		$bResult = true;
+		if (!$this->isSafetySender($iIdUser, $sEmail))
+		{
+			$oEntity = new \CSender();
+			$oEntity->IdUser = $iIdUser;
+			$oEntity->Email = $sEmail;
+			$bResult = $this->oEavManager->saveEntity($oEntity);
+		}
+
+		return $bResult;
+	}
 	/**
 	 * Obtains the list of IMAP folders.
 	 * 

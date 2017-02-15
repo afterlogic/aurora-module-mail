@@ -25,7 +25,8 @@ class MailModule extends AApiModule
 				'sieve-enum',
 				'filter',
 				'databyref',
-				'system-folder'
+				'system-folder',
+				'sender'
 			)
 		);
 		
@@ -147,55 +148,41 @@ class MailModule extends AApiModule
 		{
 			$iUserId = \CApi::getAuthenticatedUserId();
 		}
-		/* TODO: doesn't work with event broadcasting */
-//		$oEventResult = null;
-//		$aArgs = array(
-//			'TenantId' => $mIdTenant,
-//			'UserId' => $iUserId,
-//			'login' => $sLogin,
-//			'password' => $sPassword
-//		);
-//		$this->broadcastEvent(
-//			'CreateAccount', 
-//			$aArgs,
-//			$oEventResult
-//		);
-//		
-//		if ($oEventResult instanceOf \CUser)
-//		{
-			$iServerId = $Server['ServerId'];
-			if ($Server !== null && $iServerId === 0)
-			{
-				$iServerId = $this->oApiServersManager->createServer($Server['IncomingServer'], $Server['IncomingServer'], $Server['IncomingPort'], $Server['IncomingUseSsl'],
-					$Server['OutgoingServer'], $Server['OutgoingPort'], $Server['OutgoingUseSsl'], $Server['OutgoingUseAuth']);
-			}
-			
-			$oAccount = \CMailAccount::createInstance();
-			
-//			$oAccount->IdUser = $oEventResult->iId;
-			$oAccount->IdUser = $iUserId;
-			$oAccount->FriendlyName = $FriendlyName;
-			$oAccount->Email = $Email;
-			$oAccount->IncomingLogin = $IncomingLogin;
-			$oAccount->IncomingPassword = $IncomingPassword;
-			$oAccount->OutgoingLogin = $OutgoingLogin;
-			$oAccount->ServerId = $iServerId;
-			if (!$this->oApiAccountsManager->isDefaultUserAccountExists($iUserId))
-			{
-				$oAccount->IsDefaultAccount = true;
-			}
 
-			$this->oApiAccountsManager->createAccount($oAccount);
-			return $oAccount ? array(
-				'IdAccount' => $oAccount->iId
-			) : false;
-//		}
-//		else
-//		{
-//			throw new \System\Exceptions\AuroraApiException(\System\Notifications::NonUserPassed);
-//		}
+		$iServerId = $Server['ServerId'];
+		if ($Server !== null && $iServerId === 0)
+		{
+			$iServerId = $this->oApiServersManager->createServer(
+				Server['IncomingServer'], 
+				$Server['IncomingServer'], 
+				$Server['IncomingPort'], 
+				$Server['IncomingUseSsl'],
+				$Server['OutgoingServer'], 
+				$Server['OutgoingPort'], 
+				$Server['OutgoingUseSsl'], 
+				$Server['OutgoingUseAuth']
+			);
+		}
 
-		return false;
+		$oAccount = \CMailAccount::createInstance();
+
+		$oAccount->IdUser = $iUserId;
+		$oAccount->FriendlyName = $FriendlyName;
+		$oAccount->Email = $Email;
+		$oAccount->IncomingLogin = $IncomingLogin;
+		$oAccount->IncomingPassword = $IncomingPassword;
+		$oAccount->OutgoingLogin = $OutgoingLogin;
+		$oAccount->ServerId = $iServerId;
+		if (!$this->oApiAccountsManager->isDefaultUserAccountExists($iUserId))
+		{
+			$oAccount->IsDefaultAccount = true;
+		}
+
+		$this->oApiAccountsManager->createAccount($oAccount);
+
+		return $oAccount ? array(
+			'IdAccount' => $oAccount->iId
+		) : false;
 	}
 	
 	public function UpdateAccount($AccountID, $Email = null, $FriendlyName = null, $IncomingLogin = null, $IncomingPassword = null, 
@@ -643,13 +630,13 @@ class MailModule extends AApiModule
 				}
 			}
 
-			/* TODO: broadcast of events doesn't work */
-//			$aParts = $oBodyStructure->GetAllParts();
-//			
-//			$this->broadcastEvent(
-//				'GetBodyStructureParts', 
-//				array($aParts, &$aCustomParts)
-//			);
+			$aParts = $oBodyStructure->GetAllParts();
+			
+			$this->broadcastEvent(
+				'GetBodyStructureParts', 
+				$aParts, 
+				$aCustomParts
+			);
 			
 			$bParseAsc = true;
 			if ($bParseAsc)
@@ -745,12 +732,10 @@ class MailModule extends AApiModule
 
 			if (0 < strlen($sFromEmail))
 			{
-//				$oApiUsersManager = /* @var CApiUsersManager */ CApi::GetSystemManager('users');
 				$bAlwaysShowImagesInMessage = !!\CApi::GetSettingsConf('WebMail/AlwaysShowImagesInMessage');
-				$oMessage->setSafety($bAlwaysShowImagesInMessage);
-				/*TODO: $oApiUsersManager->getSafetySender doesn't work */
-//				$oMessage->setSafety($bAlwaysShowImagesInMessage ? true : 
-//						$oApiUsersManager->getSafetySender($oAccount->IdUser, $sFromEmail, true));
+
+				$oMessage->setSafety($bAlwaysShowImagesInMessage ? true : 
+						$this->oApiMailManager->isSafetySender($oAccount->IdUser, $sFromEmail));
 			}
 			
 			$aData = array();
@@ -1738,8 +1723,7 @@ class MailModule extends AApiModule
 
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 
-		$oApiUsers = \CApi::GetSystemManager('users');
-		$oApiUsers->setSafetySender($oAccount->IdUser, $Email);
+		$this->oApiMailManager->setSafetySender($oAccount->IdUser, $Email);
 
 		return true;
 	}	
