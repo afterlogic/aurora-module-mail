@@ -193,11 +193,7 @@ class MailModule extends AApiModule
 
 		$this->oApiAccountsManager->createAccount($oAccount);
 
-		return $oAccount ? array(
-			'AccountID' => $oAccount->EntityId,
-			'CanAuthorize' => $oAccount->CanAuthorize,
-			'ServerId' => $oAccount->ServerId,
-		) : false;
+		return $oAccount;
 	}
 	
 	public function UpdateAccount($AccountID, $Email = null, $FriendlyName = null, $IncomingLogin = null, $IncomingPassword = null, 
