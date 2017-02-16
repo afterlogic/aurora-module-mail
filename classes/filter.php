@@ -40,7 +40,7 @@ class CFilter extends api_AContainer
 		parent::__construct(get_class($this));
 
 		$this->SetDefaults(array(
-			'IdAccount'	=> $oAccount->IdAccount,
+			'IdAccount'	=> $oAccount->EntityId,
 			'Enable'	=> true,
 			'Field'		=> EFilterFiels::From,
 			'Filter'	=> '',

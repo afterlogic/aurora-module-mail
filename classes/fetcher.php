@@ -64,7 +64,7 @@ class CFetcher extends api_AContainer
 
 		$this->SetDefaults(array(
 			'IdFetcher'				=> 0,
-			'IdAccount'				=> $oAccount->IdAccount,
+			'IdAccount'				=> $oAccount->EntityId,
 			'IdUser'				=> $oAccount->IdUser,
 			'IdDomain'				=> $oAccount->IdDomain,
 			'IdTenant'				=> $oAccount->IdTenant,

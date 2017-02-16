@@ -94,7 +94,13 @@ class MailModule extends AApiModule
 		if ($oUser && $oUser->Role !== \EUserRole::SuperAdmin)
 		{
 			$aAcc = $this->oApiAccountsManager->getUserAccounts($oUser->EntityId);
-			$aSettings['Accounts'] = array_values($aAcc);
+			$aResponseAcc = [];
+			foreach($aAcc as $oAccount)
+			{
+				$oAccount->getServer();
+				$aResponseAcc[] = $oAccount->toResponseArray();
+			}
+			$aSettings['Accounts'] = $aResponseAcc;
 			$aSettings['AllowAutosaveInDrafts'] = $oUser->{$this->GetName().'::AllowAutosaveInDrafts'};
 			$aSettings['AllowChangeInputDirection'] = $oUser->{$this->GetName().'::AllowChangeInputDirection'};
 			$aSettings['MailsPerPage'] = $oUser->{$this->GetName().'::MailsPerPage'};
@@ -188,7 +194,9 @@ class MailModule extends AApiModule
 		$this->oApiAccountsManager->createAccount($oAccount);
 
 		return $oAccount ? array(
-			'IdAccount' => $oAccount->EntityId
+			'AccountID' => $oAccount->EntityId,
+			'CanAuthorize' => $oAccount->CanAuthorize,
+			'ServerId' => $oAccount->ServerId,
 		) : false;
 	}
 	
@@ -1671,7 +1679,7 @@ class MailModule extends AApiModule
 			$sFileName = $FileName.'.pdf';
 			$sMimeType = 'application/pdf';
 
-			$sSavedName = 'pdf-'.$oAccount->IdAccount.'-'.md5($sFileName.microtime(true)).'.pdf';
+			$sSavedName = 'pdf-'.$oAccount->EntityId.'-'.md5($sFileName.microtime(true)).'.pdf';
 			
 			include_once AURORA_APP_ROOT_PATH.'vendors/other/CssToInlineStyles.php';
 
@@ -1706,7 +1714,7 @@ class MailModule extends AApiModule
 					'Size' =>  (int) $oApiFileCache->fileSize($oAccount, $sSavedName),
 					'Hash' => \CApi::EncodeKeyValues(array(
 						'TempFile' => true,
-						'AccountID' => $oAccount->IdAccount,
+						'AccountID' => $oAccount->EntityId,
 						'Name' => $sFileName,
 						'TempName' => $sSavedName
 					))

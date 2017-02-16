@@ -36,7 +36,7 @@ class CApiMailFetchersCommandCreator extends api_CommandCreator
 		$sSql = 'SELECT %s FROM %sawm_fetchers WHERE %s = %d';
 
 		return sprintf($sSql, implode(', ', $aMap), $this->prefix(),
-			$this->escapeColumn('id_acct'), $oAccount->IdAccount);
+			$this->escapeColumn('id_acct'), $oAccount->EntityId);
 	}
 
 	/**
@@ -48,7 +48,7 @@ class CApiMailFetchersCommandCreator extends api_CommandCreator
 	{
 		$sSql = 'DELETE FROM %sawm_fetchers WHERE %s = %d AND %s = %d';
 		return sprintf($sSql, $this->prefix(),
-			$this->escapeColumn('id_acct'), $oAccount->IdAccount,
+			$this->escapeColumn('id_acct'), $oAccount->EntityId,
 			$this->escapeColumn('id_fetcher'), $iFetcherID);
 	}
 
@@ -81,7 +81,7 @@ class CApiMailFetchersCommandCreator extends api_CommandCreator
 
 		$sSql = 'UPDATE %sawm_fetchers SET %s WHERE %s = %d AND %s = %d';
 		return sprintf($sSql, $this->prefix(), implode(', ', $aResult),
-			$this->escapeColumn('id_acct'), $oAccount->IdAccount,
+			$this->escapeColumn('id_acct'), $oAccount->EntityId,
 			$this->escapeColumn('id_fetcher'), $oFetcher->IdFetcher);
 	}
 }

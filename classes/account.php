@@ -94,4 +94,13 @@ class CMailAccount extends AEntity
 	{
 		return 0;
 	}
+	
+	public function toResponseArray()
+	{
+		$aResponse = parent::toResponseArray();
+		$aResponse['AccountID'] = $this->EntityId;
+		$oServer = $this->getServer();
+		$aResponse['Server'] = $oServer->toResponseArray();
+		return $aResponse;
+	}
 }

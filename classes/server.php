@@ -54,4 +54,11 @@ class CMailServer extends AEntity
 	{
 		return new CMailServer();
 	}
+	
+	public function toResponseArray()
+	{
+		$aResponse = parent::toResponseArray();
+		$aResponse['ServerId'] = $this->EntityId;
+		return $aResponse;
+	}
 }

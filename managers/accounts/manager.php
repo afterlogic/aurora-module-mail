@@ -174,34 +174,19 @@ class CApiMailAccountsManager extends AApiManager
 		$mResult = false;
 		try
 		{
-			$aResults = $this->oEavManager->getEntities(
+			$mResult = $this->oEavManager->getEntities(
 				'CMailAccount',
 				array(),
 				0,
 				0,
 				array('IdUser' => $iUserId, 'IsDisabled' => false)
 			);
-
-			if (is_array($aResults))
-			{
-				$mResult = array();
-				foreach($aResults as $oItem)
-				{
-					$mResult[$oItem->EntityId] = array(
-						'AccountID' => $oItem->EntityId,
-						'CanAuthorize' => (bool) $oItem->CanAuthorize,
-						'Email' => $oItem->Email,
-						'FriendlyName' => $oItem->FriendlyName,
-						'Signature' => $oItem->Signature,
-						'UseSignature' => (bool) $oItem->UseSignature,
-					);
-				}
-			}
 		}
 		catch (CApiBaseException $oException)
 		{
 			$this->setLastException($oException);
 		}
+		
 		return $mResult;
 	}
 	
