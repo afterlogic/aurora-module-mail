@@ -185,9 +185,9 @@ class MailModule extends AApiModule
 		if ($oCoreDecorator)
 		{
 			$oUser = $oCoreDecorator->GetUser($iUserId);
-			if ($oUser instanceof \CUser && $oUser->PublicId === $Email && !$this->oApiAccountsManager->canAuthorizeAccountExists($Email))
+			if ($oUser instanceof \CUser && $oUser->PublicId === $Email && !$this->oApiAccountsManager->useToAuthorizeAccountExists($Email))
 			{
-				$oAccount->CanAuthorize = true;
+				$oAccount->UseToAuthorize = true;
 			}
 		}
 
@@ -393,7 +393,7 @@ class MailModule extends AApiModule
 		
 		return array(
 			'Id' => $oAccount->EntityId,
-			'CanAuthorize' => $oAccount->CanAuthorize,
+			'UseToAuthorize' => $oAccount->UseToAuthorize,
 			'Email' => $oAccount->Email,
 			'FriendlyName' => $oAccount->FriendlyName,
 			'IncomingLogin' => $oAccount->IncomingLogin,

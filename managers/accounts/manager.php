@@ -132,7 +132,7 @@ class CApiMailAccountsManager extends AApiManager
 	 * @param string $sEmail
 	 * @return array
 	 */
-	public function canAuthorizeAccountExists($sEmail)
+	public function useToAuthorizeAccountExists($sEmail)
 	{
 		$bExists = false;
 		
@@ -147,7 +147,7 @@ class CApiMailAccountsManager extends AApiManager
 				0,
 				array(
 					'Email' => $sEmail,
-					'CanAuthorize' => true
+					'UseToAuthorize' => true
 				)
 			);
 			
