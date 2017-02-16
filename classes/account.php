@@ -61,7 +61,7 @@ class CMailAccount extends AEntity
 			'FriendlyName'		=> array('string', ''),
 			'DetectSpecialFoldersWithXList' => array('bool', false),
 			'IncomingLogin'		=> array('string', ''),
-			'IncomingPassword'	=> array('string', ''),
+			'IncomingPassword'	=> array('encrypted', ''),
 			'OutgoingLogin'		=> array('string', ''),
 			'UseSignature'		=> array('bool', false),
 			'Signature'			=> array('string', ''),

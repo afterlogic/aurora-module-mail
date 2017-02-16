@@ -110,20 +110,14 @@ class CApiMailAccountsManager extends AApiManager
 				0,
 				array(
 					'Email' => $sEmail,
-					'IsDisabled' => false
+					'IsDisabled' => false,
+					'IncomingPassword' => $sIncomingPassword
 				)
 			);
 			
-			if (is_array($aResults))
+			if (is_array($aResults) && isset($aResults[0]))
 			{
-				foreach ($aResults as $oTmpAccount)
-				{
-					$oServer = $oTmpAccount->getServer();
-					if ($oServer->IncomingPassword === $sIncomingPassword)
-					{
-						$oAccount = $oTmpAccount;
-					}
-				}
+				$oAccount = $aResults[0];
 			}
 		}
 		catch (CApiBaseException $oException)
