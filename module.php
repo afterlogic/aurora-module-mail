@@ -281,7 +281,7 @@ class MailModule extends AApiModule
 				$oServer = $oAccount->getServer();
 				if ($oServer->OwnerType === \EMailServerOwnerType::Account)
 				{
-					$bServerRemoved = $this->oApiServersManager->deleteServer($oServer->iId);
+					$bServerRemoved = $this->oApiServersManager->deleteServer($oServer->EntityId);
 				}
 				if ($bServerRemoved)
 				{
