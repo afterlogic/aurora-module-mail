@@ -173,9 +173,16 @@ class MailModule extends AApiModule
 		$oAccount->IncomingPassword = $IncomingPassword;
 		$oAccount->OutgoingLogin = $OutgoingLogin;
 		$oAccount->ServerId = $iServerId;
-		if (!$this->oApiAccountsManager->isDefaultUserAccountExists($iUserId))
+		
+		$oUser = null;
+		$oCoreDecorator = \CApi::GetModuleDecorator('Core');
+		if ($oCoreDecorator)
 		{
-			$oAccount->IsDefaultAccount = true;
+			$oUser = $oCoreDecorator->GetUser($iUserId);
+			if ($oUser instanceof \CUser && $oUser->PublicId === $Email && !$this->oApiAccountsManager->canAuthorizeAccountExists($Email))
+			{
+				$oAccount->CanAuthorize = true;
+			}
 		}
 
 		$this->oApiAccountsManager->createAccount($oAccount);
@@ -382,7 +389,7 @@ class MailModule extends AApiModule
 		
 		return array(
 			'Id' => $oAccount->EntityId,
-			'IsDefault' => $oAccount->IsDefaultAccount,
+			'CanAuthorize' => $oAccount->CanAuthorize,
 			'Email' => $oAccount->Email,
 			'FriendlyName' => $oAccount->FriendlyName,
 			'IncomingLogin' => $oAccount->IncomingLogin,

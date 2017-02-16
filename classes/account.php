@@ -53,7 +53,7 @@ class CMailAccount extends AEntity
 			'IsDisabled'		=> array('bool', false),
 			'IdUser'			=> array('int', 0),
 			'IsInternal'		=> array('bool', false),
-			'IsDefaultAccount'	=> array('bool', false),
+			'CanAuthorize'		=> array('bool', false),
 			'IsMailingList'		=> array('bool', false),
 			'StorageQuota'		=> array('int', 0),
 			'StorageUsedSpace'	=> array('int', 0),

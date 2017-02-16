@@ -129,14 +129,10 @@ class CApiMailAccountsManager extends AApiManager
 	}
 	
 	/**
-	 * Retrieves information on particular WebMail Pro user. 
-	 * 
-	 * 
-	 * @param int $iUserId User identifier.
-	 * 
-	 * @return CUser | false
+	 * @param string $sEmail
+	 * @return array
 	 */
-	public function isDefaultUserAccountExists ($iUserId)
+	public function canAuthorizeAccountExists($sEmail)
 	{
 		$bExists = false;
 		
@@ -145,13 +141,13 @@ class CApiMailAccountsManager extends AApiManager
 			$aResults = $this->oEavManager->getEntities(
 				'CMailAccount', 
 				array(
-					'IdUser'
+					'Email'
 				),
 				0,
 				0,
 				array(
-					'IdUser' => $iUserId,
-					'IsDefaultAccount' => true
+					'Email' => $sEmail,
+					'CanAuthorize' => true
 				)
 			);
 			
@@ -193,13 +189,11 @@ class CApiMailAccountsManager extends AApiManager
 				{
 					$mResult[$oItem->EntityId] = array(
 						'AccountID' => $oItem->EntityId,
-						'IsDefault' => (bool) $oItem->IsDefaultAccount,
+						'CanAuthorize' => (bool) $oItem->CanAuthorize,
 						'Email' => $oItem->Email,
 						'FriendlyName' => $oItem->FriendlyName,
 						'Signature' => $oItem->Signature,
 						'UseSignature' => (bool) $oItem->UseSignature,
-						'IsPasswordSpecified' => true,
-						'AllowMail' => true
 					);
 				}
 			}
