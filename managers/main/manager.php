@@ -186,7 +186,7 @@ class CApiMailMainManager extends AApiManager
 				0,
 				1,
 				array(
-					'IdUser' => $oAccount->iId,
+					'IdUser' => $oAccount->EntityId,
 					'Type' => $iTypeValue
 				)
 			);
@@ -197,7 +197,7 @@ class CApiMailMainManager extends AApiManager
 			}
 			else 
 			{
-				$oSystemFolder->IdUser = $oAccount->iId;
+				$oSystemFolder->IdUser = $oAccount->EntityId;
 			}
 			$oSystemFolder->FolderFullName = $sKey;
 			$oSystemFolder->Type = $iTypeValue;
@@ -223,7 +223,7 @@ class CApiMailMainManager extends AApiManager
 			0,
 			9,
 			array(
-				'IdUser' => $oAccount->iId
+				'IdUser' => $oAccount->EntityId
 			)
 		);
 		if (count($aEntities) > 0)

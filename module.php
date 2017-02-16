@@ -93,7 +93,7 @@ class MailModule extends AApiModule
 		$oUser = \CApi::getAuthenticatedUser();
 		if ($oUser && $oUser->Role !== \EUserRole::SuperAdmin)
 		{
-			$aAcc = $this->oApiAccountsManager->getUserAccounts($oUser->iId);
+			$aAcc = $this->oApiAccountsManager->getUserAccounts($oUser->EntityId);
 			$aSettings['Accounts'] = array_values($aAcc);
 			$aSettings['AllowAutosaveInDrafts'] = $oUser->{$this->GetName().'::AllowAutosaveInDrafts'};
 			$aSettings['AllowChangeInputDirection'] = $oUser->{$this->GetName().'::AllowChangeInputDirection'};
@@ -181,7 +181,7 @@ class MailModule extends AApiModule
 		$this->oApiAccountsManager->createAccount($oAccount);
 
 		return $oAccount ? array(
-			'IdAccount' => $oAccount->iId
+			'IdAccount' => $oAccount->EntityId
 		) : false;
 	}
 	
@@ -238,7 +238,7 @@ class MailModule extends AApiModule
 			}
 			
 			return $oAccount ? array(
-				'iObjectId' => $oAccount->iId
+				'EntityId' => $oAccount->EntityId
 			) : false;
 		}
 		else
@@ -302,7 +302,7 @@ class MailModule extends AApiModule
 					'token' => 'auth',
 					'sign-me' => $aArgs['SignMe'],
 					'id' => $oAccount->IdUser,
-					'account' => $oAccount->iId
+					'account' => $oAccount->EntityId
 				);
 			}
 			catch (\Exception $oEx) {}
@@ -381,7 +381,7 @@ class MailModule extends AApiModule
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 		
 		return array(
-			'Id' => $oAccount->iId,
+			'Id' => $oAccount->EntityId,
 			'IsDefault' => $oAccount->IsDefaultAccount,
 			'Email' => $oAccount->Email,
 			'FriendlyName' => $oAccount->FriendlyName,

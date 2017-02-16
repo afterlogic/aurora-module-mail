@@ -76,7 +76,7 @@ class CApiMailServersManager extends AApiManager
 			{
 				throw new CApiManagerException(Errs::UsersManager_UserCreateFailed);
 			}
-			return $oServer->iId;
+			return $oServer->EntityId;
 		}
 		catch (CApiBaseException $oException)
 		{

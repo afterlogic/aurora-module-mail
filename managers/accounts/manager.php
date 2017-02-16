@@ -197,8 +197,8 @@ class CApiMailAccountsManager extends AApiManager
 				$mResult = array();
 				foreach($aResults as $oItem)
 				{
-					$mResult[$oItem->iId] = array(
-						'AccountID' => $oItem->iId,
+					$mResult[$oItem->EntityId] = array(
+						'AccountID' => $oItem->EntityId,
 						'IsDefault' => (bool) $oItem->IsDefaultAccount,
 						'Email' => $oItem->Email,
 						'FriendlyName' => $oItem->FriendlyName,
@@ -239,7 +239,7 @@ class CApiMailAccountsManager extends AApiManager
 			{
 				foreach($aResults as $oObject)
 				{
-					if ($oObject->iId !== $oAccount->iId)
+					if ($oObject->EntityId !== $oAccount->EntityId)
 					{
 						$bResult = true;
 						break;
@@ -331,7 +331,7 @@ class CApiMailAccountsManager extends AApiManager
 		$bResult = false;
 		try
 		{
-			$bResult = $this->oEavManager->deleteEntity($oAccount->iId);
+			$bResult = $this->oEavManager->deleteEntity($oAccount->EntityId);
 		}
 		catch (CApiBaseException $oException)
 		{
