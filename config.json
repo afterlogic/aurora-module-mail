@@ -16,7 +16,7 @@
 		"bool"
 	],
 	"AllowChangeEmailSettings": [
-		false,
+		true,
 		"bool"
 	],
 	"AllowChangeInputDirection": [
