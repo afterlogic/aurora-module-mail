@@ -1229,8 +1229,7 @@ class CApiMailMainManager extends AApiManager
 
 					if (0 === strlen($sOutgoingLogin))
 					{
-						$sOutgoingLogin = $oAccount->OutgoingLogin;
-						$sOutgoingLogin = 0 < strlen($sOutgoingLogin) ? $sOutgoingLogin : $oAccount->IncomingLogin;
+						$sOutgoingLogin = $oAccount->IncomingLogin;
 					}
 
 					$sOutgoingPassword = '';
