@@ -57,11 +57,6 @@ class CMailAccount extends AEntity
 		'FoldersOrder'		=> array('text', '')
 	);
 
-	public static function createInstance($sModule = 'Mail')
-	{
-		return new CMailAccount($sModule);
-	}
-	
 	public function updateServer($iServerId)
 	{
 		$this->oServer = null;
