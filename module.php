@@ -190,12 +190,15 @@ class MailModule extends AApiModule
 			}
 		}
 
-		$this->oApiAccountsManager->createAccount($oAccount);
-
-		return $oAccount;
+		if ($this->oApiAccountsManager->createAccount($oAccount))
+		{
+			return $oAccount;
+		}
+		
+		return false;
 	}
 	
-	public function UpdateAccount($AccountID, $Email = null, $FriendlyName = null, $IncomingLogin = null, 
+	public function UpdateAccount($AccountID, $UseToAuthorize = null, $Email = null, $FriendlyName = null, $IncomingLogin = null, 
 			$IncomingPassword = null, $Server = null)
 	{
 		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
@@ -210,7 +213,11 @@ class MailModule extends AApiModule
 				{
 					$oAccount->Email = $Email;
 				}
-				if (!empty($FriendlyName))
+				if ($UseToAuthorize === false || $UseToAuthorize === true && !$this->oApiAccountsManager->useToAuthorizeAccountExists($oAccount->Email, $oAccount->EntityId))
+				{
+					$oAccount->UseToAuthorize = $UseToAuthorize;
+				}
+				if ($FriendlyName !== null)
 				{
 					$oAccount->FriendlyName = $FriendlyName;
 				}
@@ -236,16 +243,20 @@ class MailModule extends AApiModule
 					}
 					else
 					{
-						$oAccount->ServerId = $Server['ServerId'];
+						$oAccServer = $oAccount->getServer();
+						if ($oAccServer && $oAccServer->OwnerType === \EMailServerOwnerType::Account)
+						{
+							$this->oApiServersManager->deleteServer($oAccServer->EntityId);
+						}
+						$oAccount->updateServer($Server['ServerId']);
 					}
 				}
 				
-				$this->oApiAccountsManager->updateAccount($oAccount);
+				if ($this->oApiAccountsManager->updateAccount($oAccount))
+				{
+					return $oAccount;
+				}
 			}
-			
-			return $oAccount ? array(
-				'EntityId' => $oAccount->EntityId
-			) : false;
 		}
 		else
 		{
@@ -294,7 +305,7 @@ class MailModule extends AApiModule
 	
 	public function onLogin($aArgs, &$mResult)
 	{
-		$oAccount = $this->oApiAccountsManager->getAccountByCredentials(
+		$oAccount = $this->oApiAccountsManager->getUseToAuthorizeAccount(
 			$aArgs['Login'], 
 			$aArgs['Password']
 		);
@@ -378,23 +389,6 @@ class MailModule extends AApiModule
 		}
 		
 		return $this->oApiServersManager->deleteServer($ServerId, $TenantId);
-	}
-	
-	public function GetAccountSettings($AccountID)
-	{
-		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
-		
-		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
-		
-		return array(
-			'Id' => $oAccount->EntityId,
-			'UseToAuthorize' => $oAccount->UseToAuthorize,
-			'Email' => $oAccount->Email,
-			'FriendlyName' => $oAccount->FriendlyName,
-			'IncomingLogin' => $oAccount->IncomingLogin,
-			'ServerId' => $oAccount->ServerId,
-			'Server' => $oAccount->getServer(),
-		);
 	}
 	
 	/**

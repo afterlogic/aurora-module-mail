@@ -90,15 +90,12 @@ class CApiMailAccountsManager extends AApiManager
 	}
 	
 	/**
-	 * Retrieves information on particular WebMail Pro user. 
 	 * 
-	 * @todo not used
-	 * 
-	 * @param int $iUserId User identifier.
-	 * 
-	 * @return CUser | false
+	 * @param string $sEmail
+	 * @param string $sIncomingPassword
+	 * @return CMailAccount|boolean
 	 */
-	public function getAccountByCredentials($sEmail, $sIncomingPassword)
+	public function getUseToAuthorizeAccount($sEmail, $sIncomingPassword)
 	{
 		$oAccount = false;
 		try
@@ -111,7 +108,8 @@ class CApiMailAccountsManager extends AApiManager
 				array(
 					'Email' => $sEmail,
 					'IsDisabled' => false,
-					'IncomingPassword' => $sIncomingPassword
+					'IncomingPassword' => $sIncomingPassword,
+					'UseToAuthorize' => [true, '=']
 				)
 			);
 			
@@ -130,9 +128,10 @@ class CApiMailAccountsManager extends AApiManager
 	
 	/**
 	 * @param string $sEmail
+	 * @param int $iExceptId
 	 * @return array
 	 */
-	public function useToAuthorizeAccountExists($sEmail)
+	public function useToAuthorizeAccountExists($sEmail, $iExceptId = 0)
 	{
 		$bExists = false;
 		
@@ -146,14 +145,20 @@ class CApiMailAccountsManager extends AApiManager
 				0,
 				0,
 				array(
-					'Email' => $sEmail,
-					'UseToAuthorize' => true
+					'Email' => [$sEmail, '='],
+					'UseToAuthorize' => [true, '=']
 				)
 			);
 			
 			if (is_array($aResults) && count($aResults) > 0)
 			{
-				$bExists = true;
+				foreach ($aResults as $oAccount)
+				{
+					if ($oAccount->EntityId !== $iExceptId)
+					{
+						$bExists = true;
+					}
+				}
 			}
 		}
 		catch (CApiBaseException $oException)
@@ -202,22 +207,20 @@ class CApiMailAccountsManager extends AApiManager
 		{
 			$aResults = $this->oEavManager->getEntities(
 				'CMailAccount',
-				array('Email'),
+				['Email'],
 				0,
 				0,
-				array('Email' => $oAccount->Email)
+				[
+					'$AND' => [
+						'Email' => [$oAccount->Email, '='],
+						'IdUser' => [$oAccount->IdUser, '=']
+					]
+				]
 			);
 
-			if ($aResults)
+			if ($aResults && count($aResults) > 0)
 			{
-				foreach($aResults as $oObject)
-				{
-					if ($oObject->EntityId !== $oAccount->EntityId)
-					{
-						$bResult = true;
-						break;
-					}
-				}
+				$bResult = true;
 			}
 		}
 		catch (CApiBaseException $oException)
@@ -243,12 +246,12 @@ class CApiMailAccountsManager extends AApiManager
 				{
 					if (!$this->oEavManager->saveEntity($oAccount))
 					{
-						throw new CApiManagerException(Errs::UsersManager_UserCreateFailed);
+						throw new CApiManagerException(Errs::UserManager_AccountCreateFailed);
 					}
 				}
 				else
 				{
-					throw new CApiManagerException(Errs::UsersManager_UserAlreadyExists);
+					throw new \System\Exceptions\AuroraApiException(\System\Notifications::AccountExists);
 				}
 			}
 

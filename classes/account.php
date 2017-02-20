@@ -57,6 +57,18 @@ class CMailAccount extends AEntity
 		'FoldersOrder'		=> array('text', '')
 	);
 
+	public static function createInstance($sModule = 'Mail')
+	{
+		return new CMailAccount($sModule);
+	}
+	
+	public function updateServer($iServerId)
+	{
+		$this->oServer = null;
+		$this->ServerId = $iServerId;
+		$this->oServer = $this->getServer();
+	}
+	
 	public function getServer()
 	{
 		if ($this->oServer === null && $this->ServerId !== 0)
@@ -65,6 +77,12 @@ class CMailAccount extends AEntity
 			$this->oServer = $oMailModule->oApiServersManager->getServer($this->ServerId);
 		}
 		return $this->oServer;
+	}
+	
+	private function canBeUsedToAuthorize()
+	{
+		$oMailModule = \CApi::GetModule('Mail');
+		return !$oMailModule->oApiAccountsManager->useToAuthorizeAccountExists($this->Email, $this->EntityId);
 	}
 	
 	public function isExtensionEnabled($sExtention)
@@ -83,6 +101,7 @@ class CMailAccount extends AEntity
 		$aResponse['AccountID'] = $this->EntityId;
 		$oServer = $this->getServer();
 		$aResponse['Server'] = $oServer->toResponseArray();
+		$aResponse['CanBeUsedToAuthorize'] = $this->canBeUsedToAuthorize();
 		return $aResponse;
 	}
 }
