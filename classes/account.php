@@ -38,40 +38,25 @@ class CMailAccount extends AEntity
 	
 	private $oServer = null;
 	
-	/**
-	 * Creates a new instance of the object.
-	 * 
-	 * @return void
-	 */
-	public function __construct($sModule)
-	{
-		parent::__construct(get_class($this), $sModule);
-		
-		$this->setStaticMap(array(
-			'IsDisabled'		=> array('bool', false),
-			'IdUser'			=> array('int', 0),
-			'IsInternal'		=> array('bool', false),
-			'UseToAuthorize'	=> array('bool', false),
-			'IsMailingList'		=> array('bool', false),
-			'StorageQuota'		=> array('int', 0),
-			'StorageUsedSpace'	=> array('int', 0),
-			'Email'				=> array('string', ''),
-			'FriendlyName'		=> array('string', ''),
-			'DetectSpecialFoldersWithXList' => array('bool', false),
-			'IncomingLogin'		=> array('string', ''),
-			'IncomingPassword'	=> array('encrypted', ''),
-			'UseSignature'		=> array('bool', false),
-			'Signature'			=> array('string', ''),
-			'ServerId'			=> array('int',  0),
-			'FoldersOrder'		=> array('text', '')
-		));
-	}
+	protected $aStaticMap = array(
+		'IsDisabled'		=> array('bool', false),
+		'IdUser'			=> array('int', 0),
+		'IsInternal'		=> array('bool', false),
+		'UseToAuthorize'	=> array('bool', false),
+		'IsMailingList'		=> array('bool', false),
+		'StorageQuota'		=> array('int', 0),
+		'StorageUsedSpace'	=> array('int', 0),
+		'Email'				=> array('string', ''),
+		'FriendlyName'		=> array('string', ''),
+		'DetectSpecialFoldersWithXList' => array('bool', false),
+		'IncomingLogin'		=> array('string', ''),
+		'IncomingPassword'	=> array('encrypted', ''),
+		'UseSignature'		=> array('bool', false),
+		'Signature'			=> array('string', ''),
+		'ServerId'			=> array('int',  0),
+		'FoldersOrder'		=> array('text', '')
+	);
 
-	public static function createInstance($sModule = 'Mail')
-	{
-		return new CMailAccount($sModule);
-	}
-	
 	public function getServer()
 	{
 		if ($this->oServer === null && $this->ServerId !== 0)

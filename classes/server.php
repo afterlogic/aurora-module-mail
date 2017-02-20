@@ -25,34 +25,19 @@
  */
 class CMailServer extends AEntity
 {
-	/**
-	 * Creates a new instance of the object.
-	 * 
-	 * @return void
-	 */
-	public function __construct()
-	{
-		parent::__construct(get_class($this), 'Mail');
-		
-		$this->setStaticMap(array(
-			'TenantId'			=> array('int',  0),
-			'Name'				=> array('string', ''),
-			'IncomingServer'	=> array('string', ''),
-			'IncomingPort'		=> array('int',  143),
-			'IncomingUseSsl'	=> array('bool', false),
-			'OutgoingServer'	=> array('string', ''),
-			'OutgoingPort'		=> array('int',  25),
-			'OutgoingUseSsl'	=> array('bool', false),
-			'OutgoingUseAuth'	=> array('bool', false),
-			'OwnerType'			=> array('string', \EMailServerOwnerType::Account),
-		));
-	}
-	
-	public static function createInstance()
-	{
-		return new CMailServer();
-	}
-	
+	protected $aStaticMap = array(
+		'TenantId'			=> array('int',  0),
+		'Name'				=> array('string', ''),
+		'IncomingServer'	=> array('string', ''),
+		'IncomingPort'		=> array('int',  143),
+		'IncomingUseSsl'	=> array('bool', false),
+		'OutgoingServer'	=> array('string', ''),
+		'OutgoingPort'		=> array('int',  25),
+		'OutgoingUseSsl'	=> array('bool', false),
+		'OutgoingUseAuth'	=> array('bool', false),
+		'OwnerType'			=> array('string', \EMailServerOwnerType::Account)	
+	);	
+
 	public function toResponseArray()
 	{
 		$aResponse = parent::toResponseArray();

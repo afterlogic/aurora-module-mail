@@ -29,21 +29,11 @@
  */
 class CSystemFolder extends AEntity
 {
-	public function __construct()
-	{
-		parent::__construct(get_class($this), 'Mail');
-
-		$this->setStaticMap(array(
-			'IdUser'			=> array('int', 0),
-			'FolderFullName'	=> array('string', ''),
-			'Type'				=> array('int', 0),
-		));
-	}
-
-	public static function createInstance()
-	{
-		return new CSystemFolder();
-	}
+	protected $aStaticMap = array(
+		'IdUser'			=> array('int', 0),
+		'FolderFullName'	=> array('string', ''),
+		'Type'				=> array('int', 0)
+	);
 
 	public function toResponseArray()
 	{

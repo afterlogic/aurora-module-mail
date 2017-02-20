@@ -28,20 +28,10 @@
  */
 class CSender extends AEntity
 {
-	public function __construct()
-	{
-		parent::__construct(get_class($this), 'Mail');
-
-		$this->setStaticMap(array(
-			'IdUser'	=> array('int', 0),
-			'Email'		=> array('string', '')
-		));
-	}
-
-	public static function createInstance()
-	{
-		return new CSender();
-	}
+	protected $aStaticMap = array(
+		'IdUser'	=> array('int', 0),
+		'Email'		=> array('string', '')
+	);	
 
 	public function toResponseArray()
 	{
