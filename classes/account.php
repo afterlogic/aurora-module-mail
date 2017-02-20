@@ -43,11 +43,9 @@ class CMailAccount extends AEntity
 	 * 
 	 * @return void
 	 */
-	public function __construct($sModule, $oParams)
+	public function __construct($sModule)
 	{
 		parent::__construct(get_class($this), $sModule);
-		
-		$this->__USE_TRIM_IN_STRINGS__ = true;
 		
 		$this->setStaticMap(array(
 			'IsDisabled'		=> array('bool', false),
@@ -69,9 +67,9 @@ class CMailAccount extends AEntity
 		));
 	}
 
-	public static function createInstance($sModule = 'Mail', $oParams = array())
+	public static function createInstance($sModule = 'Mail')
 	{
-		return new CMailAccount($sModule, $oParams);
+		return new CMailAccount($sModule);
 	}
 	
 	public function getServer()

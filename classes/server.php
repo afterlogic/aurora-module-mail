@@ -34,8 +34,6 @@ class CMailServer extends AEntity
 	{
 		parent::__construct(get_class($this), 'Mail');
 		
-		$this->__USE_TRIM_IN_STRINGS__ = true;
-		
 		$this->setStaticMap(array(
 			'TenantId'			=> array('int',  0),
 			'Name'				=> array('string', ''),
