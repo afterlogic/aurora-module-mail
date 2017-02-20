@@ -23,7 +23,7 @@
  * @package Users
  * @subpackage Classes
  */
-class CMailServer extends AEntity
+class CMailServer extends CEntity
 {
 	protected $aStaticMap = array(
 		'TenantId'			=> array('int',  0),

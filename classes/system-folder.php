@@ -27,7 +27,7 @@
  * @package Mail
  * @subpackage Classes
  */
-class CSystemFolder extends AEntity
+class CSystemFolder extends CEntity
 {
 	protected $aStaticMap = array(
 		'IdUser'			=> array('int', 0),

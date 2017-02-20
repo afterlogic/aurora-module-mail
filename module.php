@@ -1799,7 +1799,7 @@ class MailModule extends AApiModule
 		{
 			$oManagerApi = \CApi::GetSystemManager('eav', 'db');
 			$oEntity = $oManagerApi->getEntity((int) \CApi::getAuthenticatedUserId());
-			if ($oEntity instanceof \AEntity)
+			if ($oEntity instanceof \CEntity)
 			{
 				$sUUID = $oEntity->UUID;
 			}

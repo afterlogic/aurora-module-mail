@@ -23,7 +23,7 @@
  * @package Users
  * @subpackage Classes
  */
-class CMailAccount extends AEntity
+class CMailAccount extends CEntity
 {
 	const ChangePasswordExtension = 'AllowChangePasswordExtension';
 	const AutoresponderExtension = 'AllowAutoresponderExtension';

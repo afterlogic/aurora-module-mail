@@ -26,7 +26,7 @@
  * @package Mail
  * @subpackage Classes
  */
-class CSender extends AEntity
+class CSender extends CEntity
 {
 	protected $aStaticMap = array(
 		'IdUser'	=> array('int', 0),
