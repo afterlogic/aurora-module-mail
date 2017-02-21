@@ -170,7 +170,7 @@ class MailModule extends AApiModule
 			);
 		}
 
-		$oAccount = \CMailAccount::createInstance();
+		$oAccount = new CMailAccount();
 
 		$oAccount->IdUser = $iUserId;
 		$oAccount->FriendlyName = $FriendlyName;
