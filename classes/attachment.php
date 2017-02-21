@@ -347,6 +347,7 @@ class CApiMailAttachment
 			'FileName' => $this->getFileName(true)
 		));		 
 				
+		$mResult['Actions'] = array('download', 'view');
 		$mResult['Hash'] = $sHash;
 		$mResult['DownloadUrl'] = '?mail-attachment/' . $sHash;
 		$mResult['ViewUrl'] = '?mail-attachment/' . $sHash . '/view';
