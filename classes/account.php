@@ -44,8 +44,6 @@ class CMailAccount extends CEntity
 		'IsInternal'		=> array('bool', false),
 		'UseToAuthorize'	=> array('bool', false),
 		'IsMailingList'		=> array('bool', false),
-		'StorageQuota'		=> array('int', 0),
-		'StorageUsedSpace'	=> array('int', 0),
 		'Email'				=> array('string', ''),
 		'FriendlyName'		=> array('string', ''),
 		'DetectSpecialFoldersWithXList' => array('bool', false),

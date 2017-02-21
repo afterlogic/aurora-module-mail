@@ -43,38 +43,19 @@ class CApiMailAccountsManager extends AApiManager
 	}
 
 	/**
-	 * Retrieves information on particular WebMail Pro user. 
 	 * 
-	 * @todo not used
-	 * 
-	 * @param int $iAccountId Account identifier.
-	 * 
-	 * @return CUser | false
+	 * @param int $iAccountId
+	 * @return boolean|CMailAccount
+	 * @throws CApiBaseException
 	 */
 	public function getAccountById($iAccountId)
 	{
-		$oAccount = null;
+		$mAccount = false;
 		try
 		{
 			if (is_numeric($iAccountId))
 			{
-				$iAccountId = (int) $iAccountId;
-				if (null === $oAccount)
-				{
-//					$oAccount = $this->oStorage->getUserById($iUserId);
-					$oAccount = $this->oEavManager->getEntity($iAccountId);
-					
-					if ($oAccount instanceof \CMailAccount)
-					{
-						//TODO method needs to be refactored according to the new system of properties inheritance
-//						$oApiDomainsManager = CApi::GetCoreManager('domains');
-//						$oDomain = $oApiDomainsManager->getDefaultDomain();
-						
-//						$oAccount->setInheritedSettings(array(
-//							'domain' => $oDomain
-//						));
-					}
-				}
+				$mAccount = $this->oEavManager->getEntity((int) $iAccountId);
 			}
 			else
 			{
@@ -83,10 +64,10 @@ class CApiMailAccountsManager extends AApiManager
 		}
 		catch (CApiBaseException $oException)
 		{
-			$oAccount = false;
+			$mAccount = false;
 			$this->setLastException($oException);
 		}
-		return $oAccount;
+		return $mAccount;
 	}
 	
 	/**

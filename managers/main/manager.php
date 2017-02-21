@@ -319,7 +319,6 @@ class CApiMailMainManager extends AApiManager
 					}
 				);
 
-				// set system type from domain settings
 				if (is_array($aFoldersMap) && 0 < count($aFoldersMap))
 				{
 					$oFolderCollection->foreachOnlyRoot(

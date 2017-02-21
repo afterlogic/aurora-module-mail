@@ -22,7 +22,6 @@
  * @property int $IdFetcher
  * @property int $IdAccount
  * @property int $IdUser
- * @property int $IdDomain
  * @property int $IdTenant
  * @property bool $IsEnabled
  * @property bool $IsLocked
@@ -66,7 +65,6 @@ class CFetcher extends api_AContainer
 			'IdFetcher'				=> 0,
 			'IdAccount'				=> $oAccount->EntityId,
 			'IdUser'				=> $oAccount->IdUser,
-			'IdDomain'				=> $oAccount->IdDomain,
 			'IdTenant'				=> $oAccount->IdTenant,
 			'IsEnabled'				=> true,
 			'IsLocked'				=> false,
@@ -108,7 +106,6 @@ class CFetcher extends api_AContainer
 			'IdFetcher'				=> array('int', 'id_fetcher', false, false),
 			'IdAccount'				=> array('int', 'id_acct', true, false),
 			'IdUser'				=> array('int', 'id_user', true, false),
-			'IdDomain'				=> array('int', 'id_domain', true, false),
 			'IdTenant'				=> array('int', 'id_tenant', true, false),
 
 			'IsEnabled'				=> array('bool', 'enabled'),
