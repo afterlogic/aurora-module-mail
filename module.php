@@ -6,6 +6,11 @@ class MailModule extends AApiModule
 	public $oApiAccountsManager = null;
 	public $oApiServersManager = null;
 	
+	/* 
+	 * @var $oApiFileCache \CApiFilecacheManager 
+	 */	
+	public $oApiFileCache = null;
+	
 	public function init() 
 	{
 		$this->incClasses(
@@ -33,6 +38,8 @@ class MailModule extends AApiModule
 		$this->oApiAccountsManager = $this->GetManager('accounts');
 		$this->oApiServersManager = $this->GetManager('servers');
 		$this->oApiMailManager = $this->GetManager('main');
+		$this->oApiFileCache = \CApi::GetSystemManager('filecache');
+		
 		
 		$this->extendObject('CUser', array(
 				'AllowAutosaveInDrafts'		=> array('bool', true),
@@ -45,7 +52,8 @@ class MailModule extends AApiModule
 
 		$this->AddEntries(array(
 				'autodiscover' => 'EntryAutodiscover',
-				'message-newtab' => 'EntryMessageNewtab'
+				'message-newtab' => 'EntryMessageNewtab',
+				'mail-attachment' => 'EntryDownloadAttachment'
 			)
 		);
 		
@@ -1330,11 +1338,10 @@ class MailModule extends AApiModule
 					$bIsLinked = '1' === (string) $aData[3];
 					$sContentLocation = isset($aData[4]) ? (string) $aData[4] : '';
 
-					$oApiFileCache = /* @var $oApiFileCache \CApiFilecacheManager */ \CApi::GetSystemManager('filecache');
-					$rResource = $oApiFileCache->getFile($oAccount->UUID, $sTempName);
+					$rResource = $this->oApiFileCache->getFile($oAccount->UUID, $sTempName);
 					if (is_resource($rResource))
 					{
-						$iFileSize = $oApiFileCache->fileSize($oAccount->UUID, $sTempName);
+						$iFileSize = $this->oApiFileCache->fileSize($oAccount->UUID, $sTempName);
 
 						$sCID = trim(trim($sCID), '<>');
 						$bIsFounded = 0 < strlen($sCID) ? in_array($sCID, $aFoundCids) : false;
@@ -1721,15 +1728,14 @@ class MailModule extends AApiModule
 				$oSnappy->setOption('quiet', true);
 				$oSnappy->setOption('disable-javascript', true);
 
-				$oApiFileCache = \CApi::GetSystemManager('filecache');
 				$oSnappy->generateFromHtml($oCssToInlineStyles->convert(),
-					$oApiFileCache->generateFullFilePath($oAccount, $sSavedName), array(), true);
+					$this->oApiFileCache->generateFullFilePath($oAccount->UUID, $sSavedName), array(), true);
 
 				return array(
 					'Name' => $sFileName,
 					'TempName' => $sSavedName,
 					'MimeType' => $sMimeType,
-					'Size' =>  (int) $oApiFileCache->fileSize($oAccount, $sSavedName),
+					'Size' =>  (int) $this->oApiFileCache->fileSize($oAccount->UUID, $sSavedName),
 					'Hash' => \CApi::EncodeKeyValues(array(
 						'TempFile' => true,
 						'AccountID' => $oAccount->EntityId,
@@ -1871,10 +1877,9 @@ class MailModule extends AApiModule
 				}
 				else
 				{
-					$oApiFileCacheManager = \CApi::GetSystemManager('filecache');
-					if ($oApiFileCacheManager->moveUploadedFile($sUUID, $sSavedName, $UploadData['tmp_name']))
+					if ($this->oApiFileCache->moveUploadedFile($sUUID, $sSavedName, $UploadData['tmp_name']))
 					{
-						$rData = $oApiFileCacheManager->getFile($sUUID, $sSavedName);
+						$rData = $this->oApiFileCache->getFile($sUUID, $sSavedName);
 					}
 				}
 				if ($rData)
@@ -2041,4 +2046,262 @@ class MailModule extends AApiModule
 			}
 		}
 	}
+	
+	public function EntryDownloadAttachment()
+	{
+		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		$aPath = \System\Service::GetPaths();
+		$sHash = (string) isset($aPath[1]) ? $aPath[1] : '';
+		$sAction = (string) isset($aPath[2]) ? $aPath[2] : '';	
+
+		$this->getRaw($sHash, $sAction);		
+	}	
+	
+	/**
+	 * @param string $sFileName
+	 * @param string $sContentType
+	 * @param string $sMimeIndex = ''
+	 *
+	 * @return string
+	 */
+	public function clearFileName($sFileName, $sContentType, $sMimeIndex = '')
+	{
+		$sFileName = 0 === strlen($sFileName) ? preg_replace('/[^a-zA-Z0-9]/', '.', (empty($sMimeIndex) ? '' : $sMimeIndex.'.').$sContentType) : $sFileName;
+		$sClearedFileName = preg_replace('/[\s]+/', ' ', preg_replace('/[\.]+/', '.', $sFileName));
+		$sExt = \MailSo\Base\Utils::GetFileExtension($sClearedFileName);
+
+		$iSize = 100;
+		if ($iSize < strlen($sClearedFileName) - strlen($sExt))
+		{
+			$sClearedFileName = substr($sClearedFileName, 0, $iSize).(empty($sExt) ? '' : '.'.$sExt);
+		}
+
+		return \MailSo\Base\Utils::ClearFileName(\MailSo\Base\Utils::Utf8Clear($sClearedFileName));
+	}	
+	
+	/**
+	 * @param bool $bDownload
+	 * @param string $sContentType
+	 * @param string $sFileName
+	 *
+	 * @return bool
+	 */
+	public function RawOutputHeaders($bDownload, $sContentType, $sFileName)
+	{
+		if ($bDownload)
+		{
+			header('Content-Type: '.$sContentType, true);
+		}
+		else
+		{
+			$aParts = explode('/', $sContentType, 2);
+			if (in_array(strtolower($aParts[0]), array('image', 'video', 'audio')) ||
+				in_array(strtolower($sContentType), array('application/pdf', 'application/x-pdf', 'text/html')))
+			{
+				header('Content-Type: '.$sContentType, true);
+			}
+			else
+			{
+				header('Content-Type: text/plain', true);
+			}
+		}
+
+		header('Content-Disposition: '.($bDownload ? 'attachment' : 'inline' ).'; '.
+			\trim(\MailSo\Base\Utils::EncodeHeaderUtf8AttributeValue('filename', $sFileName)), true);
+		
+		header('Accept-Ranges: none', true);
+		header('Content-Transfer-Encoding: binary');
+	}
+	
+	public function thumbResource($oAccount, $rResource, $sFileName)
+	{
+		$sMd5Hash = md5(rand(1000, 9999));
+		
+		$this->oApiFileCache->putFile($oAccount->UUID, 'Raw/Thumbnail/'.$sMd5Hash, $rResource, '_'.$sFileName);
+		if ($this->oApiFileCache->isFileExists($oAccount->UUID, 'Raw/Thumbnail/'.$sMd5Hash, '_'.$sFileName))
+		{
+			$sFullFilePath = $this->oApiFileCache->generateFullFilePath($oAccount->UUID, 'Raw/Thumbnail/'.$sMd5Hash, '_'.$sFileName);
+			$iRotateAngle = 0;
+			if (function_exists('exif_read_data')) 
+			{ 
+				if ($exif_data = @exif_read_data($sFullFilePath, 'IFD0')) 
+				{ 
+					switch (@$exif_data['Orientation']) 
+					{ 
+						case 1: 
+							$iRotateAngle = 0; 
+							break; 
+						case 3: 
+							$iRotateAngle = 180; 
+							break; 
+						case 6: 
+							$iRotateAngle = 270; 
+							break; 
+						case 8: 
+							$iRotateAngle = 90; 
+							break; 
+					}
+				}
+			}
+			
+			try
+			{
+				$oThumb = new \PHPThumb\GD(
+					$sFullFilePath
+				);
+				if ($iRotateAngle > 0)
+				{
+					$oThumb->rotateImageNDegrees($iRotateAngle);
+				}
+				
+				$oThumb->adaptiveResize(120, 100)->show();
+			}
+			catch (\Exception $oE) {}
+		}
+
+		$this->oApiFileCache->clear($oAccount->UUID, 'Raw/Thumbnail/'.$sMd5Hash, '_'.$sFileName);
+	}	
+	
+	/**
+	 * @return bool
+	 */
+	private function rawCallback($sRawKey, $fCallback, $bCache = true, &$oAccount = null)
+	{
+		$aValues = \CApi::DecodeKeyValues($sRawKey);
+		
+		$sFolder = '';
+		$iUid = 0;
+		$sMimeIndex = '';
+
+		$oAccount = null;
+
+		if (isset($aValues['AccountID']))
+		{
+			$oAccount = $this->oApiAccountsManager->getAccountById((int) $aValues['AccountID']);
+			
+			if (!$oAccount || \CApi::getAuthenticatedUserId() !== $oAccount->IdUser)
+			{
+				return false;
+			}
+		}
+
+		$sFolder = isset($aValues['Folder']) ? $aValues['Folder'] : '';
+		$iUid = (int) (isset($aValues['Uid']) ? $aValues['Uid'] : 0);
+		$sMimeIndex = (string) (isset($aValues['MimeIndex']) ? $aValues['MimeIndex'] : '');
+		$sContentTypeIn = (string) (isset($aValues['MimeType']) ? $aValues['MimeType'] : '');
+		$sFileNameIn = (string) (isset($aValues['FileName']) ? $aValues['FileName'] : '');
+
+		if ($bCache && 0 < strlen($sFolder) && 0 < $iUid)
+		{
+//			$this->verifyCacheByKey($sRawKey);
+		}
+
+		$self = $this;
+		return $this->oApiMailManager->directMessageToStream($oAccount,
+			function($rResource, $sContentType, $sFileName, $sMimeIndex = '') use ($self, $oAccount, $fCallback, $sRawKey, $bCache, $sContentTypeIn, $sFileNameIn) {
+				if (is_resource($rResource))
+				{
+					$sContentTypeOut = $sContentTypeIn;
+					if (empty($sContentTypeOut))
+					{
+						$sContentTypeOut = $sContentType;
+						if (empty($sContentTypeOut))
+						{
+							$sContentTypeOut = (empty($sFileName)) ? 'text/plain' : \MailSo\Base\Utils::MimeContentType($sFileName);
+						}
+					}
+
+					$sFileNameOut = $sFileNameIn;
+					if (empty($sFileNameOut) || '.' === $sFileNameOut{0})
+					{
+						$sFileNameOut = $sFileName;
+					}
+
+					$sFileNameOut = $self->clearFileName($sFileNameOut, $sContentType, $sMimeIndex);
+
+					if ($bCache)
+					{
+//						$self->cacheByKey($sRawKey);
+					}
+
+					call_user_func_array($fCallback, array(
+						$oAccount, $sContentTypeOut, $sFileNameOut, $rResource
+					));
+				}
+			}, $sFolder, $iUid, $sMimeIndex);
+	}
+	
+	
+	/**
+	 */
+	private function getRaw($sHash, $sAction = '')
+	{
+		$self = $this;
+		$bDownload = true;
+		$bThumbnail = false;
+		
+		switch ($sAction)
+		{
+			case 'view':
+				$bDownload = false;
+				$bThumbnail = false;
+			break;
+			case 'thumb':
+				$bDownload = false;
+				$bThumbnail = true;
+			break;
+			default:
+				$bDownload = true;
+				$bThumbnail = false;
+			break;
+		}
+		
+		return $this->rawCallback($sHash, 
+				function ($oAccount, $sContentType, $sFileName, $rResource) use ($self, $bDownload, $bThumbnail) {
+			
+			$self->RawOutputHeaders($bDownload, $sContentType, $sFileName);
+
+			if (!$bDownload && 'text/html' === $sContentType)
+			{
+				$sHtml = stream_get_contents($rResource);
+				if ($sHtml)
+				{
+					$sCharset = '';
+					$aMacth = array();
+					if (preg_match('/charset[\s]?=[\s]?([^\s"\']+)/i', $sHtml, $aMacth) && !empty($aMacth[1]))
+					{
+						$sCharset = $aMacth[1];
+					}
+
+					if ('' !== $sCharset && \MailSo\Base\Enumerations\Charset::UTF_8 !== $sCharset)
+					{
+						$sHtml = \MailSo\Base\Utils::ConvertEncoding($sHtml,
+							\MailSo\Base\Utils::NormalizeCharset($sCharset, true), \MailSo\Base\Enumerations\Charset::UTF_8);
+					}
+
+					include_once PSEVEN_APP_ROOT_PATH.'libraries/other/CssToInlineStyles.php';
+
+					$oCssToInlineStyles = new \TijsVerkoyen\CssToInlineStyles\CssToInlineStyles($sHtml);
+					$oCssToInlineStyles->setEncoding('utf-8');
+					$oCssToInlineStyles->setUseInlineStylesBlock(true);
+
+					echo '<html><head></head><body>'.
+						\MailSo\Base\HtmlUtils::ClearHtmlSimple($oCssToInlineStyles->convert(), true, true).
+						'</body></html>';
+				}
+			}
+			else
+			{
+				if ($bThumbnail && !$bDownload)
+				{
+					$self->thumbResource($oAccount, $rResource, $sFileName);
+				}
+				else
+				{
+					\MailSo\Base\Utils::FpassthruWithTimeLimitReset($rResource);
+				}
+			}
+			
+		}, !$bDownload);
+	}	
 }

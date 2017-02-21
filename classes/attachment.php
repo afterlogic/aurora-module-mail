@@ -336,8 +336,8 @@ class CApiMailAttachment
 			'IsLinked' => (!empty($sCid) && $mFoundedCIDs && \in_array($sCid, $mFoundedCIDs)) ||
 				($mFoundedContentLocationUrls && \in_array(\trim($this->getContentLocation()), $mFoundedContentLocationUrls))
 		));
-
-		$mResult['Hash'] = \CApi::EncodeKeyValues(array(
+		
+		$sHash = \CApi::EncodeKeyValues(array(
 			'Iframed' => $mResult['Iframed'],
 			'AccountID' => $iAccountID, 
 			'Folder' => $this->getFolder(),
@@ -345,7 +345,17 @@ class CApiMailAttachment
 			'MimeIndex' => $sMimeIndex,
 			'MimeType' =>  $sMimeType,
 			'FileName' => $this->getFileName(true)
-		));		
+		));		 
+				
+		$mResult['Hash'] = $sHash;
+		$mResult['DownloadUrl'] = '?mail-attachment/' . $sHash;
+		$mResult['ViewUrl'] = '?mail-attachment/' . $sHash . '/view';
+		if (\CApi::GetConf('labs.allow-thumbnail', true) &&
+				$iEstimatedSize < $iThumbnailLimit && \api_Utils::IsGDImageMimeTypeSuppoted($sMimeType, $sFileName))
+		{
+			$mResult['ThumbnailUrl'] = '?mail-attachment/' . $sHash . '/thumb';
+		}
+		
 		
 		return $mResult;
 	}
