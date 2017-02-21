@@ -326,6 +326,9 @@ class CApiMailAttachment
 			'EstimatedSize' => $iEstimatedSize,
 			'CID' => $sCid,
 			'ContentLocation' => $this->getContentLocation(),
+			'Thumb' => \CApi::GetConf('labs.allow-thumbnail', true) &&
+				$iEstimatedSize < $iThumbnailLimit &&
+				\api_Utils::IsGDImageMimeTypeSuppoted($sMimeType, $sFileName),
 			'Expand' =>\CApi::isExpandMimeTypeSupported($sMimeType, $sFileName),
 			'Iframed' =>\CApi::isIframedMimeTypeSupported($sMimeType, $sFileName),
 			'Content' => $this->getContent(),
@@ -335,6 +338,7 @@ class CApiMailAttachment
 		));
 		
 		$sHash = \CApi::EncodeKeyValues(array(
+			'Iframed' => $mResult['Iframed'],
 			'AccountID' => $iAccountID, 
 			'Folder' => $this->getFolder(),
 			'Uid' => $this->getUid(),
@@ -343,8 +347,6 @@ class CApiMailAttachment
 			'FileName' => $this->getFileName(true)
 		));		 
 				
-		$mResult['Actions'] = array('view', 'download');
-		$mResult['Hash'] = $sHash;
 		$mResult['DownloadUrl'] = '?mail-attachment/' . $sHash;
 		$mResult['ViewUrl'] = '?mail-attachment/' . $sHash . '/view';
 		if (\CApi::GetConf('labs.allow-thumbnail', true) &&
@@ -352,6 +354,7 @@ class CApiMailAttachment
 		{
 			$mResult['ThumbnailUrl'] = '?mail-attachment/' . $sHash . '/thumb';
 		}
+		
 		
 		return $mResult;
 	}
