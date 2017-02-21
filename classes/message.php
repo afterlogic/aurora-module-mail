@@ -1096,14 +1096,17 @@ class CApiMailMessage
 		{
 			$mResult['IsForwarded'] = in_array($sLowerForwarded, $aFlags);
 		}
-
-		$mResult['Hash'] = \CApi::EncodeKeyValues(array(
+		
+		$sHash = \CApi::EncodeKeyValues(array(
 			'AccountID' => $iAccountID,
 			'Folder' => $mResult['Folder'],
 			'Uid' => $mResult['Uid'],
 			'MimeType' => 'message/rfc822',
 			'FileName' => $mResult['Subject'].'.eml'
 		));
+		$mResult['DownloadAsEmlUrl'] = '?mail-attachment/' . $sHash;
+
+		$mResult['Hash'] = $sHash;
 
 		$sMethod = \CApiResponseManager::GetMethod();		
 		if (isset($aParameters['Method']) && ('GetMessage' === $aParameters['Method'] || 'GetMessagesBodies' === $aParameters['Method']))
