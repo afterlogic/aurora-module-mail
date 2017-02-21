@@ -50,6 +50,27 @@ class MailModule extends AApiModule
 		);
 		
 		$this->subscribeEvent('Login', array($this, 'onLogin'));
+		$this->subscribeEvent('Core::AfterDeleteUser', array($this, 'onAfterDeleteUser'));
+	}
+	
+	/**
+	 * Deletes all mail accounts which are owened by the specified user.
+	 * 
+	 * @ignore
+	 * @param array $aArgs
+	 * @param int $iUserId User identifier.
+	 */
+	public function onAfterDeleteUser($aArgs, &$iUserId)
+	{
+		$mResult = $this->oApiAccountsManager->getUserAccounts($iUserId);
+		
+		if (is_array($mResult))
+		{
+			foreach($mResult as $oItem)
+			{
+				$this->DeleteAccount($oItem->EntityId);
+			}
+		}
 	}
 	
 	/**
@@ -170,7 +191,7 @@ class MailModule extends AApiModule
 			);
 		}
 
-		$oAccount = new CMailAccount();
+		$oAccount = new CMailAccount($this->GetName());
 
 		$oAccount->IdUser = $iUserId;
 		$oAccount->FriendlyName = $FriendlyName;
@@ -193,6 +214,10 @@ class MailModule extends AApiModule
 		if ($this->oApiAccountsManager->createAccount($oAccount))
 		{
 			return $oAccount;
+		}
+		else
+		{
+			$this->oApiServersManager->deleteServer($iServerId);
 		}
 		
 		return false;
@@ -229,16 +254,25 @@ class MailModule extends AApiModule
 				{
 					$oAccount->IncomingPassword = $IncomingPassword;
 				}
-				if ($Server !== null && !empty($Server['ServerId']))
+				if ($Server !== null)
 				{
-					if ($oAccount->ServerId === $Server['ServerId'])
+					if ($Server['ServerId'] === 0)
+					{
+						$iNewServerId = $this->oApiServersManager->createServer($Server['IncomingServer'], $Server['IncomingServer'], 
+								$Server['IncomingPort'], $Server['IncomingUseSsl'], $Server['OutgoingServer'], 
+								$Server['OutgoingPort'], $Server['OutgoingUseSsl'], $Server['OutgoingUseAuth'], 
+								\EMailServerOwnerType::Account, 0);
+						$oAccount->updateServer($iNewServerId);
+					}
+					elseif ($oAccount->ServerId === $Server['ServerId'])
 					{
 						$oAccServer = $oAccount->getServer();
 						if ($oAccServer && $oAccServer->OwnerType === \EMailServerOwnerType::Account)
 						{
-							$this->oApiServersManager->updateServer($Server['ServerId'], $Server['IncomingServer'], $Server['IncomingServer'], 
-								$Server['IncomingPort'], $Server['IncomingUseSsl'], $Server['OutgoingServer'], 
-								$Server['OutgoingPort'], $Server['OutgoingUseAuth'], $Server['OutgoingUseSsl'], 0);
+							$this->oApiServersManager->updateServer($Server['ServerId'], $Server['IncomingServer'], 
+									$Server['IncomingServer'], $Server['IncomingPort'], $Server['IncomingUseSsl'], 
+									$Server['OutgoingServer'], $Server['OutgoingPort'], $Server['OutgoingUseSsl'], 
+									$Server['OutgoingUseAuth'], 0);
 						}
 					}
 					else

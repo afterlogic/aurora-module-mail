@@ -61,7 +61,7 @@ class CApiMailServersManager extends AApiManager
 	{
 		try
 		{
-			$oServer = new CMailServer();
+			$oServer = new CMailServer($this->oModule->GetName());
 			$oServer->OwnerType = $sOwnerType;
 			$oServer->TenantId = $iTenantId;
 			$oServer->Name = $sName;
@@ -193,8 +193,8 @@ class CApiMailServersManager extends AApiManager
 	 * @param boolean $bIncomingUseSsl
 	 * @param string $sOutgoingServer
 	 * @param int $iOutgoingPort
-	 * @param boolean $bOutgoingUseAuth
 	 * @param boolean $bOutgoingUseSsl
+	 * @param boolean $bOutgoingUseAuth
 	 * @param int $iTenantId
 	 * @return boolean
 	 * @throws CApiManagerException
