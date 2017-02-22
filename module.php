@@ -1,6 +1,8 @@
 <?php
 
-class MailModule extends AApiModule
+namespace Aurora\Modules;
+
+class MailModule extends \AApiModule
 {
 	public $oApiMailManager = null;
 	public $oApiAccountsManager = null;
@@ -72,7 +74,7 @@ class MailModule extends AApiModule
 	{
 		$mResult = $this->oApiAccountsManager->getUserAccounts($iUserId);
 		
-		if (is_array($mResult))
+		if (\is_array($mResult))
 		{
 			foreach($mResult as $oItem)
 			{
@@ -117,7 +119,6 @@ class MailModule extends AApiModule
 			'SaveRepliesToCurrFolder' => $this->getConfig('SaveRepliesToCurrFolder', false),
 			'UseThreads' => $this->getConfig('UseThreads', true)
 		);
-
 		
 		$oUser = \CApi::getAuthenticatedUser();
 		if ($oUser && $oUser->Role !== \EUserRole::SuperAdmin)
@@ -158,7 +159,7 @@ class MailModule extends AApiModule
 			}
 			if ($oUser->Role === \EUserRole::SuperAdmin)
 			{
-				$oSettings =& CApi::GetSettings();
+				$oSettings =& \CApi::GetSettings();
 				$oSettings->SetConf('MailsPerPage', $MailsPerPage);
 				$oSettings->SetConf('UseThreads', $UseThreads);
 				$oSettings->SetConf('SaveRepliesToCurrFolder', $SaveRepliesToCurrFolder);
@@ -199,7 +200,7 @@ class MailModule extends AApiModule
 			);
 		}
 
-		$oAccount = new CMailAccount($this->GetName());
+		$oAccount = new \CMailAccount($this->GetName());
 
 		$oAccount->IdUser = $iUserId;
 		$oAccount->FriendlyName = $FriendlyName;
@@ -500,25 +501,25 @@ class MailModule extends AApiModule
 	{
 		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
-		$sOffset = trim((string) $Offset);
-		$sLimit = trim((string) $Limit);
-		$sSearch = trim((string) $Search);
-		$bUseThreads = '1' === trim((string) $UseThreads);
+		$sOffset = \trim((string) $Offset);
+		$sLimit = \trim((string) $Limit);
+		$sSearch = \trim((string) $Search);
+		$bUseThreads = '1' === \trim((string) $UseThreads);
 		$sInboxUidnext = $InboxUidnext;
 		
 		$aFilters = array();
-		$sFilters = strtolower(trim((string) $Filters));
-		if (0 < strlen($sFilters))
+		$sFilters = \strtolower(\trim((string) $Filters));
+		if (0 < \strlen($sFilters))
 		{
-			$aFilters = array_filter(explode(',', $sFilters), function ($sValue) {
+			$aFilters = \array_filter(\explode(',', $sFilters), function ($sValue) {
 				return '' !== trim($sValue);
 			});
 		}
 
-		$iOffset = 0 < strlen($sOffset) && is_numeric($sOffset) ? (int) $sOffset : 0;
-		$iLimit = 0 < strlen($sLimit) && is_numeric($sLimit) ? (int) $sLimit : 0;
+		$iOffset = 0 < \strlen($sOffset) && \is_numeric($sOffset) ? (int) $sOffset : 0;
+		$iLimit = 0 < \strlen($sLimit) && \is_numeric($sLimit) ? (int) $sLimit : 0;
 
-		if (0 === strlen(trim($Folder)) || 0 > $iOffset || 0 >= $iLimit || 200 < $sLimit)
+		if (0 === \strlen(trim($Folder)) || 0 > $iOffset || 0 >= $iLimit || 200 < $sLimit)
 		{
 			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
 		}
@@ -541,7 +542,7 @@ class MailModule extends AApiModule
 	{
 		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
-		if (!is_array($Folders) || 0 === count($Folders))
+		if (!\is_array($Folders) || 0 === \count($Folders))
 		{
 			throw new \System\Exceptions\AuroraApiException(\ProjectSystem\Notifications::InvalidInputParameter);
 		}
@@ -597,7 +598,7 @@ class MailModule extends AApiModule
 	{
 		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
-		if (0 === strlen(trim($Folder)) || !is_array($Uids) || 0 === count($Uids))
+		if (0 === \strlen(\trim($Folder)) || !\is_array($Uids) || 0 === \count($Uids))
 		{
 			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
 		}
@@ -605,7 +606,7 @@ class MailModule extends AApiModule
 		$aList = array();
 		foreach ($Uids as $iUid)
 		{
-			if (is_numeric($iUid))
+			if (\is_numeric($iUid))
 			{
 				$oMessage = $this->GetMessage($AccountID, $Folder, (string) $iUid);
 				if ($oMessage instanceof \CApiMailMessage)
@@ -635,16 +636,16 @@ class MailModule extends AApiModule
 		
 		$iBodyTextLimit = 600000;
 		
-		$iUid = 0 < strlen($Uid) && is_numeric($Uid) ? (int) $Uid : 0;
+		$iUid = 0 < \strlen($Uid) && \is_numeric($Uid) ? (int) $Uid : 0;
 
-		if (0 === strlen(trim($Folder)) || 0 >= $iUid)
+		if (0 === \strlen(\trim($Folder)) || 0 >= $iUid)
 		{
 			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
 		}
 
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 
-		if (0 === strlen($Folder) || !is_numeric($iUid) || 0 >= (int) $iUid)
+		if (0 === \strlen($Folder) || !\is_numeric($iUid) || 0 >= (int) $iUid)
 		{
 			throw new CApiInvalidArgumentException();
 		}
@@ -661,13 +662,13 @@ class MailModule extends AApiModule
 		$aFetchResponse = $oImapClient->Fetch(array(
 			\MailSo\Imap\Enumerations\FetchType::BODYSTRUCTURE), $iUid, true);
 
-		$oBodyStructure = (0 < count($aFetchResponse)) ? $aFetchResponse[0]->GetFetchBodyStructure($Rfc822MimeIndex) : null;
+		$oBodyStructure = (0 < \count($aFetchResponse)) ? $aFetchResponse[0]->GetFetchBodyStructure($Rfc822MimeIndex) : null;
 		
 		$aCustomParts = array();
 		if ($oBodyStructure)
 		{
 			$aTextParts = $oBodyStructure->SearchHtmlOrPlainParts();
-			if (is_array($aTextParts) && 0 < count($aTextParts))
+			if (\is_array($aTextParts) && 0 < \count($aTextParts))
 			{
 				foreach ($aTextParts as $oPart)
 				{
@@ -690,7 +691,7 @@ class MailModule extends AApiModule
 					return '.asc' === \strtolower(\substr(\trim($oPart->FileName()), -4));
 				});
 
-				if (is_array($aAscParts) && 0 < count($aAscParts))
+				if (\is_array($aAscParts) && 0 < \count($aAscParts))
 				{
 					foreach ($aAscParts as $oPart)
 					{
@@ -711,9 +712,9 @@ class MailModule extends AApiModule
 				: \MailSo\Imap\Enumerations\FetchType::BODY_HEADER_PEEK
 		);
 
-		if (0 < count($aTextMimeIndexes))
+		if (0 < \count($aTextMimeIndexes))
 		{
-			if (0 < strlen($Rfc822MimeIndex) && is_numeric($Rfc822MimeIndex))
+			if (0 < \strlen($Rfc822MimeIndex) && \is_numeric($Rfc822MimeIndex))
 			{
 				$sLine = \MailSo\Imap\Enumerations\FetchType::BODY_PEEK.'['.$aTextMimeIndexes[0][0].'.1]';
 				if (\is_numeric($iBodyTextLimit) && 0 < $iBodyTextLimit && $iBodyTextLimit < $aTextMimeIndexes[0][1])
@@ -743,7 +744,7 @@ class MailModule extends AApiModule
 			$aFetchItems[] = \MailSo\Imap\Enumerations\FetchType::BODY_PEEK.'['.$oCustomPart->PartID().']';
 		}
 
-		if (0 < count($aAscPartsIds))
+		if (0 < \count($aAscPartsIds))
 		{
 			foreach ($aAscPartsIds as $sPartID)
 			{
@@ -757,9 +758,9 @@ class MailModule extends AApiModule
 		}
 
 		$aFetchResponse = $oImapClient->Fetch($aFetchItems, $iUid, true);
-		if (0 < count($aFetchResponse))
+		if (0 < \count($aFetchResponse))
 		{
-			$oMessage = CApiMailMessage::createInstance($Folder, $aFetchResponse[0], $oBodyStructure, $Rfc822MimeIndex, $aAscPartsIds);
+			$oMessage = \CApiMailMessage::createInstance($Folder, $aFetchResponse[0], $oBodyStructure, $Rfc822MimeIndex, $aAscPartsIds);
 		}
 
 		if ($oMessage)
@@ -775,7 +776,7 @@ class MailModule extends AApiModule
 				}
 			}
 
-			if (0 < strlen($sFromEmail))
+			if (0 < \strlen($sFromEmail))
 			{
 				$bAlwaysShowImagesInMessage = !!\CApi::GetSettingsConf('WebMail/AlwaysShowImagesInMessage');
 
@@ -858,7 +859,7 @@ class MailModule extends AApiModule
 		$bSetAction = 1 === $iSetAction;
 		$aUids = \api_Utils::ExplodeIntUids((string) $sUids);
 
-		if (0 === strlen(trim($sFolderFullNameRaw)) || !is_array($aUids) || 0 === count($aUids))
+		if (0 === \strlen(\trim($sFolderFullNameRaw)) || !\is_array($aUids) || 0 === \count($aUids))
 		{
 			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
 		}
@@ -879,7 +880,7 @@ class MailModule extends AApiModule
 	{
 		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
-		if (0 === strlen(trim($Folder)))
+		if (0 === \strlen(\trim($Folder)))
 		{
 			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
 		}
@@ -904,7 +905,7 @@ class MailModule extends AApiModule
 		
 		$aUids = \api_Utils::ExplodeIntUids((string) $Uids);
 
-		if (0 === strlen(trim($Folder)) || 0 === strlen(trim($ToFolder)) || !is_array($aUids) || 0 === count($aUids))
+		if (0 === \strlen(\trim($Folder)) || 0 === \strlen(\trim($ToFolder)) || !\is_array($aUids) || 0 === \count($aUids))
 		{
 			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
 		}
@@ -943,7 +944,7 @@ class MailModule extends AApiModule
 		
 		$aUids = \api_Utils::ExplodeIntUids((string) $Uids);
 
-		if (0 === strlen(trim($Folder)) || !is_array($aUids) || 0 === count($aUids))
+		if (0 === \strlen(\trim($Folder)) || !\is_array($aUids) || 0 === \count($aUids))
 		{
 			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
 		}
@@ -968,7 +969,7 @@ class MailModule extends AApiModule
 	{
 		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
-		if (0 === strlen($FolderNameInUtf8) || 1 !== strlen($Delimiter))
+		if (0 === \strlen($FolderNameInUtf8) || 1 !== \strlen($Delimiter))
 		{
 			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
 		}
@@ -980,7 +981,7 @@ class MailModule extends AApiModule
 		if (!$oAccount->isExtensionEnabled(\CMailAccount::DisableFoldersManualSort))
 		{
 			$aFoldersOrderList = $this->oApiMailManager->getFoldersOrder($oAccount);
-			if (is_array($aFoldersOrderList) && 0 < count($aFoldersOrderList))
+			if (\is_array($aFoldersOrderList) && 0 < \count($aFoldersOrderList))
 			{
 				$aFoldersOrderListNew = $aFoldersOrderList;
 
@@ -988,7 +989,7 @@ class MailModule extends AApiModule
 					\MailSo\Base\Enumerations\Charset::UTF_8,
 					\MailSo\Base\Enumerations\Charset::UTF_7_IMAP);
 
-				$sFolderFullNameRaw = (0 < strlen($FolderParentFullNameRaw) ? $FolderParentFullNameRaw.$Delimiter : '').
+				$sFolderFullNameRaw = (0 < \strlen($FolderParentFullNameRaw) ? $FolderParentFullNameRaw.$Delimiter : '').
 					$sFolderNameInUtf7Imap;
 
 				$sFolderFullNameUtf8 = \MailSo\Base\Utils::ConvertEncoding($sFolderFullNameRaw,
@@ -997,27 +998,27 @@ class MailModule extends AApiModule
 
 				$aFoldersOrderListNew[] = $sFolderFullNameRaw;
 
-				$aFoldersOrderListUtf8 = array_map(function ($sValue) {
+				$aFoldersOrderListUtf8 = \array_map(function ($sValue) {
 					return \MailSo\Base\Utils::ConvertEncoding($sValue,
 						\MailSo\Base\Enumerations\Charset::UTF_7_IMAP,
 						\MailSo\Base\Enumerations\Charset::UTF_8);
 				}, $aFoldersOrderListNew);
 
-				usort($aFoldersOrderListUtf8, 'strnatcasecmp');
+				\usort($aFoldersOrderListUtf8, 'strnatcasecmp');
 				
-				$iKey = array_search($sFolderFullNameUtf8, $aFoldersOrderListUtf8, true);
-				if (is_int($iKey) && 0 < $iKey && isset($aFoldersOrderListUtf8[$iKey - 1]))
+				$iKey = \array_search($sFolderFullNameUtf8, $aFoldersOrderListUtf8, true);
+				if (\is_int($iKey) && 0 < $iKey && isset($aFoldersOrderListUtf8[$iKey - 1]))
 				{
 					$sUpperName = $aFoldersOrderListUtf8[$iKey - 1];
 
-					$iUpperKey = array_search(\MailSo\Base\Utils::ConvertEncoding($sUpperName,
+					$iUpperKey = \array_search(\MailSo\Base\Utils::ConvertEncoding($sUpperName,
 						\MailSo\Base\Enumerations\Charset::UTF_8,
 						\MailSo\Base\Enumerations\Charset::UTF_7_IMAP), $aFoldersOrderList, true);
 
-					if (is_int($iUpperKey) && isset($aFoldersOrderList[$iUpperKey]))
+					if (\is_int($iUpperKey) && isset($aFoldersOrderList[$iUpperKey]))
 					{
 						\CApi::Log('insert order index:'.$iUpperKey);
-						array_splice($aFoldersOrderList, $iUpperKey + 1, 0, $sFolderFullNameRaw);
+						\array_splice($aFoldersOrderList, $iUpperKey + 1, 0, $sFolderFullNameRaw);
 						$this->oApiMailManager->updateFoldersOrder($oAccount, $aFoldersOrderList);
 					}
 				}
@@ -1038,7 +1039,7 @@ class MailModule extends AApiModule
 	{
 		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
-		if (0 === strlen($PrevFolderFullNameRaw) || 0 === strlen($NewFolderNameInUtf8))
+		if (0 === \strlen($PrevFolderFullNameRaw) || 0 === \strlen($NewFolderNameInUtf8))
 		{
 			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
 		}
@@ -1047,9 +1048,9 @@ class MailModule extends AApiModule
 
 		$mResult = $this->oApiMailManager->renameFolder($oAccount, $PrevFolderFullNameRaw, $NewFolderNameInUtf8);
 
-		return (0 < strlen($mResult) ? array(
+		return (0 < \strlen($mResult) ? array(
 			'FullName' => $mResult,
-			'FullNameHash' => md5($mResult)
+			'FullNameHash' => \md5($mResult)
 		) : false);
 	}
 
@@ -1063,7 +1064,7 @@ class MailModule extends AApiModule
 	{
 		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
-		if (0 === strlen(trim($Folder)))
+		if (0 === \strlen(\trim($Folder)))
 		{
 			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
 		}
@@ -1086,7 +1087,7 @@ class MailModule extends AApiModule
 	{
 		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
-		if (0 === strlen(trim($Folder)))
+		if (0 === \strlen(\trim($Folder)))
 		{
 			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
 		}
@@ -1112,7 +1113,7 @@ class MailModule extends AApiModule
 	{
 		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
-		if (!is_array($FolderList))
+		if (!\is_array($FolderList))
 		{
 			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
 		}
@@ -1136,7 +1137,7 @@ class MailModule extends AApiModule
 	{
 		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
-		if (0 === strlen(trim($Folder)))
+		if (0 === \strlen(\trim($Folder)))
 		{
 			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
 		}
@@ -1159,7 +1160,7 @@ class MailModule extends AApiModule
 	{
 		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
-		if (0 === strlen(trim($Folder)) || !is_array($Uids))
+		if (0 === \strlen(trim($Folder)) || !\is_array($Uids))
 		{
 			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
 		}
@@ -1180,7 +1181,7 @@ class MailModule extends AApiModule
 	{
 		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
-		if (0 === strlen(trim($Folder)) || !is_array($Uids))
+		if (0 === \strlen(\trim($Folder)) || !\is_array($Uids))
 		{
 			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
 		}
@@ -1200,15 +1201,15 @@ class MailModule extends AApiModule
 	 */
 	private function FixBase64EncodeOmitsPaddingBytes($sRaw)
 	{
-		$rStream = fopen('php://memory','r+');
-		fwrite($rStream, '0');
-		rewind($rStream);
-		$rFilter = stream_filter_append($rStream, 'convert.base64-encode');
+		$rStream = \fopen('php://memory','r+');
+		\fwrite($rStream, '0');
+		\rewind($rStream);
+		$rFilter = \stream_filter_append($rStream, 'convert.base64-encode');
 		
-		if (0 === strlen(stream_get_contents($rStream)))
+		if (0 === \strlen(\stream_get_contents($rStream)))
 		{
 			$iFileSize = \strlen($sRaw);
-			$sRaw = str_pad($sRaw, $iFileSize + ($iFileSize % 3));
+			$sRaw = \str_pad($sRaw, $iFileSize + ($iFileSize % 3));
 		}
 		
 		return $sRaw;
@@ -1232,7 +1233,7 @@ class MailModule extends AApiModule
 		$oMessage->RegenerateMessageId();
 
 		$sXMailer = \CApi::GetConf('webmail.xmailer-value', '');
-		if (0 < strlen($sXMailer))
+		if (0 < \strlen($sXMailer))
 		{
 			$oMessage->SetXMailer($sXMailer);
 		}
@@ -1271,22 +1272,22 @@ class MailModule extends AApiModule
 			$oMessage->SetBcc($oBccEmails);
 		}
 
-		if ($bWithDraftInfo && is_array($aDraftInfo) && !empty($aDraftInfo[0]) && !empty($aDraftInfo[1]) && !empty($aDraftInfo[2]))
+		if ($bWithDraftInfo && \is_array($aDraftInfo) && !empty($aDraftInfo[0]) && !empty($aDraftInfo[1]) && !empty($aDraftInfo[2]))
 		{
 			$oMessage->SetDraftInfo($aDraftInfo[0], $aDraftInfo[1], $aDraftInfo[2]);
 		}
 
-		if (0 < strlen($sInReplyTo))
+		if (0 < \strlen($sInReplyTo))
 		{
 			$oMessage->SetInReplyTo($sInReplyTo);
 		}
 
-		if (0 < strlen($sReferences))
+		if (0 < \strlen($sReferences))
 		{
 			$oMessage->SetReferences($sReferences);
 		}
 		
-		if (0 < strlen($sImportance) && in_array((int) $sImportance, array(
+		if (0 < \strlen($sImportance) && \in_array((int) $sImportance, array(
 			\MailSo\Mime\Enumerations\MessagePriority::HIGH,
 			\MailSo\Mime\Enumerations\MessagePriority::NORMAL,
 			\MailSo\Mime\Enumerations\MessagePriority::LOW
@@ -1295,7 +1296,7 @@ class MailModule extends AApiModule
 			$oMessage->SetPriority((int) $sImportance);
 		}
 
-		if (0 < strlen($sSensitivity) && in_array((int) $sSensitivity, array(
+		if (0 < \strlen($sSensitivity) && \in_array((int) $sSensitivity, array(
 			\MailSo\Mime\Enumerations\Sensitivity::NOTHING,
 			\MailSo\Mime\Enumerations\Sensitivity::CONFIDENTIAL,
 			\MailSo\Mime\Enumerations\Sensitivity::PRIVATE_,
@@ -1326,11 +1327,11 @@ class MailModule extends AApiModule
 		
 		$oMessage->AddText($sTextConverted, $bTextIsHtml);
 
-		if (is_array($aAttachments))
+		if (\is_array($aAttachments))
 		{
 			foreach ($aAttachments as $sTempName => $aData)
 			{
-				if (is_array($aData) && isset($aData[0], $aData[1], $aData[2], $aData[3]))
+				if (\is_array($aData) && isset($aData[0], $aData[1], $aData[2], $aData[3]))
 				{
 					$sFileName = (string) $aData[0];
 					$sCID = (string) $aData[1];
@@ -1339,12 +1340,12 @@ class MailModule extends AApiModule
 					$sContentLocation = isset($aData[4]) ? (string) $aData[4] : '';
 
 					$rResource = $this->oApiFileCache->getFile($oAccount->UUID, $sTempName);
-					if (is_resource($rResource))
+					if (\is_resource($rResource))
 					{
 						$iFileSize = $this->oApiFileCache->fileSize($oAccount->UUID, $sTempName);
 
-						$sCID = trim(trim($sCID), '<>');
-						$bIsFounded = 0 < strlen($sCID) ? in_array($sCID, $aFoundCids) : false;
+						$sCID = \trim(\trim($sCID), '<>');
+						$bIsFounded = 0 < \strlen($sCID) ? \in_array($sCID, $aFoundCids) : false;
 
 						if (!$bIsLinked || $bIsFounded)
 						{
@@ -1414,19 +1415,19 @@ class MailModule extends AApiModule
 
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 
-		if (0 === strlen($DraftFolder))
+		if (0 === \strlen($DraftFolder))
 		{
 			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
 		}
 
 		$oFetcher = null;
-		if (!empty($FetcherID) && is_numeric($FetcherID) && 0 < (int) $FetcherID)
+		if (!empty($FetcherID) && \is_numeric($FetcherID) && 0 < (int) $FetcherID)
 		{
 			$iFetcherID = (int) $FetcherID;
 
 			$oApiFetchers = $this->GetManager('fetchers');
 			$aFetchers = $oApiFetchers->getFetchers($oAccount);
-			if (is_array($aFetchers) && 0 < count($aFetchers))
+			if (\is_array($aFetchers) && 0 < \count($aFetchers))
 			{
 				foreach ($aFetchers as /* @var $oFetcherItem \CFetcher */ $oFetcherItem)
 				{
@@ -1440,7 +1441,7 @@ class MailModule extends AApiModule
 		}
 
 		$oIdentity = null;
-		if (!empty($IdentityID) && is_numeric($IdentityID) && 0 < (int) $IdentityID)
+		if (!empty($IdentityID) && \is_numeric($IdentityID) && 0 < (int) $IdentityID)
 		{
 			$oApiUsers = \CApi::GetSystemManager('users');
 			$oIdentity = $oApiUsers->getIdentity((int) $IdentityID);
@@ -1499,12 +1500,12 @@ class MailModule extends AApiModule
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 
 		$oFetcher = null;
-		if (!empty($FetcherID) && is_numeric($FetcherID) && 0 < (int) $FetcherID)
+		if (!empty($FetcherID) && \is_numeric($FetcherID) && 0 < (int) $FetcherID)
 		{
 			$iFetcherID = (int) $FetcherID;
 
 			$aFetchers = $this->oApiFetchersManager->getFetchers($oAccount);
-			if (is_array($aFetchers) && 0 < count($aFetchers))
+			if (\is_array($aFetchers) && 0 < count($aFetchers))
 			{
 				foreach ($aFetchers as /* @var $oFetcherItem \CFetcher */ $oFetcherItem)
 				{
@@ -1518,8 +1519,8 @@ class MailModule extends AApiModule
 		}
 
 		$oIdentity = null;
-		$oApiUsers = CApi::GetSystemManager('users');
-		if ($oApiUsers && !empty($IdentityID) && is_numeric($IdentityID) && 0 < (int) $IdentityID)
+		$oApiUsers = \CApi::GetSystemManager('users');
+		if ($oApiUsers && !empty($IdentityID) && \is_numeric($IdentityID) && 0 < (int) $IdentityID)
 		{
 			$oIdentity = $oApiUsers->getIdentity((int) $IdentityID);
 		}
@@ -1564,13 +1565,13 @@ class MailModule extends AApiModule
 					$aEmails[strtolower($oEmail->GetEmail())] = trim($oEmail->GetDisplayName());
 				});
 
-				if (is_array($aEmails))
+				if (\is_array($aEmails))
 				{
 					\CApi::ExecuteMethod('Contacs::updateSuggestTable', array('Emails' => $aEmails));
 				}
 			}
 
-			if (is_array($DraftInfo) && 3 === count($DraftInfo))
+			if (\is_array($DraftInfo) && 3 === \count($DraftInfo))
 			{
 				$sDraftInfoType = $DraftInfo[0];
 				$sDraftInfoUid = $DraftInfo[1];
@@ -1578,7 +1579,7 @@ class MailModule extends AApiModule
 
 				try
 				{
-					switch (strtolower($sDraftInfoType))
+					switch (\strtolower($sDraftInfoType))
 					{
 						case 'reply':
 						case 'reply-all':
@@ -1668,19 +1669,19 @@ class MailModule extends AApiModule
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 		
 		$aData = array();
-		if (0 < strlen(trim($Sent)))
+		if (0 < \strlen(\trim($Sent)))
 		{
 			$aData[$Sent] = \EFolderType::Sent;
 		}
-		if (0 < strlen(trim($Drafts)))
+		if (0 < \strlen(\trim($Drafts)))
 		{
 			$aData[$Drafts] = \EFolderType::Drafts;
 		}
-		if (0 < strlen(trim($Trash)))
+		if (0 < \strlen(\trim($Trash)))
 		{
 			$aData[$Trash] = \EFolderType::Trash;
 		}
-		if (0 < strlen(trim($Spam)))
+		if (0 < \strlen(\trim($Spam)))
 		{
 			$aData[$Spam] = \EFolderType::Spam;
 		}
@@ -1713,16 +1714,16 @@ class MailModule extends AApiModule
 			$oCssToInlineStyles->setUseInlineStylesBlock(true);
 
 			$sExec = \CApi::DataPath().'/system/wkhtmltopdf/linux/wkhtmltopdf';
-			if (!file_exists($sExec))
+			if (!\file_exists($sExec))
 			{
 				$sExec = \CApi::DataPath().'/system/wkhtmltopdf/win/wkhtmltopdf.exe';
-				if (!file_exists($sExec))
+				if (!\file_exists($sExec))
 				{
 					$sExec = '';
 				}
 			}
 
-			if (0 < strlen($sExec))
+			if (0 < \strlen($sExec))
 			{
 				$oSnappy = new \Knp\Snappy\Pdf($sExec);
 				$oSnappy->setOption('quiet', true);
@@ -1759,7 +1760,7 @@ class MailModule extends AApiModule
 	{
 		\CApi::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
-		if (0 === strlen(trim($Email)))
+		if (0 === \strlen(\trim($Email)))
 		{
 			throw new \System\Exceptions\AuroraApiException(\System\Notifications::InvalidInputParameter);
 		}
@@ -1835,7 +1836,7 @@ class MailModule extends AApiModule
 	{
 		$sUUID = '';
 		
-		if (is_numeric($iUserId))
+		if (\is_numeric($iUserId))
 		{
 			$oManagerApi = \CApi::GetSystemManager('eav', 'db');
 			$oEntity = $oManagerApi->getEntity((int) \CApi::getAuthenticatedUserId());
@@ -1867,11 +1868,11 @@ class MailModule extends AApiModule
 		if ($oAccount instanceof \CMailAccount)
 		{
 			$sUUID = $oAccount->UUID;
-			if (is_array($UploadData))
+			if (\is_array($UploadData))
 			{
-				$sSavedName = 'upload-post-'.md5($UploadData['name'].$UploadData['tmp_name']);
+				$sSavedName = 'upload-post-'.\md5($UploadData['name'].$UploadData['tmp_name']);
 				$rData = false;
-				if (is_resource($UploadData['tmp_name']))
+				if (\is_resource($UploadData['tmp_name']))
 				{
 					$rData = $UploadData['tmp_name'];
 				}
@@ -1940,8 +1941,8 @@ class MailModule extends AApiModule
 		\preg_match("/\<EMailAddress\>(.*?)\<\/EMailAddress\>/", $sInput, $aEmailAddress);
 		if (!empty($aMatches[1]) && !empty($aEmailAddress[1]))
 		{
-			$sIncomingServer = trim(\CApi::GetSettingsConf('WebMail/ExternalHostNameOfLocalImap'));
-			$sOutgoingServer = trim(\CApi::GetSettingsConf('WebMail/ExternalHostNameOfLocalSmtp'));
+			$sIncomingServer = \trim(\CApi::GetSettingsConf('WebMail/ExternalHostNameOfLocalImap'));
+			$sOutgoingServer = \trim(\CApi::GetSettingsConf('WebMail/ExternalHostNameOfLocalSmtp'));
 
 			if (0 < \strlen($sIncomingServer) && 0 < \strlen($sOutgoingServer))
 			{
@@ -1949,16 +1950,16 @@ class MailModule extends AApiModule
 				$iOutgoingPort = 25;
 
 				$aMatch = array();
-				if (\preg_match('/:([\d]+)$/', $sIncomingServer, $aMatch) && !empty($aMatch[1]) && is_numeric($aMatch[1]))
+				if (\preg_match('/:([\d]+)$/', $sIncomingServer, $aMatch) && !empty($aMatch[1]) && \is_numeric($aMatch[1]))
 				{
-					$sIncomingServer = preg_replace('/:[\d]+$/', $sIncomingServer, '');
+					$sIncomingServer = \preg_replace('/:[\d]+$/', $sIncomingServer, '');
 					$iIncomingPort = (int) $aMatch[1];
 				}
 
 				$aMatch = array();
-				if (\preg_match('/:([\d]+)$/', $sOutgoingServer, $aMatch) && !empty($aMatch[1]) && is_numeric($aMatch[1]))
+				if (\preg_match('/:([\d]+)$/', $sOutgoingServer, $aMatch) && !empty($aMatch[1]) && \is_numeric($aMatch[1]))
 				{
-					$sOutgoingServer = preg_replace('/:[\d]+$/', $sOutgoingServer, '');
+					$sOutgoingServer = \preg_replace('/:[\d]+$/', $sOutgoingServer, '');
 					$iOutgoingPort = (int) $aMatch[1];
 				}
 
@@ -1995,7 +1996,7 @@ class MailModule extends AApiModule
 		if (empty($sResult))
 		{
 			$usec = $sec = 0;
-			list($usec, $sec) = \explode(' ', microtime());
+			list($usec, $sec) = \explode(' ', \microtime());
 			$sResult = \implode("\n", array('<Autodiscover xmlns="http://schemas.microsoft.com/exchange/autodiscover/responseschema/2006">',
 (empty($aMatches[1]) ?
 '	<Response>' :
@@ -2010,7 +2011,7 @@ class MailModule extends AApiModule
 '</Autodiscover>'));
 		}
 
-		header('Content-Type: text/xml');
+		\header('Content-Type: text/xml');
 		$sResult = '<'.'?xml version="1.0" encoding="utf-8"?'.'>'."\n".$sResult;
 
 		\CApi::Log('');
@@ -2033,8 +2034,8 @@ class MailModule extends AApiModule
 			$oCoreWebclientModule = \CApi::GetModule('CoreWebclient');
 			if ($oCoreWebclientModule instanceof \AApiModule) 
 			{
-				$sResult = file_get_contents($oCoreWebclientModule->GetPath().'/templates/Index.html');
-				if (is_string($sResult)) 
+				$sResult = \file_get_contents($oCoreWebclientModule->GetPath().'/templates/Index.html');
+				if (\is_string($sResult)) 
 				{
 					return strtr($sResult, array(
 						'{{AppVersion}}' => AURORA_APP_VERSION,
@@ -2066,14 +2067,14 @@ class MailModule extends AApiModule
 	{
 		if (!empty($sKey))
 		{
-			$iUtcTimeStamp = time();
+			$iUtcTimeStamp = \time();
 			$iExpireTime = 3600 * 24 * 5;
 
-			header('Cache-Control: private', true);
-			header('Pragma: private', true);
-			header('Etag: '.md5('Etag:'.md5($sKey)), true);
-			header('Last-Modified: '.gmdate('D, d M Y H:i:s', $iUtcTimeStamp - $iExpireTime).' UTC', true);
-			header('Expires: '.gmdate('D, j M Y H:i:s', $iUtcTimeStamp + $iExpireTime).' UTC', true);
+			\header('Cache-Control: private', true);
+			\header('Pragma: private', true);
+			\header('Etag: '.\md5('Etag:'.\md5($sKey)), true);
+			\header('Last-Modified: '.\gmdate('D, d M Y H:i:s', $iUtcTimeStamp - $iExpireTime).' UTC', true);
+			\header('Expires: '.\gmdate('D, j M Y H:i:s', $iUtcTimeStamp + $iExpireTime).' UTC', true);
 		}
 	}
 
@@ -2105,14 +2106,14 @@ class MailModule extends AApiModule
 	 */
 	public function clearFileName($sFileName, $sContentType, $sMimeIndex = '')
 	{
-		$sFileName = 0 === strlen($sFileName) ? preg_replace('/[^a-zA-Z0-9]/', '.', (empty($sMimeIndex) ? '' : $sMimeIndex.'.').$sContentType) : $sFileName;
-		$sClearedFileName = preg_replace('/[\s]+/', ' ', preg_replace('/[\.]+/', '.', $sFileName));
+		$sFileName = 0 === \strlen($sFileName) ? \preg_replace('/[^a-zA-Z0-9]/', '.', (empty($sMimeIndex) ? '' : $sMimeIndex.'.').$sContentType) : $sFileName;
+		$sClearedFileName = \preg_replace('/[\s]+/', ' ', \preg_replace('/[\.]+/', '.', $sFileName));
 		$sExt = \MailSo\Base\Utils::GetFileExtension($sClearedFileName);
 
 		$iSize = 100;
-		if ($iSize < strlen($sClearedFileName) - strlen($sExt))
+		if ($iSize < \strlen($sClearedFileName) - \strlen($sExt))
 		{
-			$sClearedFileName = substr($sClearedFileName, 0, $iSize).(empty($sExt) ? '' : '.'.$sExt);
+			$sClearedFileName = \substr($sClearedFileName, 0, $iSize).(empty($sExt) ? '' : '.'.$sExt);
 		}
 
 		return \MailSo\Base\Utils::ClearFileName(\MailSo\Base\Utils::Utf8Clear($sClearedFileName));
@@ -2129,41 +2130,41 @@ class MailModule extends AApiModule
 	{
 		if ($bDownload)
 		{
-			header('Content-Type: '.$sContentType, true);
+			\header('Content-Type: '.$sContentType, true);
 		}
 		else
 		{
-			$aParts = explode('/', $sContentType, 2);
-			if (in_array(strtolower($aParts[0]), array('image', 'video', 'audio')) ||
-				in_array(strtolower($sContentType), array('application/pdf', 'application/x-pdf', 'text/html')))
+			$aParts = \explode('/', $sContentType, 2);
+			if (\in_array(\strtolower($aParts[0]), array('image', 'video', 'audio')) ||
+				\in_array(\strtolower($sContentType), array('application/pdf', 'application/x-pdf', 'text/html')))
 			{
-				header('Content-Type: '.$sContentType, true);
+				\header('Content-Type: '.$sContentType, true);
 			}
 			else
 			{
-				header('Content-Type: text/plain', true);
+				\header('Content-Type: text/plain', true);
 			}
 		}
 
-		header('Content-Disposition: '.($bDownload ? 'attachment' : 'inline' ).'; '.
+		\header('Content-Disposition: '.($bDownload ? 'attachment' : 'inline' ).'; '.
 			\trim(\MailSo\Base\Utils::EncodeHeaderUtf8AttributeValue('filename', $sFileName)), true);
 		
-		header('Accept-Ranges: none', true);
-		header('Content-Transfer-Encoding: binary');
+		\header('Accept-Ranges: none', true);
+		\header('Content-Transfer-Encoding: binary');
 	}
 	
 	public function thumbResource($oAccount, $rResource, $sFileName)
 	{
-		$sMd5Hash = md5(rand(1000, 9999));
+		$sMd5Hash = \md5(\rand(1000, 9999));
 		
 		$this->oApiFileCache->putFile($oAccount->UUID, 'Raw/Thumbnail/'.$sMd5Hash, $rResource, '_'.$sFileName);
 		if ($this->oApiFileCache->isFileExists($oAccount->UUID, 'Raw/Thumbnail/'.$sMd5Hash, '_'.$sFileName))
 		{
 			$sFullFilePath = $this->oApiFileCache->generateFullFilePath($oAccount->UUID, 'Raw/Thumbnail/'.$sMd5Hash, '_'.$sFileName);
 			$iRotateAngle = 0;
-			if (function_exists('exif_read_data')) 
+			if (\function_exists('exif_read_data')) 
 			{ 
-				if ($exif_data = @exif_read_data($sFullFilePath, 'IFD0')) 
+				if ($exif_data = @\exif_read_data($sFullFilePath, 'IFD0')) 
 				{ 
 					switch (@$exif_data['Orientation']) 
 					{ 
@@ -2230,7 +2231,7 @@ class MailModule extends AApiModule
 		$sContentTypeIn = (string) (isset($aValues['MimeType']) ? $aValues['MimeType'] : '');
 		$sFileNameIn = (string) (isset($aValues['FileName']) ? $aValues['FileName'] : '');
 
-		if ($bCache && 0 < strlen($sFolder) && 0 < $iUid)
+		if ($bCache && 0 < \strlen($sFolder) && 0 < $iUid)
 		{
 			$this->verifyCacheByKey($sRawKey);
 		}
@@ -2238,7 +2239,7 @@ class MailModule extends AApiModule
 		$self = $this;
 		return $this->oApiMailManager->directMessageToStream($oAccount,
 			function($rResource, $sContentType, $sFileName, $sMimeIndex = '') use ($self, $oAccount, $fCallback, $sRawKey, $bCache, $sContentTypeIn, $sFileNameIn) {
-				if (is_resource($rResource))
+				if (\is_resource($rResource))
 				{
 					$sContentTypeOut = $sContentTypeIn;
 					if (empty($sContentTypeOut))
@@ -2263,7 +2264,7 @@ class MailModule extends AApiModule
 						$self->cacheByKey($sRawKey);
 					}
 
-					call_user_func_array($fCallback, array(
+					\call_user_func_array($fCallback, array(
 						$oAccount, $sContentTypeOut, $sFileNameOut, $rResource
 					));
 				}
@@ -2302,12 +2303,12 @@ class MailModule extends AApiModule
 
 			if (!$bDownload && 'text/html' === $sContentType)
 			{
-				$sHtml = stream_get_contents($rResource);
+				$sHtml = \stream_get_contents($rResource);
 				if ($sHtml)
 				{
 					$sCharset = '';
 					$aMacth = array();
-					if (preg_match('/charset[\s]?=[\s]?([^\s"\']+)/i', $sHtml, $aMacth) && !empty($aMacth[1]))
+					if (\preg_match('/charset[\s]?=[\s]?([^\s"\']+)/i', $sHtml, $aMacth) && !empty($aMacth[1]))
 					{
 						$sCharset = $aMacth[1];
 					}

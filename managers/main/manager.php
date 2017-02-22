@@ -72,8 +72,8 @@ class CApiMailMainManager extends AApiManager
 			$sCacheKey = $oAccount->Email;
 			if (!isset($this->aImapClientCache[$sCacheKey]))
 			{
-				$iConnectTimeOut = CApi::GetConf('socket.connect-timeout', 10);
-				$iSocketTimeOut = CApi::GetConf('socket.get-timeout', 20);
+				$iConnectTimeOut =\CApi::GetConf('socket.connect-timeout', 10);
+				$iSocketTimeOut =\CApi::GetConf('socket.get-timeout', 20);
 				$bVerifySsl = !!CApi::GetConf('socket.verify-ssl', false);
 
 				if (0 < $iForceConnectTimeOut)
@@ -1197,8 +1197,8 @@ class CApiMailMainManager extends AApiManager
 				$sRcptEmail = '';
 				try
 				{
-					$iConnectTimeOut = CApi::GetConf('socket.connect-timeout', 5);
-					$iSocketTimeOut = CApi::GetConf('socket.get-timeout', 5);
+					$iConnectTimeOut =\CApi::GetConf('socket.connect-timeout', 5);
+					$iSocketTimeOut =\CApi::GetConf('socket.get-timeout', 5);
 					$bVerifySsl = !!CApi::GetConf('socket.verify-ssl', false);
 
 					$oSmtpClient = \MailSo\Smtp\SmtpClient::NewInstance();
@@ -1728,8 +1728,8 @@ class CApiMailMainManager extends AApiManager
 
 			if (0 < strlen($sFromEmail))
 			{
-				$oApiUsersManager = /* @var CApiUsersManager */ CApi::GetSystemManager('users');
-				$oSettings =& CApi::GetSettings();
+				$oApiUsersManager = /* @var CApiUsersManager */\CApi::GetSystemManager('users');
+				$oSettings =&\CApi::GetSettings();
 				$bAlwaysShowImagesInMessage = !!$oSettings->GetConf('WebMail/AlwaysShowImagesInMessage');
 				$oMessage->setSafety($bAlwaysShowImagesInMessage ? true : 
 						$oApiUsersManager->getSafetySender($oAccount->IdUser, $sFromEmail, true));
@@ -2668,7 +2668,7 @@ class CApiMailMainManager extends AApiManager
 
 		$oMessageCollection = false;
 
-		$oSettings =& CApi::GetSettings();
+		$oSettings =&\CApi::GetSettings();
 		$oImapClient =& $this->_getImapClient($oAccount, 20, 60 * 2);
 
 		$oImapClient->FolderExamine($sFolderFullNameRaw);

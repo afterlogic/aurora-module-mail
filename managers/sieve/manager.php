@@ -69,8 +69,8 @@ class CApiSieveManager extends AApiManager
 		
 		$this->aSieves = array();
 		$this->sGeneralPassword = '';
-		$this->sSieveFileName = CApi::GetConf('sieve.config.file', 'sieve');
-		$this->sSieveFolderCharset = CApi::GetConf('sieve.config.filters-folder-charset', 'utf-8');
+		$this->sSieveFileName =\CApi::GetConf('sieve.config.file', 'sieve');
+		$this->sSieveFolderCharset =\CApi::GetConf('sieve.config.filters-folder-charset', 'utf-8');
 		$this->bSectionsParsed = false;
 		$this->aSectionsData = array();
 		$this->aSectionsOrders = array(
@@ -492,11 +492,11 @@ class CApiSieveManager extends AApiManager
 		{
 			if (!$oSieve->IsConnected())
 			{
-				$sGeneralHost = CApi::GetConf('sieve.config.host', '');
-				$sGeneralPassword = CApi::GetConf('sieve.config.general-password', '');
+				$sGeneralHost =\CApi::GetConf('sieve.config.host', '');
+				$sGeneralPassword =\CApi::GetConf('sieve.config.general-password', '');
 				$oServer = $oAccount->getServer();
 				$bResult = $oSieve
-					->Connect($oAccount->IsInternal || 0 === strlen($sGeneralHost) ? $oServer->IncomingServer : $sGeneralHost, (int) CApi::GetConf('sieve.config.port', 2000), \MailSo\Net\Enumerations\ConnectionSecurityType::NONE)
+					->Connect($oAccount->IsInternal || 0 === strlen($sGeneralHost) ? $oServer->IncomingServer : $sGeneralHost, (int)\CApi::GetConf('sieve.config.port', 2000), \MailSo\Net\Enumerations\ConnectionSecurityType::NONE)
 					->Login($oServer->IncomingLogin, 0 === strlen($sGeneralPassword) ? $oServer->IncomingPassword : $sGeneralPassword)
 				;
 			}
