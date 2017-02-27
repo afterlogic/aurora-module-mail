@@ -580,7 +580,7 @@ class CApiMailMainManager extends AApiManager
 	public function updateFoldersOrder($oAccount, $aOrder)
 	{
 		$oAccount->FoldersOrder = @json_encode($aOrder);
-		return $oEavManager->saveEntity($oAccount);
+		return $this->oEavManager->saveEntity($oAccount);
 	}
 
 	/**

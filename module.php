@@ -1119,7 +1119,7 @@ class MailModule extends \AApiModule
 		}
 
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
-		if ($oAccount->isExtensionEnabled(\CMailAccount::DisableFoldersManualSort))
+		if (!$oAccount->isExtensionEnabled(\CMailAccount::DisableFoldersManualSort))
 		{
 			return false;
 		}
