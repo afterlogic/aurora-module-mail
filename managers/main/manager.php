@@ -487,7 +487,7 @@ class CApiMailMainManager extends AApiManager
 		}
 
 		$aFoldersOrderList = null;
-		if (!$oAccount->isExtensionEnabled(CMailAccount::DisableFoldersManualSort))
+		if (true/*!$oAccount->isExtensionEnabled(CMailAccount::DisableFoldersManualSort)*/)
 		{
 			$aFoldersOrderList = $this->getFoldersOrder($oAccount);
 			$aFoldersOrderList = is_array($aFoldersOrderList) && 0 < count($aFoldersOrderList) ? $aFoldersOrderList : null;
