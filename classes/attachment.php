@@ -326,18 +326,18 @@ class CApiMailAttachment
 			'EstimatedSize' => $iEstimatedSize,
 			'CID' => $sCid,
 			'ContentLocation' => $this->getContentLocation(),
-			'Thumb' => \CApi::GetConf('labs.allow-thumbnail', true) &&
+			'Thumb' => \Aurora\System\Api::GetConf('labs.allow-thumbnail', true) &&
 				$iEstimatedSize < $iThumbnailLimit &&
-				\api_Utils::IsGDImageMimeTypeSuppoted($sMimeType, $sFileName),
-			'Expand' =>\CApi::isExpandMimeTypeSupported($sMimeType, $sFileName),
-			'Iframed' =>\CApi::isIframedMimeTypeSupported($sMimeType, $sFileName),
+				\Aurora\System\Utils::IsGDImageMimeTypeSuppoted($sMimeType, $sFileName),
+			'Expand' =>\Aurora\System\Api::isExpandMimeTypeSupported($sMimeType, $sFileName),
+			'Iframed' =>\Aurora\System\Api::isIframedMimeTypeSupported($sMimeType, $sFileName),
 			'Content' => $this->getContent(),
 			'IsInline' => $this->isInline(),
 			'IsLinked' => (!empty($sCid) && $mFoundedCIDs && \in_array($sCid, $mFoundedCIDs)) ||
 				($mFoundedContentLocationUrls && \in_array(\trim($this->getContentLocation()), $mFoundedContentLocationUrls))
 		));
 		
-		$sHash = \CApi::EncodeKeyValues(array(
+		$sHash = \Aurora\System\Api::EncodeKeyValues(array(
 			'Iframed' => $mResult['Iframed'],
 			'AccountID' => $iAccountID, 
 			'Folder' => $this->getFolder(),
@@ -349,8 +349,8 @@ class CApiMailAttachment
 				
 		$mResult['DownloadUrl'] = '?mail-attachment/' . $sHash;
 		$mResult['ViewUrl'] = '?mail-attachment/' . $sHash . '/view';
-		if (\CApi::GetConf('labs.allow-thumbnail', true) &&
-				$iEstimatedSize < $iThumbnailLimit && \api_Utils::IsGDImageMimeTypeSuppoted($sMimeType, $sFileName))
+		if (\Aurora\System\Api::GetConf('labs.allow-thumbnail', true) &&
+				$iEstimatedSize < $iThumbnailLimit && \Aurora\System\Utils::IsGDImageMimeTypeSuppoted($sMimeType, $sFileName))
 		{
 			$mResult['ThumbnailUrl'] = '?mail-attachment/' . $sHash . '/thumb';
 		}

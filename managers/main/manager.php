@@ -23,7 +23,7 @@
  * 
  * @package Mail
  */
-class CApiMailMainManager extends AApiManager
+class CApiMailMainManager extends \Aurora\System\AbstractManager
 {
 	/**
 	 * @var array List of ImapClient objects.
@@ -39,19 +39,19 @@ class CApiMailMainManager extends AApiManager
 	/**
 	 * Initializes manager property.
 	 * 
-	 * @param CApiGlobalManager &$oManager Manager object.
+	 * @param \Aurora\System\GlobalManager &$oManager Manager object.
 	 * 
 	 * @return void
 	 */
-	public function __construct(CApiGlobalManager &$oManager, $sForcedStorage = '', AApiModule $oModule = null)
+	public function __construct(\Aurora\System\GlobalManager &$oManager, $sForcedStorage = '', \Aurora\System\AbstractModule $oModule = null)
 	{
 		parent::__construct('main', $oManager, $oModule);
 
 		$this->aImapClientCache = array();
 		
-		if ($oModule instanceof AApiModule)
+		if ($oModule instanceof \Aurora\System\AbstractModule)
 		{
-			$this->oEavManager = \CApi::GetSystemManager('eav', 'db');
+			$this->oEavManager = \Aurora\System\Api::GetSystemManager('eav', 'db');
 		}
 	}
 
@@ -72,9 +72,9 @@ class CApiMailMainManager extends AApiManager
 			$sCacheKey = $oAccount->Email;
 			if (!isset($this->aImapClientCache[$sCacheKey]))
 			{
-				$iConnectTimeOut =\CApi::GetConf('socket.connect-timeout', 10);
-				$iSocketTimeOut =\CApi::GetConf('socket.get-timeout', 20);
-				$bVerifySsl = !!CApi::GetConf('socket.verify-ssl', false);
+				$iConnectTimeOut =\Aurora\System\Api::GetConf('socket.connect-timeout', 10);
+				$iSocketTimeOut =\Aurora\System\Api::GetConf('socket.get-timeout', 20);
+				$bVerifySsl = !!\Aurora\System\Api::GetConf('socket.verify-ssl', false);
 
 				if (0 < $iForceConnectTimeOut)
 				{
@@ -88,7 +88,7 @@ class CApiMailMainManager extends AApiManager
 
 				$this->aImapClientCache[$sCacheKey] = \MailSo\Imap\ImapClient::NewInstance();
 				$this->aImapClientCache[$sCacheKey]->SetTimeOuts($iConnectTimeOut, $iSocketTimeOut); // TODO
-				$this->aImapClientCache[$sCacheKey]->SetLogger(\CApi::MailSoLogger());
+				$this->aImapClientCache[$sCacheKey]->SetLogger(\Aurora\System\Api::MailSoLogger());
 			}
 
 			$oResult =& $this->aImapClientCache[$sCacheKey];
@@ -156,15 +156,15 @@ class CApiMailMainManager extends AApiManager
 		}
 		catch (\MailSo\Net\Exceptions\SocketCanNotConnectToHostException $oException)
 		{
-			throw new CApiManagerException(Errs::Mail_AccountConnectToMailServerFailed, $oException);
+			throw new \CApiManagerException(Errs::Mail_AccountConnectToMailServerFailed, $oException);
 		}
 		catch (\MailSo\Imap\Exceptions\LoginBadCredentialsException $oException)
 		{
-			throw new CApiManagerException(Errs::Mail_AccountAuthentication, $oException);
+			throw new \CApiManagerException(Errs::Mail_AccountAuthentication, $oException);
 		}
 		catch (\Exception $oException)
 		{
-			throw new CApiManagerException(Errs::Mail_AccountLoginFailed, $oException);
+			throw new \CApiManagerException(Errs::Mail_AccountLoginFailed, $oException);
 		}
 	}
 
@@ -598,7 +598,7 @@ class CApiMailMainManager extends AApiManager
 	{
 		if (0 === strlen($sFolderFullNameRaw))
 		{
-			throw new CApiInvalidArgumentException();
+			throw new \CApiInvalidArgumentException();
 		}
 
 		$oImapClient =& $this->_getImapClient($oAccount);
@@ -653,7 +653,7 @@ class CApiMailMainManager extends AApiManager
 		}
 
 		return array($iStatusMessageCount, $iStatusMessageUnseenCount, $sStatusUidNext,
-			api_Utils::GenerateFolderHash($sFolderFullNameRaw, $iStatusMessageCount, $iStatusMessageUnseenCount, $sStatusUidNext));
+			\Aurora\System\Utils::GenerateFolderHash($sFolderFullNameRaw, $iStatusMessageCount, $iStatusMessageUnseenCount, $sStatusUidNext));
 	}
 
 	/**
@@ -668,7 +668,7 @@ class CApiMailMainManager extends AApiManager
 	{
 		if (0 === strlen($sExtensionName))
 		{
-			throw new CApiInvalidArgumentException();
+			throw new \CApiInvalidArgumentException();
 		}
 
 		$oImapClient =& $this->_getImapClient($oAccount);
@@ -691,7 +691,7 @@ class CApiMailMainManager extends AApiManager
 	{
 		if (0 === strlen($sFolderFullNameRaw))
 		{
-			throw new CApiInvalidArgumentException();
+			throw new \CApiInvalidArgumentException();
 		}
 
 		$oImapClient =& $this->_getImapClient($oAccount);
@@ -717,7 +717,7 @@ class CApiMailMainManager extends AApiManager
 		
 		if (0 === strlen($sFolderFullNameRaw) || 0 === strlen($sFolderFullNameRaw))
 		{
-			throw new CApiInvalidArgumentException();
+			throw new \CApiInvalidArgumentException();
 		}
 
 		$oImapClient =& $this->_getImapClient($oAccount);
@@ -796,7 +796,7 @@ class CApiMailMainManager extends AApiManager
 	{
 		if (!is_array($aFolderFullNamesRaw) || 0 === count($aFolderFullNamesRaw))
 		{
-			throw new CApiInvalidArgumentException();
+			throw new \CApiInvalidArgumentException();
 		}
 
 		$oImapClient =& $this->_getImapClient($oAccount);
@@ -820,7 +820,7 @@ class CApiMailMainManager extends AApiManager
 								(int) $mStatus['MESSAGES'],
 								(int) $mStatus['UNSEEN'],
 								(string) $mStatus['UIDNEXT'],
-								\api_Utils::GenerateFolderHash(
+								\Aurora\System\Utils::GenerateFolderHash(
 									$oFolder->getRawFullName(), $mStatus['MESSAGES'], $mStatus['UNSEEN'], $mStatus['UIDNEXT'])
 							);
 						}
@@ -870,7 +870,7 @@ class CApiMailMainManager extends AApiManager
 	{
 		if (0 === strlen($sFolderNameInUtf8) || 0 === strlen($sDelimiter))
 		{
-			throw new CApiInvalidArgumentException();
+			throw new \CApiInvalidArgumentException();
 		}
 
 		$sFolderNameInUtf8 = trim($sFolderNameInUtf8);
@@ -886,7 +886,7 @@ class CApiMailMainManager extends AApiManager
 
 		if (0 < strlen($sDelimiter) && false !== strpos($sNameToCreate, $sDelimiter))
 		{
-			throw new CApiBaseException(Errs::Mail_FolderNameContainDelimiter);
+			throw new \CApiBaseException(Errs::Mail_FolderNameContainDelimiter);
 		}
 
 		$this->createFolderByFullName(
@@ -906,7 +906,7 @@ class CApiMailMainManager extends AApiManager
 	{
 		if (0 === strlen($sFolderFullNameRaw))
 		{
-			throw new CApiInvalidArgumentException();
+			throw new \CApiInvalidArgumentException();
 		}
 
 		$oImapClient =& $this->_getImapClient($oAccount);
@@ -936,7 +936,7 @@ class CApiMailMainManager extends AApiManager
 		$sNewTopFolderNameInUtf8 = trim($sNewTopFolderNameInUtf8);
 		if (0 === strlen($sPrevFolderFullNameRaw) || 0 === strlen($sNewTopFolderNameInUtf8))
 		{
-			throw new CApiInvalidArgumentException();
+			throw new \CApiInvalidArgumentException();
 		}
 
 		$oImapClient =& $this->_getImapClient($oAccount);
@@ -944,7 +944,7 @@ class CApiMailMainManager extends AApiManager
 		$aFolders = $oImapClient->FolderList('', $sPrevFolderFullNameRaw);
 		if (!is_array($aFolders) || !isset($aFolders[0]))
 		{
-			throw new CApiBaseException(Errs::Mail_CannotRenameNonExistenFolder);
+			throw new \CApiBaseException(Errs::Mail_CannotRenameNonExistenFolder);
 		}
 
 		$sDelimiter = $aFolders[0]->Delimiter();
@@ -966,7 +966,7 @@ class CApiMailMainManager extends AApiManager
 
 		if (0 < strlen($sDelimiter) && false !== strpos($sNewFolderFullNameRaw, $sDelimiter))
 		{
-			throw new CApiBaseException(Errs::Mail_FolderNameContainDelimiter);
+			throw new \CApiBaseException(Errs::Mail_FolderNameContainDelimiter);
 		}
 
 		$sNewFolderFullNameRaw = $sFolderParentFullNameRaw.$sNewFolderFullNameRaw;
@@ -1018,7 +1018,7 @@ class CApiMailMainManager extends AApiManager
 	{
 		if (0 === strlen($sFolderFullNameRaw))
 		{
-			throw new CApiInvalidArgumentException();
+			throw new \CApiInvalidArgumentException();
 		}
 
 		$oImapClient =& $this->_getImapClient($oAccount);
@@ -1047,7 +1047,7 @@ class CApiMailMainManager extends AApiManager
 	{
 		if (0 === strlen($sFolderFullNameRaw))
 		{
-			throw new CApiInvalidArgumentException();
+			throw new \CApiInvalidArgumentException();
 		}
 
 		$oImapClient =& $this->_getImapClient($oAccount);
@@ -1081,7 +1081,7 @@ class CApiMailMainManager extends AApiManager
 	{
 		if (0 === strlen($sFolderFullNameRaw) || !is_array($aUids) || 0 === count($aUids))
 		{
-			throw new CApiInvalidArgumentException();
+			throw new \CApiInvalidArgumentException();
 		}
 
 		$oImapClient =& $this->_getImapClient($oAccount);
@@ -1115,7 +1115,7 @@ class CApiMailMainManager extends AApiManager
 		if (0 === strlen($sFromFolderFullNameRaw) || 0 === strlen($sToFolderFullNameRaw) ||
 			!is_array($aUids) || 0 === count($aUids))
 		{
-			throw new CApiInvalidArgumentException();
+			throw new \CApiInvalidArgumentException();
 		}
 
 		$oImapClient =& $this->_getImapClient($oAccount);
@@ -1150,7 +1150,7 @@ class CApiMailMainManager extends AApiManager
 		if (0 === strlen($sFromFolderFullNameRaw) || 0 === strlen($sToFolderFullNameRaw) ||
 			!is_array($aUids) || 0 === count($aUids))
 		{
-			throw new CApiInvalidArgumentException();
+			throw new \CApiInvalidArgumentException();
 		}
 
 		$oImapClient =& $this->_getImapClient($oAccount);
@@ -1178,7 +1178,7 @@ class CApiMailMainManager extends AApiManager
 	{
 		if (!$oAccount || !$oMessage)
 		{
-			throw new CApiInvalidArgumentException();
+			throw new \CApiInvalidArgumentException();
 		}
 		
 		$oImapClient =& $this->_getImapClient($oAccount);
@@ -1197,9 +1197,9 @@ class CApiMailMainManager extends AApiManager
 				$sRcptEmail = '';
 				try
 				{
-					$iConnectTimeOut =\CApi::GetConf('socket.connect-timeout', 5);
-					$iSocketTimeOut =\CApi::GetConf('socket.get-timeout', 5);
-					$bVerifySsl = !!CApi::GetConf('socket.verify-ssl', false);
+					$iConnectTimeOut =\Aurora\System\Api::GetConf('socket.connect-timeout', 5);
+					$iSocketTimeOut =\Aurora\System\Api::GetConf('socket.get-timeout', 5);
+					$bVerifySsl = !!\Aurora\System\Api::GetConf('socket.verify-ssl', false);
 
 					$oSmtpClient = \MailSo\Smtp\SmtpClient::NewInstance();
 					$oSmtpClient->SetTimeOuts($iConnectTimeOut, $iSocketTimeOut);
@@ -1371,7 +1371,7 @@ class CApiMailMainManager extends AApiManager
 	{
 		if (!$oAccount || !$oMessage || 0 === strlen($sDraftFolder))
 		{
-			throw new CApiInvalidArgumentException();
+			throw new \CApiInvalidArgumentException();
 		}
 
 		$oImapClient =& $this->_getImapClient($oAccount);
@@ -1472,7 +1472,7 @@ class CApiMailMainManager extends AApiManager
 	{
 		if (0 === strlen($sFolderFullNameRaw) || (!$bSetToAll && (!is_array($aUids) || 0 === count($aUids))))
 		{
-			throw new CApiInvalidArgumentException();
+			throw new \CApiInvalidArgumentException();
 		}
 
 		$oImapClient =& $this->_getImapClient($oAccount);
@@ -1553,7 +1553,7 @@ class CApiMailMainManager extends AApiManager
 	{
 		if (0 === strlen($sFolderName) || 0 === strlen($sMessageId))
 		{
-			throw new CApiInvalidArgumentException();
+			throw new \CApiInvalidArgumentException();
 		}
 
 		$oImapClient =& $this->_getImapClient($oAccount);
@@ -1598,7 +1598,7 @@ class CApiMailMainManager extends AApiManager
 	{
 		if (0 === strlen($sFolderFullNameRaw) || !is_numeric($iUid) || 0 >= (int) $iUid)
 		{
-			throw new CApiInvalidArgumentException();
+			throw new \CApiInvalidArgumentException();
 		}
 
 		$iUid = (int) $iUid;
@@ -1728,8 +1728,8 @@ class CApiMailMainManager extends AApiManager
 
 			if (0 < strlen($sFromEmail))
 			{
-				$oApiUsersManager = /* @var CApiUsersManager */\CApi::GetSystemManager('users');
-				$oSettings =&\CApi::GetSettings();
+				$oApiUsersManager = /* @var CApiUsersManager */\Aurora\System\Api::GetSystemManager('users');
+				$oSettings =&\Aurora\System\Api::GetSettings();
 				$bAlwaysShowImagesInMessage = !!$oSettings->GetConf('WebMail/AlwaysShowImagesInMessage');
 				$oMessage->setSafety($bAlwaysShowImagesInMessage ? true : 
 						$oApiUsersManager->getSafetySender($oAccount->IdUser, $sFromEmail, true));
@@ -2536,7 +2536,7 @@ class CApiMailMainManager extends AApiManager
 		if (0 === strlen($sFolderFullNameRaw) ||
 			!is_callable($fItemCallback))
 		{
-			throw new CApiInvalidArgumentException();
+			throw new \CApiInvalidArgumentException();
 		}
 
 		$oImapClient->FolderExamine($sFolderFullNameRaw);
@@ -2602,7 +2602,7 @@ class CApiMailMainManager extends AApiManager
 		if (0 === strlen($sFolderFullNameRaw) || !is_callable($fItemCallback) || 
 			!is_array($aUids) || 0 === count($aUids))
 		{
-			throw new CApiInvalidArgumentException();
+			throw new \CApiInvalidArgumentException();
 		}
 
 		$oImapClient->FolderExamine($sFolderFullNameRaw);
@@ -2663,12 +2663,12 @@ class CApiMailMainManager extends AApiManager
 	{
 		if (0 === strlen($sFolderFullNameRaw) || 0 > $iOffset || 0 >= $iLimit || 999 < $iLimit)
 		{
-			throw new CApiInvalidArgumentException();
+			throw new \CApiInvalidArgumentException();
 		}
 
 		$oMessageCollection = false;
 
-		$oSettings =&\CApi::GetSettings();
+		$oSettings =&\Aurora\System\Api::GetSettings();
 		$oImapClient =& $this->_getImapClient($oAccount, 20, 60 * 2);
 
 		$oImapClient->FolderExamine($sFolderFullNameRaw);
@@ -2726,7 +2726,7 @@ class CApiMailMainManager extends AApiManager
 				$fAttachmentSearchCallback = null;
 				$aMatch = array();
 
-				if ((CApi::GetConf('labs.use-body-structures-for-has-attachments-search', false) && \preg_match('/has[ ]?:[ ]?attachments/i', $sSearch)) ||
+				if ((\Aurora\System\Api::GetConf('labs.use-body-structures-for-has-attachments-search', false) && \preg_match('/has[ ]?:[ ]?attachments/i', $sSearch)) ||
 					\preg_match('/attach:([^\s]+)/i', $sSearch, $aMatch))
 				{
 					$bSearchAttachments = true;
@@ -2734,7 +2734,7 @@ class CApiMailMainManager extends AApiManager
 					$sAttachmentRegs = !empty($sAttachmentName) && '*' !== $sAttachmentName ?
 						'/[^>]*'.str_replace('\\*', '[^>]*', preg_quote(trim($sAttachmentName, '*'), '/')).'[^>]*/ui' : '';
 
-					if (CApi::GetConf('labs.use-body-structures-for-has-attachments-search', false))
+					if (\Aurora\System\Api::GetConf('labs.use-body-structures-for-has-attachments-search', false))
 					{	
 						$sCutedSearch = trim(preg_replace('/has[ ]?:[ ]?attachments/i', '', $sCutedSearch));
 					}
@@ -2972,7 +2972,7 @@ class CApiMailMainManager extends AApiManager
 	{
 		if (0 === strlen($sFolderFullNameRaw) || !is_array($aUids) || 0 === count($aUids))
 		{
-			throw new CApiInvalidArgumentException();
+			throw new \CApiInvalidArgumentException();
 		}
 
 		$oMessageCollection = false;
@@ -3063,7 +3063,7 @@ class CApiMailMainManager extends AApiManager
 			}
 		}
 
-		$oMessageCollection->FolderHash = api_Utils::GenerateFolderHash($sFolderFullNameRaw,
+		$oMessageCollection->FolderHash = \Aurora\System\Utils::GenerateFolderHash($sFolderFullNameRaw,
 			$oMessageCollection->MessageCount,
 			$oMessageCollection->MessageUnseenCount,
 			$oMessageCollection->UidNext);
@@ -3086,7 +3086,7 @@ class CApiMailMainManager extends AApiManager
 	{
 		if (0 === strlen($sFolderFullNameRaw) || !is_array($aUids) || 0 === count($aUids))
 		{
-			throw new CApiInvalidArgumentException();
+			throw new \CApiInvalidArgumentException();
 		}
 
 		$oImapClient =& $this->_getImapClient($oAccount);
@@ -3140,7 +3140,7 @@ class CApiMailMainManager extends AApiManager
 	{
 		if (0 > $iUidFrom)
 		{
-			throw new CApiInvalidArgumentException();
+			throw new \CApiInvalidArgumentException();
 		}
 
 		$sFolderFullNameRaw = 'INBOX';

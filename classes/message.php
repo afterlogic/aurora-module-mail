@@ -1047,7 +1047,7 @@ class CApiMailMessage
 	
 	public function toResponseArray($aParameters = array())
 	{
-		$iTrimmedLimit = \CApi::GetConf('labs.message-body-size-limit', 0);
+		$iTrimmedLimit = \Aurora\System\Api::GetConf('labs.message-body-size-limit', 0);
 		$iAccountID = isset($aParameters['Parameters']['AccountID']) ?  $aParameters['Parameters']['AccountID'] : null;
 
 		$oAttachments = $this->getAttachments();
@@ -1065,7 +1065,7 @@ class CApiMailMessage
 			'TextSize' => $this->getTextSize(),
 			'InternalTimeStampInUTC' => $iInternalTimeStampInUTC,
 			'ReceivedOrDateTimeStampInUTC' => $iReceivedOrDateTimeStampInUTC,
-			'TimeStampInUTC' =>	\CApi::GetConf('labs.use-date-from-headers', false) && 0 < $iReceivedOrDateTimeStampInUTC ?
+			'TimeStampInUTC' =>	\Aurora\System\Api::GetConf('labs.use-date-from-headers', false) && 0 < $iReceivedOrDateTimeStampInUTC ?
 				$iReceivedOrDateTimeStampInUTC : $iInternalTimeStampInUTC,
 			'From' => \CApiResponseManager::GetResponseObject($this->getFrom()),
 			'To' => \CApiResponseManager::GetResponseObject($this->getTo()),
@@ -1091,13 +1091,13 @@ class CApiMailMessage
 			$mResult['TrimmedTextSize'] = $iTrimmedLimit;
 		}
 
-		$sLowerForwarded = strtolower(\CApi::GetConf('webmail.forwarded-flag-name', ''));
+		$sLowerForwarded = strtolower(\Aurora\System\Api::GetConf('webmail.forwarded-flag-name', ''));
 		if (!empty($sLowerForwarded))
 		{
 			$mResult['IsForwarded'] = in_array($sLowerForwarded, $aFlags);
 		}
 		
-		$sHash = \CApi::EncodeKeyValues(array(
+		$sHash = \Aurora\System\Api::EncodeKeyValues(array(
 			'AccountID' => $iAccountID,
 			'Folder' => $mResult['Folder'],
 			'Uid' => $mResult['Uid'],
@@ -1164,7 +1164,7 @@ class CApiMailMessage
 				$sPlain = \substr($sPlain, 0, (false !== $iSpacePost && $iSpacePost > $iTextSizeLimit) ? $iSpacePost : $iTextSizeLimit);
 			}
 
-			if (0 < \strlen($sHtml) && \CApi::GetConf('labs.webmail.display-inline-css', false))
+			if (0 < \strlen($sHtml) && \Aurora\System\Api::GetConf('labs.webmail.display-inline-css', false))
 			{
 				include_once AURORA_APP_ROOT_PATH.'libraries/other/CssToInlineStyles.php';
 

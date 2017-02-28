@@ -343,7 +343,7 @@ class CApiMailFolder
 				'MessageCount' => (int) $mStatus['MESSAGES'],
 				'MessageUnseenCount' => (int) $mStatus['UNSEEN'],
 				'UidNext' => (string) $mStatus['UIDNEXT'],
-				'Hash' => \api_Utils::GenerateFolderHash(
+				'Hash' => \Aurora\System\Utils::GenerateFolderHash(
 					$this->getRawFullName(), $mStatus['MESSAGES'], $mStatus['UNSEEN'], $mStatus['UIDNEXT']
 				)
 			);

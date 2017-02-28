@@ -23,7 +23,7 @@
  * 
  * @package Servers
  */
-class CApiMailServersManager extends AApiManager
+class CApiMailServersManager extends \Aurora\System\AbstractManager
 {
 	/**
 	 * @var CApiEavManager
@@ -31,15 +31,15 @@ class CApiMailServersManager extends AApiManager
 	public $oEavManager = null;
 	
 	/**
-	 * @param CApiGlobalManager &$oManager
+	 * @param \Aurora\System\GlobalManager &$oManager
 	 * @param string $sForcedStorage
-	 * @param AApiModule $oModule
+	 * @param \Aurora\System\AbstractModule $oModule
 	 */
-	public function __construct(CApiGlobalManager &$oManager, $sForcedStorage = '', AApiModule $oModule = null)
+	public function __construct(\Aurora\System\GlobalManager &$oManager, $sForcedStorage = '', \Aurora\System\AbstractModule $oModule = null)
 	{
 		parent::__construct('servers', $oManager, $oModule);
 		
-		$this->oEavManager = \CApi::GetSystemManager('eav', 'db');
+		$this->oEavManager = \Aurora\System\Api::GetSystemManager('eav', 'db');
 	}
 
 	/**
@@ -74,7 +74,7 @@ class CApiMailServersManager extends AApiManager
 			$oServer->OutgoingUseAuth = $bOutgoingUseAuth;
 			if (!$this->oEavManager->saveEntity($oServer))
 			{
-				throw new CApiManagerException(Errs::UsersManager_UserCreateFailed);
+				throw new \CApiManagerException(Errs::UsersManager_UserCreateFailed);
 			}
 			return $oServer->EntityId;
 		}
@@ -219,7 +219,7 @@ class CApiMailServersManager extends AApiManager
 				$oServer->OutgoingUseAuth = $bOutgoingUseAuth;
 				if (!$this->oEavManager->saveEntity($oServer))
 				{
-					throw new CApiManagerException(Errs::UsersManager_UserCreateFailed);
+					throw new \CApiManagerException(Errs::UsersManager_UserCreateFailed);
 				}
 				$bResult = true;
 			}

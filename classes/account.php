@@ -66,7 +66,7 @@ class CMailAccount extends CEntity
 	{
 		if ($this->oServer === null && $this->ServerId !== 0)
 		{
-			$oMailModule = \CApi::GetModule('Mail');
+			$oMailModule = \Aurora\System\Api::GetModule('Mail');
 			$this->oServer = $oMailModule->oApiServersManager->getServer($this->ServerId);
 		}
 		return $this->oServer;
@@ -74,7 +74,7 @@ class CMailAccount extends CEntity
 	
 	private function canBeUsedToAuthorize()
 	{
-		$oMailModule = \CApi::GetModule('Mail');
+		$oMailModule = \Aurora\System\Api::GetModule('Mail');
 		return !$oMailModule->oApiAccountsManager->useToAuthorizeAccountExists($this->Email, $this->EntityId);
 	}
 	
