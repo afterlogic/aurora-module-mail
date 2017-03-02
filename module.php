@@ -1216,17 +1216,30 @@ class MailModule extends \Aurora\System\AbstractModule
 	}	
 	
 	/**
+	 * 
 	 * @param \CAccount $oAccount
-	 * @param \CFetcher $oFetcher = null
-	 * @param bool $bWithDraftInfo = true
-	 * @param \CIdentity $oIdentity = null
-	 *
+	 * @param string $sTo
+	 * @param string $sCc
+	 * @param string $sBcc
+	 * @param string $sSubject
+	 * @param bool $bTextIsHtml
+	 * @param string $sText
+	 * @param array $aAttachments
+	 * @param array $aDraftInfo
+	 * @param string $sInReplyTo
+	 * @param string $sReferences
+	 * @param string $sImportance
+	 * @param string $sSensitivity
+	 * @param bool $bSendReadingConfirmation
+	 * @param \CFetcher $oFetcher
+	 * @param bool $bWithDraftInfo
+	 * @param \CIdentity $oIdentity
 	 * @return \MailSo\Mime\Message
 	 */
 	private function buildMessage($oAccount, $sTo = '', $sCc = '', $sBcc = '', 
 			$sSubject = '', $bTextIsHtml = false, $sText = '', $aAttachments = null, 
 			$aDraftInfo = null, $sInReplyTo = '', $sReferences = '', $sImportance = '',
-			$sSensitivity = '', $bReadingConfirmation = false,
+			$sSensitivity = '', $bSendReadingConfirmation = false,
 			$oFetcher = null, $bWithDraftInfo = true, $oIdentity = null)
 	{
 		$oMessage = \MailSo\Mime\Message::NewInstance();
@@ -1306,7 +1319,7 @@ class MailModule extends \Aurora\System\AbstractModule
 			$oMessage->SetSensitivity((int) $sSensitivity);
 		}
 
-		if ($bReadingConfirmation)
+		if ($bSendReadingConfirmation)
 		{
 			$oMessage->SetReadConfirmation($oFetcher ? $oFetcher->Email : $oAccount->Email);
 		}
@@ -1395,19 +1408,33 @@ class MailModule extends \Aurora\System\AbstractModule
 	}	
 	
 	/**
+	 * 
 	 * @param int $AccountID
-	 * @param string $DraftFolder
-	 * @param string $DraftUid
 	 * @param string $FetcherID
 	 * @param string $IdentityID
-	 * @return array
+	 * @param array $DraftInfo
+	 * @param string $DraftUid
+	 * @param string $To
+	 * @param string $Cc
+	 * @param string $Bcc
+	 * @param string $Subject
+	 * @param string $Text
+	 * @param bool $IsHtml
+	 * @param int $Importance
+	 * @param bool $SendReadingConfirmation
+	 * @param array $Attachments
+	 * @param string $InReplyTo
+	 * @param string $References
+	 * @param int $Sensitivity
+	 * @param string $DraftFolder
+	 * @return bool
 	 * @throws \System\Exceptions\AuroraApiException
 	 */
 	public function SaveMessage($AccountID, $FetcherID = "", $IdentityID = "", 
 			$DraftInfo = [], $DraftUid = "", $To = "", $Cc = "", $Bcc = "", 
 			$Subject = "", $Text = "", $IsHtml = false, $Importance = 1, 
-			$ReadingConfirmation = 0, $Attachments = array(), $InReplyTo = "", 
-			$References = "", $Sensitivity = 0, $ShowReport = true, $SentFolder = "", $DraftFolder = "")
+			$SendReadingConfirmation = false, $Attachments = array(), $InReplyTo = "", 
+			$References = "", $Sensitivity = 0, $DraftFolder = "")
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
@@ -1449,7 +1476,7 @@ class MailModule extends \Aurora\System\AbstractModule
 
 		$oMessage = $this->buildMessage($oAccount, $To, $Cc, $Bcc, 
 			$Subject, $IsHtml, $Text, $Attachments, $DraftInfo, $InReplyTo, $References, $Importance,
-			$Sensitivity, $ReadingConfirmation, $oFetcher, true, $oIdentity);
+			$Sensitivity, $SendReadingConfirmation, $oFetcher, true, $oIdentity);
 		if ($oMessage)
 		{
 			try
@@ -1467,33 +1494,34 @@ class MailModule extends \Aurora\System\AbstractModule
 	}	
 	
 	/**
-	 * @return array
-	 */
-//	public function SendMessageObject()
-//	{
-//		$oAccount = $this->getParamValue('Account', null);
-//		$oMessage = $this->getParamValue('Message', null);
-//		
-//		return $this->oApiMailManager->sendMessage($oAccount, $oMessage);
-//	}
-	
-	/**
 	 * 
 	 * @param int $AccountID
-	 * @param string $SentFolder
-	 * @param string $DraftFolder
-	 * @param string $DraftUid
-	 * @param array $DraftInfo
 	 * @param string $FetcherID
 	 * @param string $IdentityID
-	 * @return array
+	 * @param array $DraftInfo
+	 * @param string $DraftUid
+	 * @param string $To
+	 * @param string $Cc
+	 * @param string $Bcc
+	 * @param string $Subject
+	 * @param string $Text
+	 * @param bool $IsHtml
+	 * @param int $Importance
+	 * @param bool $SendReadingConfirmation
+	 * @param array $Attachments
+	 * @param string $InReplyTo
+	 * @param string $References
+	 * @param int $Sensitivity
+	 * @param string $SentFolder
+	 * @param string $DraftFolder
+	 * @return bool
 	 * @throws \System\Exceptions\AuroraApiException
 	 */
 	public function SendMessage($AccountID, $FetcherID = "", $IdentityID = "", 
 			$DraftInfo = [], $DraftUid = "", $To = "", $Cc = "", $Bcc = "", 
 			$Subject = "", $Text = "", $IsHtml = false, $Importance = 1, 
-			$ReadingConfirmation = 0, $Attachments = array(), $InReplyTo = "", 
-			$References = "", $Sensitivity = 0, $ShowReport = true, $SentFolder = "", $DraftFolder = "")
+			$SendReadingConfirmation = false, $Attachments = array(), $InReplyTo = "", 
+			$References = "", $Sensitivity = 0, $SentFolder = "", $DraftFolder = "")
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
@@ -1527,7 +1555,7 @@ class MailModule extends \Aurora\System\AbstractModule
 
 		$oMessage = $this->buildMessage($oAccount, $To, $Cc, $Bcc, 
 			$Subject, $IsHtml, $Text, $Attachments, $DraftInfo, $InReplyTo, $References, $Importance,
-			$Sensitivity, $ReadingConfirmation, $oFetcher, false, $oIdentity);
+			$Sensitivity, $SendReadingConfirmation, $oFetcher, false, $oIdentity);
 		if ($oMessage)
 		{
 			try
@@ -1605,19 +1633,73 @@ class MailModule extends \Aurora\System\AbstractModule
 	}
 	
 	/**
+	 * @param \CAccount $oAccount
+	 * @param string $sConfirmationAddressee
+	 * @param string $sSubject
+	 * @param string $sText
+	 * @return \MailSo\Mime\Message
+	 * @throws \MailSo\Base\Exceptions\InvalidArgumentException
+	 */
+	private function buildConfirmationMessage($oAccount, $sConfirmationAddressee, $sSubject, $sText)
+	{
+		if (0 === strlen($sConfirmationAddressee) || 0 === strlen($sSubject) || 0 === strlen($sText))
+		{
+			throw new \MailSo\Base\Exceptions\InvalidArgumentException();
+		}
+
+		$oMessage = \MailSo\Mime\Message::NewInstance();
+		$oMessage->RegenerateMessageId();
+
+		$sXMailer = \Aurora\System\Api::GetConf('webmail.xmailer-value', '');
+		if (0 < strlen($sXMailer))
+		{
+			$oMessage->SetXMailer($sXMailer);
+		}
+
+		$oTo = \MailSo\Mime\EmailCollection::Parse($sConfirmationAddressee);
+		if (!$oTo || 0 === $oTo->Count())
+		{
+			throw new \MailSo\Base\Exceptions\InvalidArgumentException();
+		}
+
+		$sFrom = 0 < strlen($oAccount->FriendlyName) ? '"'.$oAccount->FriendlyName.'"' : '';
+		if (0 < strlen($sFrom))
+		{
+			$sFrom .= ' <'.$oAccount->Email.'>';
+		}
+		else
+		{
+			$sFrom .= $oAccount->Email;
+		}
+		
+		$oMessage
+			->SetFrom(\MailSo\Mime\Email::NewInstance($sFrom))
+			->SetTo($oTo)
+			->SetSubject($sSubject)
+		;
+
+		$oMessage->AddText($sText, false);
+
+		return $oMessage;
+	}
+	
+	/**
 	 * @param int $AccountID
 	 * @param string $ConfirmFolder
 	 * @param string $ConfirmUid
+	 * @param string $ConfirmationAddressee
+	 * @param string $Subject
+	 * @param string $Text
 	 * @return array
 	 * @throws \System\Exceptions\AuroraApiException
 	 */
-	public function SendConfirmationMessage($AccountID, $ConfirmFolder, $ConfirmUid)
+	public function SendConfirmationMessage($AccountID, $ConfirmFolder, $ConfirmUid, $ConfirmationAddressee, $Subject, $Text)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 		
-		$oMessage = $this->buildConfirmationMessage($oAccount);
+		$oMessage = $this->buildConfirmationMessage($oAccount, $ConfirmationAddressee, $Subject, $Text);
 		if ($oMessage)
 		{
 			try

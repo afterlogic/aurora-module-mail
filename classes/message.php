@@ -1114,11 +1114,11 @@ class CApiMailMessage
 			$mResult['Headers'] = \MailSo\Base\Utils::Utf8Clear($this->getHeaders());
 			$mResult['InReplyTo'] = $this->getInReplyTo();
 			$mResult['References'] = $this->getReferences();
-			$mResult['ReadingConfirmation'] = $this->getReadingConfirmation();
+			$mResult['ReadingConfirmationAddressee'] = $this->getReadingConfirmation();
 
-			if (!empty($mResult['ReadingConfirmation']) && in_array('$readconfirm', $aFlags))
+			if (!empty($mResult['ReadingConfirmationAddressee']) && in_array('$readconfirm', $aFlags))
 			{
-				$mResult['ReadingConfirmation'] = '';
+				$mResult['ReadingConfirmationAddressee'] = '';
 			}
 
 			$bHasExternals = false;
