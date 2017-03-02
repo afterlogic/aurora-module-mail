@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (c) 2016, Afterlogic Corp.
+ * @copyright Copyright (c) 2017, Afterlogic Corp.
  * @license AGPL-3.0
  *
  * This code is free software: you can redistribute it and/or modify
@@ -22,7 +22,7 @@
  * @package Fetchers
  * @subpackage Storages
  */
-class CApiMailFetchersCommandCreator extends api_CommandCreator
+class CApiMailFetchersCommandCreator extends \Aurora\System\Db\CommandCreator
 {
 	/**
 	 * @param CAccount $oAccount
@@ -30,7 +30,7 @@ class CApiMailFetchersCommandCreator extends api_CommandCreator
 	 */
 	public function getFetchers($oAccount)
 	{
-		$aMap = api_AContainer::DbReadKeys(CFetcher::getStaticMap());
+		$aMap = \Aurora\System\AbstractContainer::DbReadKeys(CFetcher::getStaticMap());
 		$aMap = array_map(array($this, 'escapeColumn'), $aMap);
 
 		$sSql = 'SELECT %s FROM %sawm_fetchers WHERE %s = %d';
@@ -59,7 +59,7 @@ class CApiMailFetchersCommandCreator extends api_CommandCreator
 	 */
 	public function createFetcher($oAccount, $oFetcher)
 	{
-		$aResults = api_AContainer::DbInsertArrays($oFetcher, $this->oHelper);
+		$aResults = \Aurora\System\AbstractContainer::DbInsertArrays($oFetcher, $this->oHelper);
 
 		if ($aResults[0] && $aResults[1])
 		{
@@ -77,7 +77,7 @@ class CApiMailFetchersCommandCreator extends api_CommandCreator
 	 */
 	public function updateFetcher($oAccount, $oFetcher)
 	{
-		$aResult = api_AContainer::DbUpdateArray($oFetcher, $this->oHelper);
+		$aResult = \Aurora\System\AbstractContainer::DbUpdateArray($oFetcher, $this->oHelper);
 
 		$sSql = 'UPDATE %sawm_fetchers SET %s WHERE %s = %d AND %s = %d';
 		return sprintf($sSql, $this->prefix(), implode(', ', $aResult),

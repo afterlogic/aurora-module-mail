@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (c) 2016, Afterlogic Corp.
+ * @copyright Copyright (c) 2017, Afterlogic Corp.
  * @license AGPL-3.0
  *
  * This code is free software: you can redistribute it and/or modify
@@ -360,7 +360,7 @@ class CApiMailFolder
 			'IsSelectable' => $this->isSelectable(),
 			'Exists' => $this->exists(),
 			'Extended' => $aExtended,
-			'SubFolders' => \CApiResponseManager::GetResponseObject($this->getSubFolders())
+			'SubFolders' => \Aurora\System\ResponseManager::GetResponseObject($this->getSubFolders())
 		);		
 	}
 }

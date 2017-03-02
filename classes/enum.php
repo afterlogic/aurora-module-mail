@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (c) 2016, Afterlogic Corp.
+ * @copyright Copyright (c) 2017, Afterlogic Corp.
  * @license AGPL-3.0
  *
  * This code is free software: you can redistribute it and/or modify
@@ -22,7 +22,7 @@
  * @package Mail
  * @subpackage Enum
  */
-class EMailMessageListSortType extends AEnumeration
+class EMailMessageListSortType extends AbstractEnumeration
 {
 	const Date = 0;
 	const From_ = 1;
@@ -35,7 +35,7 @@ class EMailMessageListSortType extends AEnumeration
  * @package Mail
  * @subpackage Enum
  */
-class EMailMessageStoreAction extends AEnumeration
+class EMailMessageStoreAction extends AbstractEnumeration
 {
 	const Add = 0;
 	const Remove = 1;
@@ -46,7 +46,7 @@ class EMailMessageStoreAction extends AEnumeration
  * @package Mail
  * @subpackage Enum
  */
-class EMailMessageFlag extends AEnumeration
+class EMailMessageFlag extends AbstractEnumeration
 {
 	const Recent = '\Recent';
 	const Seen = '\Seen';
@@ -60,7 +60,7 @@ class EMailMessageFlag extends AEnumeration
  * @package Api
  * @subpackage Enum
  */
-class EFolderType extends AEnumeration
+class EFolderType extends AbstractEnumeration
 {
 	const Inbox = 1;
 	const Sent = 2;
@@ -90,7 +90,7 @@ class EFolderType extends AEnumeration
  * @package Mail
  * @subpackage Enum
  */
-class EMailServerOwnerType extends AEnumeration
+class EMailServerOwnerType extends AbstractEnumeration
 {
 	const Account = 'account';
 	const Tenant = 'tenant';

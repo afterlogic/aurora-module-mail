@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (c) 2016, Afterlogic Corp.
+ * @copyright Copyright (c) 2017, Afterlogic Corp.
  * @license AGPL-3.0
  *
  * This code is free software: you can redistribute it and/or modify
@@ -22,7 +22,7 @@
  * @package Sieve
  * @subpackage Enum
  */
-class EFilterFiels extends AEnumeration
+class EFilterFiels extends AbstractEnumeration
 {
 	const From = 0;
 	const To = 1;
@@ -36,7 +36,7 @@ class EFilterFiels extends AEnumeration
  * @package Sieve
  * @subpackage Enum
  */
-class EFilterCondition extends AEnumeration
+class EFilterCondition extends AbstractEnumeration
 {
 	const ContainSubstring = 0;
 	const ContainExactPhrase = 1;
@@ -48,7 +48,7 @@ class EFilterCondition extends AEnumeration
  * @package Sieve
  * @subpackage Enum
  */
-class EFilterAction extends AEnumeration
+class EFilterAction extends AbstractEnumeration
 {
 	const DoNothing = 0;
 	const DeleteFromServerImmediately = 1;

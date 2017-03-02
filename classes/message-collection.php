@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (c) 2016, Afterlogic Corp.
+ * @copyright Copyright (c) 2017, Afterlogic Corp.
  * @license AGPL-3.0
  *
  * This code is free software: you can redistribute it and/or modify
@@ -163,7 +163,7 @@ class CApiMailMessageCollection extends \MailSo\Base\Collection
 	
 	public function toResponseArray($aParameters = array()) {
 		return array_merge(
-				parent::toResponseArray($aParameters), 
+				\Aurora\System\ResponseManager::CollectionToResponseArray($this, $aParameters), 
 				array(
 					'Uids' => $this->Uids,
 					'UidNext' => $this->UidNext,

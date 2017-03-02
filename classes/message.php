@@ -1056,7 +1056,7 @@ class CApiMailMessage
 		$iReceivedOrDateTimeStampInUTC = $this->getReceivedOrDateTimeStamp();
 
 		$aFlags = $this->getFlagsLowerCase();
-		$mResult = array_merge(CApiResponseManager::objectWrapper($this, $aParameters), array(
+		$mResult = array_merge(\Aurora\System\ResponseManager::objectWrapper($this, $aParameters), array(
 			'Folder' => $this->getFolder(),
 			'Uid' => $this->getUid(),
 			'Subject' => $this->getSubject(),
@@ -1067,12 +1067,12 @@ class CApiMailMessage
 			'ReceivedOrDateTimeStampInUTC' => $iReceivedOrDateTimeStampInUTC,
 			'TimeStampInUTC' =>	\Aurora\System\Api::GetConf('labs.use-date-from-headers', false) && 0 < $iReceivedOrDateTimeStampInUTC ?
 				$iReceivedOrDateTimeStampInUTC : $iInternalTimeStampInUTC,
-			'From' => \CApiResponseManager::GetResponseObject($this->getFrom()),
-			'To' => \CApiResponseManager::GetResponseObject($this->getTo()),
-			'Cc' => \CApiResponseManager::GetResponseObject($this->getCc()),
-			'Bcc' => \CApiResponseManager::GetResponseObject($this->getBcc()),
-			'Sender' => \CApiResponseManager::GetResponseObject($this->getSender()),
-			'ReplyTo' => \CApiResponseManager::GetResponseObject($this->getReplyTo()),
+			'From' => \Aurora\System\ResponseManager::GetResponseObject($this->getFrom()),
+			'To' => \Aurora\System\ResponseManager::GetResponseObject($this->getTo()),
+			'Cc' => \Aurora\System\ResponseManager::GetResponseObject($this->getCc()),
+			'Bcc' => \Aurora\System\ResponseManager::GetResponseObject($this->getBcc()),
+			'Sender' => \Aurora\System\ResponseManager::GetResponseObject($this->getSender()),
+			'ReplyTo' => \Aurora\System\ResponseManager::GetResponseObject($this->getReplyTo()),
     		'IsSeen' => in_array('\\seen', $aFlags),
 			'IsFlagged' => in_array('\\flagged', $aFlags),
 			'IsAnswered' => in_array('\\answered', $aFlags),
@@ -1108,7 +1108,7 @@ class CApiMailMessage
 
 		$mResult['Hash'] = $sHash;
 
-		$sMethod = \CApiResponseManager::GetMethod();		
+		$sMethod = \Aurora\System\ResponseManager::GetMethod();		
 		if (isset($aParameters['Method']) && ('GetMessage' === $aParameters['Method'] || 'GetMessagesBodies' === $aParameters['Method']))
 		{
 			$mResult['Headers'] = \MailSo\Base\Utils::Utf8Clear($this->getHeaders());
@@ -1215,7 +1215,7 @@ class CApiMailMessage
 			{
 				foreach ($this->aExtend as $oExtend)
 				{
-					$mResult['Extend'][] = \CApiResponseManager::GetResponseObject($oExtend);
+					$mResult['Extend'][] = \Aurora\System\ResponseManager::GetResponseObject($oExtend);
 				}
 			}
 
@@ -1223,7 +1223,7 @@ class CApiMailMessage
 			$mResult['HasExternals'] = $bHasExternals;
 			$mResult['FoundedCIDs'] = $aFoundedCIDs;
 			$mResult['FoundedContentLocationUrls'] = $aFoundedContentLocationUrls;
-			$mResult['Attachments'] = \CApiResponseManager::GetResponseObject($oAttachments,
+			$mResult['Attachments'] = \Aurora\System\ResponseManager::GetResponseObject($oAttachments,
 					array(
 						'AccountID' => $iAccountID,
 						'FoundedCIDs' => $aFoundedCIDs,
@@ -1239,7 +1239,7 @@ class CApiMailMessage
 			$mResult['Threads'] = $this->getThreads();
 		}
 
-		$mResult['Custom'] = \CApiResponseManager::GetResponseObject($this->getCustomList());
+		$mResult['Custom'] = \Aurora\System\ResponseManager::GetResponseObject($this->getCustomList());
 		$mResult['Subject'] = \MailSo\Base\Utils::Utf8Clear($mResult['Subject']);
 		
 		return $mResult;

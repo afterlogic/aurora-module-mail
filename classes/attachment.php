@@ -1,6 +1,6 @@
 <?php
 /**
- * @copyright Copyright (c) 2016, Afterlogic Corp.
+ * @copyright Copyright (c) 2017, Afterlogic Corp.
  * @license AGPL-3.0
  *
  * This code is free software: you can redistribute it and/or modify
@@ -318,7 +318,7 @@ class CApiMailAttachment
 
 		$sCid = \trim(\trim($this->getCid()), '<>');
 
-		$mResult = array_merge(\CApiResponseManager::objectWrapper($this, $aParameters), array(
+		$mResult = array_merge(\Aurora\System\ResponseManager::objectWrapper($this, $aParameters), array(
 			'FileName' => $sFileName,
 			'MimeType' => $sMimeType,
 			'MimePartIndex' => ('message/rfc822' === $sMimeType && ('base64' === $sContentTransferEncoding || 'quoted-printable' === $sContentTransferEncoding))
