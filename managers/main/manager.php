@@ -190,7 +190,8 @@ class CApiMailMainManager extends \Aurora\System\AbstractManager
 					'Type' => $iTypeValue
 				)
 			);
-			$oSystemFolder = new \CSystemFolder();
+			$oSystemFolder = \CSystemFolder::createInstance($this->GetName());
+			
 			if (count($aEntities) > 0 && $aEntities[0] instanceof \CSystemFolder)
 			{
 				$oSystemFolder = $aEntities[0];
@@ -412,7 +413,8 @@ class CApiMailMainManager extends \Aurora\System\AbstractManager
 		$bResult = true;
 		if (!$this->isSafetySender($iIdUser, $sEmail))
 		{
-			$oEntity = new \CSender();
+			$oEntity = \CSender::createInstance($this->GetName());
+			
 			$oEntity->IdUser = $iIdUser;
 			$oEntity->Email = $sEmail;
 			$bResult = $this->oEavManager->saveEntity($oEntity);

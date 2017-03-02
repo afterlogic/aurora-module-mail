@@ -22,7 +22,7 @@
  * @package Mail
  * @subpackage Enum
  */
-class EMailMessageListSortType extends AbstractEnumeration
+class EMailMessageListSortType extends \AbstractEnumeration
 {
 	const Date = 0;
 	const From_ = 1;
@@ -35,7 +35,7 @@ class EMailMessageListSortType extends AbstractEnumeration
  * @package Mail
  * @subpackage Enum
  */
-class EMailMessageStoreAction extends AbstractEnumeration
+class EMailMessageStoreAction extends \AbstractEnumeration
 {
 	const Add = 0;
 	const Remove = 1;
@@ -46,7 +46,7 @@ class EMailMessageStoreAction extends AbstractEnumeration
  * @package Mail
  * @subpackage Enum
  */
-class EMailMessageFlag extends AbstractEnumeration
+class EMailMessageFlag extends \AbstractEnumeration
 {
 	const Recent = '\Recent';
 	const Seen = '\Seen';
@@ -60,7 +60,7 @@ class EMailMessageFlag extends AbstractEnumeration
  * @package Api
  * @subpackage Enum
  */
-class EFolderType extends AbstractEnumeration
+class EFolderType extends \AbstractEnumeration
 {
 	const Inbox = 1;
 	const Sent = 2;
@@ -90,7 +90,7 @@ class EFolderType extends AbstractEnumeration
  * @package Mail
  * @subpackage Enum
  */
-class EMailServerOwnerType extends AbstractEnumeration
+class EMailServerOwnerType extends \AbstractEnumeration
 {
 	const Account = 'account';
 	const Tenant = 'tenant';
