@@ -75,21 +75,21 @@ class CApiMailFetchersManager extends \Aurora\System\AbstractManagerWithStorage
 			$this->getTestPop3Client($oFetcher);
 			$mResult = $this->oStorage->createFetcher($oAccount, $oFetcher);
 		}
-		catch (CApiBaseException $oException)
+		catch (\Aurora\System\Exceptions\BaseException $oException)
 		{
 			$this->setLastException($oException);
 		}
 		catch (\MailSo\Net\Exceptions\ConnectionException $oException)
 		{
-			$this->setLastException(new \CApiBaseException(CApiErrorCodes::Fetcher_ConnectToMailServerFailed, $oException));
+			$this->setLastException(new \Aurora\System\Exceptions\BaseException(CApiErrorCodes::Fetcher_ConnectToMailServerFailed, $oException));
 		}
 		catch (\MailSo\Pop3\Exceptions\LoginBadCredentialsException $oException)
 		{
-			$this->setLastException(new \CApiBaseException(CApiErrorCodes::Fetcher_AuthError, $oException));
+			$this->setLastException(new \Aurora\System\Exceptions\BaseException(CApiErrorCodes::Fetcher_AuthError, $oException));
 		}
 		catch (Exception $oException)
 		{
-			$this->setLastException(new \CApiBaseException(CApiErrorCodes::Fetcher_AuthError, $oException));
+			$this->setLastException(new \Aurora\System\Exceptions\BaseException(CApiErrorCodes::Fetcher_AuthError, $oException));
 		}
 		return $mResult;
 	}
@@ -106,7 +106,7 @@ class CApiMailFetchersManager extends \Aurora\System\AbstractManagerWithStorage
 		{
 			$mResult = $this->oStorage->getFetchers($oAccount);
 		}
-		catch (CApiBaseException $oException)
+		catch (\Aurora\System\Exceptions\BaseException $oException)
 		{
 			$this->setLastException($oException);
 		}
@@ -126,7 +126,7 @@ class CApiMailFetchersManager extends \Aurora\System\AbstractManagerWithStorage
 		{
 			$mResult = $this->oStorage->deleteFetcher($oAccount, $iFetcherID);
 		}
-		catch (CApiBaseException $oException)
+		catch (\Aurora\System\Exceptions\BaseException $oException)
 		{
 			$this->setLastException($oException);
 		}
@@ -147,21 +147,21 @@ class CApiMailFetchersManager extends \Aurora\System\AbstractManagerWithStorage
 			$this->getTestPop3Client($oFetcher);
 			$mResult = $this->oStorage->updateFetcher($oAccount, $oFetcher);
 		}
-		catch (CApiBaseException $oException)
+		catch (\Aurora\System\Exceptions\BaseException $oException)
 		{
 			$this->setLastException($oException);
 		}
 		catch (\MailSo\Net\Exceptions\ConnectionException $oException)
 		{
-			$this->setLastException(new \CApiBaseException(CApiErrorCodes::Fetcher_ConnectToMailServerFailed, $oException));
+			$this->setLastException(new \Aurora\System\Exceptions\BaseException(CApiErrorCodes::Fetcher_ConnectToMailServerFailed, $oException));
 		}
 		catch (\MailSo\Pop3\Exceptions\LoginBadCredentialsException $oException)
 		{
-			$this->setLastException(new \CApiBaseException(CApiErrorCodes::Fetcher_AuthError, $oException));
+			$this->setLastException(new \Aurora\System\Exceptions\BaseException(CApiErrorCodes::Fetcher_AuthError, $oException));
 		}
 		catch (Exception $oException)
 		{
-			$this->setLastException(new \CApiBaseException(CApiErrorCodes::Fetcher_AuthError, $oException));
+			$this->setLastException(new \Aurora\System\Exceptions\BaseException(CApiErrorCodes::Fetcher_AuthError, $oException));
 		}
 		return $mResult;
 	}

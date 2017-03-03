@@ -147,7 +147,7 @@ class CApiMailMainManager extends \Aurora\System\AbstractManager
 	 * 
 	 * @return void
 	 *
-	 * @throws CApiManagerException
+	 * @throws \Aurora\System\Exceptions\ManagerException
 	 */
 	public function validateAccountConnection($oAccount)
 	{
@@ -158,15 +158,15 @@ class CApiMailMainManager extends \Aurora\System\AbstractManager
 		}
 		catch (\MailSo\Net\Exceptions\SocketCanNotConnectToHostException $oException)
 		{
-			throw new \CApiManagerException(Errs::Mail_AccountConnectToMailServerFailed, $oException);
+			throw new \Aurora\System\Exceptions\ManagerException(Errs::Mail_AccountConnectToMailServerFailed, $oException);
 		}
 		catch (\MailSo\Imap\Exceptions\LoginBadCredentialsException $oException)
 		{
-			throw new \CApiManagerException(Errs::Mail_AccountAuthentication, $oException);
+			throw new \Aurora\System\Exceptions\ManagerException(Errs::Mail_AccountAuthentication, $oException);
 		}
 		catch (\Exception $oException)
 		{
-			throw new \CApiManagerException(Errs::Mail_AccountLoginFailed, $oException);
+			throw new \Aurora\System\Exceptions\ManagerException(Errs::Mail_AccountLoginFailed, $oException);
 		}
 	}
 
@@ -866,7 +866,7 @@ class CApiMailMainManager extends \Aurora\System\AbstractManager
 	 * @param bool $bSubscribeOnCreation = true. If **true**, the folder will be subscribed and thus made visible in the interface.
 	 *
 	 * @throws \Aurora\System\Exceptions\InvalidArgumentException
-	 * @throws CApiBaseException
+	 * @throws \Aurora\System\Exceptions\BaseException
 	 * 
 	 * @return void
 	 */
@@ -890,7 +890,7 @@ class CApiMailMainManager extends \Aurora\System\AbstractManager
 
 		if (0 < strlen($sDelimiter) && false !== strpos($sNameToCreate, $sDelimiter))
 		{
-			throw new \CApiBaseException(Errs::Mail_FolderNameContainDelimiter);
+			throw new \Aurora\System\Exceptions\BaseException(Errs::Mail_FolderNameContainDelimiter);
 		}
 
 		$this->createFolderByFullName(
@@ -933,7 +933,7 @@ class CApiMailMainManager extends \Aurora\System\AbstractManager
 	 * @return string
 	 *
 	 * @throws \Aurora\System\Exceptions\InvalidArgumentException
-	 * @throws CApiBaseException
+	 * @throws \Aurora\System\Exceptions\BaseException
 	 */
 	public function renameFolder($oAccount, $sPrevFolderFullNameRaw, $sNewTopFolderNameInUtf8)
 	{
@@ -948,7 +948,7 @@ class CApiMailMainManager extends \Aurora\System\AbstractManager
 		$aFolders = $oImapClient->FolderList('', $sPrevFolderFullNameRaw);
 		if (!is_array($aFolders) || !isset($aFolders[0]))
 		{
-			throw new \CApiBaseException(Errs::Mail_CannotRenameNonExistenFolder);
+			throw new \Aurora\System\Exceptions\BaseException(Errs::Mail_CannotRenameNonExistenFolder);
 		}
 
 		$sDelimiter = $aFolders[0]->Delimiter();
@@ -970,7 +970,7 @@ class CApiMailMainManager extends \Aurora\System\AbstractManager
 
 		if (0 < strlen($sDelimiter) && false !== strpos($sNewFolderFullNameRaw, $sDelimiter))
 		{
-			throw new \CApiBaseException(Errs::Mail_FolderNameContainDelimiter);
+			throw new \Aurora\System\Exceptions\BaseException(Errs::Mail_FolderNameContainDelimiter);
 		}
 
 		$sNewFolderFullNameRaw = $sFolderParentFullNameRaw.$sNewFolderFullNameRaw;
@@ -1278,19 +1278,19 @@ class CApiMailMainManager extends \Aurora\System\AbstractManager
 				}
 				catch (\MailSo\Net\Exceptions\ConnectionException $oException)
 				{
-					throw new \CApiManagerException(Errs::Mail_AccountConnectToMailServerFailed, $oException);
+					throw new \Aurora\System\Exceptions\ManagerException(Errs::Mail_AccountConnectToMailServerFailed, $oException);
 				}
 				catch (\MailSo\Smtp\Exceptions\LoginException $oException)
 				{
-					throw new \CApiManagerException(Errs::Mail_AccountLoginFailed, $oException);
+					throw new \Aurora\System\Exceptions\ManagerException(Errs::Mail_AccountLoginFailed, $oException);
 				}
 				catch (\MailSo\Smtp\Exceptions\NegativeResponseException $oException)
 				{
-					throw new \CApiManagerException(Errs::Mail_CannotSendMessage, $oException);
+					throw new \Aurora\System\Exceptions\ManagerException(Errs::Mail_CannotSendMessage, $oException);
 				}
 				catch (\MailSo\Smtp\Exceptions\MailboxUnavailableException $oException)
 				{
-					throw new \CApiManagerException(Errs::Mail_MailboxUnavailable, 
+					throw new \Aurora\System\Exceptions\ManagerException(Errs::Mail_MailboxUnavailable, 
 							$oException, array(), array('Mailbox' => $sRcptEmail));
 				}
 
@@ -1330,7 +1330,7 @@ class CApiMailMainManager extends \Aurora\System\AbstractManager
 					}
 					catch (\Exception $oException)
 					{
-						throw new \CApiManagerException(Errs::Mail_CannotSaveMessageInSentItems, $oException);
+						throw new \Aurora\System\Exceptions\ManagerException(Errs::Mail_CannotSaveMessageInSentItems, $oException);
 					}
 
 					if (is_resource($rMessageStream))
@@ -1352,7 +1352,7 @@ class CApiMailMainManager extends \Aurora\System\AbstractManager
 			}
 			else
 			{
-				throw new \CApiManagerException(Errs::Mail_InvalidRecipients);
+				throw new \Aurora\System\Exceptions\ManagerException(Errs::Mail_InvalidRecipients);
 			}
 		}
 

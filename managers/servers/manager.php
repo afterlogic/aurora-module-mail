@@ -54,7 +54,7 @@ class CApiMailServersManager extends \Aurora\System\AbstractManager
 	 * @param boolean $bOutgoingUseAuth
 	 * @param int $iTenantId
 	 * @return boolean
-	 * @throws CApiManagerException
+	 * @throws \Aurora\System\Exceptions\ManagerException
 	 */
 	public function createServer($sName, $sIncomingServer, $iIncomingPort, $bIncomingUseSsl,
 			$sOutgoingServer, $iOutgoingPort, $bOutgoingUseSsl, $bOutgoingUseAuth, $sOwnerType = \EMailServerOwnerType::Account, $iTenantId = 0)
@@ -74,11 +74,11 @@ class CApiMailServersManager extends \Aurora\System\AbstractManager
 			$oServer->OutgoingUseAuth = $bOutgoingUseAuth;
 			if (!$this->oEavManager->saveEntity($oServer))
 			{
-				throw new \CApiManagerException(Errs::UsersManager_UserCreateFailed);
+				throw new \Aurora\System\Exceptions\ManagerException(Errs::UsersManager_UserCreateFailed);
 			}
 			return $oServer->EntityId;
 		}
-		catch (CApiBaseException $oException)
+		catch (\Aurora\System\Exceptions\BaseException $oException)
 		{
 			$this->setLastException($oException);
 		}
@@ -104,7 +104,7 @@ class CApiMailServersManager extends \Aurora\System\AbstractManager
 				$bResult = $this->oEavManager->deleteEntity($iServerId);
 			}
 		}
-		catch (CApiBaseException $oException)
+		catch (\Aurora\System\Exceptions\BaseException $oException)
 		{
 			$this->setLastException($oException);
 		}
@@ -125,7 +125,7 @@ class CApiMailServersManager extends \Aurora\System\AbstractManager
 		{
 			$oServer = $this->oEavManager->getEntity($iServerId);
 		}
-		catch (CApiBaseException $oException)
+		catch (\Aurora\System\Exceptions\BaseException $oException)
 		{
 			$oServer = false;
 			$this->setLastException($oException);
@@ -175,7 +175,7 @@ class CApiMailServersManager extends \Aurora\System\AbstractManager
 				$iOrderType
 			);
 		}
-		catch (CApiBaseException $oException)
+		catch (\Aurora\System\Exceptions\BaseException $oException)
 		{
 			$aResult = false;
 			$this->setLastException($oException);
@@ -197,7 +197,7 @@ class CApiMailServersManager extends \Aurora\System\AbstractManager
 	 * @param boolean $bOutgoingUseAuth
 	 * @param int $iTenantId
 	 * @return boolean
-	 * @throws CApiManagerException
+	 * @throws \Aurora\System\Exceptions\ManagerException
 	 */
 	public function updateServer($iServerId, $sName, $sIncomingServer, $iIncomingPort, $bIncomingUseSsl,
 			$sOutgoingServer, $iOutgoingPort, $bOutgoingUseSsl, $bOutgoingUseAuth, $iTenantId = 0)
@@ -219,12 +219,12 @@ class CApiMailServersManager extends \Aurora\System\AbstractManager
 				$oServer->OutgoingUseAuth = $bOutgoingUseAuth;
 				if (!$this->oEavManager->saveEntity($oServer))
 				{
-					throw new \CApiManagerException(Errs::UsersManager_UserCreateFailed);
+					throw new \Aurora\System\Exceptions\ManagerException(Errs::UsersManager_UserCreateFailed);
 				}
 				$bResult = true;
 			}
 		}
-		catch (CApiBaseException $oException)
+		catch (\Aurora\System\Exceptions\BaseException $oException)
 		{
 			$bResult = false;
 			$this->setLastException($oException);

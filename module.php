@@ -1483,7 +1483,7 @@ class MailModule extends \Aurora\System\Module\AbstractModule
 			{
 				$mResult = $this->oApiMailManager->saveMessage($oAccount, $oMessage, $DraftFolder, $DraftUid);
 			}
-			catch (\CApiManagerException $oException)
+			catch (\Aurora\System\Exceptions\ManagerException $oException)
 			{
 				$iCode = \Aurora\System\Notifications::CanNotSaveMessage;
 				throw new \Aurora\System\Exceptions\ApiException($iCode, $oException);
@@ -1562,7 +1562,7 @@ class MailModule extends \Aurora\System\Module\AbstractModule
 			{
 				$mResult = $this->oApiMailManager->sendMessage($oAccount, $oMessage, $oFetcher, $SentFolder, $DraftFolder, $DraftUid);
 			}
-			catch (\CApiManagerException $oException)
+			catch (\Aurora\System\Exceptions\ManagerException $oException)
 			{
 				$iCode = \Aurora\System\Notifications::CanNotSendMessage;
 				switch ($oException->getCode())
@@ -1706,7 +1706,7 @@ class MailModule extends \Aurora\System\Module\AbstractModule
 			{
 				$mResult = $this->oApiMailManager->sendMessage($oAccount, $oMessage);
 			}
-			catch (\CApiManagerException $oException)
+			catch (\Aurora\System\Exceptions\ManagerException $oException)
 			{
 				$iCode = \Aurora\System\Notifications::CanNotSendMessage;
 				switch ($oException->getCode())
