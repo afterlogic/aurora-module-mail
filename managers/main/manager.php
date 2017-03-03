@@ -18,6 +18,8 @@
  * @package Modules
  */
 
+use Aurora\System\Exceptions;
+
 /**
  * Manager for work with ImapClient.
  * 
@@ -43,13 +45,13 @@ class CApiMailMainManager extends \Aurora\System\AbstractManager
 	 * 
 	 * @return void
 	 */
-	public function __construct(\Aurora\System\GlobalManager &$oManager, $sForcedStorage = '', \Aurora\System\AbstractModule $oModule = null)
+	public function __construct(\Aurora\System\GlobalManager &$oManager, $sForcedStorage = '', \Aurora\System\Module\AbstractModule $oModule = null)
 	{
 		parent::__construct('main', $oManager, $oModule);
 
 		$this->aImapClientCache = array();
 		
-		if ($oModule instanceof \Aurora\System\AbstractModule)
+		if ($oModule instanceof \Aurora\System\Module\AbstractModule)
 		{
 			$this->oEavManager = \Aurora\System\Api::GetSystemManager('eav', 'db');
 		}
@@ -594,13 +596,13 @@ class CApiMailMainManager extends \Aurora\System\AbstractManager
 	 * 
 	 * @return void
 	 *
-	 * @throws CApiInvalidArgumentException
+	 * @throws \Aurora\System\Exceptions\InvalidArgumentException
 	 */
 	public function createFolderByFullName($oAccount, $sFolderFullNameRaw, $bSubscribeOnCreation = true)
 	{
 		if (0 === strlen($sFolderFullNameRaw))
 		{
-			throw new \CApiInvalidArgumentException();
+			throw new \Aurora\System\Exceptions\InvalidArgumentException();
 		}
 
 		$oImapClient =& $this->_getImapClient($oAccount);
@@ -670,7 +672,7 @@ class CApiMailMainManager extends \Aurora\System\AbstractManager
 	{
 		if (0 === strlen($sExtensionName))
 		{
-			throw new \CApiInvalidArgumentException();
+			throw new \Aurora\System\Exceptions\InvalidArgumentException();
 		}
 
 		$oImapClient =& $this->_getImapClient($oAccount);
@@ -693,7 +695,7 @@ class CApiMailMainManager extends \Aurora\System\AbstractManager
 	{
 		if (0 === strlen($sFolderFullNameRaw))
 		{
-			throw new \CApiInvalidArgumentException();
+			throw new \Aurora\System\Exceptions\InvalidArgumentException();
 		}
 
 		$oImapClient =& $this->_getImapClient($oAccount);
@@ -719,7 +721,7 @@ class CApiMailMainManager extends \Aurora\System\AbstractManager
 		
 		if (0 === strlen($sFolderFullNameRaw) || 0 === strlen($sFolderFullNameRaw))
 		{
-			throw new \CApiInvalidArgumentException();
+			throw new \Aurora\System\Exceptions\InvalidArgumentException();
 		}
 
 		$oImapClient =& $this->_getImapClient($oAccount);
@@ -798,7 +800,7 @@ class CApiMailMainManager extends \Aurora\System\AbstractManager
 	{
 		if (!is_array($aFolderFullNamesRaw) || 0 === count($aFolderFullNamesRaw))
 		{
-			throw new \CApiInvalidArgumentException();
+			throw new \Aurora\System\Exceptions\InvalidArgumentException();
 		}
 
 		$oImapClient =& $this->_getImapClient($oAccount);
@@ -863,7 +865,7 @@ class CApiMailMainManager extends \Aurora\System\AbstractManager
 	 * @param string $sFolderParentFullNameRaw = ''. Parent folder this new one is created under.
 	 * @param bool $bSubscribeOnCreation = true. If **true**, the folder will be subscribed and thus made visible in the interface.
 	 *
-	 * @throws CApiInvalidArgumentException
+	 * @throws \Aurora\System\Exceptions\InvalidArgumentException
 	 * @throws CApiBaseException
 	 * 
 	 * @return void
@@ -872,7 +874,7 @@ class CApiMailMainManager extends \Aurora\System\AbstractManager
 	{
 		if (0 === strlen($sFolderNameInUtf8) || 0 === strlen($sDelimiter))
 		{
-			throw new \CApiInvalidArgumentException();
+			throw new \Aurora\System\Exceptions\InvalidArgumentException();
 		}
 
 		$sFolderNameInUtf8 = trim($sFolderNameInUtf8);
@@ -902,13 +904,13 @@ class CApiMailMainManager extends \Aurora\System\AbstractManager
 	 * @param string $sFolderFullNameRaw Raw full name of the folder.
 	 * @param bool $bUnsubscribeOnDeletion = true. If **true** the folder will be unsubscribed along with its deletion.
 	 *
-	 * @throws CApiInvalidArgumentException
+	 * @throws \Aurora\System\Exceptions\InvalidArgumentException
 	 */
 	public function deleteFolder($oAccount, $sFolderFullNameRaw, $bUnsubscribeOnDeletion = true)
 	{
 		if (0 === strlen($sFolderFullNameRaw))
 		{
-			throw new \CApiInvalidArgumentException();
+			throw new \Aurora\System\Exceptions\InvalidArgumentException();
 		}
 
 		$oImapClient =& $this->_getImapClient($oAccount);
@@ -930,7 +932,7 @@ class CApiMailMainManager extends \Aurora\System\AbstractManager
 	 *
 	 * @return string
 	 *
-	 * @throws CApiInvalidArgumentException
+	 * @throws \Aurora\System\Exceptions\InvalidArgumentException
 	 * @throws CApiBaseException
 	 */
 	public function renameFolder($oAccount, $sPrevFolderFullNameRaw, $sNewTopFolderNameInUtf8)
@@ -938,7 +940,7 @@ class CApiMailMainManager extends \Aurora\System\AbstractManager
 		$sNewTopFolderNameInUtf8 = trim($sNewTopFolderNameInUtf8);
 		if (0 === strlen($sPrevFolderFullNameRaw) || 0 === strlen($sNewTopFolderNameInUtf8))
 		{
-			throw new \CApiInvalidArgumentException();
+			throw new \Aurora\System\Exceptions\InvalidArgumentException();
 		}
 
 		$oImapClient =& $this->_getImapClient($oAccount);
@@ -1014,13 +1016,13 @@ class CApiMailMainManager extends \Aurora\System\AbstractManager
 	 * @param string $sFolderFullNameRaw Raw full name of the folder. 
 	 * @param bool $bSubscribeAction = true. If **true** the folder will be subscribed, otherwise unsubscribed.
 	 *
-	 * @throws CApiInvalidArgumentException
+	 * @throws \Aurora\System\Exceptions\InvalidArgumentException
 	 */
 	public function subscribeFolder($oAccount, $sFolderFullNameRaw, $bSubscribeAction = true)
 	{
 		if (0 === strlen($sFolderFullNameRaw))
 		{
-			throw new \CApiInvalidArgumentException();
+			throw new \Aurora\System\Exceptions\InvalidArgumentException();
 		}
 
 		$oImapClient =& $this->_getImapClient($oAccount);
@@ -1043,13 +1045,13 @@ class CApiMailMainManager extends \Aurora\System\AbstractManager
 	 *
 	 * @return void
 	 * 
-	 * @throws CApiInvalidArgumentException
+	 * @throws \Aurora\System\Exceptions\InvalidArgumentException
 	 */
 	public function clearFolder($oAccount, $sFolderFullNameRaw)
 	{
 		if (0 === strlen($sFolderFullNameRaw))
 		{
-			throw new \CApiInvalidArgumentException();
+			throw new \Aurora\System\Exceptions\InvalidArgumentException();
 		}
 
 		$oImapClient =& $this->_getImapClient($oAccount);
@@ -1077,13 +1079,13 @@ class CApiMailMainManager extends \Aurora\System\AbstractManager
 	 * 
 	 * @return void
 	 *
-	 * @throws CApiInvalidArgumentException
+	 * @throws \Aurora\System\Exceptions\InvalidArgumentException
 	 */
 	public function deleteMessage($oAccount, $sFolderFullNameRaw, $aUids)
 	{
 		if (0 === strlen($sFolderFullNameRaw) || !is_array($aUids) || 0 === count($aUids))
 		{
-			throw new \CApiInvalidArgumentException();
+			throw new \Aurora\System\Exceptions\InvalidArgumentException();
 		}
 
 		$oImapClient =& $this->_getImapClient($oAccount);
@@ -1110,14 +1112,14 @@ class CApiMailMainManager extends \Aurora\System\AbstractManager
 	 *
 	 * @return void
 	 * 
-	 * @throws CApiInvalidArgumentException
+	 * @throws \Aurora\System\Exceptions\InvalidArgumentException
 	 */
 	public function moveMessage($oAccount, $sFromFolderFullNameRaw, $sToFolderFullNameRaw, $aUids)
 	{
 		if (0 === strlen($sFromFolderFullNameRaw) || 0 === strlen($sToFolderFullNameRaw) ||
 			!is_array($aUids) || 0 === count($aUids))
 		{
-			throw new \CApiInvalidArgumentException();
+			throw new \Aurora\System\Exceptions\InvalidArgumentException();
 		}
 
 		$oImapClient =& $this->_getImapClient($oAccount);
@@ -1145,14 +1147,14 @@ class CApiMailMainManager extends \Aurora\System\AbstractManager
 	 * 
 	 * @return void
 	 * 
-	 * @throws CApiInvalidArgumentException
+	 * @throws \Aurora\System\Exceptions\InvalidArgumentException
 	 */
 	public function copyMessage($oAccount, $sFromFolderFullNameRaw, $sToFolderFullNameRaw, $aUids)
 	{
 		if (0 === strlen($sFromFolderFullNameRaw) || 0 === strlen($sToFolderFullNameRaw) ||
 			!is_array($aUids) || 0 === count($aUids))
 		{
-			throw new \CApiInvalidArgumentException();
+			throw new \Aurora\System\Exceptions\InvalidArgumentException();
 		}
 
 		$oImapClient =& $this->_getImapClient($oAccount);
@@ -1174,13 +1176,13 @@ class CApiMailMainManager extends \Aurora\System\AbstractManager
 	 *
 	 * @return array|bool
 	 *
-	 * @throws CApiInvalidArgumentException
+	 * @throws \Aurora\System\Exceptions\InvalidArgumentException
 	 */
 	public function sendMessage($oAccount, $oMessage, $oFetcher = null, $sSentFolder = '', $sDraftFolder = '', $sDraftUid = '')
 	{
 		if (!$oAccount || !$oMessage)
 		{
-			throw new \CApiInvalidArgumentException();
+			throw new \Aurora\System\Exceptions\InvalidArgumentException();
 		}
 		
 		$oImapClient =& $this->_getImapClient($oAccount);
@@ -1367,13 +1369,13 @@ class CApiMailMainManager extends \Aurora\System\AbstractManager
 	 *
 	 * @return array|bool Array containing name of the folder and UID of the message stored, or bool in case of failure.
 	 *
-	 * @throws CApiInvalidArgumentException
+	 * @throws \Aurora\System\Exceptions\InvalidArgumentException
 	 */
 	public function saveMessage($oAccount, $oMessage, $sDraftFolder, $sDraftUid = '')
 	{
 		if (!$oAccount || !$oMessage || 0 === strlen($sDraftFolder))
 		{
-			throw new \CApiInvalidArgumentException();
+			throw new \Aurora\System\Exceptions\InvalidArgumentException();
 		}
 
 		$oImapClient =& $this->_getImapClient($oAccount);
@@ -1467,14 +1469,14 @@ class CApiMailMainManager extends \Aurora\System\AbstractManager
 	 *
 	 * @return true
 	 *
-	 * @throws CApiInvalidArgumentException
+	 * @throws \Aurora\System\Exceptions\InvalidArgumentException
 	 */
 	public function setMessageFlag($oAccount, $sFolderFullNameRaw, $aUids, $sFlagString,
 		$iAction = EMailMessageStoreAction::Add, $bSetToAll = false, $bSkipNonPermanentsFlags = false)
 	{
 		if (0 === strlen($sFolderFullNameRaw) || (!$bSetToAll && (!is_array($aUids) || 0 === count($aUids))))
 		{
-			throw new \CApiInvalidArgumentException();
+			throw new \Aurora\System\Exceptions\InvalidArgumentException();
 		}
 
 		$oImapClient =& $this->_getImapClient($oAccount);
@@ -1555,7 +1557,7 @@ class CApiMailMainManager extends \Aurora\System\AbstractManager
 	{
 		if (0 === strlen($sFolderName) || 0 === strlen($sMessageId))
 		{
-			throw new \CApiInvalidArgumentException();
+			throw new \Aurora\System\Exceptions\InvalidArgumentException();
 		}
 
 		$oImapClient =& $this->_getImapClient($oAccount);
@@ -1594,13 +1596,13 @@ class CApiMailMainManager extends \Aurora\System\AbstractManager
 	 *
 	 * @return CApiMailMessage
 	 *
-	 * @throws CApiInvalidArgumentException
+	 * @throws \Aurora\System\Exceptions\InvalidArgumentException
 	 */
 	public function getMessage($oAccount, $sFolderFullNameRaw, $iUid, $sRfc822SubMimeIndex = '', $bParseICalAndVcard = false, $bParseAsc = false, $iBodyTextLimit = 0)
 	{
 		if (0 === strlen($sFolderFullNameRaw) || !is_numeric($iUid) || 0 >= (int) $iUid)
 		{
-			throw new \CApiInvalidArgumentException();
+			throw new \Aurora\System\Exceptions\InvalidArgumentException();
 		}
 
 		$iUid = (int) $iUid;
@@ -1730,7 +1732,7 @@ class CApiMailMainManager extends \Aurora\System\AbstractManager
 
 			if (0 < strlen($sFromEmail))
 			{
-				$oApiUsersManager = /* @var CApiUsersManager */\Aurora\System\Api::GetSystemManager('users');
+//				$oApiUsersManager = /* @var CApiUsersManager */\Aurora\System\Api::GetSystemManager('users');
 				$oSettings =&\Aurora\System\Api::GetSettings();
 				$bAlwaysShowImagesInMessage = !!$oSettings->GetConf('WebMail/AlwaysShowImagesInMessage');
 				$oMessage->setSafety($bAlwaysShowImagesInMessage ? true : 
@@ -2476,7 +2478,7 @@ class CApiMailMainManager extends \Aurora\System\AbstractManager
 	 *
 	 * @return array
 	 *
-	 * @throws CApiInvalidArgumentException
+	 * @throws \Aurora\System\Exceptions\InvalidArgumentException
 	 */
 	private function _doSpecialSubRequest($oImapClient, $sIndexRange, $fItemCallback, $bRangeAsUids = false)
 	{
@@ -2531,14 +2533,14 @@ class CApiMailMainManager extends \Aurora\System\AbstractManager
 	 *
 	 * @return array
 	 *
-	 * @throws CApiInvalidArgumentException
+	 * @throws \Aurora\System\Exceptions\InvalidArgumentException
 	 */
 	private function _doSpecialIndexSearch($oImapClient, $fItemCallback, $sFolderFullNameRaw)
 	{
 		if (0 === strlen($sFolderFullNameRaw) ||
 			!is_callable($fItemCallback))
 		{
-			throw new \CApiInvalidArgumentException();
+			throw new \Aurora\System\Exceptions\InvalidArgumentException();
 		}
 
 		$oImapClient->FolderExamine($sFolderFullNameRaw);
@@ -2597,14 +2599,14 @@ class CApiMailMainManager extends \Aurora\System\AbstractManager
 	 *
 	 * @return array
 	 *
-	 * @throws CApiInvalidArgumentException
+	 * @throws \Aurora\System\Exceptions\InvalidArgumentException
 	 */
 	private function _doSpecialUidsSearch($oImapClient, $fItemCallback, $sFolderFullNameRaw, $aUids)
 	{
 		if (0 === strlen($sFolderFullNameRaw) || !is_callable($fItemCallback) || 
 			!is_array($aUids) || 0 === count($aUids))
 		{
-			throw new \CApiInvalidArgumentException();
+			throw new \Aurora\System\Exceptions\InvalidArgumentException();
 		}
 
 		$oImapClient->FolderExamine($sFolderFullNameRaw);
@@ -2658,14 +2660,14 @@ class CApiMailMainManager extends \Aurora\System\AbstractManager
 	 *
 	 * @return CApiMailMessageCollection
 	 *
-	 * @throws CApiInvalidArgumentException
+	 * @throws \Aurora\System\Exceptions\InvalidArgumentException
 	 */
 	public function getMessageList($oAccount, $sFolderFullNameRaw, $iOffset = 0, $iLimit = 20,
 		$sSearch = '', $bUseThreads = false, $aFilters = array(), $sInboxUidnext = '')
 	{
 		if (0 === strlen($sFolderFullNameRaw) || 0 > $iOffset || 0 >= $iLimit || 999 < $iLimit)
 		{
-			throw new \CApiInvalidArgumentException();
+			throw new \Aurora\System\Exceptions\InvalidArgumentException();
 		}
 
 		$oMessageCollection = false;
@@ -2968,13 +2970,13 @@ class CApiMailMainManager extends \Aurora\System\AbstractManager
 	 *
 	 * @return CApiMailMessageCollection
 	 *
-	 * @throws CApiInvalidArgumentException
+	 * @throws \Aurora\System\Exceptions\InvalidArgumentException
 	 */
 	public function getMessageListByUids($oAccount, $sFolderFullNameRaw, $aUids)
 	{
 		if (0 === strlen($sFolderFullNameRaw) || !is_array($aUids) || 0 === count($aUids))
 		{
-			throw new \CApiInvalidArgumentException();
+			throw new \Aurora\System\Exceptions\InvalidArgumentException();
 		}
 
 		$oMessageCollection = false;
@@ -3082,13 +3084,13 @@ class CApiMailMainManager extends \Aurora\System\AbstractManager
 	 *
 	 * @return CApiMailMessageCollection
 	 *
-	 * @throws CApiInvalidArgumentException
+	 * @throws \Aurora\System\Exceptions\InvalidArgumentException
 	 */
 	public function getMessagesFlags($oAccount, $sFolderFullNameRaw, $aUids)
 	{
 		if (0 === strlen($sFolderFullNameRaw) || !is_array($aUids) || 0 === count($aUids))
 		{
-			throw new \CApiInvalidArgumentException();
+			throw new \Aurora\System\Exceptions\InvalidArgumentException();
 		}
 
 		$oImapClient =& $this->_getImapClient($oAccount);
@@ -3136,13 +3138,13 @@ class CApiMailMainManager extends \Aurora\System\AbstractManager
 	 *
 	 * @return array
 	 *
-	 * @throws CApiInvalidArgumentException
+	 * @throws \Aurora\System\Exceptions\InvalidArgumentException
 	 */
 	public function getMessagesForHelpdeskSynch($oAccount, $iUidFrom, &$iLastUid = 0, $iLimit = 5)
 	{
 		if (0 > $iUidFrom)
 		{
-			throw new \CApiInvalidArgumentException();
+			throw new \Aurora\System\Exceptions\InvalidArgumentException();
 		}
 
 		$sFolderFullNameRaw = 'INBOX';

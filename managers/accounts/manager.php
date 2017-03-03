@@ -33,9 +33,9 @@ class CApiMailAccountsManager extends \Aurora\System\AbstractManager
 	/**
 	 * @param \Aurora\System\GlobalManager &$oManager
 	 * @param string $sForcedStorage
-	 * @param \Aurora\System\AbstractModule $oModule
+	 * @param \Aurora\System\Module\AbstractModule $oModule
 	 */
-	public function __construct(\Aurora\System\GlobalManager &$oManager, $sForcedStorage = '', \Aurora\System\AbstractModule $oModule = null)
+	public function __construct(\Aurora\System\GlobalManager &$oManager, $sForcedStorage = '', \Aurora\System\Module\AbstractModule $oModule = null)
 	{
 		parent::__construct('accounts', $oManager, $oModule);
 		
@@ -232,7 +232,7 @@ class CApiMailAccountsManager extends \Aurora\System\AbstractManager
 				}
 				else
 				{
-					throw new \System\Exceptions\ApiException(\System\Notifications::AccountExists);
+					throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::AccountExists);
 				}
 			}
 
