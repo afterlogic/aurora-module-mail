@@ -2133,7 +2133,7 @@ class MailModule extends \Aurora\System\Module\AbstractModule
 	public function EntryDownloadAttachment()
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
-		$aPath = \Aurora\System\Service::GetPaths();
+		$aPath = \Aurora\System\Application::GetPaths();
 		$sHash = (string) isset($aPath[1]) ? $aPath[1] : '';
 		$sAction = (string) isset($aPath[2]) ? $aPath[2] : '';	
 
