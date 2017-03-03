@@ -95,6 +95,7 @@ class CMailAccount extends \Aurora\System\EAV\Entity
 		$oServer = $this->getServer();
 		$aResponse['Server'] = $oServer->toResponseArray();
 		$aResponse['CanBeUsedToAuthorize'] = $this->canBeUsedToAuthorize();
+		unset($aResponse['IncomingPassword']);
 		return $aResponse;
 	}
 }
