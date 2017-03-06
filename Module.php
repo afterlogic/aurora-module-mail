@@ -1548,10 +1548,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		$oIdentity = null;
 //		$oApiUsers = \Aurora\System\Api::GetSystemManager('users');
-		if ($oApiUsers && !empty($IdentityID) && \is_numeric($IdentityID) && 0 < (int) $IdentityID)
-		{
-			$oIdentity = $oApiUsers->getIdentity((int) $IdentityID);
-		}
+//		if ($oApiUsers && !empty($IdentityID) && \is_numeric($IdentityID) && 0 < (int) $IdentityID)
+//		{
+//			$oIdentity = $oApiUsers->getIdentity((int) $IdentityID);
+//		}
 
 		$oMessage = $this->buildMessage($oAccount, $To, $Cc, $Bcc, 
 			$Subject, $IsHtml, $Text, $Attachments, $DraftInfo, $InReplyTo, $References, $Importance,
