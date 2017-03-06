@@ -1,8 +1,8 @@
 <?php
 
-namespace Aurora\Modules;
+namespace Aurora\Modules\Mail;
 
-class MailModule extends \Aurora\System\Module\AbstractModule
+class Module extends \Aurora\System\Module\AbstractModule
 {
 	public $oApiMailManager = null;
 	public $oApiAccountsManager = null;
