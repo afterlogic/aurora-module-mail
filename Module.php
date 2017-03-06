@@ -40,7 +40,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$this->oApiAccountsManager = $this->GetManager('accounts');
 		$this->oApiServersManager = $this->GetManager('servers');
 		$this->oApiMailManager = $this->GetManager('main');
-		$this->oApiFileCache = \Aurora\System\Api::GetSystemManager('filecache');
+		$this->oApiFileCache = \Aurora\System\Api::GetSystemManager('Filecache');
 		
 		
 		$this->extendObject('CUser', array(
