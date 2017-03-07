@@ -360,7 +360,7 @@ class CApiMailFolder
 			'IsSelectable' => $this->isSelectable(),
 			'Exists' => $this->exists(),
 			'Extended' => $aExtended,
-			'SubFolders' => \Aurora\System\ResponseManager::GetResponseObject($this->getSubFolders())
+			'SubFolders' => \Aurora\System\Managers\Response::GetResponseObject($this->getSubFolders())
 		);		
 	}
 }

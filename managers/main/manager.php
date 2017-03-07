@@ -25,7 +25,7 @@ use Aurora\System\Exceptions;
  * 
  * @package Mail
  */
-class CApiMailMainManager extends \Aurora\System\AbstractManager
+class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 {
 	/**
 	 * @var array List of ImapClient objects.
@@ -41,11 +41,11 @@ class CApiMailMainManager extends \Aurora\System\AbstractManager
 	/**
 	 * Initializes manager property.
 	 * 
-	 * @param \Aurora\System\GlobalManager &$oManager Manager object.
+	 * @param \Aurora\System\Managers\GlobalManager &$oManager Manager object.
 	 * 
 	 * @return void
 	 */
-	public function __construct(\Aurora\System\GlobalManager &$oManager, $sForcedStorage = '', \Aurora\System\Module\AbstractModule $oModule = null)
+	public function __construct(\Aurora\System\Managers\GlobalManager &$oManager, $sForcedStorage = '', \Aurora\System\Module\AbstractModule $oModule = null)
 	{
 		parent::__construct('main', $oManager, $oModule);
 

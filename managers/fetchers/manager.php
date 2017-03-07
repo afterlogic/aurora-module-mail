@@ -23,12 +23,12 @@
  *
  * @package Fetchers
  */
-class CApiMailFetchersManager extends \Aurora\System\AbstractManagerWithStorage
+class CApiMailFetchersManager extends \Aurora\System\Managers\AbstractManagerWithStorage
 {
 	/**
-	 * @param \Aurora\System\GlobalManager &$oManager
+	 * @param \Aurora\System\Managers\GlobalManager &$oManager
 	 */
-	public function __construct(\Aurora\System\GlobalManager &$oManager, $sForcedStorage = '', \Aurora\System\Module\AbstractModule $oModule = null)
+	public function __construct(\Aurora\System\Managers\GlobalManager &$oManager, $sForcedStorage = '', \Aurora\System\Module\AbstractModule $oModule = null)
 	{
 		parent::__construct('fetchers', $oManager, $sForcedStorage, $oModule);
 	}

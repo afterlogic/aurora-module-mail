@@ -35,9 +35,9 @@ class CApiMailFetchersDbStorage extends CApiMailFetchersStorage
 	protected $oCommandCreator;
 
 	/**
-	 * @param \Aurora\System\GlobalManager &$oManager
+	 * @param \Aurora\System\Managers\GlobalManager &$oManager
 	 */
-	public function __construct(\Aurora\System\AbstractManager &$oManager)
+	public function __construct(\Aurora\System\Managers\AbstractManager &$oManager)
 	{
 		parent::__construct('db', $oManager);
 

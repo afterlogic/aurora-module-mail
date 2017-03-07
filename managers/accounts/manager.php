@@ -23,7 +23,7 @@
  * 
  * @package Accounts
  */
-class CApiMailAccountsManager extends \Aurora\System\AbstractManager
+class CApiMailAccountsManager extends \Aurora\System\Managers\AbstractManager
 {
 	/**
 	 * @var CApiEavManager
@@ -31,11 +31,11 @@ class CApiMailAccountsManager extends \Aurora\System\AbstractManager
 	public $oEavManager = null;
 	
 	/**
-	 * @param \Aurora\System\GlobalManager &$oManager
+	 * @param \Aurora\System\Managers\GlobalManager &$oManager
 	 * @param string $sForcedStorage
 	 * @param \Aurora\System\Module\AbstractModule $oModule
 	 */
-	public function __construct(\Aurora\System\GlobalManager &$oManager, $sForcedStorage = '', \Aurora\System\Module\AbstractModule $oModule = null)
+	public function __construct(\Aurora\System\Managers\GlobalManager &$oManager, $sForcedStorage = '', \Aurora\System\Module\AbstractModule $oModule = null)
 	{
 		parent::__construct('accounts', $oManager, $oModule);
 		

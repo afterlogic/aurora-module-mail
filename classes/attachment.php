@@ -318,7 +318,7 @@ class CApiMailAttachment
 
 		$sCid = \trim(\trim($this->getCid()), '<>');
 
-		$mResult = array_merge(\Aurora\System\ResponseManager::objectWrapper($this, $aParameters), array(
+		$mResult = array_merge(\Aurora\System\Managers\Response::objectWrapper($this, $aParameters), array(
 			'FileName' => $sFileName,
 			'MimeType' => $sMimeType,
 			'MimePartIndex' => ('message/rfc822' === $sMimeType && ('base64' === $sContentTransferEncoding || 'quoted-printable' === $sContentTransferEncoding))

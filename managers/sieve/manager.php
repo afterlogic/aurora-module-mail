@@ -21,7 +21,7 @@
 /**
  * @package Sieve
  */
-class CApiSieveManager extends \Aurora\System\AbstractManager
+class CApiSieveManager extends \Aurora\System\Managers\AbstractManager
 {
 	/**
 	 * @var bool
@@ -59,9 +59,9 @@ class CApiSieveManager extends \Aurora\System\AbstractManager
 	protected $sGeneralPassword;
 
 	/**
-	 * @param \Aurora\System\GlobalManager &$oManager
+	 * @param \Aurora\System\Managers\GlobalManager &$oManager
 	 */
-	public function __construct(\Aurora\System\GlobalManager &$oManager, $sForcedStorage = '')
+	public function __construct(\Aurora\System\Managers\GlobalManager &$oManager, $sForcedStorage = '')
 	{
 		parent::__construct('sieve', $oManager);
 

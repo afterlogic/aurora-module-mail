@@ -163,7 +163,7 @@ class CApiMailMessageCollection extends \MailSo\Base\Collection
 	
 	public function toResponseArray($aParameters = array()) {
 		return array_merge(
-				\Aurora\System\ResponseManager::CollectionToResponseArray($this, $aParameters), 
+				\Aurora\System\Managers\Response::CollectionToResponseArray($this, $aParameters), 
 				array(
 					'Uids' => $this->Uids,
 					'UidNext' => $this->UidNext,
