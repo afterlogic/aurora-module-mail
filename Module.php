@@ -778,7 +778,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 			if (0 < \strlen($sFromEmail))
 			{
-				$bAlwaysShowImagesInMessage = !!\Aurora\System\Api::GetSettingsConf('WebMail/AlwaysShowImagesInMessage');
+				$bAlwaysShowImagesInMessage = !!\Aurora\System\Api::GetSettings()->GetConf('WebMail/AlwaysShowImagesInMessage');
 
 				$oMessage->setSafety($bAlwaysShowImagesInMessage ? true : 
 						$this->oApiMailManager->isSafetySender($oAccount->IdUser, $sFromEmail));
@@ -2025,8 +2025,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 		\preg_match("/\<EMailAddress\>(.*?)\<\/EMailAddress\>/", $sInput, $aEmailAddress);
 		if (!empty($aMatches[1]) && !empty($aEmailAddress[1]))
 		{
-			$sIncomingServer = \trim(\Aurora\System\Api::GetSettingsConf('WebMail/ExternalHostNameOfLocalImap'));
-			$sOutgoingServer = \trim(\Aurora\System\Api::GetSettingsConf('WebMail/ExternalHostNameOfLocalSmtp'));
+			$sIncomingServer = \trim(\Aurora\System\Api::GetSettings()->GetConf('WebMail/ExternalHostNameOfLocalImap'));
+			$sOutgoingServer = \trim(\Aurora\System\Api::GetSettings()->GetConf('WebMail/ExternalHostNameOfLocalSmtp'));
 
 			if (0 < \strlen($sIncomingServer) && 0 < \strlen($sOutgoingServer))
 			{
