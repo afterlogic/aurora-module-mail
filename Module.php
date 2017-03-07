@@ -364,6 +364,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 					'id' => $oAccount->IdUser,
 					'account' => $oAccount->EntityId
 				);
+				
+				return true;
 			}
 			catch (\Exception $oEx) {}
 		}
