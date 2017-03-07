@@ -1468,11 +1468,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 
 		$oIdentity = null;
-		if (!empty($IdentityID) && \is_numeric($IdentityID) && 0 < (int) $IdentityID)
-		{
+//		if (!empty($IdentityID) && \is_numeric($IdentityID) && 0 < (int) $IdentityID)
+//		{
 //			$oApiUsers = \Aurora\System\Api::GetSystemManager('users');
-			$oIdentity = $oApiUsers->getIdentity((int) $IdentityID);
-		}
+//			$oIdentity = $oApiUsers->getIdentity((int) $IdentityID);
+//		}
 
 		$oMessage = $this->buildMessage($oAccount, $To, $Cc, $Bcc, 
 			$Subject, $IsHtml, $Text, $Attachments, $DraftInfo, $InReplyTo, $References, $Importance,
@@ -1548,10 +1548,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		$oIdentity = null;
 //		$oApiUsers = \Aurora\System\Api::GetSystemManager('users');
-		if ($oApiUsers && !empty($IdentityID) && \is_numeric($IdentityID) && 0 < (int) $IdentityID)
-		{
-			$oIdentity = $oApiUsers->getIdentity((int) $IdentityID);
-		}
+//		if ($oApiUsers && !empty($IdentityID) && \is_numeric($IdentityID) && 0 < (int) $IdentityID)
+//		{
+//			$oIdentity = $oApiUsers->getIdentity((int) $IdentityID);
+//		}
 
 		$oMessage = $this->buildMessage($oAccount, $To, $Cc, $Bcc, 
 			$Subject, $IsHtml, $Text, $Attachments, $DraftInfo, $InReplyTo, $References, $Importance,
@@ -1869,15 +1869,17 @@ class Module extends \Aurora\System\Module\AbstractModule
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
-		$mResult = false;
-		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
-		if ($oAccount)
-		{
-//			$oApiUsersManager = \Aurora\System\Api::GetSystemManager('users');
-			$mResult = $oApiUsersManager->getUserIdentities($oAccount->IdUser);
-		}
+		return null;
 		
-		return $mResult;
+//		$mResult = false;
+//		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
+//		if ($oAccount)
+//		{
+//			$oApiUsersManager = \Aurora\System\Api::GetSystemManager('users');
+//			$mResult = $oApiUsersManager->getUserIdentities($oAccount->IdUser);
+//		}
+//		
+//		return $mResult;
 	}
 	
 	public function UpdateSignature($AccountID, $UseSignature = null, $Signature = null)
