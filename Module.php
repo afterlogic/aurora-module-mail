@@ -9,7 +9,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public $oApiServersManager = null;
 	
 	/* 
-	 * @var $oApiFileCache \CApiFilecacheManager 
+	 * @var $oApiFileCache \Aurora\System\Managers\Filecache\Manager 
 	 */	
 	public $oApiFileCache = null;
 	

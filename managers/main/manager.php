@@ -33,7 +33,7 @@ class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 	protected $aImapClientCache;
 	
 	/**
-	 * @var CApiEavManager
+	 * @var \Aurora\System\Managers\Eav\Manager
 	 */
 	private $oEavManager = null;
 	
