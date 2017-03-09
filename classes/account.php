@@ -93,7 +93,10 @@ class CMailAccount extends \Aurora\System\EAV\Entity
 		$aResponse = parent::toResponseArray();
 		$aResponse['AccountID'] = $this->EntityId;
 		$oServer = $this->getServer();
-		$aResponse['Server'] = $oServer->toResponseArray();
+		if ($oServer instanceof \Aurora\System\EAV\Entity)
+		{
+			$aResponse['Server'] = $oServer->toResponseArray();
+		}
 		$aResponse['CanBeUsedToAuthorize'] = $this->canBeUsedToAuthorize();
 		unset($aResponse['IncomingPassword']);
 		return $aResponse;
