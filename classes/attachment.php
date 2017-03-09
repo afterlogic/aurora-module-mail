@@ -346,9 +346,12 @@ class CApiMailAttachment
 			'MimeType' =>  $sMimeType,
 			'FileName' => $this->getFileName(true)
 		));		 
-				
-		$mResult['DownloadUrl'] = '?mail-attachment/' . $sHash;
-		$mResult['ViewUrl'] = '?mail-attachment/' . $sHash . '/view';
+
+		$mResult['Actions'] = [
+			'view' => ['url' => '?mail-attachment/' . $sHash . '/view'],
+			'download' => ['url' => '?mail-attachment/' . $sHash]
+		];
+		
 		if (\Aurora\System\Api::GetConf('labs.allow-thumbnail', true) &&
 				$iEstimatedSize < $iThumbnailLimit && \Aurora\System\Utils::IsGDImageMimeTypeSuppoted($sMimeType, $sFileName))
 		{
