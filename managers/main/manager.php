@@ -2694,7 +2694,7 @@ class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 		$oMessageCollection->Filters = implode(',', $aFilters);
 
 		$aThreads = array();
-		$bUseThreadsIfSupported = !!$oSettings->GetConf('WebMail/UseThreadsIfSupported');
+		$bUseThreadsIfSupported = $this->GetModule()->getConfig('AllowThreads');
 		if ($bUseThreadsIfSupported)
 		{
 			$bUseThreadsIfSupported = $bUseThreads;

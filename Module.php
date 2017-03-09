@@ -499,14 +499,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @return array
 	 * @throws \Aurora\System\Exceptions\ApiException
 	 */
-	public function GetMessages($AccountID, $Folder, $Offset = 0, $Limit = 20, $Search = '', $Filters = '', $UseThreads = 0, $InboxUidnext = '')
+	public function GetMessages($AccountID, $Folder, $Offset = 0, $Limit = 20, $Search = '', $Filters = '', $UseThreads = false, $InboxUidnext = '')
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
-		$sOffset = \trim((string) $Offset);
-		$sLimit = \trim((string) $Limit);
 		$sSearch = \trim((string) $Search);
-		$bUseThreads = '1' === \trim((string) $UseThreads);
 		$sInboxUidnext = $InboxUidnext;
 		
 		$aFilters = array();
@@ -518,10 +515,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 			});
 		}
 
-		$iOffset = 0 < \strlen($sOffset) && \is_numeric($sOffset) ? (int) $sOffset : 0;
-		$iLimit = 0 < \strlen($sLimit) && \is_numeric($sLimit) ? (int) $sLimit : 0;
+		$iOffset = (int) $Offset;
+		$iLimit = (int) $Limit;
 
-		if (0 === \strlen(trim($Folder)) || 0 > $iOffset || 0 >= $iLimit || 200 < $sLimit)
+		if (0 === \strlen(trim($Folder)) || 0 > $iOffset || 0 >= $iLimit || 200 < $iLimit)
 		{
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
 		}
@@ -529,7 +526,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 
 		return $this->oApiMailManager->getMessageList(
-			$oAccount, $Folder, $iOffset, $iLimit, $sSearch, $bUseThreads, $aFilters, $sInboxUidnext);
+			$oAccount, $Folder, $iOffset, $iLimit, $sSearch, $UseThreads, $aFilters, $sInboxUidnext);
 	}
 
 	/**
