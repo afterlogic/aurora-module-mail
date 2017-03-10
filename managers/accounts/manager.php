@@ -59,7 +59,7 @@ class CApiMailAccountsManager extends \Aurora\System\Managers\AbstractManager
 			}
 			else
 			{
-				throw new \Aurora\System\Exceptions\BaseException(Errs::Validation_InvalidParameters);
+				throw new \Aurora\System\Exceptions\BaseException(\Aurora\System\Exceptions\Errs::Validation_InvalidParameters);
 			}
 		}
 		catch (\Aurora\System\Exceptions\BaseException $oException)

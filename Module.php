@@ -1243,6 +1243,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 	{
 		$oMessage = \MailSo\Mime\Message::NewInstance();
 		$oMessage->RegenerateMessageId();
+		
+		$sUUID = $this->getUUIDById($oAccount->IdUser);
 
 		$sXMailer = \Aurora\System\Api::GetConf('webmail.xmailer-value', '');
 		if (0 < \strlen($sXMailer))
@@ -1351,10 +1353,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 					$bIsLinked = '1' === (string) $aData[3];
 					$sContentLocation = isset($aData[4]) ? (string) $aData[4] : '';
 
-					$rResource = $this->oApiFileCache->getFile($oAccount->UUID, $sTempName);
+					$rResource = $this->oApiFileCache->getFile($sUUID, $sTempName);
 					if (\is_resource($rResource))
 					{
-						$iFileSize = $this->oApiFileCache->fileSize($oAccount->UUID, $sTempName);
+						$iFileSize = $this->oApiFileCache->fileSize($sUUID, $sTempName);
 
 						$sCID = \trim(\trim($sCID), '<>');
 						$bIsFounded = 0 < \strlen($sCID) ? \in_array($sCID, $aFoundCids) : false;
@@ -1942,7 +1944,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
-		$sUUID = $this->getUUIDById($AccountID);
+		$sUUID = $this->getUUIDById($UserId);
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 		
 		$sError = '';
@@ -1950,7 +1952,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		if ($oAccount instanceof \CMailAccount)
 		{
-			$sUUID = $oAccount->UUID;
 			if (\is_array($UploadData))
 			{
 				$sSavedName = 'upload-post-'.\md5($UploadData['name'].$UploadData['tmp_name']);
@@ -1973,19 +1974,29 @@ class Module extends \Aurora\System\Module\AbstractModule
 					$sMimeType = \MailSo\Base\Utils::MimeContentType($sUploadName);
 
 					$bIframed = \Aurora\System\Api::isIframedMimeTypeSupported($sMimeType, $sUploadName);
+					$sHash = \Aurora\System\Api::EncodeKeyValues(array(
+						'TempFile' => true,
+						'AccountID' => $AccountID,
+						'Iframed' => $bIframed,
+						'Name' => $sUploadName,
+						'TempName' => $sSavedName
+					));
+					$aActions = array(
+						'view' => array(
+							'url' => '?mail-attachment/' . $sHash .'/view'
+						),
+						'download' => array(
+							'url' => '?mail-attachment/' . $sHash
+						)
+					);
 					$aResponse['Attachment'] = array(
 						'Name' => $sUploadName,
 						'TempName' => $sSavedName,
 						'MimeType' => $sMimeType,
 						'Size' =>  (int) $iSize,
 						'Iframed' => $bIframed,
-						'Hash' => \Aurora\System\Api::EncodeKeyValues(array(
-							'TempFile' => true,
-							'AccountID' => $AccountID,
-							'Iframed' => $bIframed,
-							'Name' => $sUploadName,
-							'TempName' => $sSavedName
-						))
+						'Hash' => $sHash,
+						'Actions' => $aActions
 					);
 				}
 				else
@@ -2010,6 +2021,65 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		return $aResponse;
 	}
+	
+	public function UploadMessageAttachments($AccountID, $Attachments = array())
+	{
+		$mResult = false;
+		$self = $this;
+
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
+		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
+		if ($oAccount instanceof \CMailAccount)
+		{
+			$sUUID = $this->getUUIDById($oAccount->IdUser);
+			try
+			{
+				if (is_array($Attachments) && 0 < count($Attachments))
+				{
+					$mResult = array();
+					foreach ($Attachments as $sAttachment)
+					{
+						$aValues = \Aurora\System\Api::DecodeKeyValues($sAttachment);
+						if (is_array($aValues))
+						{
+							$sFolder = isset($aValues['Folder']) ? $aValues['Folder'] : '';
+							$iUid = (int) isset($aValues['Uid']) ? $aValues['Uid'] : 0;
+							$sMimeIndex = (string) isset($aValues['MimeIndex']) ? $aValues['MimeIndex'] : '';
+
+							$sTempName = md5($sAttachment);
+							if (!$this->oApiFileCache->isFileExists($sUUID, $sTempName))
+							{
+								$this->oApiMailManager->directMessageToStream($oAccount,
+									function($rResource, $sContentType, $sFileName, $sMimeIndex = '') use ($sUUID, &$mResult, $sTempName, $sAttachment, $self) {
+										if (is_resource($rResource))
+										{
+											$sContentType = (empty($sFileName)) ? 'text/plain' : \MailSo\Base\Utils::MimeContentType($sFileName);
+											$sFileName = $self->clearFileName($sFileName, $sContentType, $sMimeIndex);
+
+											if ($self->oApiFileCache->putFile($sUUID, $sTempName, $rResource))
+											{
+												$mResult[$sTempName] = $sAttachment;
+											}
+										}
+									}, $sFolder, $iUid, $sMimeIndex);
+							}
+							else
+							{
+								$mResult[$sTempName] = $sAttachment;
+							}
+						}
+					}
+				}
+			}
+			catch (\Exception $oException)
+			{
+				throw new \Aurora\System\Exceptions\ApiException(\ProjectCore\Notifications::MailServerError, $oException);
+			}
+		}
+
+		return $mResult;
+	}	
 	
 	public function EntryAutodiscover()
 	{

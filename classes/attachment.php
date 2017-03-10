@@ -326,9 +326,6 @@ class CApiMailAttachment
 			'EstimatedSize' => $iEstimatedSize,
 			'CID' => $sCid,
 			'ContentLocation' => $this->getContentLocation(),
-			'Thumb' => \Aurora\System\Api::GetConf('labs.allow-thumbnail', true) &&
-				$iEstimatedSize < $iThumbnailLimit &&
-				\Aurora\System\Utils::IsGDImageMimeTypeSuppoted($sMimeType, $sFileName),
 			'Expand' =>\Aurora\System\Api::isExpandMimeTypeSupported($sMimeType, $sFileName),
 			'Iframed' =>\Aurora\System\Api::isIframedMimeTypeSupported($sMimeType, $sFileName),
 			'Content' => $this->getContent(),
@@ -346,6 +343,7 @@ class CApiMailAttachment
 			'MimeType' =>  $sMimeType,
 			'FileName' => $this->getFileName(true)
 		));		 
+		$mResult['Hash'] = $sHash;
 
 		$mResult['Actions'] = [
 			'view' => ['url' => '?mail-attachment/' . $sHash . '/view'],
