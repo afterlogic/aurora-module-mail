@@ -81,15 +81,15 @@ class CApiMailFetchersManager extends \Aurora\System\Managers\AbstractManagerWit
 		}
 		catch (\MailSo\Net\Exceptions\ConnectionException $oException)
 		{
-			$this->setLastException(new \Aurora\System\Exceptions\BaseException(\Aurora\System\Ecxeptions\ErrorCodes::Fetcher_ConnectToMailServerFailed, $oException));
+			$this->setLastException(new \Aurora\System\Exceptions\BaseException(\Aurora\System\Exceptions\ErrorCodes::Fetcher_ConnectToMailServerFailed, $oException));
 		}
 		catch (\MailSo\Pop3\Exceptions\LoginBadCredentialsException $oException)
 		{
-			$this->setLastException(new \Aurora\System\Exceptions\BaseException(\Aurora\System\Ecxeptions\ErrorCodes::Fetcher_AuthError, $oException));
+			$this->setLastException(new \Aurora\System\Exceptions\BaseException(\Aurora\System\Exceptions\ErrorCodes::Fetcher_AuthError, $oException));
 		}
 		catch (Exception $oException)
 		{
-			$this->setLastException(new \Aurora\System\Exceptions\BaseException(\Aurora\System\Ecxeptions\ErrorCodes::Fetcher_AuthError, $oException));
+			$this->setLastException(new \Aurora\System\Exceptions\BaseException(\Aurora\System\Exceptions\ErrorCodes::Fetcher_AuthError, $oException));
 		}
 		return $mResult;
 	}
@@ -153,15 +153,15 @@ class CApiMailFetchersManager extends \Aurora\System\Managers\AbstractManagerWit
 		}
 		catch (\MailSo\Net\Exceptions\ConnectionException $oException)
 		{
-			$this->setLastException(new \Aurora\System\Exceptions\BaseException(\Aurora\System\Ecxeptions\ErrorCodes::Fetcher_ConnectToMailServerFailed, $oException));
+			$this->setLastException(new \Aurora\System\Exceptions\BaseException(\Aurora\System\Exceptions\ErrorCodes::Fetcher_ConnectToMailServerFailed, $oException));
 		}
 		catch (\MailSo\Pop3\Exceptions\LoginBadCredentialsException $oException)
 		{
-			$this->setLastException(new \Aurora\System\Exceptions\BaseException(\Aurora\System\Ecxeptions\ErrorCodes::Fetcher_AuthError, $oException));
+			$this->setLastException(new \Aurora\System\Exceptions\BaseException(\Aurora\System\Exceptions\ErrorCodes::Fetcher_AuthError, $oException));
 		}
 		catch (Exception $oException)
 		{
-			$this->setLastException(new \Aurora\System\Exceptions\BaseException(\Aurora\System\Ecxeptions\ErrorCodes::Fetcher_AuthError, $oException));
+			$this->setLastException(new \Aurora\System\Exceptions\BaseException(\Aurora\System\Exceptions\ErrorCodes::Fetcher_AuthError, $oException));
 		}
 		return $mResult;
 	}
