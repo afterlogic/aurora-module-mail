@@ -7,24 +7,12 @@
 		true,
 		"bool"
 	],
-	"AllowAppRegisterMailto": [
-		false,
-		"bool"
-	],
 	"AllowAutosaveInDrafts": [
 		false,
 		"bool"
 	],
 	"AllowChangeEmailSettings": [
 		true,
-		"bool"
-	],
-	"AllowChangeInputDirection": [
-		false,
-		"bool"
-	],
-	"AllowExpandFolders": [
-		false,
 		"bool"
 	],
 	"AllowFetchers": [
@@ -36,7 +24,7 @@
 		"bool"
 	],
 	"AllowInsertImage": [
-		false,
+		true,
 		"bool"
 	],
 	"AllowSaveMessageAsPdf": [
@@ -51,10 +39,6 @@
 		false,
 		"bool"
 	],
-	"AutoSave": [
-		false,
-		"bool"
-	],
 	"AutoSaveIntervalSeconds": [
 		60,
 		"int"
@@ -63,40 +47,8 @@
 		false,
 		"bool"
 	],
-	"ComposeToolbarOrder": [
-		["back", "send", "save", "importance", "MailSensitivity", "confirmation", "OpenPgp"],
-		"array"
-	],
-	"DefaultFontName": [
-		"Tahoma",
-		"string"
-	],
-	"DefaultFontSize": [
-		3,
-		"int"
-	],
 	"ImageUploadSizeLimit": [
 		0,
 		"int"
-	],
-	"JoinReplyPrefixes": [
-		false,
-		"bool"
-	],
-	"MailsPerPage": [
-		20,
-		"int"
-	],
-	"MaxMessagesBodiesSizeToPrefetch": [
-		50000,
-		"int"
-	],
-	"SaveRepliesToCurrFolder": [
-		false,
-		"bool"
-	],
-	"UseThreads": [
-		true,
-		"bool"
 	]
 }
