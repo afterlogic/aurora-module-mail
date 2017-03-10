@@ -42,13 +42,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$this->oApiMailManager = $this->GetManager('main');
 		$this->oApiFileCache = \Aurora\System\Api::GetSystemManager('Filecache');
 		
-		
 		$this->extendObject('CUser', array(
-				'AllowAutosaveInDrafts'		=> array('bool', true),
-				'AllowChangeInputDirection'	=> array('bool', false),
-				'MailsPerPage'				=> array('int', 20),
-				'SaveRepliesToCurrFolder'	=> array('bool', false),
-				'UseThreads'				=> array('bool', true),
+				'AllowAutosaveInDrafts'	=> array('bool', true),
+				'UseThreads'			=> array('bool', true),
 			)
 		);
 
@@ -95,53 +91,43 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$aSettings = array(
 			'Accounts' => array(),
 			'AllowAddNewAccounts' => $this->getConfig('AllowAddNewAccounts', false),
-			'AllowAppRegisterMailto' => $this->getConfig('AllowAppRegisterMailto', false),
 			'AllowAutosaveInDrafts' => $this->getConfig('AllowAutosaveInDrafts', false),
 			'AllowChangeEmailSettings' => $this->getConfig('AllowChangeEmailSettings', false),
-			'AllowChangeInputDirection' => $this->getConfig('AllowChangeInputDirection', false),
-			'AllowExpandFolders' => $this->getConfig('AllowExpandFolders', false),
 			'AllowFetchers' => $this->getConfig('AllowFetchers', false),
 			'AllowIdentities' => $this->getConfig('AllowIdentities', false),
 			'AllowInsertImage' => $this->getConfig('AllowInsertImage', false),
 			'AllowSaveMessageAsPdf' => $this->getConfig('AllowSaveMessageAsPdf', false),
 			'AllowThreads' => $this->getConfig('AllowThreads', false),
 			'AllowZipAttachments' => $this->getConfig('AllowZipAttachments', false),
-			'AutoSave' => $this->getConfig('AutoSave', false),
 			'AutoSaveIntervalSeconds' => $this->getConfig('AutoSaveIntervalSeconds', 60),
 			'AutosignOutgoingEmails' => $this->getConfig('AutosignOutgoingEmails', false),
-			'ComposeToolbarOrder' => $this->getConfig('ComposeToolbarOrder', array()),
-			'DefaultFontName' => $this->getConfig('DefaultFontName', 'Tahoma'),
-			'DefaultFontSize' => $this->getConfig('DefaultFontSize', 3),
 			'ImageUploadSizeLimit' => $this->getConfig('ImageUploadSizeLimit', 0),
-			'JoinReplyPrefixes' => $this->getConfig('JoinReplyPrefixes', false),
-			'MailsPerPage' => $this->getConfig('MailsPerPage', 20),
-			'MaxMessagesBodiesSizeToPrefetch' => $this->getConfig('MaxMessagesBodiesSizeToPrefetch', 50000),
-			'SaveRepliesToCurrFolder' => $this->getConfig('SaveRepliesToCurrFolder', false),
-			'UseThreads' => $this->getConfig('UseThreads', true)
 		);
 		
 		$oUser = \Aurora\System\Api::getAuthenticatedUser();
-		if ($oUser && $oUser->Role !== \EUserRole::SuperAdmin)
+		if ($oUser && $oUser->Role === \EUserRole::NormalUser)
 		{
 			$aAcc = $this->oApiAccountsManager->getUserAccounts($oUser->EntityId);
 			$aResponseAcc = [];
 			foreach($aAcc as $oAccount)
 			{
-				$oAccount->getServer();
 				$aResponseAcc[] = $oAccount->toResponseArray();
 			}
 			$aSettings['Accounts'] = $aResponseAcc;
-			$aSettings['AllowAutosaveInDrafts'] = $oUser->{$this->GetName().'::AllowAutosaveInDrafts'};
-			$aSettings['AllowChangeInputDirection'] = $oUser->{$this->GetName().'::AllowChangeInputDirection'};
-			$aSettings['MailsPerPage'] = $oUser->{$this->GetName().'::MailsPerPage'};
-			$aSettings['SaveRepliesToCurrFolder'] = $oUser->{$this->GetName().'::SaveRepliesToCurrFolder'};
-			$aSettings['UseThreads'] = $oUser->{$this->GetName().'::UseThreads'};
+			if (isset($oUser->{$this->GetName().'::AllowAutosaveInDrafts'}))
+			{
+				$aSettings['AllowAutosaveInDrafts'] = $oUser->{$this->GetName().'::AllowAutosaveInDrafts'};
+			}
+			if (isset($oUser->{$this->GetName().'::UseThreads'}))
+			{
+				$aSettings['UseThreads'] = $oUser->{$this->GetName().'::UseThreads'};
+			}
 		}
 		
 		return $aSettings;
 	}
 	
-	public function UpdateSettings($MailsPerPage, $UseThreads, $SaveRepliesToCurrFolder, $AllowChangeInputDirection)
+	public function UpdateSettings($UseThreads)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
@@ -151,20 +137,12 @@ class Module extends \Aurora\System\Module\AbstractModule
 			if ($oUser->Role === \EUserRole::NormalUser)
 			{
 				$oCoreDecorator = \Aurora\System\Api::GetModuleDecorator('Core');
-				$oUser->{$this->GetName().'::MailsPerPage'} = $MailsPerPage;
 				$oUser->{$this->GetName().'::UseThreads'} = $UseThreads;
-				$oUser->{$this->GetName().'::SaveRepliesToCurrFolder'} = $SaveRepliesToCurrFolder;
-				$oUser->{$this->GetName().'::AllowChangeInputDirection'} = $AllowChangeInputDirection;
 				return $oCoreDecorator->UpdateUserObject($oUser);
 			}
 			if ($oUser->Role === \EUserRole::SuperAdmin)
 			{
-				$oSettings =& \Aurora\System\Api::GetSettings();
-				$oSettings->SetConf('MailsPerPage', $MailsPerPage);
-				$oSettings->SetConf('UseThreads', $UseThreads);
-				$oSettings->SetConf('SaveRepliesToCurrFolder', $SaveRepliesToCurrFolder);
-				$oSettings->SetConf('AllowChangeInputDirection', $AllowChangeInputDirection);
-				return $oSettings->Save();
+				return true;
 			}
 		}
 		
