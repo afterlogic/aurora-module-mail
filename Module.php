@@ -1974,7 +1974,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 						'Size' =>  (int) $iSize,
 						'Iframed' => $bIframed,
 						'Hash' => $sHash,
-						'Actions' => $aActions
+						'Actions' => $aActions,
+						'ThumbnailUrl' => '?mail-attachment/' . $sHash .'/thumb',
 					);
 				}
 				else
@@ -2365,6 +2366,37 @@ class Module extends \Aurora\System\Module\AbstractModule
 		if ($bCache && 0 < \strlen($sFolder) && 0 < $iUid)
 		{
 			$this->verifyCacheByKey($sRawKey);
+		}
+		
+		if (isset($aValues['TempFile'], $aValues['TempName'], $aValues['Name']) && $oAccount)
+		{
+			if ($bCache)
+			{
+				$this->verifyCacheByKey($sRawKey);
+			}
+
+			$bResult = false;
+			$sUUID = $this->getUUIDById($oAccount->IdUser);
+			$mResult = $this->oApiFileCache->getFile($sUUID, $aValues['TempName']);
+
+			if (is_resource($mResult))
+			{
+				if ($bCache)
+				{
+					$this->cacheByKey($sRawKey);
+				}
+
+				$bResult = true;
+				$sFileName = $aValues['Name'];
+				$sContentType = (empty($sFileName)) ? 'text/plain' : \MailSo\Base\Utils::MimeContentType($sFileName);
+				$sFileName = $this->clearFileName($sFileName, $sContentType);
+
+				call_user_func_array($fCallback, array(
+					$oAccount, $sContentType, $sFileName, $mResult
+				));
+			}
+
+			return $bResult;
 		}
 
 		$self = $this;
