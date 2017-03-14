@@ -2482,8 +2482,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 							\MailSo\Base\Utils::NormalizeCharset($sCharset, true), \MailSo\Base\Enumerations\Charset::UTF_8);
 					}
 
-					include_once PSEVEN_APP_ROOT_PATH.'libraries/other/CssToInlineStyles.php';
-
 					$oCssToInlineStyles = new \TijsVerkoyen\CssToInlineStyles\CssToInlineStyles($sHtml);
 					$oCssToInlineStyles->setEncoding('utf-8');
 					$oCssToInlineStyles->setUseInlineStylesBlock(true);

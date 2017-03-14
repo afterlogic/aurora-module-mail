@@ -1166,8 +1166,6 @@ class CApiMailMessage
 
 			if (0 < \strlen($sHtml) && \Aurora\System\Api::GetConf('labs.webmail.display-inline-css', false))
 			{
-				include_once AURORA_APP_ROOT_PATH.'libraries/other/CssToInlineStyles.php';
-
 				$oCssToInlineStyles = new \TijsVerkoyen\CssToInlineStyles\CssToInlineStyles($sHtml);
 				$oCssToInlineStyles->setEncoding('utf-8');
 				$oCssToInlineStyles->setUseInlineStylesBlock(true);
