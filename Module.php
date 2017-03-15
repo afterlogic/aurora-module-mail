@@ -2160,7 +2160,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
 			$aConfig = array(
 				'new_tab' => true,
-				'modules_list' => array('MailWebclient', 'ContactsWebclient', 'CalendarWebclient', 'MailSensitivityWebclientPlugin', 'OpenPgpWebclient')
+				'modules_list' => array(
+					'MailWebclient', 
+					'ContactsWebclient', 
+					'CalendarWebclient', 
+					'MailSensitivityWebclientPlugin', 
+					'OpenPgpWebclient'
+				)
 			);
 
 			$oCoreWebclientModule = \Aurora\System\Api::GetModule('CoreWebclient');
@@ -2183,11 +2189,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function EntryDownloadAttachment()
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
-		$aPath = \Aurora\System\Application::GetPaths();
-		$sHash = (string) isset($aPath[1]) ? $aPath[1] : '';
-		$sAction = (string) isset($aPath[2]) ? $aPath[2] : '';	
-
-		$this->getRaw($sHash, $sAction);		
+		
+		$this->getRaw(
+			(string) \Aurora\System\Application::GetPathItemByIndex(1, ''),
+			(string) \Aurora\System\Application::GetPathItemByIndex(2, '')
+		);		
 	}	
 
 	/**
