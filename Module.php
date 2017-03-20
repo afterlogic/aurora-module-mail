@@ -1574,7 +1574,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 				if (\is_array($aEmails))
 				{
-					\Aurora\System\Api::ExecuteMethod('Contacs::updateSuggestTable', array('Emails' => $aEmails));
+					$aArgs = ['Emails' => $aEmails];
+					$this->broadcastEvent('AfterUseEmails', $aArgs);
 				}
 			}
 
