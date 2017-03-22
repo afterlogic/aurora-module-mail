@@ -74,9 +74,10 @@ class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 			$sCacheKey = $oAccount->Email;
 			if (!isset($this->aImapClientCache[$sCacheKey]))
 			{
-				$iConnectTimeOut =\Aurora\System\Api::GetConf('socket.connect-timeout', 10);
-				$iSocketTimeOut =\Aurora\System\Api::GetConf('socket.get-timeout', 20);
-				$bVerifySsl = !!\Aurora\System\Api::GetConf('socket.verify-ssl', false);
+				$oSettings =& \Aurora\System\Api::GetSettings();
+				$iConnectTimeOut = $oSettings->GetConf('SocketConnectTimeoutSeconds', 10);
+				$iSocketTimeOut = $oSettings->GetConf('SocketGetTimeoutSeconds', 20);
+				$bVerifySsl = !!$oSettings->GetConf('SocketVerifySsl', false);
 
 				if (0 < $iForceConnectTimeOut)
 				{
@@ -1201,9 +1202,10 @@ class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 				$sRcptEmail = '';
 				try
 				{
-					$iConnectTimeOut =\Aurora\System\Api::GetConf('socket.connect-timeout', 5);
-					$iSocketTimeOut =\Aurora\System\Api::GetConf('socket.get-timeout', 5);
-					$bVerifySsl = !!\Aurora\System\Api::GetConf('socket.verify-ssl', false);
+					$oSettings =& \Aurora\System\Api::GetSettings();
+					$iConnectTimeOut = $oSettings->GetConf('SocketConnectTimeoutSeconds', 5);
+					$iSocketTimeOut = $oSettings->GetConf('SocketGetTimeoutSeconds', 5);
+					$bVerifySsl = !!$oSettings->GetConf('SocketVerifySsl', false);
 
 					$oSmtpClient = \MailSo\Smtp\SmtpClient::NewInstance();
 					$oSmtpClient->SetTimeOuts($iConnectTimeOut, $iSocketTimeOut);
@@ -2730,7 +2732,9 @@ class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 				$fAttachmentSearchCallback = null;
 				$aMatch = array();
 
-				if ((\Aurora\System\Api::GetConf('labs.use-body-structures-for-has-attachments-search', false) && \preg_match('/has[ ]?:[ ]?attachments/i', $sSearch)) ||
+				$oMailModule = \Aurora\System\Api::GetModule('Mail'); 
+				$bUseBodyStructuresForHasAttachmentsSearch = $oMailModule->getConfig('UseBodyStructuresForHasAttachmentsSearch', false);
+				if (($bUseBodyStructuresForHasAttachmentsSearch && \preg_match('/has[ ]?:[ ]?attachments/i', $sSearch)) ||
 					\preg_match('/attach:([^\s]+)/i', $sSearch, $aMatch))
 				{
 					$bSearchAttachments = true;
@@ -2738,7 +2742,7 @@ class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 					$sAttachmentRegs = !empty($sAttachmentName) && '*' !== $sAttachmentName ?
 						'/[^>]*'.str_replace('\\*', '[^>]*', preg_quote(trim($sAttachmentName, '*'), '/')).'[^>]*/ui' : '';
 
-					if (\Aurora\System\Api::GetConf('labs.use-body-structures-for-has-attachments-search', false))
+					if ($bUseBodyStructuresForHasAttachmentsSearch)
 					{	
 						$sCutedSearch = trim(preg_replace('/has[ ]?:[ ]?attachments/i', '', $sCutedSearch));
 					}

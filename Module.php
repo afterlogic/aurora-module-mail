@@ -1224,7 +1224,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		
 		$sUUID = $this->getUUIDById($oAccount->IdUser);
 
-		$sXMailer = \Aurora\System\Api::GetConf('webmail.xmailer-value', '');
+		$sXMailer = $this->getConfig('XMailerValue', '');
 		if (0 < \strlen($sXMailer))
 		{
 			$oMessage->SetXMailer($sXMailer);
@@ -1630,7 +1630,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$oMessage = \MailSo\Mime\Message::NewInstance();
 		$oMessage->RegenerateMessageId();
 
-		$sXMailer = \Aurora\System\Api::GetConf('webmail.xmailer-value', '');
+		$sXMailer = $this->getConfig('XMailerValue', '');
 		if (0 < strlen($sXMailer))
 		{
 			$oMessage->SetXMailer($sXMailer);

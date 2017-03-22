@@ -350,7 +350,8 @@ class CApiMailAttachment
 			'download' => ['url' => '?mail-attachment/' . $sHash]
 		];
 		
-		if (\Aurora\System\Api::GetConf('labs.allow-thumbnail', true) &&
+		$oSettings =& \Aurora\System\Api::GetSettings();
+		if ($oSettings->GetConf('AllowThumbnail', true) &&
 				$iEstimatedSize < $iThumbnailLimit && \Aurora\System\Utils::IsGDImageMimeTypeSuppoted($sMimeType, $sFileName))
 		{
 			$mResult['ThumbnailUrl'] = '?mail-attachment/' . $sHash . '/thumb';

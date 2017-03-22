@@ -66,11 +66,12 @@ class CApiSieveManager extends \Aurora\System\Managers\AbstractManager
 		parent::__construct('sieve', $oManager);
 
 		\Aurora\System\Api::Inc('common.net.protocols.sieve');
+		$oMailModule = \Aurora\System\Api::GetModule('Mail'); 
 		
 		$this->aSieves = array();
 		$this->sGeneralPassword = '';
-		$this->sSieveFileName =\Aurora\System\Api::GetConf('sieve.config.file', 'sieve');
-		$this->sSieveFolderCharset =\Aurora\System\Api::GetConf('sieve.config.filters-folder-charset', 'utf-8');
+		$this->sSieveFileName = $oMailModule->getConfig('SieveFileName', 'sieve');
+		$this->sSieveFolderCharset = $oMailModule->getConfig('SieveFiltersFolderCharset', 'utf-8');
 		$this->bSectionsParsed = false;
 		$this->aSectionsData = array();
 		$this->aSectionsOrders = array(
@@ -492,11 +493,12 @@ class CApiSieveManager extends \Aurora\System\Managers\AbstractManager
 		{
 			if (!$oSieve->IsConnected())
 			{
-				$sGeneralHost =\Aurora\System\Api::GetConf('sieve.config.host', '');
-				$sGeneralPassword =\Aurora\System\Api::GetConf('sieve.config.general-password', '');
+				$oMailModule = \Aurora\System\Api::GetModule('Mail'); 
+				$sGeneralHost = $oMailModule->getConfig('SieveHost', '');
+				$sGeneralPassword = $oMailModule->getConfig('SieveGeneralPassword', '');
 				$oServer = $oAccount->getServer();
 				$bResult = $oSieve
-					->Connect($oAccount->IsInternal || 0 === strlen($sGeneralHost) ? $oServer->IncomingServer : $sGeneralHost, (int)\Aurora\System\Api::GetConf('sieve.config.port', 2000), \MailSo\Net\Enumerations\ConnectionSecurityType::NONE)
+					->Connect($oAccount->IsInternal || 0 === strlen($sGeneralHost) ? $oServer->IncomingServer : $sGeneralHost, (int) $oMailModule->getConfig('SievePort', 2000), \MailSo\Net\Enumerations\ConnectionSecurityType::NONE)
 					->Login($oServer->IncomingLogin, 0 === strlen($sGeneralPassword) ? $oServer->IncomingPassword : $sGeneralPassword)
 				;
 			}

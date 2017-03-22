@@ -1047,7 +1047,8 @@ class CApiMailMessage
 	
 	public function toResponseArray($aParameters = array())
 	{
-		$iTrimmedLimit = \Aurora\System\Api::GetConf('labs.message-body-size-limit', 0);
+		$oMailModule = \Aurora\System\Api::GetModule('Mail'); 
+		$iTrimmedLimit = $oMailModule->getConfig('MessageBodySizeLimit', 0);
 		$iAccountID = isset($aParameters['Parameters']['AccountID']) ?  $aParameters['Parameters']['AccountID'] : null;
 
 		$oAttachments = $this->getAttachments();
@@ -1065,7 +1066,7 @@ class CApiMailMessage
 			'TextSize' => $this->getTextSize(),
 			'InternalTimeStampInUTC' => $iInternalTimeStampInUTC,
 			'ReceivedOrDateTimeStampInUTC' => $iReceivedOrDateTimeStampInUTC,
-			'TimeStampInUTC' =>	\Aurora\System\Api::GetConf('labs.use-date-from-headers', false) && 0 < $iReceivedOrDateTimeStampInUTC ?
+			'TimeStampInUTC' =>	$oMailModule->getConfig('UseDateFromHeaders', false) && 0 < $iReceivedOrDateTimeStampInUTC ?
 				$iReceivedOrDateTimeStampInUTC : $iInternalTimeStampInUTC,
 			'From' => \Aurora\System\Managers\Response::GetResponseObject($this->getFrom()),
 			'To' => \Aurora\System\Managers\Response::GetResponseObject($this->getTo()),
@@ -1091,7 +1092,8 @@ class CApiMailMessage
 			$mResult['TrimmedTextSize'] = $iTrimmedLimit;
 		}
 
-		$sLowerForwarded = strtolower(\Aurora\System\Api::GetConf('webmail.forwarded-flag-name', ''));
+		$oMailModule = \Aurora\System\Api::GetModule('Mail'); 
+		$sLowerForwarded = $oMailModule ? strtolower($oMailModule->getConfig('ForwardedFlagName', '')) : '';
 		if (!empty($sLowerForwarded))
 		{
 			$mResult['IsForwarded'] = in_array($sLowerForwarded, $aFlags);
@@ -1164,7 +1166,8 @@ class CApiMailMessage
 				$sPlain = \substr($sPlain, 0, (false !== $iSpacePost && $iSpacePost > $iTextSizeLimit) ? $iSpacePost : $iTextSizeLimit);
 			}
 
-			if (0 < \strlen($sHtml) && \Aurora\System\Api::GetConf('labs.webmail.display-inline-css', false))
+			$oSettings =& \Aurora\System\Api::GetSettings();
+			if (0 < \strlen($sHtml) && $oSettings->GetConf('DisplayInlineCss', false))
 			{
 				$oCssToInlineStyles = new \TijsVerkoyen\CssToInlineStyles\CssToInlineStyles($sHtml);
 				$oCssToInlineStyles->setEncoding('utf-8');
