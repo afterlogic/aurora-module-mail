@@ -64,9 +64,9 @@ class CMailAccount extends \Aurora\System\EAV\Entity
 	
 	public function getServer()
 	{
+		$oMailModule = \Aurora\System\Api::GetModule('Mail');
 		if ($this->oServer === null && $this->ServerId !== 0)
 		{
-			$oMailModule = \Aurora\System\Api::GetModule('Mail');
 			$this->oServer = $oMailModule->oApiServersManager->getServer($this->ServerId);
 		}
 		return $this->oServer;

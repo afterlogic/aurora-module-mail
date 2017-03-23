@@ -153,16 +153,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * 
 	 * @return boolean
 	 */
-	public function CreateAccount($iUserId = 0, $FriendlyName = '', $Email = '', $IncomingLogin = '', 
+	public function CreateAccount($UserId = 0, $FriendlyName = '', $Email = '', $IncomingLogin = '', 
 			$IncomingPassword = '', $Server = null)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+//		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
-		if ($iUserId === 0)
-		{
-			$iUserId = \Aurora\System\Api::getAuthenticatedUserId();
-		}
-
 		$iServerId = $Server['ServerId'];
 		if ($Server !== null && $iServerId === 0)
 		{
@@ -180,7 +175,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		$oAccount = new \CMailAccount($this->GetName());
 
-		$oAccount->IdUser = $iUserId;
+		$oAccount->IdUser = $UserId;
 		$oAccount->FriendlyName = $FriendlyName;
 		$oAccount->Email = $Email;
 		$oAccount->IncomingLogin = $IncomingLogin;
@@ -191,7 +186,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$oCoreDecorator = \Aurora\System\Api::GetModuleDecorator('Core');
 		if ($oCoreDecorator)
 		{
-			$oUser = $oCoreDecorator->GetUser($iUserId);
+			$oUser = $oCoreDecorator->GetUser($UserId);
 			if ($oUser instanceof \CUser && $oUser->PublicId === $Email && !$this->oApiAccountsManager->useToAuthorizeAccountExists($Email))
 			{
 				$oAccount->UseToAuthorize = true;
@@ -326,27 +321,68 @@ class Module extends \Aurora\System\Module\AbstractModule
 	
 	public function onLogin($aArgs, &$mResult)
 	{
+		$bResult = false;
+		$oServer = null;
+		
 		$oAccount = $this->oApiAccountsManager->getUseToAuthorizeAccount(
 			$aArgs['Login'], 
 			$aArgs['Password']
 		);
 
-		if ($oAccount)
+		if (!$oAccount)
+		{
+			$sEmail = $aArgs['Login'];
+			$sDomain = \MailSo\Base\Utils::GetDomainFromEmail($sEmail);
+			$oServer = $this->oApiServersManager->GetServerByDomain(strtolower($sDomain));
+			if ($oServer)
+			{
+				$oAccount = \Aurora\System\EAV\Entity::createInstance('CMailAccount', $this->GetName());
+				$oAccount->Email = $aArgs['Login'];
+				$oAccount->IncomingLogin = $aArgs['Login'];
+				$oAccount->IncomingPassword = $aArgs['Password'];
+				$oAccount->ServerId = $oServer->EntityId;
+			}
+		}
+		if ($oAccount instanceof \CMailAccount)
 		{
 			try
 			{
 				$this->oApiMailManager->validateAccountConnection($oAccount);
+				
+				$bResult =  true;
+
+				if ($oServer)
+				{
+					$oAccount = $this->GetDecorator()->CreateAccount(
+						0, 
+						'', 
+						$sEmail, 
+						$aArgs['Login'],
+						$aArgs['Password'], 
+						array('ServerId' => $oServer->EntityId)
+					);
+					if ($oAccount)
+					{
+						$oAccount->UseToAuthorize = true;
+						$this->oApiAccountsManager->UpdateAccount($oAccount);
+					}
+					else
+					{
+						$bResult = false;
+					}
+				}
+				
 				$mResult = array(
 					'token' => 'auth',
 					'sign-me' => $aArgs['SignMe'],
 					'id' => $oAccount->IdUser,
 					'account' => $oAccount->EntityId
 				);
-				
-				return true;
 			}
 			catch (\Exception $oEx) {}
-		}
+		}			
+
+		return $bResult;
 	}
 	
 	/**** Ajax methods ****/

@@ -136,6 +136,38 @@ class CApiMailServersManager extends \Aurora\System\Managers\AbstractManager
 	
 	/**
 	 * 
+	 * @param int $sDomain
+	 * @return boolean
+	 */
+	public function getServerByDomain($sDomain)
+	{
+		$oServer = false;
+		
+		try
+		{
+			$aResult = $this->oEavManager->getEntities(
+				'CMailServer', 
+				array(),
+				0,
+				1,
+				['Domain' => [$sDomain, '=']]
+			);		
+			if (count($aResult) > 0)
+			{
+				$oServer = $aResult[0];
+			}
+		}
+		catch (\Aurora\System\Exceptions\BaseException $oException)
+		{
+			$oServer = false;
+			$this->setLastException($oException);
+		}
+		
+		return $oServer;
+	}	
+	
+	/**
+	 * 
 	 * @param int $iTenantId
 	 * @return boolean|array
 	 */

@@ -35,7 +35,8 @@ class CMailServer extends \Aurora\System\EAV\Entity
 		'OutgoingPort'		=> array('int',  25),
 		'OutgoingUseSsl'	=> array('bool', false),
 		'OutgoingUseAuth'	=> array('bool', false),
-		'OwnerType'			=> array('string', \EMailServerOwnerType::Account)	
+		'OwnerType'			=> array('string', \EMailServerOwnerType::Account),
+		'Domain'	 		=> array('string', '')
 	);	
 
 	public function toResponseArray()
