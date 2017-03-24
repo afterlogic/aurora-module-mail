@@ -57,7 +57,7 @@ class CApiMailServersManager extends \Aurora\System\Managers\AbstractManager
 	 * @throws \Aurora\System\Exceptions\ManagerException
 	 */
 	public function createServer($sName, $sIncomingServer, $iIncomingPort, $bIncomingUseSsl,
-			$sOutgoingServer, $iOutgoingPort, $bOutgoingUseSsl, $bOutgoingUseAuth, $sOwnerType = \EMailServerOwnerType::Account, $iTenantId = 0)
+			$sOutgoingServer, $iOutgoingPort, $bOutgoingUseSsl, $bOutgoingUseAuth, $Domains, $sOwnerType = \EMailServerOwnerType::Account, $iTenantId = 0)
 	{
 		try
 		{
@@ -72,6 +72,7 @@ class CApiMailServersManager extends \Aurora\System\Managers\AbstractManager
 			$oServer->OutgoingPort = $iOutgoingPort;
 			$oServer->OutgoingUseSsl = $bOutgoingUseSsl;
 			$oServer->OutgoingUseAuth = $bOutgoingUseAuth;
+			$oServer->Domains = $Domains;
 			if (!$this->oEavManager->saveEntity($oServer))
 			{
 				throw new \Aurora\System\Exceptions\ManagerException(Errs::UsersManager_UserCreateFailed);
@@ -149,13 +150,21 @@ class CApiMailServersManager extends \Aurora\System\Managers\AbstractManager
 				'CMailServer', 
 				array(),
 				0,
-				1,
-				['Domain' => [$sDomain, '=']]
+				999,
+				['Domains' => ['%' . $sDomain . '%', 'LIKE']]
 			);		
 			if (count($aResult) > 0)
 			{
-				$oServer = $aResult[0];
-			}
+				foreach ($aResult as $oTempServer)
+				{
+					$aDomains = explode("\n",  $oTempServer->Domains);
+					if (in_array($sDomain, $aDomains))
+					{
+						$oServer = $oTempServer;
+						break;
+					}
+				}
+			}			
 		}
 		catch (\Aurora\System\Exceptions\BaseException $oException)
 		{
@@ -232,7 +241,7 @@ class CApiMailServersManager extends \Aurora\System\Managers\AbstractManager
 	 * @throws \Aurora\System\Exceptions\ManagerException
 	 */
 	public function updateServer($iServerId, $sName, $sIncomingServer, $iIncomingPort, $bIncomingUseSsl,
-			$sOutgoingServer, $iOutgoingPort, $bOutgoingUseSsl, $bOutgoingUseAuth, $iTenantId = 0)
+			$sOutgoingServer, $iOutgoingPort, $bOutgoingUseSsl, $bOutgoingUseAuth, $Domains, $iTenantId = 0)
 	{
 		$bResult = false;
 		
@@ -249,6 +258,7 @@ class CApiMailServersManager extends \Aurora\System\Managers\AbstractManager
 				$oServer->OutgoingPort = $iOutgoingPort;
 				$oServer->OutgoingUseSsl = $bOutgoingUseSsl;
 				$oServer->OutgoingUseAuth = $bOutgoingUseAuth;
+				$oServer->Domains = $Domains;
 				if (!$this->oEavManager->saveEntity($oServer))
 				{
 					throw new \Aurora\System\Exceptions\ManagerException(Errs::UsersManager_UserCreateFailed);

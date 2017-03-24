@@ -94,6 +94,9 @@
     "ForwardedFlagName": [
         "$Forwarded",
         "string"
-    ]
-	
+    ],
+    "AllowNewUsersRegister": [
+        true,
+        "bool"
+    ]	
 }

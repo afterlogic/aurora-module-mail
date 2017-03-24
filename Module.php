@@ -351,7 +351,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 				
 				$bResult =  true;
 
-				if ($oServer)
+				$bAllowNewUsersRegister = $this->getConfig('AllowNewUsersRegister', false);
+				
+				if ($oServer && $bAllowNewUsersRegister)
 				{
 					$oAccount = $this->GetDecorator()->CreateAccount(
 						0, 
@@ -403,7 +405,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	}
 	
 	public function CreateServer($Name, $IncomingServer, $IncomingPort, $IncomingUseSsl,
-			$OutgoingServer, $OutgoingPort, $OutgoingUseSsl, $OutgoingUseAuth, $TenantId = 0)
+			$OutgoingServer, $OutgoingPort, $OutgoingUseSsl, $OutgoingUseAuth, $Domains, $TenantId = 0)
 	{
 		$sOwnerType = ($TenantId === 0) ? \EMailServerOwnerType::SuperAdmin : \EMailServerOwnerType::Tenant;
 		
@@ -417,11 +419,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 		
 		return $this->oApiServersManager->createServer($Name, $IncomingServer, $IncomingPort, $IncomingUseSsl,
-			$OutgoingServer, $OutgoingPort, $OutgoingUseSsl, $OutgoingUseAuth, $sOwnerType, $TenantId);
+			$OutgoingServer, $OutgoingPort, $OutgoingUseSsl, $OutgoingUseAuth, $Domains, $sOwnerType, $TenantId);
 	}
 	
 	public function UpdateServer($ServerId, $Name, $IncomingServer, $IncomingPort, $IncomingUseSsl,
-			$OutgoingServer, $OutgoingPort, $OutgoingUseSsl, $OutgoingUseAuth, $TenantId = 0)
+			$OutgoingServer, $OutgoingPort, $OutgoingUseSsl, $OutgoingUseAuth, $Domains, $TenantId = 0)
 	{
 		if ($TenantId === 0)
 		{
@@ -433,7 +435,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 		
 		return $this->oApiServersManager->updateServer($ServerId, $Name, $IncomingServer, $IncomingPort, $IncomingUseSsl,
-			$OutgoingServer, $OutgoingPort, $OutgoingUseSsl, $OutgoingUseAuth, $TenantId);
+			$OutgoingServer, $OutgoingPort, $OutgoingUseSsl, $OutgoingUseAuth, $Domains, $TenantId);
 	}
 	
 	public function DeleteServer($ServerId, $TenantId = 0)
