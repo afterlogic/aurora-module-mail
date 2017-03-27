@@ -1646,7 +1646,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			}
 		}
 
-		\Aurora\System\Api::LogEvent(\EEvents::MessageSend, $oAccount);
+		\Aurora\System\Api::LogEvent('message-send: ' . $oAccount->Email, $this->GetName());
 		return $mResult;
 	}
 	
