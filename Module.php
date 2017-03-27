@@ -357,7 +357,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 				{
 					$oAccount = $this->GetDecorator()->CreateAccount(
 						0, 
-						'', 
+						$sEmail, 
 						$sEmail, 
 						$aArgs['Login'],
 						$aArgs['Password'], 
