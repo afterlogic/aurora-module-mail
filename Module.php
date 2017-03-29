@@ -2099,6 +2099,76 @@ class Module extends \Aurora\System\Module\AbstractModule
 		return $mResult;
 	}	
 	
+	/**
+	 * 
+	 * @param type $AccountID
+	 * @param type $Folder
+	 * @param type $UploadData
+	 * @return string
+	 * @throws \ProjectCore\Exceptions\ClientException
+	 */
+	public function UploadMessage($AccountID, $Folder, $UploadData)
+	{
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
+		$sError = '';
+		$mResult = false;
+
+		$oAccount = $this->oApiAccountsManager->getAccountById((int)$AccountID);
+		
+		if ($oAccount)
+		{
+			$sUUID = $this->getUUIDById($oAccount->IdUser);
+			if (is_array($UploadData))
+			{
+				$sUploadName = $UploadData['name'];
+				$bIsEmlExtension  = strtolower(pathinfo($sUploadName, PATHINFO_EXTENSION)) === 'eml';
+
+				if ($bIsEmlExtension) 
+				{
+					$sMimeType = \MailSo\Base\Utils::MimeContentType($sUploadName);
+
+					$sSavedName = 'upload-post-' . md5($UploadData['name'] . $UploadData['tmp_name']);
+					if (is_resource($UploadData['tmp_name']))
+					{
+						$this->oApiFileCache->putFile($sUUID, $sSavedName, $UploadData['tmp_name']);
+					}
+					else
+					{
+						$this->oApiFileCache->moveUploadedFile($sUUID, $sSavedName, $UploadData['tmp_name']);
+					}
+					if ($this->oApiFileCache->isFileExists($sUUID, $sSavedName))
+					{
+						$sSavedFullName = $this->oApiFileCache->generateFullFilePath($sUUID, $sSavedName);
+						$this->oApiMailManager->appendMessageFromFile($oAccount, $sSavedFullName, $Folder);
+						$mResult = true;
+					} 
+					else 
+					{
+						$sError = 'unknown';
+					}
+				}
+				else
+				{
+					throw new \ProjectCore\Exceptions\ClientException(\ProjectCore\Notifications::IncorrectFileExtension);
+				}
+			}
+		}
+		else
+		{
+			$sError = 'auth';
+		}
+
+		if (0 < strlen($sError))
+		{
+			$mResult = array(
+				'Error' => $sError
+			);
+		}
+		
+		return $mResult;
+	}	
+	
 	public function EntryAutodiscover()
 	{
 		$sInput = \file_get_contents('php://input');
