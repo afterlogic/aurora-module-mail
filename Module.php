@@ -2040,7 +2040,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		return $aResponse;
 	}
 	
-	public function UploadMessageAttachments($AccountID, $Attachments = array())
+	public function SaveAttachmentsAsTempFiles($AccountID, $Attachments = array())
 	{
 		$mResult = false;
 		$self = $this;
