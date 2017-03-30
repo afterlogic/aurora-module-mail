@@ -2118,6 +2118,70 @@ class Module extends \Aurora\System\Module\AbstractModule
 		return $mResult;
 	}	
 	
+	public function SaveMessageAsTempFile($AccountID, $MessageFolder, $MessageUid, $FileName)
+	{
+		$mResult = false;
+		$self = $this;
+
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
+		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
+		if ($oAccount instanceof \CMailAccount)
+		{
+			$sUUID = $this->getUUIDById($oAccount->IdUser);
+			try
+			{
+				$sMimeType = 'message/rfc822';
+				$sTempName = md5($MessageFolder.$MessageUid);
+				if (!$this->oApiFileCache->isFileExists($sUUID, $sTempName))
+				{
+					$this->oApiMailManager->directMessageToStream($oAccount,
+						function ($rResource, $sContentType, $sFileName) use ($sUUID, $sTempName, &$sMimeType, $self) {
+							if (is_resource($rResource))
+							{
+								$sMimeType = $sContentType;
+								$sFileName = $self->clearFileName($sFileName, $sMimeType, '');
+								$self->oApiFileCache->putFile($sUUID, $sTempName, $rResource);
+							}
+						}, $MessageFolder, $MessageUid);
+				}
+
+				if ($this->oApiFileCache->isFileExists($sUUID, $sTempName))
+				{
+					$sHash = \Aurora\System\Api::EncodeKeyValues(array(
+						'TempFile' => true,
+						'AccountID' => $oAccount->EntityId,
+						'Iframed' => false,
+						'Name' => $FileName,
+						'TempName' => $sTempName
+					));
+					$aActions = array(
+						'view' => array(
+							'url' => '?mail-attachment/' . $sHash .'/view'
+						),
+						'download' => array(
+							'url' => '?mail-attachment/' . $sHash
+						)
+					);
+					$mResult = array(
+						'TempName' => $sTempName,
+						'Name' => $FileName,
+						'Size' => $this->oApiFileCache->fileSize($sUUID, $sTempName),
+						'MimeType' => $sMimeType,
+						'Hash' => $sHash,
+						'Actions' => $aActions
+					);					
+				}
+			}
+			catch (\Exception $oException)
+			{
+				throw new \Aurora\System\Exceptions\ApiException(\ProjectCore\Notifications::MailServerError, $oException);
+			}
+		}
+
+		return $mResult;
+	}	
+	
 	/**
 	 * 
 	 * @param type $AccountID
