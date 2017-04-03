@@ -790,12 +790,10 @@ class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 	 * 
 	 * @param CMailAccount $oAccount Account object.
 	 * @param array $aFolderFullNamesRaw Array containing a list of folder names to obtain information for.
-	 * @param string $sInboxUidnext = ''. UIDNEXT value for Inbox folder.
-	 * @param array $oNewInboxData = null. Extended statistics, works for Inbox only.
 	 *
 	 * @return array Array containing elements like those returned by **getFolderInformation** method. 
 	 */
-	public function getFolderListInformation($oAccount, $aFolderFullNamesRaw, $sInboxUidnext = '', $oNewInboxData = null)
+	public function getFolderListInformation($oAccount, $aFolderFullNamesRaw)
 	{
 		if (!is_array($aFolderFullNamesRaw) || 0 === count($aFolderFullNamesRaw))
 		{
@@ -845,11 +843,6 @@ class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 				}
 				catch (\Exception $oException) {}
 			}
-		}
-
-		if (0 < strlen($sInboxUidnext) && isset($aResult['INBOX'], $aResult['INBOX'][2], $oNewInboxData) && $aResult['INBOX'][2] !== $sInboxUidnext)
-		{
-			$oNewInboxData->SetData($this->getNewMessagesInformation($oAccount, 'INBOX', $sInboxUidnext, $aResult['INBOX'][2]));
 		}
 
 		return $aResult;

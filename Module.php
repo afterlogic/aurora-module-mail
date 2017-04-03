@@ -50,7 +50,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 				'server',
 				'sieve-enum',
 				'filter',
-				'databyref',
 				'system-folder',
 				'sender'
 			)
@@ -539,7 +538,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
 		$sSearch = \trim((string) $Search);
-		$sInboxUidnext = $InboxUidnext;
 		
 		$aFilters = array();
 		$sFilters = \strtolower(\trim((string) $Filters));
@@ -561,18 +559,17 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 
 		return $this->oApiMailManager->getMessageList(
-			$oAccount, $Folder, $iOffset, $iLimit, $sSearch, $UseThreads, $aFilters, $sInboxUidnext);
+			$oAccount, $Folder, $iOffset, $iLimit, $sSearch, $UseThreads, $aFilters, $InboxUidnext);
 	}
 
 	/**
 	 * @param int $AccountID
 	 * @param array $Folders
-	 * @param string $InboxUidnext
 	 * @return array
 	 * @throws \Aurora\System\Exceptions\ApiException
 	 * @throws \MailSo\Net\Exceptions\ConnectionException
 	 */
-	public function GetRelevantFoldersInformation($AccountID, $Folders, $InboxUidnext = '')
+	public function GetRelevantFoldersInformation($AccountID, $Folders)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
@@ -587,8 +584,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		try
 		{
 			$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
-			$oReturnInboxNewData = \DataByRef::createInstance(array());
-			$aResult = $this->oApiMailManager->getFolderListInformation($oAccount, $Folders, $InboxUidnext, $oReturnInboxNewData);
+			$aResult = $this->oApiMailManager->getFolderListInformation($oAccount, $Folders);
 		}
 		catch (\MailSo\Net\Exceptions\ConnectionException $oException)
 		{
@@ -605,7 +601,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		return array(
 			'Counts' => $aResult,
-			'New' => isset($oReturnInboxNewData) ? $oReturnInboxNewData->GetData() : ''
 		);
 	}	
 	
@@ -1898,11 +1893,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 //	}
 	
 	/**
-	 * 
-	 * @param int $AccountID
 	 * @return array | boolean
 	 */
-	public function GetIdentities($AccountID)
+	public function GetIdentities()
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
