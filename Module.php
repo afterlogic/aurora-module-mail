@@ -578,7 +578,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		
 		if (!\is_array($Folders) || 0 === \count($Folders))
 		{
-			throw new \Aurora\System\Exceptions\ApiException(\ProjectSystem\Notifications::InvalidInputParameter);
+			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
 		}
 
 		$aResult = array();
@@ -2111,7 +2111,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			}
 			catch (\Exception $oException)
 			{
-				throw new \Aurora\System\Exceptions\ApiException(\ProjectCore\Notifications::MailServerError, $oException);
+				throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::MailServerError, $oException);
 			}
 		}
 
@@ -2175,7 +2175,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			}
 			catch (\Exception $oException)
 			{
-				throw new \Aurora\System\Exceptions\ApiException(\ProjectCore\Notifications::MailServerError, $oException);
+				throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::MailServerError, $oException);
 			}
 		}
 
