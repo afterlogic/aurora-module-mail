@@ -1274,7 +1274,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$oMessage = \MailSo\Mime\Message::NewInstance();
 		$oMessage->RegenerateMessageId();
 		
-		$sUUID = $this->getUUIDById($oAccount->IdUser);
+		$sUUID = \Aurora\System\Api::getAuthenticatedUserUUIDById($oAccount->IdUser);
 
 		$sXMailer = $this->getConfig('XMailerValue', '');
 		if (0 < \strlen($sXMailer))
@@ -1943,27 +1943,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	}
 	
 	/**
-	 * @param int $iUserId
-	 * @return string
-	 */
-	private function getUUIDById($iUserId)
-	{
-		$sUUID = '';
-		
-		if (\is_numeric($iUserId))
-		{
-			$oManagerApi = \Aurora\System\Api::GetSystemManager('eav', 'db');
-			$oEntity = $oManagerApi->getEntity((int) \Aurora\System\Api::getAuthenticatedUserId());
-			if ($oEntity instanceof \Aurora\System\EAV\Entity)
-			{
-				$sUUID = $oEntity->UUID;
-			}
-		}
-		
-		return $sUUID;
-	}
-	
-	/**
 	 * @param int $UserId
 	 * @param int $AccountID
 	 * @param array $UploadData
@@ -1973,7 +1952,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
-		$sUUID = $this->getUUIDById($UserId);
+		$sUUID = \Aurora\System\Api::getAuthenticatedUserUUIDById($UserId);
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 		
 		$sError = '';
@@ -2062,7 +2041,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 		if ($oAccount instanceof \CMailAccount)
 		{
-			$sUUID = $this->getUUIDById($oAccount->IdUser);
+			$sUUID = \Aurora\System\Api::getAuthenticatedUserUUIDById($oAccount->IdUser);
 			try
 			{
 				if (is_array($Attachments) && 0 < count($Attachments))
@@ -2121,7 +2100,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 		if ($oAccount instanceof \CMailAccount)
 		{
-			$sUUID = $this->getUUIDById($oAccount->IdUser);
+			$sUUID = \Aurora\System\Api::getAuthenticatedUserUUIDById($oAccount->IdUser);
 			try
 			{
 				$sMimeType = 'message/rfc822';
@@ -2194,7 +2173,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		
 		if ($oAccount)
 		{
-			$sUUID = $this->getUUIDById($oAccount->IdUser);
+			$sUUID = \Aurora\System\Api::getAuthenticatedUserUUIDById($oAccount->IdUser);
 			if (is_array($UploadData))
 			{
 				$sUploadName = $UploadData['name'];
@@ -2567,7 +2546,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			}
 
 			$bResult = false;
-			$sUUID = $this->getUUIDById($oAccount->IdUser);
+			$sUUID = \Aurora\System\Api::getAuthenticatedUserUUIDById($oAccount->IdUser);
 			$mResult = $this->oApiFileCache->getFile($sUUID, $aValues['TempName']);
 
 			if (is_resource($mResult))
