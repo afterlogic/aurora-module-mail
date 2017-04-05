@@ -175,6 +175,48 @@ class CApiMailAccountsManager extends \Aurora\System\Managers\AbstractManager
 	}
 	
 	/**
+	 * @param int $iUserId
+	 *
+	 * @return Array | false
+	 */
+	public function getUserAccountsCount($iUserId)
+	{
+		$mResult = false;
+		try
+		{
+			$mResult = $this->oEavManager->getEntitiesCount(
+				'CMailAccount',
+				array('IdUser' => $iUserId)
+			);
+		}
+		catch (\Aurora\System\Exceptions\BaseException $oException)
+		{
+			$this->setLastException($oException);
+		}
+		
+		return $mResult;
+	}
+	
+	/**
+	 * @param CMailAccount $oAccount
+	 *
+	 * @return bool
+	 */
+	public function canCreate($iUserId)
+	{
+		$bResult = false;
+		
+		$iAccounts = $this->getUserAccountsCount($iUserId);
+		
+		if ($iAccounts < 1)
+		{
+			$bResult = true;
+		}
+		
+		return $bResult;
+	}
+	
+	/**
 	 * @param CMailAccount $oAccount
 	 *
 	 * @return bool
@@ -219,22 +261,22 @@ class CApiMailAccountsManager extends \Aurora\System\Managers\AbstractManager
 		$bResult = false;
 		try
 		{
-			if ($oAccount->validate())
+			if ($oAccount->validate() && $this->canCreate($oAccount->IdUser))
 			{
 				if (!$this->isExists($oAccount))
 				{
 					if (!$this->oEavManager->saveEntity($oAccount))
 					{
-						throw new \Aurora\System\Exceptions\ManagerException(Errs::UserManager_AccountCreateFailed);
+						throw new \Aurora\System\Exceptions\ManagerException(\Aurora\System\Exceptions\Errs::UserManager_AccountCreateFailed);
 					}
 				}
 				else
 				{
 					throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::AccountExists);
 				}
+				
+				$bResult = true;
 			}
-
-			$bResult = true;
 		}
 		catch (\Aurora\System\Exceptions\BaseException $oException)
 		{
@@ -259,7 +301,7 @@ class CApiMailAccountsManager extends \Aurora\System\Managers\AbstractManager
 			{
 				if (!$this->oEavManager->saveEntity($oAccount))
 				{
-					throw new \Aurora\System\Exceptions\ManagerException(Errs::UsersManager_UserCreateFailed);
+					throw new \Aurora\System\Exceptions\ManagerException(\Aurora\System\Exceptions\Errs::UsersManager_UserCreateFailed);
 				}
 			}
 

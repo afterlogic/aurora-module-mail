@@ -1,19 +1,11 @@
 <?php
 /**
  * @copyright Copyright (c) 2017, Afterlogic Corp.
- * @license AGPL-3.0
+ * @license AGPL-3.0 or AfterLogic Software License
  *
- * This code is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License, version 3,
- * as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License, version 3,
- * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ * This code is licensed under AGPLv3 license or AfterLogic Software License
+ * if commercial version of the product was purchased.
+ * For full statements of the licenses see LICENSE-AFTERLOGIC and LICENSE-AGPL3 files.
  */
 
 namespace Aurora\Modules\Mail;
@@ -26,6 +18,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public $oApiMailManager = null;
 	public $oApiAccountsManager = null;
 	public $oApiServersManager = null;
+	public $oApiIdentitiesManager = null;
 	
 	/* 
 	 * @var $oApiFileCache \Aurora\System\Managers\Filecache\Manager 
@@ -37,6 +30,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$this->incClasses(
 			array(
 				'account',
+				'identity',
 				'fetcher',
 				'enum',
 				'folder',
@@ -57,6 +51,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		
 		$this->oApiAccountsManager = $this->GetManager('accounts');
 		$this->oApiServersManager = $this->GetManager('servers');
+		$this->oApiIdentitiesManager = $this->GetManager('identities');
 		$this->oApiMailManager = $this->GetManager('main');
 		$this->oApiFileCache = \Aurora\System\Api::GetSystemManager('Filecache');
 		
@@ -176,50 +171,57 @@ class Module extends \Aurora\System\Module\AbstractModule
 	{
 //		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
-		$iServerId = $Server['ServerId'];
-		if ($Server !== null && $iServerId === 0)
-		{
-			$iServerId = $this->oApiServersManager->createServer(
-				$Server['IncomingServer'], 
-				$Server['IncomingServer'], 
-				$Server['IncomingPort'], 
-				$Server['IncomingUseSsl'],
-				$Server['OutgoingServer'], 
-				$Server['OutgoingPort'], 
-				$Server['OutgoingUseSsl'], 
-				$Server['OutgoingUseAuth']
-			);
-		}
+		$sDomains = explode('@', $Email)[1];
 
-		$oAccount = new \CMailAccount($this->GetName());
-
-		$oAccount->IdUser = $UserId;
-		$oAccount->FriendlyName = $FriendlyName;
-		$oAccount->Email = $Email;
-		$oAccount->IncomingLogin = $IncomingLogin;
-		$oAccount->IncomingPassword = $IncomingPassword;
-		$oAccount->ServerId = $iServerId;
-		
-		$oUser = null;
-		$oCoreDecorator = \Aurora\System\Api::GetModuleDecorator('Core');
-		if ($oCoreDecorator)
+		if ($Email)
 		{
-			$oUser = $oCoreDecorator->GetUser($UserId);
-			if ($oUser instanceof \CUser && $oUser->PublicId === $Email && !$this->oApiAccountsManager->useToAuthorizeAccountExists($Email))
+			$iServerId = $Server['ServerId'];
+			if ($Server !== null && $iServerId === 0)
 			{
-				$oAccount->UseToAuthorize = true;
+				$iServerId = $this->oApiServersManager->createServer(
+					$Server['IncomingServer'], 
+					$Server['IncomingServer'], 
+					$Server['IncomingPort'], 
+					$Server['IncomingUseSsl'],
+					$Server['OutgoingServer'], 
+					$Server['OutgoingPort'], 
+					$Server['OutgoingUseSsl'], 
+					$Server['OutgoingUseAuth'],
+					$Server['Domains'] = $sDomains
+				);
+			}
+
+			$oAccount = new \CMailAccount($this->GetName());
+
+			$oAccount->IdUser = $UserId;
+			$oAccount->FriendlyName = $FriendlyName;
+			$oAccount->Email = $Email;
+			$oAccount->IncomingLogin = $IncomingLogin;
+			$oAccount->IncomingPassword = $IncomingPassword;
+			$oAccount->ServerId = $iServerId;
+
+			$oUser = null;
+			$oCoreDecorator = \Aurora\System\Api::GetModuleDecorator('Core');
+			if ($oCoreDecorator)
+			{
+				$oUser = $oCoreDecorator->GetUser($UserId);
+				if ($oUser instanceof \CUser && $oUser->PublicId === $Email && !$this->oApiAccountsManager->useToAuthorizeAccountExists($Email))
+				{
+					$oAccount->UseToAuthorize = true;
+				}
+			}
+			$bAccoutResult = $this->oApiAccountsManager->createAccount($oAccount);
+
+			if ($bAccoutResult)
+			{
+				return $oAccount;
+			}
+			else
+			{
+				$this->oApiServersManager->deleteServer($iServerId);
 			}
 		}
 
-		if ($this->oApiAccountsManager->createAccount($oAccount))
-		{
-			return $oAccount;
-		}
-		else
-		{
-			$this->oApiServersManager->deleteServer($iServerId);
-		}
-		
 		return false;
 	}
 	
@@ -1893,45 +1895,105 @@ class Module extends \Aurora\System\Module\AbstractModule
 //	}
 	
 	/**
-	 * @return array | boolean
+	 * @param int $UserId
+	 * @param int $AccountID
+	 * @param string $FriendlyName
+	 * @param string $Email
+	 * @return int|bool
 	 */
-	public function GetIdentities()
+	public function CreateIdentity($UserId, $AccountID, $FriendlyName, $Email)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
-		return null;
-		
-//		$mResult = false;
-//		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
-//		if ($oAccount)
-//		{
-//			$oApiUsersManager = \Aurora\System\Api::GetSystemManager('users');
-//			$mResult = $oApiUsersManager->getUserIdentities($oAccount->IdUser);
-//		}
-//		
-//		return $mResult;
+		return $this->oApiIdentitiesManager->createIdentity($UserId, $AccountID, $FriendlyName, $Email);
 	}
 	
-	public function UpdateSignature($AccountID, $UseSignature = null, $Signature = null)
+	/**
+	 * @param int $UserId
+	 * @param int $AccountID
+	 * @param int $EntityId
+	 * @param string $FriendlyName
+	 * @param string $Email
+	 * @param bool $Default
+	 * @param bool $AccountPart
+	 * @return bool
+	 */
+	public function UpdateIdentity($UserId, $AccountID, $EntityId, $FriendlyName, $Email, $Default = false, $AccountPart = false)
+	{
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
+		if ($Default)
+		{
+			$this->oApiIdentitiesManager->resetDefaultIdentity($UserId);
+		}
+		
+		if ($AccountPart)
+		{
+			return $this->UpdateAccount($AccountID, null, $Email, $FriendlyName);
+		}
+		else
+		{
+			return $this->oApiIdentitiesManager->updateIdentity($EntityId, $FriendlyName, $Email, $Default);
+		}
+	}
+	
+	/**
+	 * @param int $EntityId
+	 * @return bool
+	 */
+	public function DeleteIdentity($EntityId)
+	{
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
+		return $this->oApiIdentitiesManager->deleteIdentity($EntityId);
+	}
+	
+	/**
+	 * @param int $UserId
+	 * @return array|false
+	 */
+	public function GetIdentities($UserId)
+	{
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
+		return $this->oApiIdentitiesManager->getIdentities($UserId);
+	}
+	
+	/**
+	 * @param int $AccountID
+	 * @param bool $UseSignature
+	 * @param string $Signature
+	 * @param int $IdentityId
+	 * @return boolean
+	 * @throws \Aurora\System\Exceptions\ApiException
+	 */
+	public function UpdateSignature($AccountID, $UseSignature = null, $Signature = null, $IdentityId = null)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
 		if ($AccountID > 0)
 		{
-			$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
-			
-			if ($oAccount)
+			if ($this->getConfig('AllowIdentities', false) && $IdentityId !== null)
 			{
-				if ($UseSignature !== null)
+				return $this->oApiIdentitiesManager->updateIdentitySignature($IdentityId, $UseSignature, $Signature);
+			}
+			else
+			{
+				$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
+
+				if ($oAccount)
 				{
-					$oAccount->UseSignature = $UseSignature;
+					if ($UseSignature !== null)
+					{
+						$oAccount->UseSignature = $UseSignature;
+					}
+					if ($Signature !== null)
+					{
+						$oAccount->Signature = $Signature;
+					}
+
+					return $this->oApiAccountsManager->updateAccount($oAccount);
 				}
-				if ($Signature !== null)
-				{
-					$oAccount->Signature = $Signature;
-				}
-				
-				return $this->oApiAccountsManager->updateAccount($oAccount);
 			}
 		}
 		else
