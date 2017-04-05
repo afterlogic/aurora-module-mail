@@ -179,50 +179,57 @@ class Module extends \Aurora\System\Module\AbstractModule
 	{
 //		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
-		$iServerId = $Server['ServerId'];
-		if ($Server !== null && $iServerId === 0)
-		{
-			$iServerId = $this->oApiServersManager->createServer(
-				$Server['IncomingServer'], 
-				$Server['IncomingServer'], 
-				$Server['IncomingPort'], 
-				$Server['IncomingUseSsl'],
-				$Server['OutgoingServer'], 
-				$Server['OutgoingPort'], 
-				$Server['OutgoingUseSsl'], 
-				$Server['OutgoingUseAuth']
-			);
-		}
+		$sDomains = explode('@', $Email)[1];
 
-		$oAccount = new \CMailAccount($this->GetName());
-
-		$oAccount->IdUser = $UserId;
-		$oAccount->FriendlyName = $FriendlyName;
-		$oAccount->Email = $Email;
-		$oAccount->IncomingLogin = $IncomingLogin;
-		$oAccount->IncomingPassword = $IncomingPassword;
-		$oAccount->ServerId = $iServerId;
-		
-		$oUser = null;
-		$oCoreDecorator = \Aurora\System\Api::GetModuleDecorator('Core');
-		if ($oCoreDecorator)
+		if ($Email)
 		{
-			$oUser = $oCoreDecorator->GetUser($UserId);
-			if ($oUser instanceof \CUser && $oUser->PublicId === $Email && !$this->oApiAccountsManager->useToAuthorizeAccountExists($Email))
+			$iServerId = $Server['ServerId'];
+			if ($Server !== null && $iServerId === 0)
 			{
-				$oAccount->UseToAuthorize = true;
+				$iServerId = $this->oApiServersManager->createServer(
+					$Server['IncomingServer'], 
+					$Server['IncomingServer'], 
+					$Server['IncomingPort'], 
+					$Server['IncomingUseSsl'],
+					$Server['OutgoingServer'], 
+					$Server['OutgoingPort'], 
+					$Server['OutgoingUseSsl'], 
+					$Server['OutgoingUseAuth'],
+					$Server['Domains'] = $sDomains
+				);
+			}
+
+			$oAccount = new \CMailAccount($this->GetName());
+
+			$oAccount->IdUser = $UserId;
+			$oAccount->FriendlyName = $FriendlyName;
+			$oAccount->Email = $Email;
+			$oAccount->IncomingLogin = $IncomingLogin;
+			$oAccount->IncomingPassword = $IncomingPassword;
+			$oAccount->ServerId = $iServerId;
+
+			$oUser = null;
+			$oCoreDecorator = \Aurora\System\Api::GetModuleDecorator('Core');
+			if ($oCoreDecorator)
+			{
+				$oUser = $oCoreDecorator->GetUser($UserId);
+				if ($oUser instanceof \CUser && $oUser->PublicId === $Email && !$this->oApiAccountsManager->useToAuthorizeAccountExists($Email))
+				{
+					$oAccount->UseToAuthorize = true;
+				}
+			}
+			$bAccoutResult = $this->oApiAccountsManager->createAccount($oAccount);
+
+			if ($bAccoutResult)
+			{
+				return $oAccount;
+			}
+			else
+			{
+				$this->oApiServersManager->deleteServer($iServerId);
 			}
 		}
 
-		if ($this->oApiAccountsManager->createAccount($oAccount))
-		{
-			return $oAccount;
-		}
-		else
-		{
-			$this->oApiServersManager->deleteServer($iServerId);
-		}
-		
 		return false;
 	}
 	
