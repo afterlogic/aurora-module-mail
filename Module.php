@@ -1274,7 +1274,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$oMessage = \MailSo\Mime\Message::NewInstance();
 		$oMessage->RegenerateMessageId();
 		
-		$sUUID = \Aurora\System\Api::getAuthenticatedUserUUIDById($oAccount->IdUser);
+		$sUUID = \Aurora\System\Api::getUserUUIDById($oAccount->IdUser);
 
 		$sXMailer = $this->getConfig('XMailerValue', '');
 		if (0 < \strlen($sXMailer))
@@ -1952,7 +1952,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
-		$sUUID = \Aurora\System\Api::getAuthenticatedUserUUIDById($UserId);
+		$sUUID = \Aurora\System\Api::getUserUUIDById($UserId);
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 		
 		$sError = '';
@@ -1984,17 +1984,16 @@ class Module extends \Aurora\System\Module\AbstractModule
 					$bIframed = \Aurora\System\Api::isIframedMimeTypeSupported($sMimeType, $sUploadName);
 					$sHash = \Aurora\System\Api::EncodeKeyValues(array(
 						'TempFile' => true,
-						'AccountID' => $AccountID,
-						'Iframed' => $bIframed,
+						'UserId' => $UserId,
 						'Name' => $sUploadName,
 						'TempName' => $sSavedName
 					));
 					$aActions = array(
 						'view' => array(
-							'url' => '?mail-attachment/' . $sHash .'/view'
+							'url' => '?file-cache/' . $sHash .'/view'
 						),
 						'download' => array(
-							'url' => '?mail-attachment/' . $sHash
+							'url' => '?file-cache/' . $sHash
 						)
 					);
 					$aResponse['Attachment'] = array(
@@ -2002,10 +2001,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 						'TempName' => $sSavedName,
 						'MimeType' => $sMimeType,
 						'Size' =>  (int) $iSize,
-						'Iframed' => $bIframed,
 						'Hash' => $sHash,
 						'Actions' => $aActions,
-						'ThumbnailUrl' => '?mail-attachment/' . $sHash .'/thumb',
+						'ThumbnailUrl' => '?file-cache/' . $sHash .'/thumb',
 					);
 				}
 				else
@@ -2041,7 +2039,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 		if ($oAccount instanceof \CMailAccount)
 		{
-			$sUUID = \Aurora\System\Api::getAuthenticatedUserUUIDById($oAccount->IdUser);
+			$sUUID = \Aurora\System\Api::getUserUUIDById($oAccount->IdUser);
 			try
 			{
 				if (is_array($Attachments) && 0 < count($Attachments))
@@ -2100,7 +2098,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 		if ($oAccount instanceof \CMailAccount)
 		{
-			$sUUID = \Aurora\System\Api::getAuthenticatedUserUUIDById($oAccount->IdUser);
+			$sUUID = \Aurora\System\Api::getUserUUIDById($oAccount->IdUser);
 			try
 			{
 				$sMimeType = 'message/rfc822';
@@ -2123,16 +2121,15 @@ class Module extends \Aurora\System\Module\AbstractModule
 					$sHash = \Aurora\System\Api::EncodeKeyValues(array(
 						'TempFile' => true,
 						'AccountID' => $oAccount->EntityId,
-						'Iframed' => false,
 						'Name' => $FileName,
 						'TempName' => $sTempName
 					));
 					$aActions = array(
 						'view' => array(
-							'url' => '?mail-attachment/' . $sHash .'/view'
+							'url' => '?file-cache/' . $sHash .'/view'
 						),
 						'download' => array(
-							'url' => '?mail-attachment/' . $sHash
+							'url' => '?file-cache/' . $sHash
 						)
 					);
 					$mResult = array(
@@ -2173,7 +2170,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		
 		if ($oAccount)
 		{
-			$sUUID = \Aurora\System\Api::getAuthenticatedUserUUIDById($oAccount->IdUser);
+			$sUUID = \Aurora\System\Api::getUserUUIDById($oAccount->IdUser);
 			if (is_array($UploadData))
 			{
 				$sUploadName = $UploadData['name'];
@@ -2400,212 +2397,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	}	
 	
 	/**
-	 * @param string $sFileName
-	 * @param string $sContentType
-	 * @param string $sMimeIndex = ''
-	 *
-	 * @return string
-	 */
-	public function clearFileName($sFileName, $sContentType, $sMimeIndex = '')
-	{
-		$sFileName = 0 === \strlen($sFileName) ? \preg_replace('/[^a-zA-Z0-9]/', '.', (empty($sMimeIndex) ? '' : $sMimeIndex.'.').$sContentType) : $sFileName;
-		$sClearedFileName = \preg_replace('/[\s]+/', ' ', \preg_replace('/[\.]+/', '.', $sFileName));
-		$sExt = \MailSo\Base\Utils::GetFileExtension($sClearedFileName);
-
-		$iSize = 100;
-		if ($iSize < \strlen($sClearedFileName) - \strlen($sExt))
-		{
-			$sClearedFileName = \substr($sClearedFileName, 0, $iSize).(empty($sExt) ? '' : '.'.$sExt);
-		}
-
-		return \MailSo\Base\Utils::ClearFileName(\MailSo\Base\Utils::Utf8Clear($sClearedFileName));
-	}	
-	
-	/**
-	 * @param bool $bDownload
-	 * @param string $sContentType
-	 * @param string $sFileName
-	 *
-	 * @return bool
-	 */
-	public function RawOutputHeaders($bDownload, $sContentType, $sFileName)
-	{
-		if ($bDownload)
-		{
-			\header('Content-Type: '.$sContentType, true);
-		}
-		else
-		{
-			$aParts = \explode('/', $sContentType, 2);
-			if (\in_array(\strtolower($aParts[0]), array('image', 'video', 'audio')) ||
-				\in_array(\strtolower($sContentType), array('application/pdf', 'application/x-pdf', 'text/html')))
-			{
-				\header('Content-Type: '.$sContentType, true);
-			}
-			else
-			{
-				\header('Content-Type: text/plain', true);
-			}
-		}
-
-		\header('Content-Disposition: '.($bDownload ? 'attachment' : 'inline' ).'; '.
-			\trim(\MailSo\Base\Utils::EncodeHeaderUtf8AttributeValue('filename', $sFileName)), true);
-		
-		\header('Accept-Ranges: none', true);
-		\header('Content-Transfer-Encoding: binary');
-	}
-	
-	public function thumbResource($oAccount, $rResource, $sFileName)
-	{
-		$sMd5Hash = \md5(\rand(1000, 9999));
-		
-		$this->oApiFileCache->putFile($oAccount->UUID, 'Raw/Thumbnail/'.$sMd5Hash, $rResource, '_'.$sFileName);
-		if ($this->oApiFileCache->isFileExists($oAccount->UUID, 'Raw/Thumbnail/'.$sMd5Hash, '_'.$sFileName))
-		{
-			$sFullFilePath = $this->oApiFileCache->generateFullFilePath($oAccount->UUID, 'Raw/Thumbnail/'.$sMd5Hash, '_'.$sFileName);
-			$iRotateAngle = 0;
-			if (\function_exists('exif_read_data')) 
-			{ 
-				if ($exif_data = @\exif_read_data($sFullFilePath, 'IFD0')) 
-				{ 
-					switch (@$exif_data['Orientation']) 
-					{ 
-						case 1: 
-							$iRotateAngle = 0; 
-							break; 
-						case 3: 
-							$iRotateAngle = 180; 
-							break; 
-						case 6: 
-							$iRotateAngle = 270; 
-							break; 
-						case 8: 
-							$iRotateAngle = 90; 
-							break; 
-					}
-				}
-			}
-			
-			try
-			{
-				$oThumb = new \PHPThumb\GD(
-					$sFullFilePath
-				);
-				if ($iRotateAngle > 0)
-				{
-					$oThumb->rotateImageNDegrees($iRotateAngle);
-				}
-				
-				$oThumb->adaptiveResize(120, 100)->show();
-			}
-			catch (\Exception $oE) {}
-		}
-
-		$this->oApiFileCache->clear($oAccount->UUID, 'Raw/Thumbnail/'.$sMd5Hash, '_'.$sFileName);
-	}	
-	
-	/**
-	 * @return bool
-	 */
-	private function rawCallback($sRawKey, $fCallback, $bCache = true, &$oAccount = null)
-	{
-		$aValues = \Aurora\System\Api::DecodeKeyValues($sRawKey);
-		
-		$sFolder = '';
-		$iUid = 0;
-		$sMimeIndex = '';
-
-		$oAccount = null;
-
-		if (isset($aValues['AccountID']))
-		{
-			$oAccount = $this->oApiAccountsManager->getAccountById((int) $aValues['AccountID']);
-			
-			if (!$oAccount || \Aurora\System\Api::getAuthenticatedUserId() !== $oAccount->IdUser)
-			{
-				return false;
-			}
-		}
-
-		$sFolder = isset($aValues['Folder']) ? $aValues['Folder'] : '';
-		$iUid = (int) (isset($aValues['Uid']) ? $aValues['Uid'] : 0);
-		$sMimeIndex = (string) (isset($aValues['MimeIndex']) ? $aValues['MimeIndex'] : '');
-		$sContentTypeIn = (string) (isset($aValues['MimeType']) ? $aValues['MimeType'] : '');
-		$sFileNameIn = (string) (isset($aValues['FileName']) ? $aValues['FileName'] : '');
-
-		if ($bCache && 0 < \strlen($sFolder) && 0 < $iUid)
-		{
-			$this->verifyCacheByKey($sRawKey);
-		}
-		
-		if (isset($aValues['TempFile'], $aValues['TempName'], $aValues['Name']) && $oAccount)
-		{
-			if ($bCache)
-			{
-				$this->verifyCacheByKey($sRawKey);
-			}
-
-			$bResult = false;
-			$sUUID = \Aurora\System\Api::getAuthenticatedUserUUIDById($oAccount->IdUser);
-			$mResult = $this->oApiFileCache->getFile($sUUID, $aValues['TempName']);
-
-			if (is_resource($mResult))
-			{
-				if ($bCache)
-				{
-					$this->cacheByKey($sRawKey);
-				}
-
-				$bResult = true;
-				$sFileName = $aValues['Name'];
-				$sContentType = (empty($sFileName)) ? 'text/plain' : \MailSo\Base\Utils::MimeContentType($sFileName);
-				$sFileName = $this->clearFileName($sFileName, $sContentType);
-
-				call_user_func_array($fCallback, array(
-					$oAccount, $sContentType, $sFileName, $mResult
-				));
-			}
-
-			return $bResult;
-		}
-
-		$self = $this;
-		return $this->oApiMailManager->directMessageToStream($oAccount,
-			function($rResource, $sContentType, $sFileName, $sMimeIndex = '') use ($self, $oAccount, $fCallback, $sRawKey, $bCache, $sContentTypeIn, $sFileNameIn) {
-				if (\is_resource($rResource))
-				{
-					$sContentTypeOut = $sContentTypeIn;
-					if (empty($sContentTypeOut))
-					{
-						$sContentTypeOut = $sContentType;
-						if (empty($sContentTypeOut))
-						{
-							$sContentTypeOut = (empty($sFileName)) ? 'text/plain' : \MailSo\Base\Utils::MimeContentType($sFileName);
-						}
-					}
-
-					$sFileNameOut = $sFileNameIn;
-					if (empty($sFileNameOut) || '.' === $sFileNameOut{0})
-					{
-						$sFileNameOut = $sFileName;
-					}
-
-					$sFileNameOut = $self->clearFileName($sFileNameOut, $sContentType, $sMimeIndex);
-
-					if ($bCache)
-					{
-						$self->cacheByKey($sRawKey);
-					}
-
-					\call_user_func_array($fCallback, array(
-						$oAccount, $sContentTypeOut, $sFileNameOut, $rResource
-					));
-				}
-			}, $sFolder, $iUid, $sMimeIndex);
-	}
-	
-	
-	/**
 	 */
 	private function getRaw($sHash, $sAction = '')
 	{
@@ -2629,50 +2420,68 @@ class Module extends \Aurora\System\Module\AbstractModule
 			break;
 		}
 		
-		return $this->rawCallback($sHash, 
-				function ($oAccount, $sContentType, $sFileName, $rResource) use ($self, $bDownload, $bThumbnail) {
-			
-			$self->RawOutputHeaders($bDownload, $sContentType, $sFileName);
+		$aValues = \Aurora\System\Api::DecodeKeyValues($sHash);
+		
+		$sFolder = '';
+		$iUid = 0;
+		$sMimeIndex = '';
 
-			if (!$bDownload && 'text/html' === $sContentType)
+		$oAccount = null;
+
+		$iUserId = (isset($aValues['UserId'])) ? $aValues['UserId'] : 0;
+		$sUUID = \Aurora\System\Api::getUserUUIDById($iUserId);
+
+		if (isset($aValues['AccountID']))
+		{
+			$oAccount = $this->oApiAccountsManager->getAccountById((int) $aValues['AccountID']);
+			
+			if (!$oAccount || \Aurora\System\Api::getAuthenticatedUserId() !== $oAccount->IdUser)
 			{
-				$sHtml = \stream_get_contents($rResource);
-				if ($sHtml)
+				return false;
+			}
+		}
+
+		$sFolder = isset($aValues['Folder']) ? $aValues['Folder'] : '';
+		$iUid = (int) (isset($aValues['Uid']) ? $aValues['Uid'] : 0);
+		$sMimeIndex = (string) (isset($aValues['MimeIndex']) ? $aValues['MimeIndex'] : '');
+		$sContentTypeIn = (string) (isset($aValues['MimeType']) ? $aValues['MimeType'] : '');
+		$sFileNameIn = (string) (isset($aValues['FileName']) ? $aValues['FileName'] : '');
+		
+		$bCache = true;
+		if ($bCache && 0 < \strlen($sFolder) && 0 < $iUid)
+		{
+			$this->verifyCacheByKey($sHash);
+		}
+		
+		return $this->oApiMailManager->directMessageToStream($oAccount,
+			function($rResource, $sContentType, $sFileName, $sMimeIndex = '') use ($self, $sUUID, $sHash, $bCache, $sContentTypeIn, $sFileNameIn, $bThumbnail, $bDownload) {
+				if (\is_resource($rResource))
 				{
-					$sCharset = '';
-					$aMacth = array();
-					if (\preg_match('/charset[\s]?=[\s]?([^\s"\']+)/i', $sHtml, $aMacth) && !empty($aMacth[1]))
+					$sContentTypeOut = $sContentTypeIn;
+					if (empty($sContentTypeOut))
 					{
-						$sCharset = $aMacth[1];
+						$sContentTypeOut = $sContentType;
+						if (empty($sContentTypeOut))
+						{
+							$sContentTypeOut = (empty($sFileName)) ? 'text/plain' : \MailSo\Base\Utils::MimeContentType($sFileName);
+						}
 					}
 
-					if ('' !== $sCharset && \MailSo\Base\Enumerations\Charset::UTF_8 !== $sCharset)
+					$sFileNameOut = $sFileNameIn;
+					if (empty($sFileNameOut) || '.' === $sFileNameOut{0})
 					{
-						$sHtml = \MailSo\Base\Utils::ConvertEncoding($sHtml,
-							\MailSo\Base\Utils::NormalizeCharset($sCharset, true), \MailSo\Base\Enumerations\Charset::UTF_8);
+						$sFileNameOut = $sFileName;
 					}
 
-					$oCssToInlineStyles = new \TijsVerkoyen\CssToInlineStyles\CssToInlineStyles($sHtml);
-					$oCssToInlineStyles->setEncoding('utf-8');
-					$oCssToInlineStyles->setUseInlineStylesBlock(true);
+					$sFileNameOut = \Aurora\System\Utils::clearFileName($sFileNameOut, $sContentType, $sMimeIndex);
 
-					echo '<html><head></head><body>'.
-						\MailSo\Base\HtmlUtils::ClearHtmlSimple($oCssToInlineStyles->convert(), true, true).
-						'</body></html>';
+					if ($bCache)
+					{
+						$self->cacheByKey($sHash);
+					}
+
+					\Aurora\System\Utils::OutputFileResource($sUUID, $sContentType, $sFileName, $rResource, $bThumbnail, $bDownload);
 				}
-			}
-			else
-			{
-				if ($bThumbnail && !$bDownload)
-				{
-					$self->thumbResource($oAccount, $rResource, $sFileName);
-				}
-				else
-				{
-					\MailSo\Base\Utils::FpassthruWithTimeLimitReset($rResource);
-				}
-			}
-			
-		}, !$bDownload);
+			}, $sFolder, $iUid, $sMimeIndex);
 	}	
 }
