@@ -1867,6 +1867,19 @@ class Module extends \Aurora\System\Module\AbstractModule
 					'Hash' => $sHash,
 					'Actions' => $aActions
 				);
+				
+//				return array(
+//					'Name' => $sFileName,
+//					'TempName' => $sSavedName,
+//					'MimeType' => $sMimeType,
+//					'Size' =>  (int) $this->oApiFileCache->fileSize($oAccount->UUID, $sSavedName),
+//					'Hash' => \Aurora\System\Api::EncodeKeyValues(array(
+//						'TempFile' => true,
+//						'AccountID' => $oAccount->EntityId,
+//						'Name' => $sFileName,
+//						'TempName' => $sSavedName
+//					))
+//				);
 			}
 		}
 
