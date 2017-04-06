@@ -109,7 +109,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 			'AllowFetchers' => $this->getConfig('AllowFetchers', false),
 			'AllowIdentities' => $this->getConfig('AllowIdentities', false),
 			'AllowInsertImage' => $this->getConfig('AllowInsertImage', false),
-			'AllowSaveMessageAsPdf' => $this->getConfig('AllowSaveMessageAsPdf', false),
 			'AllowThreads' => $this->getConfig('AllowThreads', false),
 			'AllowZipAttachments' => $this->getConfig('AllowZipAttachments', false),
 			'AutoSaveIntervalSeconds' => $this->getConfig('AutoSaveIntervalSeconds', 60),
@@ -1804,87 +1803,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		return $this->oApiMailManager->setSystemFolderNames($oAccount, $aData);
 	}	
-	
-	/**
-	 * @param int $UserId
-	 * @param int $AccountID
-	 * @param string $FileName
-	 * @param string $Html
-	 * @return boolean
-	 */
-	public function GeneratePdfFile($UserId, $AccountID, $FileName, $Html)
-	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
-		
-		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
-		if ($oAccount)
-		{
-			$sFileName = $FileName.'.pdf';
-			$sMimeType = 'application/pdf';
-
-			$sUUID = \Aurora\System\Api::getUserUUIDById($UserId);
-			$sTempName = md5($sUUID.$sFileName.microtime(true));
-			
-			$oCssToInlineStyles = new \TijsVerkoyen\CssToInlineStyles\CssToInlineStyles($Html);
-			$oCssToInlineStyles->setEncoding('utf-8');
-			$oCssToInlineStyles->setUseInlineStylesBlock(true);
-
-			$sExec = \Aurora\System\Api::DataPath().'/system/wkhtmltopdf/linux/wkhtmltopdf';
-			if (!\file_exists($sExec))
-			{
-				$sExec = \Aurora\System\Api::DataPath().'/system/wkhtmltopdf/win/wkhtmltopdf.exe';
-				if (!\file_exists($sExec))
-				{
-					$sExec = '';
-				}
-			}
-
-			if (0 < \strlen($sExec))
-			{
-				$oSnappy = new \Knp\Snappy\Pdf($sExec);
-				$oSnappy->setOption('quiet', true);
-				$oSnappy->setOption('disable-javascript', true);
-
-				$oSnappy->generateFromHtml($oCssToInlineStyles->convert(),
-					$this->oApiFileCache->generateFullFilePath($sUUID, $sTempName), array(), true);
-
-				$sHash = \Aurora\System\Api::EncodeKeyValues(array(
-					'TempFile' => true,
-					'UserId' => $UserId,
-					'Name' => $FileName,
-					'TempName' => $sTempName
-				));
-				$aActions = array(
-						'download' => array(
-						'url' => '?file-cache/' . $sHash
-					)
-				);
-				return array(
-					'TempName' => $sTempName,
-					'Name' => $FileName,
-					'Size' => $this->oApiFileCache->fileSize($sUUID, $sTempName),
-					'MimeType' => $sMimeType,
-					'Hash' => $sHash,
-					'Actions' => $aActions
-				);
-				
-//				return array(
-//					'Name' => $sFileName,
-//					'TempName' => $sSavedName,
-//					'MimeType' => $sMimeType,
-//					'Size' =>  (int) $this->oApiFileCache->fileSize($oAccount->UUID, $sSavedName),
-//					'Hash' => \Aurora\System\Api::EncodeKeyValues(array(
-//						'TempFile' => true,
-//						'AccountID' => $oAccount->EntityId,
-//						'Name' => $sFileName,
-//						'TempName' => $sSavedName
-//					))
-//				);
-			}
-		}
-
-		return false;
-	}
 	
 	/**
 	 * @param int $AccountID
