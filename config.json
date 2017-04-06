@@ -3,7 +3,7 @@
 		false,
 		"bool"
 	],
-	"AllowAddNewAccounts": [
+	"AllowAddAccounts": [
 		true,
 		"bool"
 	],

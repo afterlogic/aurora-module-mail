@@ -103,7 +103,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		
 		$aSettings = array(
 			'Accounts' => array(),
-			'AllowAddNewAccounts' => $this->getConfig('AllowAddNewAccounts', false),
+			'AllowAddAccounts' => $this->getConfig('AllowAddAccounts', false),
 			'AllowAutosaveInDrafts' => $this->getConfig('AllowAutosaveInDrafts', false),
 			'AllowChangeEmailSettings' => $this->getConfig('AllowChangeEmailSettings', false),
 			'AllowFetchers' => $this->getConfig('AllowFetchers', false),
