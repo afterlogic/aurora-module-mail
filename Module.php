@@ -1806,12 +1806,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 	}	
 	
 	/**
+	 * @param int $UserId
 	 * @param int $AccountID
 	 * @param string $FileName
 	 * @param string $Html
 	 * @return boolean
 	 */
-	public function GeneratePdfFile($AccountID, $FileName, $Html)
+	public function GeneratePdfFile($UserId, $AccountID, $FileName, $Html)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
@@ -1821,10 +1822,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$sFileName = $FileName.'.pdf';
 			$sMimeType = 'application/pdf';
 
-			$sSavedName = 'pdf-'.$oAccount->EntityId.'-'.md5($sFileName.microtime(true)).'.pdf';
+			$sUUID = \Aurora\System\Api::getUserUUIDById($UserId);
+			$sTempName = md5($sUUID.$sFileName.microtime(true));
 			
-			include_once AURORA_APP_ROOT_PATH.'vendors/other/CssToInlineStyles.php';
-
 			$oCssToInlineStyles = new \TijsVerkoyen\CssToInlineStyles\CssToInlineStyles($Html);
 			$oCssToInlineStyles->setEncoding('utf-8');
 			$oCssToInlineStyles->setUseInlineStylesBlock(true);
@@ -1846,19 +1846,26 @@ class Module extends \Aurora\System\Module\AbstractModule
 				$oSnappy->setOption('disable-javascript', true);
 
 				$oSnappy->generateFromHtml($oCssToInlineStyles->convert(),
-					$this->oApiFileCache->generateFullFilePath($oAccount->UUID, $sSavedName), array(), true);
+					$this->oApiFileCache->generateFullFilePath($sUUID, $sTempName), array(), true);
 
+				$sHash = \Aurora\System\Api::EncodeKeyValues(array(
+					'TempFile' => true,
+					'UserId' => $UserId,
+					'Name' => $FileName,
+					'TempName' => $sTempName
+				));
+				$aActions = array(
+						'download' => array(
+						'url' => '?file-cache/' . $sHash
+					)
+				);
 				return array(
-					'Name' => $sFileName,
-					'TempName' => $sSavedName,
+					'TempName' => $sTempName,
+					'Name' => $FileName,
+					'Size' => $this->oApiFileCache->fileSize($sUUID, $sTempName),
 					'MimeType' => $sMimeType,
-					'Size' =>  (int) $this->oApiFileCache->fileSize($oAccount->UUID, $sSavedName),
-					'Hash' => \Aurora\System\Api::EncodeKeyValues(array(
-						'TempFile' => true,
-						'AccountID' => $oAccount->EntityId,
-						'Name' => $sFileName,
-						'TempName' => $sSavedName
-					))
+					'Hash' => $sHash,
+					'Actions' => $aActions
 				);
 			}
 		}

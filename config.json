@@ -28,7 +28,7 @@
 		"bool"
 	],
 	"AllowSaveMessageAsPdf": [
-		false,
+		true,
 		"bool"
 	],
 	"AllowThreads": [
