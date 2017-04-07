@@ -3,7 +3,7 @@
 		false,
 		"bool"
 	],
-	"AllowAddNewAccounts": [
+	"AllowAddAccounts": [
 		true,
 		"bool"
 	],
@@ -25,10 +25,6 @@
 	],
 	"AllowInsertImage": [
 		true,
-		"bool"
-	],
-	"AllowSaveMessageAsPdf": [
-		false,
 		"bool"
 	],
 	"AllowThreads": [

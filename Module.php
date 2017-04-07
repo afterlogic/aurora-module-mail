@@ -103,13 +103,12 @@ class Module extends \Aurora\System\Module\AbstractModule
 		
 		$aSettings = array(
 			'Accounts' => array(),
-			'AllowAddNewAccounts' => $this->getConfig('AllowAddNewAccounts', false),
+			'AllowAddAccounts' => $this->getConfig('AllowAddAccounts', false),
 			'AllowAutosaveInDrafts' => $this->getConfig('AllowAutosaveInDrafts', false),
 			'AllowChangeEmailSettings' => $this->getConfig('AllowChangeEmailSettings', false),
 			'AllowFetchers' => $this->getConfig('AllowFetchers', false),
 			'AllowIdentities' => $this->getConfig('AllowIdentities', false),
 			'AllowInsertImage' => $this->getConfig('AllowInsertImage', false),
-			'AllowSaveMessageAsPdf' => $this->getConfig('AllowSaveMessageAsPdf', false),
 			'AllowThreads' => $this->getConfig('AllowThreads', false),
 			'AllowZipAttachments' => $this->getConfig('AllowZipAttachments', false),
 			'AutoSaveIntervalSeconds' => $this->getConfig('AutoSaveIntervalSeconds', 60),
@@ -1804,67 +1803,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		return $this->oApiMailManager->setSystemFolderNames($oAccount, $aData);
 	}	
-	
-	/**
-	 * @param int $AccountID
-	 * @param string $FileName
-	 * @param string $Html
-	 * @return boolean
-	 */
-	public function GeneratePdfFile($AccountID, $FileName, $Html)
-	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
-		
-		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
-		if ($oAccount)
-		{
-			$sFileName = $FileName.'.pdf';
-			$sMimeType = 'application/pdf';
-
-			$sSavedName = 'pdf-'.$oAccount->EntityId.'-'.md5($sFileName.microtime(true)).'.pdf';
-			
-			include_once AURORA_APP_ROOT_PATH.'vendors/other/CssToInlineStyles.php';
-
-			$oCssToInlineStyles = new \TijsVerkoyen\CssToInlineStyles\CssToInlineStyles($Html);
-			$oCssToInlineStyles->setEncoding('utf-8');
-			$oCssToInlineStyles->setUseInlineStylesBlock(true);
-
-			$sExec = \Aurora\System\Api::DataPath().'/system/wkhtmltopdf/linux/wkhtmltopdf';
-			if (!\file_exists($sExec))
-			{
-				$sExec = \Aurora\System\Api::DataPath().'/system/wkhtmltopdf/win/wkhtmltopdf.exe';
-				if (!\file_exists($sExec))
-				{
-					$sExec = '';
-				}
-			}
-
-			if (0 < \strlen($sExec))
-			{
-				$oSnappy = new \Knp\Snappy\Pdf($sExec);
-				$oSnappy->setOption('quiet', true);
-				$oSnappy->setOption('disable-javascript', true);
-
-				$oSnappy->generateFromHtml($oCssToInlineStyles->convert(),
-					$this->oApiFileCache->generateFullFilePath($oAccount->UUID, $sSavedName), array(), true);
-
-				return array(
-					'Name' => $sFileName,
-					'TempName' => $sSavedName,
-					'MimeType' => $sMimeType,
-					'Size' =>  (int) $this->oApiFileCache->fileSize($oAccount->UUID, $sSavedName),
-					'Hash' => \Aurora\System\Api::EncodeKeyValues(array(
-						'TempFile' => true,
-						'AccountID' => $oAccount->EntityId,
-						'Name' => $sFileName,
-						'TempName' => $sSavedName
-					))
-				);
-			}
-		}
-
-		return false;
-	}
 	
 	/**
 	 * @param int $AccountID
