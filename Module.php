@@ -119,13 +119,15 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$oUser = \Aurora\System\Api::getAuthenticatedUser();
 		if ($oUser && $oUser->Role === \EUserRole::NormalUser)
 		{
-			$aAcc = $this->oApiAccountsManager->getUserAccounts($oUser->EntityId);
+//			$aAcc = $this->oApiAccountsManager->getUserAccounts($oUser->EntityId);
+			$aAcc = $this->GetAccounts($oUser->EntityId);
 			$aResponseAcc = [];
 			foreach($aAcc as $oAccount)
 			{
 				$aResponseAcc[] = $oAccount->toResponseArray();
 			}
 			$aSettings['Accounts'] = $aResponseAcc;
+			
 			if (isset($oUser->{$this->GetName().'::AllowAutosaveInDrafts'}))
 			{
 				$aSettings['AllowAutosaveInDrafts'] = $oUser->{$this->GetName().'::AllowAutosaveInDrafts'};
@@ -160,6 +162,39 @@ class Module extends \Aurora\System\Module\AbstractModule
 		
 		return false;
 	}
+	
+	/**
+	 * 
+	 * @return boolean
+	 */
+	public function GetAccounts($UserId)
+	{
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
+		return $this->oApiAccountsManager->getUserAccounts($UserId);
+	}
+	
+	/**
+	 * 
+	 * @return boolean
+	 */
+	public function GetAccount($AccountId)
+	{
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
+		$mResult = false;
+		
+		$oUser = \Aurora\System\Api::getAuthenticatedUser();
+		$oAccount = $this->oApiAccountsManager->getAccountById($AccountId);
+		
+		if ($oAccount->IdUser === $oUser->EntityId)
+		{
+			$mResult = $oAccount;
+		}
+				
+		return $mResult;
+	}
+	
 	
 	/**
 	 * 
@@ -421,6 +456,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
 		return $this->oApiServersManager->getServerList($TenantId);
+	}
+	
+	/**** Ajax methods ****/
+	public function GetServer($ServerId)
+	{
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
+		return $this->oApiServersManager->getServer($ServerId);
 	}
 	
 	public function CreateServer($Name, $IncomingServer, $IncomingPort, $IncomingUseSsl,
@@ -2219,7 +2262,16 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 		
 		return $mResult;
-	}	
+	}
+	
+	public function ChangePassword($CurrentPassword, $NewPassword)
+	{
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
+		$mResult = false;
+		
+		return $mResult;
+	}
 	
 	public function EntryAutodiscover()
 	{
