@@ -2124,7 +2124,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 										if (is_resource($rResource))
 										{
 											$sContentType = (empty($sFileName)) ? 'text/plain' : \MailSo\Base\Utils::MimeContentType($sFileName);
-											$sFileName = $self->clearFileName($sFileName, $sContentType, $sMimeIndex);
+											$sFileName = \Aurora\System\Utils::clearFileName($sFileName, $sContentType, $sMimeIndex);
 
 											if ($self->oApiFileCache->putFile($sUUID, $sTempName, $rResource))
 											{
@@ -2172,7 +2172,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 							if (is_resource($rResource))
 							{
 								$sMimeType = $sContentType;
-								$sFileName = $self->clearFileName($sFileName, $sMimeType, '');
+								$sFileName = \Aurora\System\Utils::clearFileName($sFileName, $sMimeType, '');
 								$self->oApiFileCache->putFile($sUUID, $sTempName, $rResource);
 							}
 						}, $MessageFolder, $MessageUid);
