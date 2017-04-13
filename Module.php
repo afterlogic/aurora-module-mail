@@ -19,6 +19,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public $oApiAccountsManager = null;
 	public $oApiServersManager = null;
 	public $oApiIdentitiesManager = null;
+	public $oApiSieveManager = null;
 	
 	/* 
 	 * @var $oApiFileCache \Aurora\System\Managers\Filecache\Manager 
@@ -54,6 +55,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$this->oApiIdentitiesManager = $this->GetManager('identities');
 		$this->oApiMailManager = $this->GetManager('main');
 		$this->oApiFileCache = \Aurora\System\Api::GetSystemManager('Filecache');
+		$this->oApiSieveManager = $this->GetManager('sieve');
 		
 		$this->extendObject('CUser', array(
 				'AllowAutosaveInDrafts'	=> array('bool', true),
@@ -2263,7 +2265,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 		
 		return $mResult;
 	}
-	
+	/**
+	 * This method will trigger some event, subscribers of which perform all change password process
+	 * 
+	 * @param type $CurrentPassword
+	 * @param type $NewPassword
+	 * @return boolean
+	 */
 	public function ChangePassword($CurrentPassword, $NewPassword)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
@@ -2272,6 +2280,55 @@ class Module extends \Aurora\System\Module\AbstractModule
 		
 		return $mResult;
 	}
+	
+	public function GetFilters($AccountID)
+	{
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
+		$mResult = false;
+		
+		$oAccount = $this->oApiAccountsManager->getAccountById((int) $AccountID);
+		
+		if ($oAccount)
+		{
+			$mResult = $this->oApiSieveManager->getSieveFilters($oAccount);
+		}
+		
+		return $mResult;
+	}
+	
+	public function UpdateFilters($AccountID, $Filters)
+	{
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
+		$mResult = false;
+		
+		$oAccount = $this->oApiAccountsManager->getAccountById((int) $AccountID);
+
+		if ($oAccount)
+		{
+			$aFilters = array();
+			
+			if (is_array($Filters))
+			{
+				foreach ($Filters as $aFilterData)
+				{
+					$oFilter = $this->oApiSieveManager->createFilterInstance($oAccount, $aFilterData);
+						
+					if ($oFilter)
+					{
+						$aFilters[] = $oFilter;
+					}
+				}
+			}
+
+			
+			$mResult = $this->oApiSieveManager->updateSieveFilters($oAccount, $aFilters);
+		}
+		
+		return $mResult;
+	}
+	
 	
 	public function EntryAutodiscover()
 	{
@@ -2535,5 +2592,5 @@ class Module extends \Aurora\System\Module\AbstractModule
 					\Aurora\System\Utils::OutputFileResource($sUUID, $sContentType, $sFileName, $rResource, $bThumbnail, $bDownload);
 				}
 			}, $sFolder, $iUid, $sMimeIndex);
-	}	
+	}
 }

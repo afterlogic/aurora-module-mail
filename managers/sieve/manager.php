@@ -19,12 +19,12 @@
 /**
  * @package Sieve
  */
-class CApiSieveManager extends \Aurora\System\Managers\AbstractManager
+class CApiMailSieveManager extends \Aurora\System\Managers\AbstractManager
 {
 	/**
 	 * @var bool
 	 */
-	static $AutoSave = true;
+	const AutoSave = true;
 
 	/**
 	 * @var CApiSieveProtocol
@@ -59,11 +59,11 @@ class CApiSieveManager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * @param \Aurora\System\Managers\GlobalManager &$oManager
 	 */
-	public function __construct(\Aurora\System\Managers\GlobalManager &$oManager, $sForcedStorage = '')
+	public function __construct(\Aurora\System\Managers\GlobalManager &$oManager, $sForcedStorage = '', \Aurora\System\Module\AbstractModule $oModule = null)
 	{
-		parent::__construct('sieve', $oManager);
+		parent::__construct('sieve', $oManager, $oModule);
 
-		\Aurora\System\Api::Inc('common.net.protocols.sieve');
+//		\Aurora\System\Api::Inc('common.net.protocols.sieve');
 		$oMailModule = \Aurora\System\Api::GetModule('Mail'); 
 		
 		$this->aSieves = array();
@@ -147,7 +147,7 @@ class CApiSieveManager extends \Aurora\System\Managers\AbstractManager
 		$this->_parseSectionsData($oAccount);
 		$this->_setSectionData('autoresponder', $sData);
 
-		if (CApiSieveManager::$AutoSave)
+		if (self::AutoSave)
 		{
 			return $this->_resaveSectionsData($oAccount);
 		}
@@ -218,14 +218,38 @@ class CApiSieveManager extends \Aurora\System\Managers\AbstractManager
 		$this->_parseSectionsData($oAccount);
 		$this->_setSectionData('forward', $sData);
 
-		if (CApiSieveManager::$AutoSave)
+		if (self::AutoSave)
 		{
 			return $this->_resaveSectionsData($oAccount);
 		}
 
 		return true;
 	}
+	
+	public function createFilterInstance(\CMailAccount $oAccount, $aData)
+	{
+		$oFilter = null;
+		
+		if (is_array($aData))
+		{
+			$oFilter = new CFilter($oAccount);
+		
+			$oFilter->Enable = (bool) trim($aData['Enable']);
+			$oFilter->Field = (int) trim($aData['Field']);
+			$oFilter->Condition = (int) trim($aData['Condition']);
+			$oFilter->Action = (int) trim($aData['Action']);
+			$oFilter->Filter = (string) trim($aData['Filter']);
 
+			if (\EFilterAction::MoveToFolder === $oFilter->Action && isset($aData['FolderFullName']))
+			{
+				$oFilter->FolderFullName = \Aurora\System\Utils::ConvertEncoding($aData['FolderFullName'],
+					$this->sSieveFolderCharset, 'utf7-imap');
+			}
+		}
+		
+		return $oFilter;
+	}
+	
 	/**
 	 * @param CAcount $oAccount
 	 *
@@ -236,6 +260,7 @@ class CApiSieveManager extends \Aurora\System\Managers\AbstractManager
 		$mResult = false;
 
 		$sScript = $this->getFiltersRawData($oAccount);
+		
 		if (false !== $sScript)
 		{
 			$mResult = array();
@@ -251,29 +276,31 @@ class CApiSieveManager extends \Aurora\System\Managers\AbstractManager
 
 					$aFilter = explode(";", $sFilter);
 
-					if (is_array($aFilter) && 5 < count($aFilter))
+//					if (is_array($aFilter) && 5 < count($aFilter))
+					if (is_array($aFilter))
 					{
-						$oFilter = new CFilter($oAccount);
-						$oFilter->Enable = (bool) trim($aFilter[0]);
-						$oFilter->Field = (int) trim($aFilter[2]);
-						$oFilter->Condition = (int) trim($aFilter[1]);
-						$oFilter->Action = (int) trim($aFilter[4]);
-						$oFilter->Filter = (string) trim($aFilter[3]);
-
-						if (EFilterAction::MoveToFolder === $oFilter->Action && isset($aFilter[5]))
+						$aFilterData = array(
+							'Enable' => $aFilter[0],
+							'Field' => $aFilter[2],
+							'Condition' => $aFilter[1],
+							'Action' => $aFilter[4],
+							'Filter' => $aFilter[3],
+							'FolderFullName' => $aFilter[5]
+						);
+						
+						$oFilter = $this->createFilterInstance($oAccount, $aFilterData);
+						
+						if ($oFilter)
 						{
-							$oFilter->FolderFullName = \Aurora\System\Utils::ConvertEncoding($aFilter[5],
-								$this->sSieveFolderCharset, 'utf7-imap');
+							$mResult[] = $oFilter;
 						}
-
-						$mResult[] = $oFilter;
 					}
 
 					unset($oFilter);
 				}
 			}
 		}
-		
+
 		return $mResult;
 	}
 
@@ -379,7 +406,7 @@ class CApiSieveManager extends \Aurora\System\Managers\AbstractManager
 			}
 
 			$sFilters = $sFilters."\n".'#end sieve filter'."\n";
-
+			
 			return $this->setFiltersRawData($oAccount, $sFilters);
 		}
 
@@ -446,7 +473,7 @@ class CApiSieveManager extends \Aurora\System\Managers\AbstractManager
 		$this->_parseSectionsData($oAccount);
 		$this->_setSectionData('filters', $sFiltersRawData);
 
-		if (CApiSieveManager::$AutoSave)
+		if (self::AutoSave)
 		{
 			return $this->_resaveSectionsData($oAccount);
 		}
@@ -457,10 +484,10 @@ class CApiSieveManager extends \Aurora\System\Managers\AbstractManager
 	 * @param CAccount $oAccount
 	 * @return \MailSo\Sieve\ManageSieveClient|false
 	 */
-	protected function _getSieveDriver(CAccount $oAccount)
+	protected function _getSieveDriver(\CMailAccount $oAccount)
 	{
 		$oSieve = false;
-		if ($oAccount instanceof CAccount)
+		if ($oAccount instanceof \CMailAccount)
 		{
 			if (!isset($this->aSieves[$oAccount->Email]))
 			{
@@ -487,17 +514,25 @@ class CApiSieveManager extends \Aurora\System\Managers\AbstractManager
 	{
 		$bResult = false;
 		$oSieve = $this->_getSieveDriver($oAccount);
+
 		if ($oSieve)
 		{
 			if (!$oSieve->IsConnected())
 			{
-				$oMailModule = \Aurora\System\Api::GetModule('Mail'); 
+				$oMailModule = \Aurora\System\Api::GetModule('Mail');
 				$sGeneralHost = $oMailModule->getConfig('SieveHost', '');
+				$iGeneralHostPort = (int) $oMailModule->getConfig('SievePort', 2000);
 				$sGeneralPassword = $oMailModule->getConfig('SieveGeneralPassword', '');
-				$oServer = $oAccount->getServer();
+				
+				$oServer = $oMailModule->oApiServersManager->getServer($oAccount->ServerId);
+				
+				$sHost = $oServer->Internal || 0 === strlen($sGeneralHost) ? $oServer->IncomingServer : $sGeneralHost;
+				$iPort = $oServer->Internal ? 2000 : $iGeneralHostPort;
+				$sPassword = 0 === strlen($sGeneralPassword) ? $oAccount->IncomingPassword : $sGeneralPassword;
+				
 				$bResult = $oSieve
-					->Connect($oAccount->IsInternal || 0 === strlen($sGeneralHost) ? $oServer->IncomingServer : $sGeneralHost, (int) $oMailModule->getConfig('SievePort', 2000), \MailSo\Net\Enumerations\ConnectionSecurityType::NONE)
-					->Login($oServer->IncomingLogin, 0 === strlen($sGeneralPassword) ? $oServer->IncomingPassword : $sGeneralPassword)
+					->Connect($sHost, $iPort, \MailSo\Net\Enumerations\ConnectionSecurityType::NONE)
+					->Login($oAccount->IncomingLogin, $sPassword)
 				;
 			}
 			else
@@ -551,10 +586,12 @@ class CApiSieveManager extends \Aurora\System\Managers\AbstractManager
 	protected function _setSieveFile($oAccount, $sText)
 	{
 		$sText = str_replace("\r", '', $sText);
-
+		$bResult = false;
+		
 		try
 		{
 			$oSieve = $this->_connectSieve($oAccount);
+			
 			if ($oSieve)
 			{
 				$oSieve->CheckScript($sText);
@@ -564,10 +601,14 @@ class CApiSieveManager extends \Aurora\System\Managers\AbstractManager
 
 				$bResult = true;
 			}
+			else
+			{
+				throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Exceptions\Errs::UserManager_AccountUpdateFailed);
+			}
 		}
 		catch (\Exception $oException)
 		{
-			$bResult = false;
+			throw $oException;
 		}
 
 		return $bResult;

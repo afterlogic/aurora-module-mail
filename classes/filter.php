@@ -33,7 +33,7 @@ class CFilter extends \Aurora\System\AbstractContainer
 	/**
 	 * @param CAccount $oAccount
 	 */
-	public function __construct(CAccount $oAccount)
+	public function __construct(\CMailAccount $oAccount)
 	{
 		parent::__construct(get_class($this));
 
