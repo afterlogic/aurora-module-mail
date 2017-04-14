@@ -68,7 +68,7 @@
 		"int"
 	],
     "SieveGeneralPassword": [
-        "sieve",
+        "",
         "string"
     ],
     "SieveFileName": [
