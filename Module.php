@@ -2329,6 +2329,37 @@ class Module extends \Aurora\System\Module\AbstractModule
 		return $mResult;
 	}
 	
+	public function GetForward($AccountID)
+	{
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
+		$mResult = false;
+		
+		$oAccount = $this->oApiAccountsManager->getAccountById((int) $AccountID);
+		
+		if ($oAccount)
+		{
+			$mResult = $this->oApiSieveManager->getForward($oAccount);
+		}
+
+		return $mResult;
+	}
+	
+	public function UpdateForward($AccountID, $Enable = "0", $Email = "")
+	{
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
+		$mResult = false;
+		
+		$oAccount = $this->oApiAccountsManager->getAccountById((int) $AccountID);
+
+		if ($oAccount && $Email !== "")
+		{
+			$mResult = $this->oApiSieveManager->setForward($oAccount, $Email, !!$Enable);
+		}
+		
+		return $mResult;
+	}
 	
 	public function EntryAutodiscover()
 	{

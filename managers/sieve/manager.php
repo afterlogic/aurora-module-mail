@@ -197,8 +197,8 @@ class CApiMailSieveManager extends \Aurora\System\Managers\AbstractManager
 		}
 		
 		return array(
-			'enabled' => $bEnabled,
-			'email' => $sForward
+			'Enable' => $bEnabled,
+			'Email' => $sForward
 		);
 	}
 
