@@ -23,6 +23,18 @@
 		false,
 		"bool"
 	],
+	"AllowFilters": [
+		false,
+		"bool"
+	],
+	"AllowForward": [
+		false,
+		"bool"
+	],
+	"AllowAutoresponder": [
+		false,
+		"bool"
+	],
 	"AllowInsertImage": [
 		true,
 		"bool"
