@@ -2573,7 +2573,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	
 	/**
 	 */
-	private function getRaw($sHash, $sAction = '')
+	public function getRaw($sHash, $sAction = '')
 	{
 		$self = $this;
 		$bDownload = true;
