@@ -2361,6 +2361,38 @@ class Module extends \Aurora\System\Module\AbstractModule
 		return $mResult;
 	}
 	
+	public function GetAutoresponder($AccountID)
+	{
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
+		$mResult = false;
+		
+		$oAccount = $this->oApiAccountsManager->getAccountById((int) $AccountID);
+		
+		if ($oAccount)
+		{
+			$mResult = $this->oApiSieveManager->getAutoresponder($oAccount);
+		}
+
+		return $mResult;
+	}
+	
+	public function UpdateAutoresponder($AccountID, $Enable = "0", $Subject = "", $Message = "")
+	{
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		
+		$mResult = false;
+		
+		$oAccount = $this->oApiAccountsManager->getAccountById((int) $AccountID);
+
+		if ($oAccount && ($Subject !== "" || $Message !== ""))
+		{
+			$mResult = $this->oApiSieveManager->setAutoresponder($oAccount, $Subject, $Message, !!$Enable);
+		}
+		
+		return $mResult;
+	}
+	
 	public function EntryAutodiscover()
 	{
 		$sInput = \file_get_contents('php://input');

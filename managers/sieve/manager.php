@@ -114,9 +114,9 @@ class CApiMailSieveManager extends \Aurora\System\Managers\AbstractManager
 		}
 
 		return array(
-			'enabled' => $bEnabled,
-			'subject' => $sSubject,
-			'body' => $sText
+			'Enable' => $bEnabled,
+			'Subject' => $sSubject,
+			'Message' => $sText
 		);
 	}
 
@@ -160,21 +160,21 @@ class CApiMailSieveManager extends \Aurora\System\Managers\AbstractManager
 	 * 
 	 * @return bool
 	 */
-	public function disableAutoresponder($oAccount)
-	{
-		$aData = $this->getAutoresponder($oAccount);
-
-		$sText = '';
-		$sSubject = '';
-
-		if ($aData && isset($aData[1], $aData[2]))
-		{
-			$sText = $aData[2];
-			$sSubject = $aData[1];
-		}
-
-		return $this->setAutoresponder($oAccount, $sText, $sSubject, false);
-	}
+//	public function disableAutoresponder($oAccount)
+//	{
+//		$aData = $this->getAutoresponder($oAccount);
+//
+//		$sText = '';
+//		$sSubject = '';
+//
+//		if ($aData && isset($aData[1], $aData[2]))
+//		{
+//			$sText = $aData[2];
+//			$sSubject = $aData[1];
+//		}
+//
+//		return $this->setAutoresponder($oAccount, $sText, $sSubject, false);
+//	}
 
 	/**
 	 * @param CAccount $oAccount
