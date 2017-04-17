@@ -307,7 +307,9 @@ class CApiMailAttachment
 
 		$sFileName = $this->getFileName(true);
 		$iEstimatedSize = $this->getEstimatedSize();
-		$iThumbnailLimit = 1024 * 1024 * 2; // 2MB //TODO
+		
+		$oSettings =& \Aurora\System\Api::GetSettings();
+		$iThumbnailLimit = ((int) $oSettings->GetConf('ThumbnailMaxFileSizeMb', 5)) * 1024 * 1024;
 
 		if (in_array($sMimeType, array('application/octet-stream')))
 		{
@@ -324,7 +326,6 @@ class CApiMailAttachment
 			'EstimatedSize' => $iEstimatedSize,
 			'CID' => $sCid,
 			'ContentLocation' => $this->getContentLocation(),
-			'Expand' =>\Aurora\System\Api::isExpandMimeTypeSupported($sMimeType, $sFileName),
 			'Iframed' =>\Aurora\System\Api::isIframedMimeTypeSupported($sMimeType, $sFileName),
 			'Content' => $this->getContent(),
 			'IsInline' => $this->isInline(),

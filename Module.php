@@ -2027,32 +2027,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 				{
 					$sUploadName = $UploadData['name'];
 					$iSize = $UploadData['size'];
-					$sMimeType = \MailSo\Base\Utils::MimeContentType($sUploadName);
-
-					$bIframed = \Aurora\System\Api::isIframedMimeTypeSupported($sMimeType, $sUploadName);
-					$sHash = \Aurora\System\Api::EncodeKeyValues(array(
-						'TempFile' => true,
-						'UserId' => $UserId,
-						'Name' => $sUploadName,
-						'TempName' => $sSavedName
-					));
-					$aActions = array(
-						'view' => array(
-							'url' => '?file-cache/' . $sHash .'/view'
-						),
-						'download' => array(
-							'url' => '?file-cache/' . $sHash
-						)
-					);
-					$aResponse['Attachment'] = array(
-						'Name' => $sUploadName,
-						'TempName' => $sSavedName,
-						'MimeType' => $sMimeType,
-						'Size' =>  (int) $iSize,
-						'Hash' => $sHash,
-						'Actions' => $aActions,
-						'ThumbnailUrl' => '?file-cache/' . $sHash .'/thumb',
-					);
+					$aResponse['Attachment'] = \Aurora\System\Utils::GetClientFileResponse($UserId, $sUploadName, $sSavedName, $iSize);
 				}
 				else
 				{
@@ -2166,28 +2141,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 				if ($this->oApiFileCache->isFileExists($sUUID, $sTempName))
 				{
-					$sHash = \Aurora\System\Api::EncodeKeyValues(array(
-						'TempFile' => true,
-						'AccountID' => $oAccount->EntityId,
-						'Name' => $FileName,
-						'TempName' => $sTempName
-					));
-					$aActions = array(
-						'view' => array(
-							'url' => '?file-cache/' . $sHash .'/view'
-						),
-						'download' => array(
-							'url' => '?file-cache/' . $sHash
-						)
-					);
-					$mResult = array(
-						'TempName' => $sTempName,
-						'Name' => $FileName,
-						'Size' => $this->oApiFileCache->fileSize($sUUID, $sTempName),
-						'MimeType' => $sMimeType,
-						'Hash' => $sHash,
-						'Actions' => $aActions
-					);					
+					$iSize = $this->oApiFileCache->fileSize($sUUID, $sTempName);
+					$mResult = \Aurora\System\Utils::GetClientFileResponse($oAccount->IdUser, $FileName, $sTempName, $iSize);
 				}
 			}
 			catch (\Exception $oException)
@@ -2658,5 +2613,5 @@ class Module extends \Aurora\System\Module\AbstractModule
 					\Aurora\System\Utils::OutputFileResource($sUUID, $sContentType, $sFileName, $rResource, $bThumbnail, $bDownload);
 				}
 			}, $sFolder, $iUid, $sMimeIndex);
-	}
+	}	
 }
