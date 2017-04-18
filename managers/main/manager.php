@@ -191,7 +191,7 @@ class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 					'Type' => $iTypeValue
 				)
 			);
-			$oSystemFolder = \CSystemFolder::createInstance($this->GetName());
+			$oSystemFolder = new \CSystemFolder($this->GetModule()->GetName());
 			
 			if (count($aEntities) > 0 && $aEntities[0] instanceof \CSystemFolder)
 			{
@@ -262,12 +262,7 @@ class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 			);
 			
 			unset($aFoldersMap[EFolderType::Inbox]);
-/*
-			if (!$oAccount->isExtensionEnabled(CAccount::SpamFolderExtension) && isset($aFoldersMap[EFolderType::Spam]))
-			{
-				unset($aFoldersMap[EFolderType::Spam]);
-			}
-*/
+			
 			$aTypes = [
 				EFolderType::Inbox, 
 				EFolderType::Drafts, 

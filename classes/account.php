@@ -25,7 +25,6 @@ class CMailAccount extends \Aurora\System\EAV\Entity
 {
 	const ChangePasswordExtension = 'AllowChangePasswordExtension';
 	const AutoresponderExtension = 'AllowAutoresponderExtension';
-	const SpamFolderExtension = 'AllowSpamFolderExtension';
 	const DisableAccountDeletion = 'DisableAccountDeletion';
 	const DisableManageFolders = 'DisableManageFolders';
 	const SieveFiltersExtension = 'AllowSieveFiltersExtension';
