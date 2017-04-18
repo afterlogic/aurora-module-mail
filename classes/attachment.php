@@ -326,7 +326,6 @@ class CApiMailAttachment
 			'EstimatedSize' => $iEstimatedSize,
 			'CID' => $sCid,
 			'ContentLocation' => $this->getContentLocation(),
-			'Iframed' =>\Aurora\System\Api::isIframedMimeTypeSupported($sMimeType, $sFileName),
 			'Content' => $this->getContent(),
 			'IsInline' => $this->isInline(),
 			'IsLinked' => (!empty($sCid) && $mFoundedCIDs && \in_array($sCid, $mFoundedCIDs)) ||
@@ -334,7 +333,6 @@ class CApiMailAttachment
 		));
 		
 		$sHash = \Aurora\System\Api::EncodeKeyValues(array(
-			'Iframed' => $mResult['Iframed'],
 			'AccountID' => $iAccountID, 
 			'Folder' => $this->getFolder(),
 			'Uid' => $this->getUid(),
