@@ -844,12 +844,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 				);
 			}
 			
-			/* TODO: broadcast of events doesn't work */
-//			$this->broadcastEvent(
-//				'ExtendMessageData', 
-//				array($oAccount, &$oMessage, $aData
-//				)
-//			);
+			$this->broadcastEvent('ExtendMessageData', $aData, $oMessage);
 		}
 
 		if (!($oMessage instanceof \CApiMailMessage))
