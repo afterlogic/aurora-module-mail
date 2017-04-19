@@ -23,16 +23,6 @@
  */
 class CMailAccount extends \Aurora\System\EAV\Entity
 {
-	const ChangePasswordExtension = 'AllowChangePasswordExtension';
-	const AutoresponderExtension = 'AllowAutoresponderExtension';
-	const DisableAccountDeletion = 'DisableAccountDeletion';
-	const DisableManageFolders = 'DisableManageFolders';
-	const SieveFiltersExtension = 'AllowSieveFiltersExtension';
-	const ForwardExtension = 'AllowForwardExtension';
-	const DisableManageSubscribe = 'DisableManageSubscribe';
-	const DisableFoldersManualSort = 'DisableFoldersManualSort';
-	const IgnoreSubscribeStatus = 'IgnoreSubscribeStatus';
-	
 	private $oServer = null;
 	
 	protected $aStaticMap = array(
@@ -73,11 +63,6 @@ class CMailAccount extends \Aurora\System\EAV\Entity
 	{
 		$oMailModule = \Aurora\System\Api::GetModule('Mail');
 		return !$oMailModule->oApiAccountsManager->useToAuthorizeAccountExists($this->Email, $this->EntityId);
-	}
-	
-	public function isExtensionEnabled($sExtention)
-	{
-		return $sExtention === CMailAccount::DisableFoldersManualSort;
 	}
 	
 	public function getDefaultTimeOffset()

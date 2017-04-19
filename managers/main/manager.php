@@ -484,12 +484,8 @@ class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 			$oFolderCollection->setNamespace($oNamespace->GetPersonalNamespace());
 		}
 
-		$aFoldersOrderList = null;
-		if (true/*!$oAccount->isExtensionEnabled(CMailAccount::DisableFoldersManualSort)*/)
-		{
-			$aFoldersOrderList = $this->getFoldersOrder($oAccount);
-			$aFoldersOrderList = is_array($aFoldersOrderList) && 0 < count($aFoldersOrderList) ? $aFoldersOrderList : null;
-		}
+		$aFoldersOrderList = $this->getFoldersOrder($oAccount);
+		$aFoldersOrderList = is_array($aFoldersOrderList) && 0 < count($aFoldersOrderList) ? $aFoldersOrderList : null;
 
 		$oFolderCollection->sort(function ($oFolderA, $oFolderB) use ($aFoldersOrderList) {
 
@@ -526,8 +522,7 @@ class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 			return strnatcmp(strtolower($oFolderA->getFullName()), strtolower($oFolderB->getFullName()));
 		});
 
-		if (null === $aFoldersOrderList &&
-			!$oAccount->isExtensionEnabled(CMailAccount::DisableFoldersManualSort))
+		if (null === $aFoldersOrderList)
 		{
 			$aNewFoldersOrderList = array();
 			$oFolderCollection->foreachWithSubFolders(function (/* @var $oFolder CApiMailFolder */ $oFolder) use (&$aNewFoldersOrderList) {

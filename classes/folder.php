@@ -354,7 +354,7 @@ class CApiMailFolder
 			'FullNameRaw' => $this->getRawFullName(),
 			'FullNameHash' => md5($this->getRawFullName()),
 			'Delimiter' => $this->getDelimiter(),
-			'IsSubscribed' => /*$oAccount->isExtensionEnabled(\CAccount::IgnoreSubscribeStatus) ? true : */$this->isSubscribed(),
+			'IsSubscribed' => $this->isSubscribed(),
 			'IsSelectable' => $this->isSelectable(),
 			'Exists' => $this->exists(),
 			'Extended' => $aExtended,

@@ -521,41 +521,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	
 	/**
 	 * @param int $AccountID
-	 * @return array | boolean
-	 */
-	public function GetExtensions($AccountID)
-	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
-		
-		$mResult = false;
-		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
-		if ($oAccount)
-		{
-			$mResult = array();
-			$mResult['Extensions'] = array();
-
-			// extensions
-//			if ($oAccount->isExtensionEnabled(\CMailAccount::IgnoreSubscribeStatus) &&
-//				!$oAccount->isExtensionEnabled(\CMailAccount::DisableManageSubscribe))
-//			{
-//				$oAccount->enableExtension(\CMailAccount::DisableManageSubscribe);
-//			}
-//
-//			$aExtensions = $oAccount->getExtensionList();
-//			foreach ($aExtensions as $sExtensionName)
-//			{
-//				if ($oAccount->isExtensionEnabled($sExtensionName))
-//				{
-//					$mResult['Extensions'][] = $sExtensionName;
-//				}
-//			}
-		}
-
-		return $mResult;
-	}
-	
-	/**
-	 * @param int $AccountID
 	 * @return array
 	 */
 	public function GetFolders($AccountID)
@@ -1056,49 +1021,46 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		$this->oApiMailManager->createFolder($oAccount, $FolderNameInUtf8, $Delimiter, $FolderParentFullNameRaw);
 
-		if (!$oAccount->isExtensionEnabled(\CMailAccount::DisableFoldersManualSort))
+		$aFoldersOrderList = $this->oApiMailManager->getFoldersOrder($oAccount);
+		if (\is_array($aFoldersOrderList) && 0 < \count($aFoldersOrderList))
 		{
-			$aFoldersOrderList = $this->oApiMailManager->getFoldersOrder($oAccount);
-			if (\is_array($aFoldersOrderList) && 0 < \count($aFoldersOrderList))
-			{
-				$aFoldersOrderListNew = $aFoldersOrderList;
+			$aFoldersOrderListNew = $aFoldersOrderList;
 
-				$sFolderNameInUtf7Imap = \MailSo\Base\Utils::ConvertEncoding($FolderNameInUtf8,
-					\MailSo\Base\Enumerations\Charset::UTF_8,
-					\MailSo\Base\Enumerations\Charset::UTF_7_IMAP);
+			$sFolderNameInUtf7Imap = \MailSo\Base\Utils::ConvertEncoding($FolderNameInUtf8,
+				\MailSo\Base\Enumerations\Charset::UTF_8,
+				\MailSo\Base\Enumerations\Charset::UTF_7_IMAP);
 
-				$sFolderFullNameRaw = (0 < \strlen($FolderParentFullNameRaw) ? $FolderParentFullNameRaw.$Delimiter : '').
-					$sFolderNameInUtf7Imap;
+			$sFolderFullNameRaw = (0 < \strlen($FolderParentFullNameRaw) ? $FolderParentFullNameRaw.$Delimiter : '').
+				$sFolderNameInUtf7Imap;
 
-				$sFolderFullNameUtf8 = \MailSo\Base\Utils::ConvertEncoding($sFolderFullNameRaw,
+			$sFolderFullNameUtf8 = \MailSo\Base\Utils::ConvertEncoding($sFolderFullNameRaw,
+				\MailSo\Base\Enumerations\Charset::UTF_7_IMAP,
+				\MailSo\Base\Enumerations\Charset::UTF_8);
+
+			$aFoldersOrderListNew[] = $sFolderFullNameRaw;
+
+			$aFoldersOrderListUtf8 = \array_map(function ($sValue) {
+				return \MailSo\Base\Utils::ConvertEncoding($sValue,
 					\MailSo\Base\Enumerations\Charset::UTF_7_IMAP,
 					\MailSo\Base\Enumerations\Charset::UTF_8);
+			}, $aFoldersOrderListNew);
 
-				$aFoldersOrderListNew[] = $sFolderFullNameRaw;
+			\usort($aFoldersOrderListUtf8, 'strnatcasecmp');
 
-				$aFoldersOrderListUtf8 = \array_map(function ($sValue) {
-					return \MailSo\Base\Utils::ConvertEncoding($sValue,
-						\MailSo\Base\Enumerations\Charset::UTF_7_IMAP,
-						\MailSo\Base\Enumerations\Charset::UTF_8);
-				}, $aFoldersOrderListNew);
+			$iKey = \array_search($sFolderFullNameUtf8, $aFoldersOrderListUtf8, true);
+			if (\is_int($iKey) && 0 < $iKey && isset($aFoldersOrderListUtf8[$iKey - 1]))
+			{
+				$sUpperName = $aFoldersOrderListUtf8[$iKey - 1];
 
-				\usort($aFoldersOrderListUtf8, 'strnatcasecmp');
-				
-				$iKey = \array_search($sFolderFullNameUtf8, $aFoldersOrderListUtf8, true);
-				if (\is_int($iKey) && 0 < $iKey && isset($aFoldersOrderListUtf8[$iKey - 1]))
+				$iUpperKey = \array_search(\MailSo\Base\Utils::ConvertEncoding($sUpperName,
+					\MailSo\Base\Enumerations\Charset::UTF_8,
+					\MailSo\Base\Enumerations\Charset::UTF_7_IMAP), $aFoldersOrderList, true);
+
+				if (\is_int($iUpperKey) && isset($aFoldersOrderList[$iUpperKey]))
 				{
-					$sUpperName = $aFoldersOrderListUtf8[$iKey - 1];
-
-					$iUpperKey = \array_search(\MailSo\Base\Utils::ConvertEncoding($sUpperName,
-						\MailSo\Base\Enumerations\Charset::UTF_8,
-						\MailSo\Base\Enumerations\Charset::UTF_7_IMAP), $aFoldersOrderList, true);
-
-					if (\is_int($iUpperKey) && isset($aFoldersOrderList[$iUpperKey]))
-					{
-						\Aurora\System\Api::Log('insert order index:'.$iUpperKey);
-						\array_splice($aFoldersOrderList, $iUpperKey + 1, 0, $sFolderFullNameRaw);
-						$this->oApiMailManager->updateFoldersOrder($oAccount, $aFoldersOrderList);
-					}
+					\Aurora\System\Api::Log('insert order index:'.$iUpperKey);
+					\array_splice($aFoldersOrderList, $iUpperKey + 1, 0, $sFolderFullNameRaw);
+					$this->oApiMailManager->updateFoldersOrder($oAccount, $aFoldersOrderList);
 				}
 			}
 		}
@@ -1172,13 +1134,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 
-		if (!$oAccount->isExtensionEnabled(\CMailAccount::DisableManageSubscribe))
-		{
-			$this->oApiMailManager->subscribeFolder($oAccount, $Folder, $SetAction);
-			return true;
-		}
-
-		return false;
+		$this->oApiMailManager->subscribeFolder($oAccount, $Folder, $SetAction);
+		
+		return true;
 	}	
 	
 	/**
@@ -1197,10 +1155,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
-		if (!$oAccount->isExtensionEnabled(\CMailAccount::DisableFoldersManualSort))
-		{
-			return false;
-		}
 
 		return $this->oApiMailManager->updateFoldersOrder($oAccount, $FolderList);
 	}
@@ -2280,7 +2234,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 					}
 				}
 			}
-
 			
 			$mResult = $this->oApiSieveManager->updateSieveFilters($oAccount, $aFilters);
 		}
