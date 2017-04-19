@@ -2226,11 +2226,12 @@ class Module extends \Aurora\System\Module\AbstractModule
 	/**
 	 * This method will trigger some event, subscribers of which perform all change password process
 	 * 
-	 * @param type $CurrentPassword
-	 * @param type $NewPassword
+	 * @param int $AccountId
+	 * @param string $CurrentPassword
+	 * @param string $NewPassword
 	 * @return boolean
 	 */
-	public function ChangePassword($CurrentPassword, $NewPassword)
+	public function ChangePassword($AccountId, $CurrentPassword, $NewPassword)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
