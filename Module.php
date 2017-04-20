@@ -214,6 +214,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		if ($Email)
 		{
+			$bCustomServerCreated = false;
 			$iServerId = $Server['ServerId'];
 			if ($Server !== null && $iServerId === 0)
 			{
@@ -228,6 +229,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 					$Server['OutgoingUseAuth'],
 					$Server['Domains'] = $sDomains
 				);
+				
+				$bCustomServerCreated = true;
 			}
 
 			$oAccount = new \CMailAccount($this->GetName());
@@ -255,7 +258,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			{
 				return $oAccount;
 			}
-			else
+			else if ($bCustomServerCreated)
 			{
 				$this->oApiServersManager->deleteServer($iServerId);
 			}
