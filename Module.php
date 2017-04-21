@@ -58,7 +58,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$this->oApiSieveManager = $this->GetManager('sieve');
 		
 		$this->extendObject('CUser', array(
-				'AllowAutosaveInDrafts'	=> array('bool', true),
+				'AllowAutosaveInDrafts'	=> array('bool', (bool)$this->getConfig('AllowAutosaveInDrafts', false)),
 				'UseThreads'			=> array('bool', true),
 			)
 		);
@@ -106,7 +106,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$aSettings = array(
 			'Accounts' => array(),
 			'AllowAddAccounts' => $this->getConfig('AllowAddAccounts', false),
-			'AllowAutosaveInDrafts' => $this->getConfig('AllowAutosaveInDrafts', false),
+			'AllowAutosaveInDrafts' => (bool)$this->getConfig('AllowAutosaveInDrafts', false),
 			'AllowChangeEmailSettings' => $this->getConfig('AllowChangeEmailSettings', false),
 			'AllowFetchers' => $this->getConfig('AllowFetchers', false),
 			'AllowIdentities' => $this->getConfig('AllowIdentities', false),
@@ -146,7 +146,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		return $aSettings;
 	}
 	
-	public function UpdateSettings($UseThreads)
+	public function UpdateSettings($UseThreads, $AllowAutosaveInDrafts)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
@@ -157,6 +157,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			{
 				$oCoreDecorator = \Aurora\System\Api::GetModuleDecorator('Core');
 				$oUser->{$this->GetName().'::UseThreads'} = $UseThreads;
+				$oUser->{$this->GetName().'::AllowAutosaveInDrafts'} = $AllowAutosaveInDrafts;
 				return $oCoreDecorator->UpdateUserObject($oUser);
 			}
 			if ($oUser->Role === \EUserRole::SuperAdmin)
