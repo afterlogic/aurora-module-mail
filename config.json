@@ -20,7 +20,7 @@
 		"bool"
 	],
 	"AllowIdentities": [
-		false,
+		true,
 		"bool"
 	],
 	"AllowFilters": [
@@ -40,7 +40,7 @@
 		"bool"
 	],
 	"AllowThreads": [
-		false,
+		true,
 		"bool"
 	],
 	"AllowZipAttachments": [
@@ -104,7 +104,7 @@
         "string"
     ],
     "AllowNewUsersRegister": [
-        true,
+        false,
         "bool"
     ]	
 }
