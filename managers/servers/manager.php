@@ -51,7 +51,7 @@ class CApiMailServersManager extends \Aurora\System\Managers\AbstractManager
 	 * @param boolean $bOutgoingUseSsl
 	 * @param boolean $bOutgoingUseAuth
 	 * @param int $iTenantId
-	 * @return boolean
+	 * @return int|boolean
 	 * @throws \Aurora\System\Exceptions\ManagerException
 	 */
 	public function createServer($sName, $sIncomingServer, $iIncomingPort, $bIncomingUseSsl,
