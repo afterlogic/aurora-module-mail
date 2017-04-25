@@ -1196,7 +1196,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * Saves message to Drafts folder.
 	 * @param int $AccountID Account identifier.
 	 * @param string $FetcherID Fetcher identifier.
-	 * @param string $IdentityID Identity identifier.
+	 * @param int $IdentityID Identity identifier.
 	 * @param array $DraftInfo Array ($sType, $sUid, $sFolder) where $sType - reply or forward type, $sUid - uid of message that was an original one, $sFolder - full name of folder which cintains the original.
 	 * @param string $DraftUid Uid of message to save in Drafts folder.
 	 * @param string $To Message recipients.
@@ -1215,7 +1215,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @return bool
 	 * @throws \System\Exceptions\AuroraApiException
 	 */
-	public function SaveMessage($AccountID, $FetcherID = "", $IdentityID = "", 
+	public function SaveMessage($AccountID, $FetcherID = "", $IdentityID = 0, 
 			$DraftInfo = [], $DraftUid = "", $To = "", $Cc = "", $Bcc = "", 
 			$Subject = "", $Text = "", $IsHtml = false, $Importance = \MailSo\Mime\Enumerations\MessagePriority::NORMAL, 
 			$SendReadingConfirmation = false, $Attachments = array(), $InReplyTo = "", 
@@ -1252,12 +1252,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			}
 		}
 
-		$oIdentity = null;
-//		if (!empty($IdentityID) && \is_numeric($IdentityID) && 0 < (int) $IdentityID)
-//		{
-//			$oApiUsers = \Aurora\System\Api::GetSystemManager('users');
-//			$oIdentity = $oApiUsers->getIdentity((int) $IdentityID);
-//		}
+		$oIdentity = $IdentityID !== 0 ? $this->oApiIdentitiesManager->getIdentity($IdentityID) : null;
 
 		$oMessage = $this->buildMessage($oAccount, $To, $Cc, $Bcc, 
 			$Subject, $IsHtml, $Text, $Attachments, $DraftInfo, $InReplyTo, $References, $Importance,
@@ -1282,7 +1277,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * 
 	 * @param int $AccountID
 	 * @param string $FetcherID
-	 * @param string $IdentityID
+	 * @param int $IdentityID
 	 * @param array $DraftInfo
 	 * @param string $DraftUid
 	 * @param string $To
@@ -1302,7 +1297,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @return bool
 	 * @throws \System\Exceptions\AuroraApiException
 	 */
-	public function SendMessage($AccountID, $FetcherID = "", $IdentityID = "", 
+	public function SendMessage($AccountID, $FetcherID = "", $IdentityID = 0, 
 			$DraftInfo = [], $DraftUid = "", $To = "", $Cc = "", $Bcc = "", 
 			$Subject = "", $Text = "", $IsHtml = false, $Importance = \MailSo\Mime\Enumerations\MessagePriority::NORMAL, 
 			$SendReadingConfirmation = false, $Attachments = array(), $InReplyTo = "", 
@@ -1331,12 +1326,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			}
 		}
 
-		$oIdentity = null;
-//		$oApiUsers = \Aurora\System\Api::GetSystemManager('users');
-//		if ($oApiUsers && !empty($IdentityID) && \is_numeric($IdentityID) && 0 < (int) $IdentityID)
-//		{
-//			$oIdentity = $oApiUsers->getIdentity((int) $IdentityID);
-//		}
+		$oIdentity = $IdentityID !== 0 ? $this->oApiIdentitiesManager->getIdentity($IdentityID) : null;
 
 		$oMessage = $this->buildMessage($oAccount, $To, $Cc, $Bcc, 
 			$Subject, $IsHtml, $Text, $Attachments, $DraftInfo, $InReplyTo, $References, $Importance,
