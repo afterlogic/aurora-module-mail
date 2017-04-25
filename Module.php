@@ -1197,17 +1197,17 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param int $AccountID Account identifier.
 	 * @param string $FetcherID Fetcher identifier.
 	 * @param string $IdentityID Identity identifier.
-	 * @param array $DraftInfo 
-	 * @param string $DraftUid
-	 * @param string $To
-	 * @param string $Cc
-	 * @param string $Bcc
-	 * @param string $Subject
-	 * @param string $Text
-	 * @param bool $IsHtml
-	 * @param int $Importance
-	 * @param bool $SendReadingConfirmation
-	 * @param array $Attachments
+	 * @param array $DraftInfo Array ($sType, $sUid, $sFolder) where $sType - reply or forward type, $sUid - uid of message that was an original one, $sFolder - full name of folder which cintains the original.
+	 * @param string $DraftUid Uid of message to save in Drafts folder.
+	 * @param string $To Message recipients.
+	 * @param string $Cc Recipients which will get a copy of the message.
+	 * @param string $Bcc Recipients which will get a hidden copy of the message.
+	 * @param string $Subject Subject of the message.
+	 * @param string $Text Text of the message.
+	 * @param bool $IsHtml Indicates if text of the message is html or plain.
+	 * @param int $Importance Importance of the message - LOW = 5, NORMAL = 3, HIGH = 1.
+	 * @param bool $SendReadingConfirmation Indicates if it is necessary to include header that says
+	 * @param array $Attachments List of attachments.
 	 * @param string $InReplyTo
 	 * @param string $References
 	 * @param int $Sensitivity
@@ -1217,7 +1217,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function SaveMessage($AccountID, $FetcherID = "", $IdentityID = "", 
 			$DraftInfo = [], $DraftUid = "", $To = "", $Cc = "", $Bcc = "", 
-			$Subject = "", $Text = "", $IsHtml = false, $Importance = 1, 
+			$Subject = "", $Text = "", $IsHtml = false, $Importance = \MailSo\Mime\Enumerations\MessagePriority::NORMAL, 
 			$SendReadingConfirmation = false, $Attachments = array(), $InReplyTo = "", 
 			$References = "", $Sensitivity = 0, $DraftFolder = "")
 	{
@@ -1304,7 +1304,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function SendMessage($AccountID, $FetcherID = "", $IdentityID = "", 
 			$DraftInfo = [], $DraftUid = "", $To = "", $Cc = "", $Bcc = "", 
-			$Subject = "", $Text = "", $IsHtml = false, $Importance = 1, 
+			$Subject = "", $Text = "", $IsHtml = false, $Importance = \MailSo\Mime\Enumerations\MessagePriority::NORMAL, 
 			$SendReadingConfirmation = false, $Attachments = array(), $InReplyTo = "", 
 			$References = "", $Sensitivity = 0, $SentFolder = "", $DraftFolder = "")
 	{
@@ -1578,7 +1578,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param array $aDraftInfo
 	 * @param string $sInReplyTo
 	 * @param string $sReferences
-	 * @param string $sImportance
+	 * @param int $iImportance
 	 * @param string $sSensitivity
 	 * @param bool $bSendReadingConfirmation
 	 * @param \CFetcher $oFetcher
@@ -1588,7 +1588,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	private function buildMessage($oAccount, $sTo = '', $sCc = '', $sBcc = '', 
 			$sSubject = '', $bTextIsHtml = false, $sText = '', $aAttachments = null, 
-			$aDraftInfo = null, $sInReplyTo = '', $sReferences = '', $sImportance = '',
+			$aDraftInfo = null, $sInReplyTo = '', $sReferences = '', $iImportance = '',
 			$sSensitivity = '', $bSendReadingConfirmation = false,
 			$oFetcher = null, $bWithDraftInfo = true, $oIdentity = null)
 	{
@@ -1652,13 +1652,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$oMessage->SetReferences($sReferences);
 		}
 		
-		if (0 < \strlen($sImportance) && \in_array((int) $sImportance, array(
+		if (\in_array($iImportance, array(
 			\MailSo\Mime\Enumerations\MessagePriority::HIGH,
 			\MailSo\Mime\Enumerations\MessagePriority::NORMAL,
 			\MailSo\Mime\Enumerations\MessagePriority::LOW
 		)))
 		{
-			$oMessage->SetPriority((int) $sImportance);
+			$oMessage->SetPriority($iImportance);
 		}
 
 		if (0 < \strlen($sSensitivity) && \in_array((int) $sSensitivity, array(
