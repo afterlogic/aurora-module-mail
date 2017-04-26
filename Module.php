@@ -1208,10 +1208,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param int $Importance Importance of the message - LOW = 5, NORMAL = 3, HIGH = 1.
 	 * @param bool $SendReadingConfirmation Indicates if it is necessary to include header that says
 	 * @param array $Attachments List of attachments.
-	 * @param string $InReplyTo
-	 * @param string $References
-	 * @param int $Sensitivity
-	 * @param string $DraftFolder
+	 * @param string $InReplyTo Value of In-Reply-To header in message.
+	 * @param string $References Value of References header in message.
+	 * @param int $Sensitivity Value of Sensitivity header in message.
+	 * @param string $DraftFolder Full name of Drafts folder.
 	 * @return bool
 	 * @throws \System\Exceptions\AuroraApiException
 	 */
@@ -1219,7 +1219,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$DraftInfo = [], $DraftUid = "", $To = "", $Cc = "", $Bcc = "", 
 			$Subject = "", $Text = "", $IsHtml = false, $Importance = \MailSo\Mime\Enumerations\MessagePriority::NORMAL, 
 			$SendReadingConfirmation = false, $Attachments = array(), $InReplyTo = "", 
-			$References = "", $Sensitivity = 0, $DraftFolder = "")
+			$References = "", $Sensitivity = \MailSo\Mime\Enumerations\Sensitivity::NOTHING, $DraftFolder = "")
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
@@ -1274,26 +1274,28 @@ class Module extends \Aurora\System\Module\AbstractModule
 	}	
 	
 	/**
-	 * 
-	 * @param int $AccountID
-	 * @param string $FetcherID
-	 * @param int $IdentityID
-	 * @param array $DraftInfo
-	 * @param string $DraftUid
-	 * @param string $To
-	 * @param string $Cc
-	 * @param string $Bcc
-	 * @param string $Subject
-	 * @param string $Text
-	 * @param bool $IsHtml
-	 * @param int $Importance
-	 * @param bool $SendReadingConfirmation
-	 * @param array $Attachments
-	 * @param string $InReplyTo
-	 * @param string $References
-	 * @param int $Sensitivity
-	 * @param string $SentFolder
-	 * @param string $DraftFolder
+	 * Sends message.
+	 * @param int $AccountID Account identifier.
+	 * @param string $FetcherID Fetcher identifier.
+	 * @param int $IdentityID Identity identifier.
+	 * @param array $DraftInfo Array ($sType, $sUid, $sFolder) where $sType - reply or forward type, $sUid - uid of message that was an original one, $sFolder - full name of folder which cintains the original.
+	 * @param string $DraftUid Uid of message to save in Drafts folder.
+	 * @param string $To Message recipients.
+	 * @param string $Cc Recipients which will get a copy of the message.
+	 * @param string $Bcc Recipients which will get a hidden copy of the message.
+	 * @param string $Subject Subject of the message.
+	 * @param string $Text Text of the message.
+	 * @param bool $IsHtml Indicates if text of the message is html or plain.
+	 * @param int $Importance Importance of the message - LOW = 5, NORMAL = 3, HIGH = 1.
+	 * @param bool $SendReadingConfirmation Indicates if it is necessary to include header that says
+	 * @param array $Attachments List of attachments.
+	 * @param string $InReplyTo Value of In-Reply-To header in message.
+	 * @param string $References Value of References header in message.
+	 * @param int $Sensitivity Value of Sensitivity header in message.
+	 * @param string $SentFolder Full name of Sent folder.
+	 * @param string $DraftFolder Full name of Drafts folder.
+	 * @param string $ConfirmFolder
+	 * @param string $ConfirmUid
 	 * @return bool
 	 * @throws \System\Exceptions\AuroraApiException
 	 */
@@ -1301,7 +1303,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$DraftInfo = [], $DraftUid = "", $To = "", $Cc = "", $Bcc = "", 
 			$Subject = "", $Text = "", $IsHtml = false, $Importance = \MailSo\Mime\Enumerations\MessagePriority::NORMAL, 
 			$SendReadingConfirmation = false, $Attachments = array(), $InReplyTo = "", 
-			$References = "", $Sensitivity = 0, $SentFolder = "", $DraftFolder = "")
+			$References = "", $Sensitivity = \MailSo\Mime\Enumerations\Sensitivity::NOTHING, $SentFolder = "",
+			$DraftFolder = "", $ConfirmFolder = "", $ConfirmUid = "")
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
@@ -1402,443 +1405,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 				}
 				catch (\Exception $oException) {}
 			}
-		}
-
-		\Aurora\System\Api::LogEvent('message-send: ' . $oAccount->Email, $this->GetName());
-		return $mResult;
-	}
-	/***** public functions might be called with web API *****/
-	
-	/***** private functions *****/
-	/**
-	 * Deletes all mail accounts which are belonged to the specified user.
-	 * Called from subscribed event.
-	 * @ignore
-	 * @param array $aArgs
-	 * @param int $iUserId User identifier.
-	 */
-	public function onAfterDeleteUser($aArgs, &$iUserId)
-	{
-		$mResult = $this->oApiAccountsManager->getUserAccounts($iUserId);
-		
-		if (\is_array($mResult))
-		{
-			foreach($mResult as $oItem)
-			{
-				$this->DeleteAccount($oItem->EntityId);
-			}
-		}
-	}
-	
-	/**
-	 * Attempts to authorize user via mail account with specified credentials.
-	 * Called from subscribed event.
-	 * @ignore
-	 * @param array $aArgs Credentials.
-	 * @param array|boolean $mResult List of results values.
-	 * @return boolean
-	 */
-	public function onLogin($aArgs, &$mResult)
-	{
-		$bResult = false;
-		$oServer = null;
-		
-		$oAccount = $this->oApiAccountsManager->getUseToAuthorizeAccount(
-			$aArgs['Login'], 
-			$aArgs['Password']
-		);
-
-		if (!$oAccount)
-		{
-			$sEmail = $aArgs['Login'];
-			$sDomain = \MailSo\Base\Utils::GetDomainFromEmail($sEmail);
-			$oServer = $this->oApiServersManager->GetServerByDomain(strtolower($sDomain));
-			if ($oServer)
-			{
-				$oAccount = \Aurora\System\EAV\Entity::createInstance('CMailAccount', $this->GetName());
-				$oAccount->Email = $aArgs['Login'];
-				$oAccount->IncomingLogin = $aArgs['Login'];
-				$oAccount->IncomingPassword = $aArgs['Password'];
-				$oAccount->ServerId = $oServer->EntityId;
-			}
-		}
-		if ($oAccount instanceof \CMailAccount)
-		{
-			try
-			{
-				$this->oApiMailManager->validateAccountConnection($oAccount);
-				
-				$bResult =  true;
-
-				$bAllowNewUsersRegister = $this->getConfig('AllowNewUsersRegister', false);
-				
-				if ($oServer && $bAllowNewUsersRegister)
-				{
-					$oAccount = $this->GetDecorator()->CreateAccount(
-						0, 
-						$sEmail, 
-						$sEmail, 
-						$aArgs['Login'],
-						$aArgs['Password'], 
-						array('ServerId' => $oServer->EntityId)
-					);
-					if ($oAccount)
-					{
-						$oAccount->UseToAuthorize = true;
-						$this->oApiAccountsManager->UpdateAccount($oAccount);
-					}
-					else
-					{
-						$bResult = false;
-					}
-				}
-				
-				$mResult = array(
-					'token' => 'auth',
-					'sign-me' => $aArgs['SignMe'],
-					'id' => $oAccount->IdUser,
-					'account' => $oAccount->EntityId
-				);
-			}
-			catch (\Exception $oEx) {}
-		}			
-
-		return $bResult;
-	}
-	
-	/**
-	 * Puts on or off some flag of message.
-	 * @param int $AccountID account identifier.
-	 * @param string $sFolderFullNameRaw Folder full name.
-	 * @param string $sUids List of messages' uids.
-	 * @param boolean $bSetAction Indicates if flag should be set or removed.
-	 * @param string $sFlagName Name of message flag.
-	 * @return boolean
-	 * @throws \Aurora\System\Exceptions\ApiException
-	 */
-	private function setMessageFlag($AccountID, $sFolderFullNameRaw, $sUids, $bSetAction, $sFlagName)
-	{
-		$aUids = \Aurora\System\Utils::ExplodeIntUids((string) $sUids);
-
-		if (0 === \strlen(\trim($sFolderFullNameRaw)) || !\is_array($aUids) || 0 === \count($aUids))
-		{
-			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
-		}
-
-		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
-
-		return $this->oApiMailManager->setMessageFlag($oAccount, $sFolderFullNameRaw, $aUids, $sFlagName,
-			$bSetAction ? \EMailMessageStoreAction::Add : \EMailMessageStoreAction::Remove);
-	}
-	
-	/**
-	 * When using a memory stream and the read
-	 * filter "convert.base64-encode" the last 
-	 * character is missing from the output if 
-	 * the base64 conversion needs padding bytes. 
-	 * @param string $sRaw
-	 * @return string
-	 */
-	private function fixBase64EncodeOmitsPaddingBytes($sRaw)
-	{
-		$rStream = \fopen('php://memory','r+');
-		\fwrite($rStream, '0');
-		\rewind($rStream);
-		$rFilter = \stream_filter_append($rStream, 'convert.base64-encode');
-		
-		if (0 === \strlen(\stream_get_contents($rStream)))
-		{
-			$iFileSize = \strlen($sRaw);
-			$sRaw = \str_pad($sRaw, $iFileSize + ($iFileSize % 3));
-		}
-		
-		return $sRaw;
-	}	
-	
-	/**
-	 * Builds message fo further sending or saving.
-	 * @param \CAccount $oAccount
-	 * @param string $sTo
-	 * @param string $sCc
-	 * @param string $sBcc
-	 * @param string $sSubject
-	 * @param bool $bTextIsHtml
-	 * @param string $sText
-	 * @param array $aAttachments
-	 * @param array $aDraftInfo
-	 * @param string $sInReplyTo
-	 * @param string $sReferences
-	 * @param int $iImportance
-	 * @param string $sSensitivity
-	 * @param bool $bSendReadingConfirmation
-	 * @param \CFetcher $oFetcher
-	 * @param bool $bWithDraftInfo
-	 * @param \CIdentity $oIdentity
-	 * @return \MailSo\Mime\Message
-	 */
-	private function buildMessage($oAccount, $sTo = '', $sCc = '', $sBcc = '', 
-			$sSubject = '', $bTextIsHtml = false, $sText = '', $aAttachments = null, 
-			$aDraftInfo = null, $sInReplyTo = '', $sReferences = '', $iImportance = '',
-			$sSensitivity = '', $bSendReadingConfirmation = false,
-			$oFetcher = null, $bWithDraftInfo = true, $oIdentity = null)
-	{
-		$oMessage = \MailSo\Mime\Message::NewInstance();
-		$oMessage->RegenerateMessageId();
-		
-		$sUUID = \Aurora\System\Api::getUserUUIDById($oAccount->IdUser);
-
-		$sXMailer = $this->getConfig('XMailerValue', '');
-		if (0 < \strlen($sXMailer))
-		{
-			$oMessage->SetXMailer($sXMailer);
-		}
-
-		if ($oIdentity)
-		{
-			$oFrom = \MailSo\Mime\Email::NewInstance($oIdentity->Email, $oIdentity->FriendlyName);
-		}
-		else
-		{
-			$oFrom = $oFetcher
-				? \MailSo\Mime\Email::NewInstance($oFetcher->Email, $oFetcher->Name)
-				: \MailSo\Mime\Email::NewInstance($oAccount->Email, $oAccount->FriendlyName);
-		}
-
-		$oMessage
-			->SetFrom($oFrom)
-			->SetSubject($sSubject)
-		;
-
-		$oToEmails = \MailSo\Mime\EmailCollection::NewInstance($sTo);
-		if ($oToEmails && $oToEmails->Count())
-		{
-			$oMessage->SetTo($oToEmails);
-		}
-
-		$oCcEmails = \MailSo\Mime\EmailCollection::NewInstance($sCc);
-		if ($oCcEmails && $oCcEmails->Count())
-		{
-			$oMessage->SetCc($oCcEmails);
-		}
-
-		$oBccEmails = \MailSo\Mime\EmailCollection::NewInstance($sBcc);
-		if ($oBccEmails && $oBccEmails->Count())
-		{
-			$oMessage->SetBcc($oBccEmails);
-		}
-
-		if ($bWithDraftInfo && \is_array($aDraftInfo) && !empty($aDraftInfo[0]) && !empty($aDraftInfo[1]) && !empty($aDraftInfo[2]))
-		{
-			$oMessage->SetDraftInfo($aDraftInfo[0], $aDraftInfo[1], $aDraftInfo[2]);
-		}
-
-		if (0 < \strlen($sInReplyTo))
-		{
-			$oMessage->SetInReplyTo($sInReplyTo);
-		}
-
-		if (0 < \strlen($sReferences))
-		{
-			$oMessage->SetReferences($sReferences);
-		}
-		
-		if (\in_array($iImportance, array(
-			\MailSo\Mime\Enumerations\MessagePriority::HIGH,
-			\MailSo\Mime\Enumerations\MessagePriority::NORMAL,
-			\MailSo\Mime\Enumerations\MessagePriority::LOW
-		)))
-		{
-			$oMessage->SetPriority($iImportance);
-		}
-
-		if (0 < \strlen($sSensitivity) && \in_array((int) $sSensitivity, array(
-			\MailSo\Mime\Enumerations\Sensitivity::NOTHING,
-			\MailSo\Mime\Enumerations\Sensitivity::CONFIDENTIAL,
-			\MailSo\Mime\Enumerations\Sensitivity::PRIVATE_,
-			\MailSo\Mime\Enumerations\Sensitivity::PERSONAL,
-		)))
-		{
-			$oMessage->SetSensitivity((int) $sSensitivity);
-		}
-
-		if ($bSendReadingConfirmation)
-		{
-			$oMessage->SetReadConfirmation($oFetcher ? $oFetcher->Email : $oAccount->Email);
-		}
-
-		$aFoundCids = array();
-
-		if ($bTextIsHtml)
-		{
-			$sTextConverted = \MailSo\Base\HtmlUtils::ConvertHtmlToPlain($sText);
-			$oMessage->AddText($sTextConverted, false);
-		}
-
-		$mFoundDataURL = array();
-		$aFoundedContentLocationUrls = array();
-
-		$sTextConverted = $bTextIsHtml ? 
-			\MailSo\Base\HtmlUtils::BuildHtml($sText, $aFoundCids, $mFoundDataURL, $aFoundedContentLocationUrls) : $sText;
-		
-		$oMessage->AddText($sTextConverted, $bTextIsHtml);
-
-		if (\is_array($aAttachments))
-		{
-			foreach ($aAttachments as $sTempName => $aData)
-			{
-				if (\is_array($aData) && isset($aData[0], $aData[1], $aData[2], $aData[3]))
-				{
-					$sFileName = (string) $aData[0];
-					$sCID = (string) $aData[1];
-					$bIsInline = '1' === (string) $aData[2];
-					$bIsLinked = '1' === (string) $aData[3];
-					$sContentLocation = isset($aData[4]) ? (string) $aData[4] : '';
-
-					$rResource = $this->oApiFileCache->getFile($sUUID, $sTempName);
-					if (\is_resource($rResource))
-					{
-						$iFileSize = $this->oApiFileCache->fileSize($sUUID, $sTempName);
-
-						$sCID = \trim(\trim($sCID), '<>');
-						$bIsFounded = 0 < \strlen($sCID) ? \in_array($sCID, $aFoundCids) : false;
-
-						if (!$bIsLinked || $bIsFounded)
-						{
-							$oMessage->Attachments()->Add(
-								\MailSo\Mime\Attachment::NewInstance($rResource, $sFileName, $iFileSize, $bIsInline,
-									$bIsLinked, $bIsLinked ? '<'.$sCID.'>' : '', array(), $sContentLocation)
-							);
-						}
-					}
-				}
-			}
-		}
-
-		if ($mFoundDataURL && \is_array($mFoundDataURL) && 0 < \count($mFoundDataURL))
-		{
-			foreach ($mFoundDataURL as $sCidHash => $sDataUrlString)
-			{
-				$aMatch = array();
-				$sCID = '<'.$sCidHash.'>';
-				if (\preg_match('/^data:(image\/[a-zA-Z0-9]+\+?[a-zA-Z0-9]+);base64,(.+)$/i', $sDataUrlString, $aMatch) &&
-					!empty($aMatch[1]) && !empty($aMatch[2]))
-				{
-					$sRaw = \MailSo\Base\Utils::Base64Decode($aMatch[2]);
-					$iFileSize = \strlen($sRaw);
-					if (0 < $iFileSize)
-					{
-						$sFileName = \preg_replace('/[^a-z0-9]+/i', '.', \MailSo\Base\Utils::NormalizeContentType($aMatch[1]));
-						
-						// fix bug #68532 php < 5.5.21 or php < 5.6.5
-						$sRaw = $this->fixBase64EncodeOmitsPaddingBytes($sRaw);
-						
-						$rResource = \MailSo\Base\ResourceRegistry::CreateMemoryResourceFromString($sRaw);
-
-						$sRaw = '';
-						unset($sRaw);
-						unset($aMatch);
-
-						$oMessage->Attachments()->Add(
-							\MailSo\Mime\Attachment::NewInstance($rResource, $sFileName, $iFileSize, true, true, $sCID)
-						);
-					}
-				}
-			}
-		}
-
-		return $oMessage;
-	}	
-	
-	/**
-	 * @param \CAccount $oAccount
-	 * @param string $sConfirmationAddressee
-	 * @param string $sSubject
-	 * @param string $sText
-	 * @return \MailSo\Mime\Message
-	 * @throws \MailSo\Base\Exceptions\InvalidArgumentException
-	 */
-	private function buildConfirmationMessage($oAccount, $sConfirmationAddressee, $sSubject, $sText)
-	{
-		if (0 === strlen($sConfirmationAddressee) || 0 === strlen($sSubject) || 0 === strlen($sText))
-		{
-			throw new \MailSo\Base\Exceptions\InvalidArgumentException();
-		}
-
-		$oMessage = \MailSo\Mime\Message::NewInstance();
-		$oMessage->RegenerateMessageId();
-
-		$sXMailer = $this->getConfig('XMailerValue', '');
-		if (0 < strlen($sXMailer))
-		{
-			$oMessage->SetXMailer($sXMailer);
-		}
-
-		$oTo = \MailSo\Mime\EmailCollection::Parse($sConfirmationAddressee);
-		if (!$oTo || 0 === $oTo->Count())
-		{
-			throw new \MailSo\Base\Exceptions\InvalidArgumentException();
-		}
-
-		$sFrom = 0 < strlen($oAccount->FriendlyName) ? '"'.$oAccount->FriendlyName.'"' : '';
-		if (0 < strlen($sFrom))
-		{
-			$sFrom .= ' <'.$oAccount->Email.'>';
-		}
-		else
-		{
-			$sFrom .= $oAccount->Email;
-		}
-		
-		$oMessage
-			->SetFrom(\MailSo\Mime\Email::NewInstance($sFrom))
-			->SetTo($oTo)
-			->SetSubject($sSubject)
-		;
-
-		$oMessage->AddText($sText, false);
-
-		return $oMessage;
-	}
-	
-	/**
-	 * @param int $AccountID
-	 * @param string $ConfirmFolder
-	 * @param string $ConfirmUid
-	 * @param string $ConfirmationAddressee
-	 * @param string $Subject
-	 * @param string $Text
-	 * @return array
-	 * @throws \Aurora\System\Exceptions\ApiException
-	 */
-	public function SendConfirmationMessage($AccountID, $ConfirmFolder, $ConfirmUid, $ConfirmationAddressee, $Subject, $Text)
-	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
-		
-		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
-		
-		$oMessage = $this->buildConfirmationMessage($oAccount, $ConfirmationAddressee, $Subject, $Text);
-		if ($oMessage)
-		{
-			try
-			{
-				$mResult = $this->oApiMailManager->sendMessage($oAccount, $oMessage);
-			}
-			catch (\Aurora\System\Exceptions\ManagerException $oException)
-			{
-				$iCode = \Aurora\System\Notifications::CanNotSendMessage;
-				switch ($oException->getCode())
-				{
-					case \Errs::Mail_InvalidRecipients:
-						$iCode = \Aurora\System\Notifications::InvalidRecipients;
-						break;
-					case \Errs::Mail_CannotSendMessage:
-						$iCode = \Aurora\System\Notifications::CanNotSendMessage;
-						break;
-				}
-
-				throw new \Aurora\System\Exceptions\ApiException($iCode, $oException);
-			}
-
+			
 			if (0 < \strlen($ConfirmFolder) && 0 < \strlen($ConfirmUid))
 			{
 				try
@@ -1850,6 +1417,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			}
 		}
 
+		\Aurora\System\Api::LogEvent('message-send: ' . $oAccount->Email, $this->GetName());
 		return $mResult;
 	}
 	
@@ -2386,6 +1954,347 @@ class Module extends \Aurora\System\Module\AbstractModule
 		
 		return $mResult;
 	}
+	/***** public functions might be called with web API *****/
+	
+	/***** private functions *****/
+	/**
+	 * Deletes all mail accounts which are belonged to the specified user.
+	 * Called from subscribed event.
+	 * @ignore
+	 * @param array $aArgs
+	 * @param int $iUserId User identifier.
+	 */
+	public function onAfterDeleteUser($aArgs, &$iUserId)
+	{
+		$mResult = $this->oApiAccountsManager->getUserAccounts($iUserId);
+		
+		if (\is_array($mResult))
+		{
+			foreach($mResult as $oItem)
+			{
+				$this->DeleteAccount($oItem->EntityId);
+			}
+		}
+	}
+	
+	/**
+	 * Attempts to authorize user via mail account with specified credentials.
+	 * Called from subscribed event.
+	 * @ignore
+	 * @param array $aArgs Credentials.
+	 * @param array|boolean $mResult List of results values.
+	 * @return boolean
+	 */
+	public function onLogin($aArgs, &$mResult)
+	{
+		$bResult = false;
+		$oServer = null;
+		
+		$oAccount = $this->oApiAccountsManager->getUseToAuthorizeAccount(
+			$aArgs['Login'], 
+			$aArgs['Password']
+		);
+
+		if (!$oAccount)
+		{
+			$sEmail = $aArgs['Login'];
+			$sDomain = \MailSo\Base\Utils::GetDomainFromEmail($sEmail);
+			$oServer = $this->oApiServersManager->GetServerByDomain(strtolower($sDomain));
+			if ($oServer)
+			{
+				$oAccount = \Aurora\System\EAV\Entity::createInstance('CMailAccount', $this->GetName());
+				$oAccount->Email = $aArgs['Login'];
+				$oAccount->IncomingLogin = $aArgs['Login'];
+				$oAccount->IncomingPassword = $aArgs['Password'];
+				$oAccount->ServerId = $oServer->EntityId;
+			}
+		}
+		if ($oAccount instanceof \CMailAccount)
+		{
+			try
+			{
+				$this->oApiMailManager->validateAccountConnection($oAccount);
+				
+				$bResult =  true;
+
+				$bAllowNewUsersRegister = $this->getConfig('AllowNewUsersRegister', false);
+				
+				if ($oServer && $bAllowNewUsersRegister)
+				{
+					$oAccount = $this->GetDecorator()->CreateAccount(
+						0, 
+						$sEmail, 
+						$sEmail, 
+						$aArgs['Login'],
+						$aArgs['Password'], 
+						array('ServerId' => $oServer->EntityId)
+					);
+					if ($oAccount)
+					{
+						$oAccount->UseToAuthorize = true;
+						$this->oApiAccountsManager->UpdateAccount($oAccount);
+					}
+					else
+					{
+						$bResult = false;
+					}
+				}
+				
+				$mResult = array(
+					'token' => 'auth',
+					'sign-me' => $aArgs['SignMe'],
+					'id' => $oAccount->IdUser,
+					'account' => $oAccount->EntityId
+				);
+			}
+			catch (\Exception $oEx) {}
+		}			
+
+		return $bResult;
+	}
+	
+	/**
+	 * Puts on or off some flag of message.
+	 * @param int $AccountID account identifier.
+	 * @param string $sFolderFullNameRaw Folder full name.
+	 * @param string $sUids List of messages' uids.
+	 * @param boolean $bSetAction Indicates if flag should be set or removed.
+	 * @param string $sFlagName Name of message flag.
+	 * @return boolean
+	 * @throws \Aurora\System\Exceptions\ApiException
+	 */
+	private function setMessageFlag($AccountID, $sFolderFullNameRaw, $sUids, $bSetAction, $sFlagName)
+	{
+		$aUids = \Aurora\System\Utils::ExplodeIntUids((string) $sUids);
+
+		if (0 === \strlen(\trim($sFolderFullNameRaw)) || !\is_array($aUids) || 0 === \count($aUids))
+		{
+			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
+		}
+
+		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
+
+		return $this->oApiMailManager->setMessageFlag($oAccount, $sFolderFullNameRaw, $aUids, $sFlagName,
+			$bSetAction ? \EMailMessageStoreAction::Add : \EMailMessageStoreAction::Remove);
+	}
+	
+	/**
+	 * When using a memory stream and the read
+	 * filter "convert.base64-encode" the last 
+	 * character is missing from the output if 
+	 * the base64 conversion needs padding bytes. 
+	 * @param string $sRaw
+	 * @return string
+	 */
+	private function fixBase64EncodeOmitsPaddingBytes($sRaw)
+	{
+		$rStream = \fopen('php://memory','r+');
+		\fwrite($rStream, '0');
+		\rewind($rStream);
+		$rFilter = \stream_filter_append($rStream, 'convert.base64-encode');
+		
+		if (0 === \strlen(\stream_get_contents($rStream)))
+		{
+			$iFileSize = \strlen($sRaw);
+			$sRaw = \str_pad($sRaw, $iFileSize + ($iFileSize % 3));
+		}
+		
+		return $sRaw;
+	}	
+	
+	/**
+	 * Builds message fo further sending or saving.
+	 * @param \CAccount $oAccount
+	 * @param string $sTo Message recipients.
+	 * @param string $sCc Recipients which will get a copy of the message.
+	 * @param string $sBcc Recipients which will get a hidden copy of the message.
+	 * @param string $sSubject Subject of the message.
+	 * @param bool $bTextIsHtml Indicates if text of the message is html or plain.
+	 * @param string $sText Text of the message.
+	 * @param array $aAttachments List of attachments.
+	 * @param array $aDraftInfo Array ($sType, $sUid, $sFolder) where $sType - reply or forward type, $sUid - uid of message that was an original one, $sFolder - full name of folder which cintains the original.
+	 * @param string $sInReplyTo Value of In-Reply-To header in message.
+	 * @param string $sReferences Value of References header in message.
+	 * @param int $iImportance Importance of the message - LOW = 5, NORMAL = 3, HIGH = 1.
+	 * @param int $iSensitivity Value of Sensitivity header in message.
+	 * @param bool $bSendReadingConfirmation Indicates if it is necessary to include header that says
+	 * @param \CFetcher $oFetcher
+	 * @param bool $bWithDraftInfo
+	 * @param \CIdentity $oIdentity
+	 * @return \MailSo\Mime\Message
+	 */
+	private function buildMessage($oAccount, $sTo = '', $sCc = '', $sBcc = '', 
+			$sSubject = '', $bTextIsHtml = false, $sText = '', $aAttachments = null, 
+			$aDraftInfo = null, $sInReplyTo = '', $sReferences = '', $iImportance = '',
+			$iSensitivity = 0, $bSendReadingConfirmation = false,
+			$oFetcher = null, $bWithDraftInfo = true, $oIdentity = null)
+	{
+		$oMessage = \MailSo\Mime\Message::NewInstance();
+		$oMessage->RegenerateMessageId();
+		
+		$sUUID = \Aurora\System\Api::getUserUUIDById($oAccount->IdUser);
+
+		$sXMailer = $this->getConfig('XMailerValue', '');
+		if (0 < \strlen($sXMailer))
+		{
+			$oMessage->SetXMailer($sXMailer);
+		}
+
+		if ($oIdentity)
+		{
+			$oFrom = \MailSo\Mime\Email::NewInstance($oIdentity->Email, $oIdentity->FriendlyName);
+		}
+		else
+		{
+			$oFrom = $oFetcher
+				? \MailSo\Mime\Email::NewInstance($oFetcher->Email, $oFetcher->Name)
+				: \MailSo\Mime\Email::NewInstance($oAccount->Email, $oAccount->FriendlyName);
+		}
+
+		$oMessage
+			->SetFrom($oFrom)
+			->SetSubject($sSubject)
+		;
+
+		$oToEmails = \MailSo\Mime\EmailCollection::NewInstance($sTo);
+		if ($oToEmails && $oToEmails->Count())
+		{
+			$oMessage->SetTo($oToEmails);
+		}
+
+		$oCcEmails = \MailSo\Mime\EmailCollection::NewInstance($sCc);
+		if ($oCcEmails && $oCcEmails->Count())
+		{
+			$oMessage->SetCc($oCcEmails);
+		}
+
+		$oBccEmails = \MailSo\Mime\EmailCollection::NewInstance($sBcc);
+		if ($oBccEmails && $oBccEmails->Count())
+		{
+			$oMessage->SetBcc($oBccEmails);
+		}
+
+		if ($bWithDraftInfo && \is_array($aDraftInfo) && !empty($aDraftInfo[0]) && !empty($aDraftInfo[1]) && !empty($aDraftInfo[2]))
+		{
+			$oMessage->SetDraftInfo($aDraftInfo[0], $aDraftInfo[1], $aDraftInfo[2]);
+		}
+
+		if (0 < \strlen($sInReplyTo))
+		{
+			$oMessage->SetInReplyTo($sInReplyTo);
+		}
+
+		if (0 < \strlen($sReferences))
+		{
+			$oMessage->SetReferences($sReferences);
+		}
+		
+		if (\in_array($iImportance, array(
+			\MailSo\Mime\Enumerations\MessagePriority::HIGH,
+			\MailSo\Mime\Enumerations\MessagePriority::NORMAL,
+			\MailSo\Mime\Enumerations\MessagePriority::LOW
+		)))
+		{
+			$oMessage->SetPriority($iImportance);
+		}
+
+		if (\in_array($iSensitivity, array(
+			\MailSo\Mime\Enumerations\Sensitivity::NOTHING,
+			\MailSo\Mime\Enumerations\Sensitivity::CONFIDENTIAL,
+			\MailSo\Mime\Enumerations\Sensitivity::PRIVATE_,
+			\MailSo\Mime\Enumerations\Sensitivity::PERSONAL,
+		)))
+		{
+			$oMessage->SetSensitivity((int) $iSensitivity);
+		}
+
+		if ($bSendReadingConfirmation)
+		{
+			$oMessage->SetReadConfirmation($oFetcher ? $oFetcher->Email : $oAccount->Email);
+		}
+
+		$aFoundCids = array();
+
+		if ($bTextIsHtml)
+		{
+			$sTextConverted = \MailSo\Base\HtmlUtils::ConvertHtmlToPlain($sText);
+			$oMessage->AddText($sTextConverted, false);
+		}
+
+		$mFoundDataURL = array();
+		$aFoundedContentLocationUrls = array();
+
+		$sTextConverted = $bTextIsHtml ? 
+			\MailSo\Base\HtmlUtils::BuildHtml($sText, $aFoundCids, $mFoundDataURL, $aFoundedContentLocationUrls) : $sText;
+		
+		$oMessage->AddText($sTextConverted, $bTextIsHtml);
+
+		if (\is_array($aAttachments))
+		{
+			foreach ($aAttachments as $sTempName => $aData)
+			{
+				if (\is_array($aData) && isset($aData[0], $aData[1], $aData[2], $aData[3]))
+				{
+					$sFileName = (string) $aData[0];
+					$sCID = (string) $aData[1];
+					$bIsInline = '1' === (string) $aData[2];
+					$bIsLinked = '1' === (string) $aData[3];
+					$sContentLocation = isset($aData[4]) ? (string) $aData[4] : '';
+
+					$rResource = $this->oApiFileCache->getFile($sUUID, $sTempName);
+					if (\is_resource($rResource))
+					{
+						$iFileSize = $this->oApiFileCache->fileSize($sUUID, $sTempName);
+
+						$sCID = \trim(\trim($sCID), '<>');
+						$bIsFounded = 0 < \strlen($sCID) ? \in_array($sCID, $aFoundCids) : false;
+
+						if (!$bIsLinked || $bIsFounded)
+						{
+							$oMessage->Attachments()->Add(
+								\MailSo\Mime\Attachment::NewInstance($rResource, $sFileName, $iFileSize, $bIsInline,
+									$bIsLinked, $bIsLinked ? '<'.$sCID.'>' : '', array(), $sContentLocation)
+							);
+						}
+					}
+				}
+			}
+		}
+
+		if ($mFoundDataURL && \is_array($mFoundDataURL) && 0 < \count($mFoundDataURL))
+		{
+			foreach ($mFoundDataURL as $sCidHash => $sDataUrlString)
+			{
+				$aMatch = array();
+				$sCID = '<'.$sCidHash.'>';
+				if (\preg_match('/^data:(image\/[a-zA-Z0-9]+\+?[a-zA-Z0-9]+);base64,(.+)$/i', $sDataUrlString, $aMatch) &&
+					!empty($aMatch[1]) && !empty($aMatch[2]))
+				{
+					$sRaw = \MailSo\Base\Utils::Base64Decode($aMatch[2]);
+					$iFileSize = \strlen($sRaw);
+					if (0 < $iFileSize)
+					{
+						$sFileName = \preg_replace('/[^a-z0-9]+/i', '.', \MailSo\Base\Utils::NormalizeContentType($aMatch[1]));
+						
+						// fix bug #68532 php < 5.5.21 or php < 5.6.5
+						$sRaw = $this->fixBase64EncodeOmitsPaddingBytes($sRaw);
+						
+						$rResource = \MailSo\Base\ResourceRegistry::CreateMemoryResourceFromString($sRaw);
+
+						$sRaw = '';
+						unset($sRaw);
+						unset($aMatch);
+
+						$oMessage->Attachments()->Add(
+							\MailSo\Mime\Attachment::NewInstance($rResource, $sFileName, $iFileSize, true, true, $sCID)
+						);
+					}
+				}
+			}
+		}
+
+		return $oMessage;
+	}	
 	
 	public function EntryAutodiscover()
 	{
@@ -2528,7 +2437,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 *
 	 * @return void
 	 */
-	public function cacheByKey($sKey)
+	private function cacheByKey($sKey)
 	{
 		if (!empty($sKey))
 		{
@@ -2548,7 +2457,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 *
 	 * @return void
 	 */
-	public function verifyCacheByKey($sKey)
+	private function verifyCacheByKey($sKey)
 	{
 		if (!empty($sKey))
 		{
@@ -2564,7 +2473,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	
 	/**
 	 */
-	public function getRaw($sHash, $sAction = '')
+	private function getRaw($sHash, $sAction = '')
 	{
 		$self = $this;
 		$bDownload = true;
