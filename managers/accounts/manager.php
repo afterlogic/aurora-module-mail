@@ -278,7 +278,7 @@ class CApiMailAccountsManager extends \Aurora\System\Managers\AbstractManager
 				$bResult = true;
 			}
 		}
-		catch (\Aurora\System\Exceptions\BaseException $oException)
+		catch (\Exception $oException)
 		{
 			$bResult = false;
 			$this->setLastException($oException);
