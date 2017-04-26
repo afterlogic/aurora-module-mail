@@ -357,7 +357,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	
 	/**
 	 * Deletes mail account.
-	 * @param int $AccountID Account idntifier.
+	 * @param int $AccountID Account identifier.
 	 * @return boolean
 	 * @throws \Aurora\System\Exceptions\ApiException
 	 */
@@ -1197,7 +1197,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param int $AccountID Account identifier.
 	 * @param string $FetcherID Fetcher identifier.
 	 * @param int $IdentityID Identity identifier.
-	 * @param array $DraftInfo Array ($sType, $sUid, $sFolder) where $sType - reply or forward type, $sUid - uid of message that was an original one, $sFolder - full name of folder which cintains the original.
+	 * @param array $DraftInfo Array ($sType, $sUid, $sFolder) where $sType - reply or forward type, $sUid - uid of message that was an original one, $sFolder - full name of folder which contains the original.
 	 * @param string $DraftUid Uid of message to save in Drafts folder.
 	 * @param string $To Message recipients.
 	 * @param string $Cc Recipients which will get a copy of the message.
@@ -1278,7 +1278,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param int $AccountID Account identifier.
 	 * @param string $FetcherID Fetcher identifier.
 	 * @param int $IdentityID Identity identifier.
-	 * @param array $DraftInfo Array ($sType, $sUid, $sFolder) where $sType - reply or forward type, $sUid - uid of message that was an original one, $sFolder - full name of folder which cintains the original.
+	 * @param array $DraftInfo Array ($sType, $sUid, $sFolder) where $sType - reply or forward type, $sUid - uid of message that was an original one, $sFolder - full name of folder which contains the original.
 	 * @param string $DraftUid Uid of message to save in Drafts folder.
 	 * @param string $To Message recipients.
 	 * @param string $Cc Recipients which will get a copy of the message.
@@ -1294,8 +1294,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param int $Sensitivity Value of Sensitivity header in message.
 	 * @param string $SentFolder Full name of Sent folder.
 	 * @param string $DraftFolder Full name of Drafts folder.
-	 * @param string $ConfirmFolder
-	 * @param string $ConfirmUid
+	 * @param string $ConfirmFolder Full name of folder that contains a message that should be marked as confirmed read.
+	 * @param string $ConfirmUid Uid of message that should be marked as confirmed read.
 	 * @return bool
 	 * @throws \System\Exceptions\AuroraApiException
 	 */
@@ -1422,11 +1422,12 @@ class Module extends \Aurora\System\Module\AbstractModule
 	}
 	
 	/**
-	 * @param int $AccountID
-	 * @param string $Sent
-	 * @param string $Drafts
-	 * @param string $Trash
-	 * @param string $Spam
+	 * Setups new values of special folders.
+	 * @param int $AccountID Account identifier.
+	 * @param string $Sent New value of Sent folder full name.
+	 * @param string $Drafts New value of Drafts folder full name.
+	 * @param string $Trash New value of Trash folder full name.
+	 * @param string $Spam New value of Spam folder full name.
 	 * @return array
 	 */
 	public function SetupSystemFolders($AccountID, $Sent, $Drafts, $Trash, $Spam)
@@ -1457,8 +1458,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 	}	
 	
 	/**
-	 * @param int $AccountID
-	 * @param string $Email
+	 * Marks sender email as safety for authenticated user. So pictures in messages from this sender will be always displayed.
+	 * @param int $AccountID Account identifier.
+	 * @param string $Email Sender email.
 	 * @return boolean
 	 * @throws \Aurora\System\Exceptions\ApiException
 	 */
@@ -1478,17 +1480,12 @@ class Module extends \Aurora\System\Module\AbstractModule
 		return true;
 	}	
 	
-//	public function GetFetchers()
-//	{
-//		$oAccount = $this->getParamValue('Account', null);
-//		return $this->oApiFetchersManager->getFetchers($oAccount);
-//	}
-	
 	/**
-	 * @param int $UserId
-	 * @param int $AccountID
-	 * @param string $FriendlyName
-	 * @param string $Email
+	 * Creates identity.
+	 * @param int $UserId User identifier.
+	 * @param int $AccountID Account identifier.
+	 * @param string $FriendlyName Identity friendly name.
+	 * @param string $Email Identity email.
 	 * @return int|bool
 	 */
 	public function CreateIdentity($UserId, $AccountID, $FriendlyName, $Email)
@@ -1499,13 +1496,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	}
 	
 	/**
-	 * @param int $UserId
-	 * @param int $AccountID
-	 * @param int $EntityId
-	 * @param string $FriendlyName
-	 * @param string $Email
-	 * @param bool $Default
-	 * @param bool $AccountPart
+	 * Updates identity.
+	 * @param int $UserId User identifier.
+	 * @param int $AccountID Account identifier.
+	 * @param int $EntityId Identity identifier.
+	 * @param string $FriendlyName New value of identity friendly name.
+	 * @param string $Email New value of identity email.
+	 * @param bool $Default Indicates if identity should be used by default.
+	 * @param bool $AccountPart Indicated if account should be updated, not any identity.
 	 * @return bool
 	 */
 	public function UpdateIdentity($UserId, $AccountID, $EntityId, $FriendlyName, $Email, $Default = false, $AccountPart = false)
@@ -1528,7 +1526,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 	}
 	
 	/**
-	 * @param int $EntityId
+	 * Deletes identity.
+	 * @param int $EntityId Identity identifier.
 	 * @return bool
 	 */
 	public function DeleteIdentity($EntityId)
@@ -1539,7 +1538,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 	}
 	
 	/**
-	 * @param int $UserId
+	 * Obtaines all identities of specified user.
+	 * @param int $UserId User identifier.
 	 * @return array|false
 	 */
 	public function GetIdentities($UserId)
@@ -1550,10 +1550,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 	}
 	
 	/**
-	 * @param int $AccountID
-	 * @param bool $UseSignature
-	 * @param string $Signature
-	 * @param int $IdentityId
+	 * Updates signature.
+	 * @param int $AccountID Account identifier.
+	 * @param bool $UseSignature Indicates if signature should be used in outgoing mails.
+	 * @param string $Signature Account or identity signature.
+	 * @param int $IdentityId Identity identifier.
 	 * @return boolean
 	 * @throws \Aurora\System\Exceptions\ApiException
 	 */
@@ -1595,9 +1596,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 	}
 	
 	/**
-	 * @param int $UserId
-	 * @param int $AccountID
-	 * @param array $UploadData
+	 * Uploads attachment.
+	 * @param int $UserId User identifier.
+	 * @param int $AccountID Account identifier.
+	 * @param array $UploadData Information about uploaded file.
 	 * @return array
 	 */
 	public function UploadAttachment($UserId, $AccountID, $UploadData)
@@ -1656,6 +1658,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 		return $aResponse;
 	}
 	
+	/**
+	 * Retrieves attachments from message and saves them as files in temporary folder.
+	 * @param int $AccountID Account identifies.
+	 * @param array $Attachments List of attachments hashes.
+	 * @return array|boolean
+	 * @throws \Aurora\System\Exceptions\ApiException
+	 */
 	public function SaveAttachmentsAsTempFiles($AccountID, $Attachments = array())
 	{
 		$mResult = false;
@@ -1715,6 +1724,15 @@ class Module extends \Aurora\System\Module\AbstractModule
 		return $mResult;
 	}	
 	
+	/**
+	 * Retrieves message and saves it as .eml file in temporary folder.
+	 * @param int $AccountID Account identifier.
+	 * @param string $MessageFolder Full name of folder.
+	 * @param string $MessageUid Message uid.
+	 * @param string $FileName Name of created .eml file.
+	 * @return array|boolean
+	 * @throws \Aurora\System\Exceptions\ApiException
+	 */
 	public function SaveMessageAsTempFile($AccountID, $MessageFolder, $MessageUid, $FileName)
 	{
 		$mResult = false;
@@ -1759,19 +1777,18 @@ class Module extends \Aurora\System\Module\AbstractModule
 	}	
 	
 	/**
-	 * 
-	 * @param type $AccountID
-	 * @param type $Folder
-	 * @param type $UploadData
-	 * @return string
+	 * Uploads message and puts it to specified folder.
+	 * @param int $AccountID Account identifier.
+	 * @param string $Folder Folder full name.
+	 * @param array $UploadData Information about uploaded .eml file.
+	 * @return boolean
 	 * @throws \ProjectCore\Exceptions\ClientException
 	 */
 	public function UploadMessage($AccountID, $Folder, $UploadData)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
-		$sError = '';
-		$mResult = false;
+		$bResult = false;
 
 		$oAccount = $this->oApiAccountsManager->getAccountById((int)$AccountID);
 		
@@ -1785,8 +1802,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 				if ($bIsEmlExtension) 
 				{
-					$sMimeType = \MailSo\Base\Utils::MimeContentType($sUploadName);
-
 					$sSavedName = 'upload-post-' . md5($UploadData['name'] . $UploadData['tmp_name']);
 					if (is_resource($UploadData['tmp_name']))
 					{
@@ -1800,11 +1815,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 					{
 						$sSavedFullName = $this->oApiFileCache->generateFullFilePath($sUUID, $sSavedName);
 						$this->oApiMailManager->appendMessageFromFile($oAccount, $sSavedFullName, $Folder);
-						$mResult = true;
+						$bResult = true;
 					} 
 					else 
 					{
-						$sError = 'unknown';
+						throw new \ProjectCore\Exceptions\ClientException(\ProjectCore\Notifications::UnknownError);
 					}
 				}
 				else
@@ -1815,24 +1830,18 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 		else
 		{
-			$sError = 'auth';
+			throw new \ProjectCore\Exceptions\ClientException(\ProjectCore\Notifications::InvalidInputParameter);
 		}
 
-		if (0 < strlen($sError))
-		{
-			$mResult = array(
-				'Error' => $sError
-			);
-		}
-		
-		return $mResult;
+		return $bResult;
 	}
+	
 	/**
 	 * This method will trigger some event, subscribers of which perform all change password process
 	 * 
-	 * @param int $AccountId
-	 * @param string $CurrentPassword
-	 * @param string $NewPassword
+	 * @param int $AccountId Account identifier.
+	 * @param string $CurrentPassword Current password.
+	 * @param string $NewPassword New password.
 	 * @return boolean
 	 */
 	public function ChangePassword($AccountId, $CurrentPassword, $NewPassword)
@@ -1844,6 +1853,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 		return $mResult;
 	}
 	
+	/**
+	 * Obtains filters for specified account.
+	 * @param int $AccountID Account identifier.
+	 * @return array|boolean
+	 */
 	public function GetFilters($AccountID)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
@@ -1860,11 +1874,17 @@ class Module extends \Aurora\System\Module\AbstractModule
 		return $mResult;
 	}
 	
+	/**
+	 * Updates filters.
+	 * @param int $AccountID Account identifier
+	 * @param array $Filters New filters data.
+	 * @return boolean
+	 */
 	public function UpdateFilters($AccountID, $Filters)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
-		$mResult = false;
+		$bResult = false;
 		
 		$oAccount = $this->oApiAccountsManager->getAccountById((int) $AccountID);
 
@@ -1885,12 +1905,17 @@ class Module extends \Aurora\System\Module\AbstractModule
 				}
 			}
 			
-			$mResult = $this->oApiSieveManager->updateSieveFilters($oAccount, $aFilters);
+			$bResult = $this->oApiSieveManager->updateSieveFilters($oAccount, $aFilters);
 		}
 		
-		return $mResult;
+		return $bResult;
 	}
 	
+	/**
+	 * Obtains forward data for specified account.
+	 * @param int $AccountID Account identifier.
+	 * @return array|boolean
+	 */
 	public function GetForward($AccountID)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
@@ -1907,7 +1932,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 		return $mResult;
 	}
 	
-	public function UpdateForward($AccountID, $Enable = "0", $Email = "")
+	/**
+	 * Updates forward.
+	 * @param int $AccountID Account identifier.
+	 * @param boolean $Enable Indicates if forward is enabled.
+	 * @param string $Email Email that should be used for message forward.
+	 * @return boolean
+	 */
+	public function UpdateForward($AccountID, $Enable = false, $Email = "")
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
@@ -1917,12 +1949,17 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		if ($oAccount && $Email !== "")
 		{
-			$mResult = $this->oApiSieveManager->setForward($oAccount, $Email, !!$Enable);
+			$mResult = $this->oApiSieveManager->setForward($oAccount, $Email, $Enable);
 		}
 		
 		return $mResult;
 	}
 	
+	/**
+	 * Obtains autoresponder for specified account.
+	 * @param int $AccountID Account identifier.
+	 * @return array|boolean
+	 */
 	public function GetAutoresponder($AccountID)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
@@ -1939,7 +1976,15 @@ class Module extends \Aurora\System\Module\AbstractModule
 		return $mResult;
 	}
 	
-	public function UpdateAutoresponder($AccountID, $Enable = "0", $Subject = "", $Message = "")
+	/**
+	 * Updates autoresponder data.
+	 * @param int $AccountID Account identifier.
+	 * @param boolean $Enable Indicates if autoresponder is enabled.
+	 * @param string $Subject Subject of auto-respond message.
+	 * @param string $Message Text of auto-respond message.
+	 * @return boolean
+	 */
+	public function UpdateAutoresponder($AccountID, $Enable = false, $Subject = "", $Message = "")
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
 		
@@ -1949,7 +1994,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		if ($oAccount && ($Subject !== "" || $Message !== ""))
 		{
-			$mResult = $this->oApiSieveManager->setAutoresponder($oAccount, $Subject, $Message, !!$Enable);
+			$mResult = $this->oApiSieveManager->setAutoresponder($oAccount, $Subject, $Message, $Enable);
 		}
 		
 		return $mResult;
@@ -2103,7 +2148,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	}	
 	
 	/**
-	 * Builds message fo further sending or saving.
+	 * Builds message for further sending or saving.
 	 * @param \CAccount $oAccount
 	 * @param string $sTo Message recipients.
 	 * @param string $sCc Recipients which will get a copy of the message.
@@ -2112,7 +2157,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param bool $bTextIsHtml Indicates if text of the message is html or plain.
 	 * @param string $sText Text of the message.
 	 * @param array $aAttachments List of attachments.
-	 * @param array $aDraftInfo Array ($sType, $sUid, $sFolder) where $sType - reply or forward type, $sUid - uid of message that was an original one, $sFolder - full name of folder which cintains the original.
+	 * @param array $aDraftInfo Array ($sType, $sUid, $sFolder) where $sType - reply or forward type, $sUid - uid of message that was an original one, $sFolder - full name of folder which contains the original.
 	 * @param string $sInReplyTo Value of In-Reply-To header in message.
 	 * @param string $sReferences Value of References header in message.
 	 * @param int $iImportance Importance of the message - LOW = 5, NORMAL = 3, HIGH = 1.
@@ -2472,6 +2517,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 	}	
 	
 	/**
+	 * @param string $sHash
+	 * @param string $sAction
+	 * @return boolean
 	 */
 	private function getRaw($sHash, $sAction = '')
 	{

@@ -179,7 +179,7 @@ class CApiMailSieveManager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * @param CAccount $oAccount
 	 * 
-	 * @return array|false
+	 * @return array
 	 */
 	public function getForward($oAccount)
 	{
