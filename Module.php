@@ -81,6 +81,68 @@ class Module extends \Aurora\System\Module\AbstractModule
 	
 	/***** public functions might be called with web API *****/
 	/**
+	 * @apiDefine Mail Mail Module
+	 * Main Mail module. It provides PHP and Web APIs for managing mail accounts, folders and messages.
+	 */
+	
+	/**
+	 * @api {post} ?/Api/ GetSettings
+	 * @apiName GetSettings
+	 * @apiGroup Mail
+	 * @apiDescription Obtains list of module settings for authenticated user.
+	 * 
+	 * @apiParam {string=Mail} Module Module name
+	 * @apiParam {string=GetSettings} Method Method name
+	 * @apiParam {string} [AuthToken] Auth token
+	 * 
+	 * @apiParamExample {json} Request-Example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'GetSettings',
+	 *	AuthToken: 'token_value'
+	 * }
+	 * 
+	 * @apiSuccess {object[]} Result Array of response objects.
+	 * @apiSuccess {string} Result.Module Module name.
+	 * @apiSuccess {string} Result.Method Method name.
+	 * @apiSuccess {mixed} Result.Result List of module settings in case of success, otherwise **false**.
+	 * 
+	 * @apiSuccess {array} Result.Result.Accounts=[]
+	 * @apiSuccess {bool} Result.Result.AllowAddAccounts=false
+	 * @apiSuccess {bool} Result.Result.AllowAutosaveInDrafts=false
+	 * @apiSuccess {bool} Result.Result.AllowChangeEmailSettings=false
+	 * @apiSuccess {bool} Result.Result.AllowFetchers=false
+	 * @apiSuccess {bool} Result.Result.AllowIdentities=false
+	 * @apiSuccess {bool} Result.Result.AllowFilters=false
+	 * @apiSuccess {bool} Result.Result.AllowForward=false
+	 * @apiSuccess {bool} Result.Result.AllowAutoresponder=false
+	 * @apiSuccess {bool} Result.Result.AllowInsertImage=false
+	 * @apiSuccess {bool} Result.Result.AllowThreads=false
+	 * @apiSuccess {int} Result.Result.AutoSaveIntervalSeconds=60
+	 * @apiSuccess {int} Result.Result.ImageUploadSizeLimit=0
+	 * @apiSuccess {bool} Result.Result.AllowAutosaveInDrafts=false
+	 * @apiSuccess {bool} Result.Result.UseThreads=false
+	 * 
+	 * @apiSuccess {int} [Result.ErrorCode] Error code
+	 * 
+	 * @apiSuccessExample {json} Success response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'GetSettings',
+	 *	Result: { Accounts: [], AllowAddAccounts: true, AllowAutosaveInDrafts: true, AllowChangeEmailSettings: true, AllowFetchers: false, AllowIdentities: true, 
+	 * AllowFilters: false, AllowForward: false, AllowAutoresponder: false, AllowInsertImage: true, AllowThreads: true, AutoSaveIntervalSeconds: 60,
+	 * ImageUploadSizeLimit: 0, AllowAutosaveInDrafts: true, UseThreads: false }
+	 * }
+	 * 
+	 * @apiSuccessExample {json} Error response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'GetSettings',
+	 *	Result: false,
+	 *	ErrorCode: 102
+	 * }
+	 */
+	/**
 	 * Obtains list of module settings for authenticated user.
 	 * @return array
 	 */
@@ -100,9 +162,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			'AllowAutoresponder' => $this->getConfig('AllowAutoresponder', false),
 			'AllowInsertImage' => $this->getConfig('AllowInsertImage', false),
 			'AllowThreads' => $this->getConfig('AllowThreads', false),
-			'AllowZipAttachments' => $this->getConfig('AllowZipAttachments', false),
 			'AutoSaveIntervalSeconds' => $this->getConfig('AutoSaveIntervalSeconds', 60),
-			'AutosignOutgoingEmails' => $this->getConfig('AutosignOutgoingEmails', false),
 			'ImageUploadSizeLimit' => $this->getConfig('ImageUploadSizeLimit', 0),
 		);
 		

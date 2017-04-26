@@ -43,17 +43,9 @@
 		true,
 		"bool"
 	],
-	"AllowZipAttachments": [
-		false,
-		"bool"
-	],
 	"AutoSaveIntervalSeconds": [
 		60,
 		"int"
-	],
-	"AutosignOutgoingEmails": [
-		false,
-		"bool"
 	],
 	"DisplayInlineCss": [
 		false,
