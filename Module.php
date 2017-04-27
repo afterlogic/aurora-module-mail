@@ -107,21 +107,20 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiSuccess {string} Result.Method Method name.
 	 * @apiSuccess {mixed} Result.Result List of module settings in case of success, otherwise **false**.
 	 * 
-	 * @apiSuccess {array} Result.Result.Accounts=[]
-	 * @apiSuccess {bool} Result.Result.AllowAddAccounts=false
-	 * @apiSuccess {bool} Result.Result.AllowAutosaveInDrafts=false
-	 * @apiSuccess {bool} Result.Result.AllowChangeEmailSettings=false
-	 * @apiSuccess {bool} Result.Result.AllowFetchers=false
-	 * @apiSuccess {bool} Result.Result.AllowIdentities=false
-	 * @apiSuccess {bool} Result.Result.AllowFilters=false
-	 * @apiSuccess {bool} Result.Result.AllowForward=false
-	 * @apiSuccess {bool} Result.Result.AllowAutoresponder=false
-	 * @apiSuccess {bool} Result.Result.AllowInsertImage=false
-	 * @apiSuccess {bool} Result.Result.AllowThreads=false
-	 * @apiSuccess {int} Result.Result.AutoSaveIntervalSeconds=60
-	 * @apiSuccess {int} Result.Result.ImageUploadSizeLimit=0
-	 * @apiSuccess {bool} Result.Result.AllowAutosaveInDrafts=false
-	 * @apiSuccess {bool} Result.Result.UseThreads=false
+	 * @apiSuccess {array} Result.Result.Accounts="[]" List of accounts.
+	 * @apiSuccess {bool} Result.Result.AllowAddAccounts=false Indicates if adding of new account is allowed.
+	 * @apiSuccess {bool} Result.Result.AllowAutosaveInDrafts=false Indicates if autosave in Drafts folder on compose is allowed.
+	 * @apiSuccess {bool} Result.Result.AllowChangeEmailSettings=false Indicates if changing of email settings is allowed.
+	 * @apiSuccess {bool} Result.Result.AllowFetchers=false Indicates if fetchers are allowed.
+	 * @apiSuccess {bool} Result.Result.AllowIdentities=false Indicates if identities are allowed.
+	 * @apiSuccess {bool} Result.Result.AllowFilters=false Indicates if filters are allowed.
+	 * @apiSuccess {bool} Result.Result.AllowForward=false Indicates if forward is allowed.
+	 * @apiSuccess {bool} Result.Result.AllowAutoresponder=false Indicates if autoresponder is allowed.
+	 * @apiSuccess {bool} Result.Result.AllowInsertImage=false Indicates if insert of images in composed message body is allowed.
+	 * @apiSuccess {bool} Result.Result.AllowThreads=false Indicates if threads in message list are allowed.
+	 * @apiSuccess {int} Result.Result.AutoSaveIntervalSeconds=60 Interval for autosave of message on compose in seconds.
+	 * @apiSuccess {int} Result.Result.ImageUploadSizeLimit=0 Max size of upload image in message text in bytes.
+	 * @apiSuccess {bool} Result.Result.UseThreads=false Indicates if user turned on threads functionality.
 	 * 
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
 	 * 
@@ -129,9 +128,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetSettings',
-	 *	Result: { Accounts: [], AllowAddAccounts: true, AllowAutosaveInDrafts: true, AllowChangeEmailSettings: true, AllowFetchers: false, AllowIdentities: true, 
-	 * AllowFilters: false, AllowForward: false, AllowAutoresponder: false, AllowInsertImage: true, AllowThreads: true, AutoSaveIntervalSeconds: 60,
-	 * ImageUploadSizeLimit: 0, AllowAutosaveInDrafts: true, UseThreads: false }
+	 *	Result: { Accounts: [], AllowAddAccounts: true, AllowAutosaveInDrafts: true, AllowChangeEmailSettings: true, 
+	 * AllowFetchers: false, AllowIdentities: true, AllowFilters: false, AllowForward: false, AllowAutoresponder: false, 
+	 * AllowInsertImage: true, AllowThreads: true, AutoSaveIntervalSeconds: 60, ImageUploadSizeLimit: 0, UseThreads: false }
 	 * }
 	 * 
 	 * @apiSuccessExample {json} Error response example:
@@ -191,7 +190,51 @@ class Module extends \Aurora\System\Module\AbstractModule
 	}
 	
 	/**
-	 * Updates user settings.
+	 * @api {post} ?/Api/ UpdateSettings
+	 * @apiName UpdateSettings
+	 * @apiGroup Mail
+	 * @apiDescription Updates module's per user settings.
+	 * 
+	 * @apiParam {string=Files} Module Module name
+	 * @apiParam {string=UpdateSettings} Method Method name
+	 * @apiParam {string} AuthToken Auth token
+	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * {<br>
+	 * &emsp; **UseThreads** *bool* Indicates if threads should be used for user.<br>
+	 * &emsp; **AllowAutosaveInDrafts** *bool* Indicates if message should be saved automatically while compose.<br>
+	 * }
+	 * 
+	 * @apiParamExample {json} Request-Example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'UpdateSettings',
+	 *	AuthToken: 'token_value',
+	 *	Parameters: '{ UseThreads: true, AllowAutosaveInDrafts: false }'
+	 * }
+	 * 
+	 * @apiSuccess {object[]} Result Array of response objects.
+	 * @apiSuccess {string} Result.Module Module name
+	 * @apiSuccess {string} Result.Method Method name
+	 * @apiSuccess {bool} Result.Result Indicates if settings were updated successfully.
+	 * @apiSuccess {int} [Result.ErrorCode] Error code
+	 * 
+	 * @apiSuccessExample {json} Success response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'UpdateSettings',
+	 *	Result: true
+	 * }
+	 * 
+	 * @apiSuccessExample {json} Error response example:
+	 * {
+	 *	Module: 'Files',
+	 *	Method: 'UpdateSettings',
+	 *	Result: false,
+	 *	ErrorCode: 102
+	 * }
+	 */
+	/**
+	 * Updates module's per user settings.
 	 * @param boolean $UseThreads Indicates if threads should be used for user.
 	 * @param boolean $AllowAutosaveInDrafts Indicates if message should be saved automatically while compose.
 	 * @return boolean
@@ -220,6 +263,53 @@ class Module extends \Aurora\System\Module\AbstractModule
 	}
 	
 	/**
+	 * @api {post} ?/Api/ GetAccounts
+	 * @apiName GetAccounts
+	 * @apiGroup Mail
+	 * @apiDescription Obtains list of mail accounts for user.
+	 * 
+	 * @apiParam {string=Mail} Module Module name
+	 * @apiParam {string=GetAccounts} Method Method name
+	 * @apiParam {string} AuthToken Auth token
+	 * @apiParam {string} [Parameters] JSON.stringified object <br>
+	 * {<br>
+	 * &emsp; **UserId** *int* (optional) User identifier.<br>
+	 * }
+	 * 
+	 * @apiParamExample {json} Request-Example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'GetAccounts',
+	 *	AuthToken: 'token_value'
+	 * }
+	 * 
+	 * @apiSuccess {object[]} Result Array of response objects.
+	 * @apiSuccess {string} Result.Module Module name.
+	 * @apiSuccess {string} Result.Method Method name.
+	 * @apiSuccess {mixed} Result.Result List of mail accounts in case of success, otherwise **false**. Description of account properties are placed in GetAccount method description.
+	 * @apiSuccess {int} [Result.ErrorCode] Error code
+	 * 
+	 * @apiSuccessExample {json} Success response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'GetAccounts',
+	 *	Result: [ { "AccountID": 12, "UUID": "uuid_value", "UseToAuthorize": true, "Email": "test@email", 
+	 * "FriendlyName": "", "IncomingLogin": "test@email", "UseSignature": false, "Signature": "", 
+	 * "ServerId": 10, "Server": { "EntityId": 10, "UUID": "uuid_value", "TenantId": 0, "Name": "Mail server", 
+	 * "IncomingServer": "mail.email", "IncomingPort": 143, "IncomingUseSsl": false, "OutgoingServer": "mail.email", 
+	 * "OutgoingPort": 25, "OutgoingUseSsl": false, "OutgoingUseAuth": false, "OwnerType": "superadmin", 
+	 * "Domains": "", "Internal": false, "ServerId": 10 }, "CanBeUsedToAuthorize": true } ]
+	 * }
+	 * 
+	 * @apiSuccessExample {json} Error response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'GetAccounts',
+	 *	Result: false,
+	 *	ErrorCode: 102
+	 * }
+	 */
+	/**
 	 * Obtains list of mail accounts for user.
 	 * @param int $UserId User identifier.
 	 * @return array|boolean
@@ -231,6 +321,65 @@ class Module extends \Aurora\System\Module\AbstractModule
 		return $this->oApiAccountsManager->getUserAccounts($UserId);
 	}
 	
+	/**
+	 * @api {post} ?/Api/ GetAccount
+	 * @apiName GetAccount
+	 * @apiGroup Mail
+	 * @apiDescription Obtains mail account with specified identifier.
+	 * 
+	 * @apiParam {string=Mail} Module Module name
+	 * @apiParam {string=GetAccount} Method Method name
+	 * @apiParam {string} AuthToken Auth token
+	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * {<br>
+	 * &emsp; **AccountId** *int* Identifier of mail account to obtain.<br>
+	 * }
+	 * 
+	 * @apiParamExample {json} Request-Example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'GetAccount',
+	 *	AuthToken: 'token_value'
+	 *	Parameters: '{"AccountId": 12}'
+	 * }
+	 * 
+	 * @apiSuccess {object[]} Result Array of response objects.
+	 * @apiSuccess {string} Result.Module Module name.
+	 * @apiSuccess {string} Result.Method Method name.
+	 * @apiSuccess {mixed} Result.Result Mail account properties in case of success, otherwise **false**.
+	 * @apiSuccess {int} Result.Result.AccountID Account identifier.
+	 * @apiSuccess {string} Result.Result.UUID Account UUID.
+	 * @apiSuccess {boolean} Result.Result.UseToAuthorize Indicates if account is used for authentication.
+	 * @apiSuccess {string} Result.Result.Email Account email.
+	 * @apiSuccess {string} Result.Result.FriendlyName Account friendly name.
+	 * @apiSuccess {string} Result.Result.IncomingLogin Login for connection to IMAP server.
+	 * @apiSuccess {boolean} Result.Result.UseSignature Indicates if signature should be used in outgoing messages.
+	 * @apiSuccess {string} Result.Result.Signature Signature in outgoing messages.
+	 * @apiSuccess {int} Result.Result.ServerId Server identifier.
+	 * @apiSuccess {object} Result.Result.Server Server properties that are used for connection to IMAP and SMTP servers.
+	 * @apiSuccess {boolean} Result.Result.CanBeUsedToAuthorize Indicates if account can be used for authentication. It is forbidden to use account for authentication if another user has account with the same credentials and it is allowed to authenticate.
+	 * @apiSuccess {int} [Result.ErrorCode] Error code
+	 * 
+	 * @apiSuccessExample {json} Success response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'GetAccounts',
+	 *	Result: { "AccountID": 12, "UUID": "uuid_value", "UseToAuthorize": true, "Email": "test@email", 
+	 * "FriendlyName": "", "IncomingLogin": "test@email", "UseSignature": false, "Signature": "", 
+	 * "ServerId": 10, "Server": { "EntityId": 10, "UUID": "uuid_value", "TenantId": 0, "Name": "Mail server", 
+	 * "IncomingServer": "mail.email", "IncomingPort": 143, "IncomingUseSsl": false, "OutgoingServer": "mail.email", 
+	 * "OutgoingPort": 25, "OutgoingUseSsl": false, "OutgoingUseAuth": false, "OwnerType": "superadmin", 
+	 * "Domains": "", "Internal": false, "ServerId": 10 }, "CanBeUsedToAuthorize": true }
+	 * }
+	 * 
+	 * @apiSuccessExample {json} Error response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'GetAccount',
+	 *	Result: false,
+	 *	ErrorCode: 102
+	 * }
+	 */
 	/**
 	 * Obtains mail account with specified identifier.
 	 * @param int $AccountId Identifier of mail account to obtain.

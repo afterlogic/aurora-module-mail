@@ -28,12 +28,9 @@ class CMailAccount extends \Aurora\System\EAV\Entity
 	protected $aStaticMap = array(
 		'IsDisabled'		=> array('bool', false),
 		'IdUser'			=> array('int', 0),
-		'IsInternal'		=> array('bool', false),
 		'UseToAuthorize'	=> array('bool', false),
-		'IsMailingList'		=> array('bool', false),
 		'Email'				=> array('string', ''),
 		'FriendlyName'		=> array('string', ''),
-		'DetectSpecialFoldersWithXList' => array('bool', false),
 		'IncomingLogin'		=> array('string', ''),
 		'IncomingPassword'	=> array('encrypted', ''),
 		'UseSignature'		=> array('bool', false),
