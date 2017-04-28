@@ -180,11 +180,11 @@ class CApiMailMessage
 	protected $iSensitivity;
 
 	/**
-	 * Priority value of the message, from 1 (highest) to 5 (lowest).
+	 * Importance value of the message, from 1 (highest) to 5 (lowest).
 	 * 
 	 * @var int
 	 */
-	protected $iPriority;
+	protected $iImportance;
 
 	/**
 	 * Email address reading confirmation is to be sent to. 
@@ -201,7 +201,7 @@ class CApiMailMessage
 	protected $bSafety;
 
 	/**
-	 * Information about the attachments of the message.
+	 * Information about attachments of the message.
 	 * 
 	 * @var CApiMailAttachmentCollection
 	 */
@@ -277,7 +277,7 @@ class CApiMailMessage
 		$this->sHtml = '';
 
 		$this->iSensitivity = \MailSo\Mime\Enumerations\Sensitivity::NOTHING;
-		$this->iPriority = \MailSo\Mime\Enumerations\MessagePriority::NORMAL;
+		$this->iImportance = \MailSo\Mime\Enumerations\MessagePriority::NORMAL;
 		$this->bSafety = false;
 		$this->sReadingConfirmation = '';
 
@@ -596,13 +596,13 @@ class CApiMailMessage
 	}
 
 	/**
-	 * Returns priority value of the message, from 1 (highest) to 5 (lowest).
+	 * Returns importance value of the message, from 1 (highest) to 5 (lowest).
 	 * 
 	 * @return int
 	 */
-	public function getPriority()
+	public function getImportance()
 	{
-		return $this->iPriority;
+		return $this->iImportance;
 	}
 
 	/**
@@ -638,7 +638,7 @@ class CApiMailMessage
 	}
 
 	/**
-	 * Returns information about the attachments of the message.
+	 * Returns information about attachments of the message.
 	 * 
 	 * @return CApiMailAttachmentCollection
 	 */
@@ -877,8 +877,8 @@ class CApiMailMessage
 					break;
 			}
 
-			// Priority
-			$this->iPriority = \MailSo\Mime\Enumerations\MessagePriority::NORMAL;
+			// Importance
+			$this->iImportance = \MailSo\Mime\Enumerations\MessagePriority::NORMAL;
 			$sPriority = $oHeaders->ValueByName(\MailSo\Mime\Enumerations\Header::X_MSMAIL_PRIORITY);
 			if (0 === strlen($sPriority))
 			{
@@ -897,7 +897,7 @@ class CApiMailMessage
 					case '2(high)':
 					case '1':
 					case '2':
-						$this->iPriority = \MailSo\Mime\Enumerations\MessagePriority::HIGH;
+						$this->iImportance = \MailSo\Mime\Enumerations\MessagePriority::HIGH;
 						break;
 
 					case 'low':
@@ -905,7 +905,7 @@ class CApiMailMessage
 					case '5(lowest)':
 					case '4':
 					case '5':
-						$this->iPriority = \MailSo\Mime\Enumerations\MessagePriority::LOW;
+						$this->iImportance = \MailSo\Mime\Enumerations\MessagePriority::LOW;
 						break;
 				}
 			}
@@ -1097,7 +1097,7 @@ class CApiMailMessage
 			'HasAttachments' => $oAttachments && $oAttachments->hasNotInlineAttachments(),
 			'HasVcardAttachment' => $oAttachments && $oAttachments->hasVcardAttachment(),
 			'HasIcalAttachment' => $oAttachments && $oAttachments->hasIcalAttachment(),
-			'Priority' => $this->getPriority(),
+			'Importance' => $this->getImportance(),
 			'DraftInfo' => $this->getDraftInfo(),
 			'Sensitivity' => $this->getSensitivity()
 		));

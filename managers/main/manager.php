@@ -1557,7 +1557,7 @@ class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 	 * 
 	 * @param CAccount $oAccount Account object.
 	 *
-	 * @return array|bool Array of quota velues or bool if the information is unavailable.
+	 * @return array|bool Array of quota values or bool if the information is unavailable.
 	 */
 	public function getQuota($oAccount)
 	{

@@ -363,7 +363,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
-	 *	Method: 'GetAccounts',
+	 *	Method: 'GetAccount',
 	 *	Result: { "AccountID": 12, "UUID": "uuid_value", "UseToAuthorize": true, "Email": "test@email", 
 	 * "FriendlyName": "", "IncomingLogin": "test@email", "UseSignature": false, "Signature": "", 
 	 * "ServerId": 10, "Server": { "EntityId": 10, "UUID": "uuid_value", "TenantId": 0, "Name": "Mail server", 
@@ -402,7 +402,69 @@ class Module extends \Aurora\System\Module\AbstractModule
 		return $mResult;
 	}
 	
-	
+	/**
+	 * @api {post} ?/Api/ CreateAccount
+	 * @apiName CreateAccount
+	 * @apiGroup Mail
+	 * @apiDescription Creates mail account.
+	 * 
+	 * @apiParam {string=Mail} Module Module name
+	 * @apiParam {string=CreateAccount} Method Method name
+	 * @apiParam {string} AuthToken Auth token
+	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * {<br>
+	 * &emsp; **UserId** *int* (optional) User identifier.<br>
+	 * &emsp; **FriendlyName** *string* (optional) Friendly name.<br>
+	 * &emsp; **Email** *string* Email.<br>
+	 * &emsp; **IncomingLogin** *string* Login for IMAP connection.<br>
+	 * &emsp; **IncomingPassword** *string* Password for IMAP connection.<br>
+	 * &emsp; **Server** *object* List of settings for IMAP and SMTP connections.<br>
+	 * }
+	 * 
+	 * @apiParamExample {json} Request-Example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'CreateAccount',
+	 *	AuthToken: 'token_value'
+	 *	Parameters: '{ "Email": "test@email", "IncomingLogin": "test@email", "IncomingPassword": "pass_value", "Server": { "ServerId": 10 } }'
+	 * }
+	 * 
+	 * @apiSuccess {object[]} Result Array of response objects.
+	 * @apiSuccess {string} Result.Module Module name.
+	 * @apiSuccess {string} Result.Method Method name.
+	 * @apiSuccess {mixed} Result.Result Mail account properties in case of success, otherwise **false**.
+	 * @apiSuccess {int} Result.Result.AccountID Created account identifier.
+	 * @apiSuccess {string} Result.Result.UUID Created account UUID.
+	 * @apiSuccess {boolean} Result.Result.UseToAuthorize Indicates if account is used for authentication.
+	 * @apiSuccess {string} Result.Result.Email Account email.
+	 * @apiSuccess {string} Result.Result.FriendlyName Account friendly name.
+	 * @apiSuccess {string} Result.Result.IncomingLogin Login for connection to IMAP server.
+	 * @apiSuccess {boolean} Result.Result.UseSignature Indicates if signature should be used in outgoing messages.
+	 * @apiSuccess {string} Result.Result.Signature Signature in outgoing messages.
+	 * @apiSuccess {int} Result.Result.ServerId Server identifier.
+	 * @apiSuccess {object} Result.Result.Server Server properties that are used for connection to IMAP and SMTP servers.
+	 * @apiSuccess {boolean} Result.Result.CanBeUsedToAuthorize Indicates if account can be used for authentication. It is forbidden to use account for authentication if another user has account with the same credentials and it is allowed to authenticate.
+	 * @apiSuccess {int} [Result.ErrorCode] Error code
+	 * 
+	 * @apiSuccessExample {json} Success response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'CreateAccount',
+	 *	Result: { "AccountID": 12, "UUID": "uuid_value", "UseToAuthorize": true, "Email": "test@email", 
+	 * "FriendlyName": "", "IncomingLogin": "test@email", "UseSignature": false, "Signature": "", 
+	 * "ServerId": 10, "Server": { "ServerId": 10, "Name": "Mail server", "IncomingServer": "mail.server", "IncomingPort": 143, 
+	 * "IncomingUseSsl": false, "OutgoingServer": "mail.server", "OutgoingPort": 25, "OutgoingUseSsl": false, 
+	 * "OutgoingUseAuth": false, "Domains": "" }, "CanBeUsedToAuthorize": true }
+	 * }
+	 * 
+	 * @apiSuccessExample {json} Error response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'CreateAccount',
+	 *	Result: false,
+	 *	ErrorCode: 102
+	 * }
+	 */
 	/**
 	 * Creates mail account.
 	 * @param int $UserId User identifier.
@@ -476,6 +538,53 @@ class Module extends \Aurora\System\Module\AbstractModule
 	}
 	
 	/**
+	 * @api {post} ?/Api/ UpdateAccount
+	 * @apiName UpdateAccount
+	 * @apiGroup Mail
+	 * @apiDescription Updates mail account.
+	 * 
+	 * @apiParam {string=Mail} Module Module name
+	 * @apiParam {string=UpdateAccount} Method Method name
+	 * @apiParam {string} AuthToken Auth token
+	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * {<br>
+	 * &emsp; **AccountID** *int* Identifier of account to update.<br>
+	 * &emsp; **FriendlyName** *string* New friendly name.<br>
+	 * &emsp; **Email** *string* New email.<br>
+	 * &emsp; **IncomingLogin** *string* New loging for IMAP connection.<br>
+	 * &emsp; **IncomingPassword** *string* New password for IMAP connection.<br>
+	 * &emsp; **Server** *object* List of settings for IMAP and SMTP connections.<br>
+	 * }
+	 * 
+	 * @apiParamExample {json} Request-Example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'UpdateAccount',
+	 *	AuthToken: 'token_value'
+	 *	Parameters: '{ "Email": "test@email", "IncomingLogin": "test@email", "IncomingPassword": "pass_value", "Server": { "ServerId": 10 } }'
+	 * }
+	 * 
+	 * @apiSuccess {object[]} Result Array of response objects.
+	 * @apiSuccess {string} Result.Module Module name.
+	 * @apiSuccess {string} Result.Method Method name.
+	 * @apiSuccess {boolean} Result.Result Indicates if account was updated successfully.
+	 * @apiSuccess {int} [Result.ErrorCode] Error code
+	 * 
+	 * @apiSuccessExample {json} Success response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'UpdateAccount',
+	 *	Result: true
+	 * 
+	 * @apiSuccessExample {json} Error response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'UpdateAccount',
+	 *	Result: false,
+	 *	ErrorCode: 102
+	 * }
+	 */
+	/**
 	 * Updates mail account.
 	 * @param int $AccountID Identifier of account to update.
 	 * @param boolean $UseToAuthorize Indicates if account can be used to authorize user.
@@ -483,7 +592,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param string $FriendlyName New friendly name.
 	 * @param string $IncomingLogin New loging for IMAP connection.
 	 * @param string $IncomingPassword New password for IMAP connection.
-	 * @param array $Server List of settings for IMAP connection.
+	 * @param array $Server List of settings for IMAP and SMTP connections.
 	 * @return boolean
 	 * @throws \Aurora\System\Exceptions\ApiException
 	 */
@@ -565,6 +674,48 @@ class Module extends \Aurora\System\Module\AbstractModule
 	}
 	
 	/**
+	 * @api {post} ?/Api/ DeleteAccount
+	 * @apiName DeleteAccount
+	 * @apiGroup Mail
+	 * @apiDescription Deletes mail account.
+	 * 
+	 * @apiParam {string=Mail} Module Module name
+	 * @apiParam {string=DeleteAccount} Method Method name
+	 * @apiParam {string} AuthToken Auth token
+	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * {<br>
+	 * &emsp; **AccountID** *int* Identifier of account to update.<br>
+	 * }
+	 * 
+	 * @apiParamExample {json} Request-Example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'DeleteAccount',
+	 *	AuthToken: 'token_value'
+	 *	Parameters: '{ "AccountID": 12 }'
+	 * }
+	 * 
+	 * @apiSuccess {object[]} Result Array of response objects.
+	 * @apiSuccess {string} Result.Module Module name.
+	 * @apiSuccess {string} Result.Method Method name.
+	 * @apiSuccess {boolean} Result.Result Indicates if account was deleted successfully.
+	 * @apiSuccess {int} [Result.ErrorCode] Error code
+	 * 
+	 * @apiSuccessExample {json} Success response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'DeleteAccount',
+	 *	Result: true
+	 * 
+	 * @apiSuccessExample {json} Error response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'DeleteAccount',
+	 *	Result: false,
+	 *	ErrorCode: 102
+	 * }
+	 */
+	/**
 	 * Deletes mail account.
 	 * @param int $AccountID Account identifier.
 	 * @return boolean
@@ -603,6 +754,51 @@ class Module extends \Aurora\System\Module\AbstractModule
 	}
 	
 	/**
+	 * @api {post} ?/Api/ GetServers
+	 * @apiName GetServers
+	 * @apiGroup Mail
+	 * @apiDescription Obtains list of servers wich contains settings for IMAP and SMTP connections.
+	 * 
+	 * @apiParam {string=Mail} Module Module name
+	 * @apiParam {string=GetServers} Method Method name
+	 * @apiParam {string} AuthToken Auth token
+	 * @apiParam {string} [Parameters] JSON.stringified object <br>
+	 * {<br>
+	 * &emsp; **TenantId** *int* (optional) Identifier of tenant which contains servers to return. If TenantId is 0 returns server which are belonged to SuperAdmin, not Tenant.<br>
+	 * }
+	 * 
+	 * @apiParamExample {json} Request-Example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'GetServers',
+	 *	AuthToken: 'token_value'
+	 * }
+	 * 
+	 * @apiSuccess {object[]} Result Array of response objects.
+	 * @apiSuccess {string} Result.Module Module name.
+	 * @apiSuccess {string} Result.Method Method name.
+	 * @apiSuccess {mixed} Result.Result List of mail servers in case of success, otherwise **false**. Description of server properties are placed in GetServer method description.
+	 * @apiSuccess {int} [Result.ErrorCode] Error code
+	 * 
+	 * @apiSuccessExample {json} Success response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'GetServers',
+	 *	Result: [ { "EntityId": 10, "UUID": "uuid_value", "TenantId": 0, "Name": "Mail server", 
+	 * "IncomingServer": "mail.email", "IncomingPort": 143, "IncomingUseSsl": false, "OutgoingServer": "mail.email", 
+	 * "OutgoingPort": 25, "OutgoingUseSsl": false, "OutgoingUseAuth": false, "OwnerType": "superadmin", 
+	 * "Domains": "", "Internal": false, "ServerId": 10 } ]
+	 * }
+	 * 
+	 * @apiSuccessExample {json} Error response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'GetServers',
+	 *	Result: false,
+	 *	ErrorCode: 102
+	 * }
+	 */
+	/**
 	 * Obtains list of servers wich contains settings for IMAP and SMTP connections.
 	 * @param int $TenantId Identifier of tenant which contains servers to return. If $TenantId is 0 returns server which are belonged to SuperAdmin, not Tenant.
 	 * @return array
@@ -615,6 +811,66 @@ class Module extends \Aurora\System\Module\AbstractModule
 	}
 	
 	/**
+	 * @api {post} ?/Api/ GetServer
+	 * @apiName GetServer
+	 * @apiGroup Mail
+	 * @apiDescription Obtains server with specified server identifier.
+	 * 
+	 * @apiParam {string=Mail} Module Module name
+	 * @apiParam {string=GetServer} Method Method name
+	 * @apiParam {string} AuthToken Auth token
+	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * {<br>
+	 * &emsp; **ServerId** *int* Server identifier.<br>
+	 * }
+	 * 
+	 * @apiParamExample {json} Request-Example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'GetServer',
+	 *	AuthToken: 'token_value'
+	 *	Parameters: '{"ServerId": 10}'
+	 * }
+	 * 
+	 * @apiSuccess {object[]} Result Array of response objects.
+	 * @apiSuccess {string} Result.Module Module name.
+	 * @apiSuccess {string} Result.Method Method name.
+	 * @apiSuccess {mixed} Result.Result Mail account properties in case of success, otherwise **false**.
+	 * @apiSuccess {int} Result.Result.ServerId Server identifier.
+	 * @apiSuccess {string} Result.Result.UUID Server UUID.
+	 * @apiSuccess {int} Result.Result.TenantId Tenant identifier.
+	 * @apiSuccess {string} Result.Result.Name Server name.
+	 * @apiSuccess {string} Result.Result.IncomingServer IMAP server.
+	 * @apiSuccess {int} Result.Result.IncomingPort IMAP port.
+	 * @apiSuccess {boolean} Result.Result.IncomingUseSsl Indicates if SSL should be used for IMAP connection.
+	 * @apiSuccess {string} Result.Result.OutgoingServer SMTP server.
+	 * @apiSuccess {int} Result.Result.OutgoingPort SMTP port.
+	 * @apiSuccess {boolean} Result.Result.OutgoingUseSsl Indicates if SSL should be used for SMTP connection.
+	 * @apiSuccess {boolean} Result.Result.OutgoingUseAuth Indicates if SMTP authentication should be done.
+	 * @apiSuccess {string} Result.Result.OwnerType Owner type: 'superadmin' - server was created by SuperAdmin user, 'tenant' - server was created by TenantAdmin user, 'account' - server was created when account was created and any existent server was chosen.
+	 * @apiSuccess {string} Result.Result.Domains List of server domain separated by comma.
+	 * @apiSuccess {boolean} Result.Result.Internal Indicates if server is internal.
+	 * @apiSuccess {int} [Result.ErrorCode] Error code
+	 * 
+	 * @apiSuccessExample {json} Success response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'GetServer',
+	 *	Result: { "ServerId": 10, "UUID": "uuid_value", "TenantId": 0, "Name": "Mail server", 
+	 * "IncomingServer": "mail.email", "IncomingPort": 143, "IncomingUseSsl": false, "OutgoingServer": "mail.email", 
+	 * "OutgoingPort": 25, "OutgoingUseSsl": false, "OutgoingUseAuth": false, "OwnerType": "superadmin", 
+	 * "Domains": "", "Internal": false }
+	 * }
+	 * 
+	 * @apiSuccessExample {json} Error response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'GetServer',
+	 *	Result: false,
+	 *	ErrorCode: 102
+	 * }
+	 */
+	/**
 	 * Obtains server with specified server identifier.
 	 * @param int $ServerId Server identifier.
 	 * @return \CMailServer|boolean
@@ -626,6 +882,58 @@ class Module extends \Aurora\System\Module\AbstractModule
 		return $this->oApiServersManager->getServer($ServerId);
 	}
 	
+	/**
+	 * @api {post} ?/Api/ CreateServer
+	 * @apiName CreateServer
+	 * @apiGroup Mail
+	 * @apiDescription Creates mail server.
+	 * 
+	 * @apiParam {string=Mail} Module Module name
+	 * @apiParam {string=CreateServer} Method Method name
+	 * @apiParam {string} AuthToken Auth token
+	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * {<br>
+	 * &emsp; **Name** *string* Server name.<br>
+	 * &emsp; **IncomingServer** *string* IMAP server.<br>
+	 * &emsp; **IncomingPort** *int* Port for connection to IMAP server.<br>
+	 * &emsp; **IncomingUseSsl** *boolean* Indicates if it is necessary to use ssl while connecting to IMAP server.<br>
+	 * &emsp; **OutgoingServer** *string* SMTP server.<br>
+	 * &emsp; **OutgoingPort** *int* Port for connection to SMTP server.<br>
+	 * &emsp; **OutgoingUseSsl** *boolean* Indicates if it is necessary to use ssl while connecting to SMTP server.<br>
+	 * &emsp; **OutgoingUseAuth** *boolean* Indicates if it is necessary to use authentication while connecting to SMTP server.<br>
+	 * &emsp; **Domains** *string* List of domains separated by comma.<br>
+	 * &emsp; **TenantId** *int* (optional) If tenant identifier is specified creates mail server belonged to specified tenant.<br>
+	 * }
+	 * 
+	 * @apiParamExample {json} Request-Example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'CreateServer',
+	 *	AuthToken: 'token_value'
+	 *	Parameters: '{ "Name": "Server name", "IncomingServer": "mail.server", "IncomingPort": 143, "IncomingUseSsl": false, 
+	 * "OutgoingServer": "mail.server", "OutgoingPort": 25, "OutgoingUseSsl": false, "OutgoingUseAuth": false, "Domains": "" }'
+	 * }
+	 * 
+	 * @apiSuccess {object[]} Result Array of response objects.
+	 * @apiSuccess {string} Result.Module Module name.
+	 * @apiSuccess {string} Result.Method Method name.
+	 * @apiSuccess {mixed} Result.Result Identifier of created server in case of success, otherwise **false**.
+	 * @apiSuccess {int} [Result.ErrorCode] Error code
+	 * 
+	 * @apiSuccessExample {json} Success response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'CreateServer',
+	 *	Result: 10
+	 * 
+	 * @apiSuccessExample {json} Error response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'CreateServer',
+	 *	Result: false,
+	 *	ErrorCode: 102
+	 * }
+	 */
 	/**
 	 * Creates mail server.
 	 * @param string $Name Server name.
@@ -659,6 +967,59 @@ class Module extends \Aurora\System\Module\AbstractModule
 	}
 	
 	/**
+	 * @api {post} ?/Api/ UpdateServer
+	 * @apiName UpdateServer
+	 * @apiGroup Mail
+	 * @apiDescription Updates mail server with specified identifier.
+	 * 
+	 * @apiParam {string=Mail} Module Module name
+	 * @apiParam {string=UpdateServer} Method Method name
+	 * @apiParam {string} AuthToken Auth token
+	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * {<br>
+	 * &emsp; **ServerId** *int* Server identifier.<br>
+	 * &emsp; **Name** *string* New server name.<br>
+	 * &emsp; **IncomingServer** *string* New IMAP server.<br>
+	 * &emsp; **IncomingPort** *int* New port for connection to IMAP server.<br>
+	 * &emsp; **IncomingUseSsl** *boolean* Indicates if it is necessary to use ssl while connecting to IMAP server.<br>
+	 * &emsp; **OutgoingServer** *string* New SMTP server.<br>
+	 * &emsp; **OutgoingPort** *int* New port for connection to SMTP server.<br>
+	 * &emsp; **OutgoingUseSsl** *boolean* Indicates if it is necessary to use ssl while connecting to SMTP server.<br>
+	 * &emsp; **OutgoingUseAuth** *boolean* Indicates if it is necessary to use authentication while connecting to SMTP server.<br>
+	 * &emsp; **Domains** *string* New list of domains separated by comma.<br>
+	 * &emsp; **TenantId** *int* If tenant identifier is specified creates mail server belonged to specified tenant.<br>
+	 * }
+	 * 
+	 * @apiParamExample {json} Request-Example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'UpdateServer',
+	 *	AuthToken: 'token_value'
+	 *	Parameters: '{ "Name": "Server name", "IncomingServer": "mail.server", "IncomingPort": 143, "IncomingUseSsl": false, 
+	 * "OutgoingServer": "mail.server", "OutgoingPort": 25, "OutgoingUseSsl": false, "OutgoingUseAuth": false, "Domains": "" }'
+	 * }
+	 * 
+	 * @apiSuccess {object[]} Result Array of response objects.
+	 * @apiSuccess {string} Result.Module Module name.
+	 * @apiSuccess {string} Result.Method Method name.
+	 * @apiSuccess {boolean} Result.Result Indicates if server was updated successfully.
+	 * @apiSuccess {int} [Result.ErrorCode] Error code
+	 * 
+	 * @apiSuccessExample {json} Success response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'UpdateServer',
+	 *	Result: true
+	 * 
+	 * @apiSuccessExample {json} Error response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'UpdateServer',
+	 *	Result: false,
+	 *	ErrorCode: 102
+	 * }
+	 */
+	/**
 	 * Updates mail server with specified identifier.
 	 * @param int $ServerId Server identifier.
 	 * @param string $Name New server name.
@@ -690,6 +1051,49 @@ class Module extends \Aurora\System\Module\AbstractModule
 	}
 	
 	/**
+	 * @api {post} ?/Api/ DeleteServer
+	 * @apiName DeleteServer
+	 * @apiGroup Mail
+	 * @apiDescription Deletes mail server.
+	 * 
+	 * @apiParam {string=Mail} Module Module name
+	 * @apiParam {string=DeleteServer} Method Method name
+	 * @apiParam {string} AuthToken Auth token
+	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * {<br>
+	 * &emsp; **ServerId** *int* Identifier of server to delete.<br>
+	 * &emsp; **TenantId** *int* (Optional) Identifier of tenant that contains mail server.<br>
+	 * }
+	 * 
+	 * @apiParamExample {json} Request-Example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'DeleteServer',
+	 *	AuthToken: 'token_value'
+	 *	Parameters: '{ "ServerId": 10 }'
+	 * }
+	 * 
+	 * @apiSuccess {object[]} Result Array of response objects.
+	 * @apiSuccess {string} Result.Module Module name.
+	 * @apiSuccess {string} Result.Method Method name.
+	 * @apiSuccess {boolean} Result.Result Indicates if server was deleted successfully.
+	 * @apiSuccess {int} [Result.ErrorCode] Error code
+	 * 
+	 * @apiSuccessExample {json} Success response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'DeleteServer',
+	 *	Result: true
+	 * 
+	 * @apiSuccessExample {json} Error response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'DeleteServer',
+	 *	Result: false,
+	 *	ErrorCode: 102
+	 * }
+	 */
+	/**
 	 * Deletes mail server.
 	 * @param int $ServerId Identifier of server to delete.
 	 * @param int $TenantId Identifier of tenant that contains mail server.
@@ -710,6 +1114,72 @@ class Module extends \Aurora\System\Module\AbstractModule
 	}
 	
 	/**
+	 * @api {post} ?/Api/ GetFolders
+	 * @apiName GetFolders
+	 * @apiGroup Mail
+	 * @apiDescription Obtains list of folders for specified account.
+	 * 
+	 * @apiParam {string=Mail} Module Module name
+	 * @apiParam {string=GetFolders} Method Method name
+	 * @apiParam {string} AuthToken Auth token
+	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * {<br>
+	 * &emsp; **AccountId** *int* Identifier of mail account that contains folders to obtain.<br>
+	 * }
+	 * 
+	 * @apiParamExample {json} Request-Example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'GetFolders',
+	 *	AuthToken: 'token_value'
+	 *	Parameters: '{"AccountId": 12}'
+	 * }
+	 * 
+	 * @apiSuccess {object[]} Result Array of response objects.
+	 * @apiSuccess {string} Result.Module Module name.
+	 * @apiSuccess {string} Result.Method Method name.
+	 * @apiSuccess {mixed} Result.Result Mail account properties in case of success, otherwise **false**.
+	 * @apiSuccess {object[]} Result.Result.Folders List of folders.
+	 * @apiSuccess {int} Result.Result.Folders.Count Count of folders.
+	 * @apiSuccess {object[]} Result.Result.Folders.Collection Collection of folders.
+	 * @apiSuccess {int} Result.Result.Folders.Collection.Type Type of folder: 1 - Inbox; 2 - Sent; 3 - Drafts; 4 - Spam; 5 - Trash; 10 - other folders.
+	 * @apiSuccess {string} Result.Result.Folders.Collection.Name Name of folder.
+	 * @apiSuccess {string} Result.Result.Folders.Collection.FullName Folder full name.
+	 * @apiSuccess {string} Result.Result.Folders.Collection.FullNameRaw Folder full name.
+	 * @apiSuccess {string} Result.Result.Folders.Collection.FullNameHash Hash of folder full name.
+	 * @apiSuccess {string} Result.Result.Folders.Collection.Delimiter Delimiter that is used in folder full name.
+	 * @apiSuccess {boolean} Result.Result.Folders.Collection.IsSubscribed Indicates if folder is subscribed.
+	 * @apiSuccess {boolean} Result.Result.Folders.Collection.IsSelectable Indicates if folder can be selected.
+	 * @apiSuccess {boolean} Result.Result.Folders.Collection.Exists Indicates if folder exists.
+	 * @apiSuccess {boolean} Result.Result.Folders.Collection.Extended Indicates if folder is extended.
+	 * @apiSuccess {object[]} Result.Result.Folders.Collection.SubFolders List of sub folders.
+	 * @apiSuccess {string} Result.Result.Namespace
+	 * @apiSuccess {int} [Result.ErrorCode] Error code
+	 * 
+	 * @apiSuccessExample {json} Success response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'GetFolders',
+	 *	Result: { "Folders": {
+	 *		"@Count": 5,
+	 *		"@Collection": [
+	 *			{	"Type": 1, "Name": "INBOX", "FullName": "INBOX", "FullNameRaw": "INBOX", "FullNameHash":"7e33429f656f1e6e9d79b29c3f82c57e",
+	 *				"Delimiter": "/", "IsSubscribed": true, "IsSelectable": true, "Exists": true, "Extended": null, "SubFolders": null	},
+	 *			{	"Type": 2, "Name": "Sent", "FullName": "Sent", "FullNameRaw": "Sent", "FullNameHash": "7f8c0283f16925caed8e632086b81b9c",
+	 *				"Delimiter": "/", "IsSubscribed": true, "IsSelectable": true, "Exists":true,"Extended":null,"SubFolders":null},
+	 *			...
+	 *		]}, "Namespace": "" } }
+	 * }
+	 * 
+	 * @apiSuccessExample {json} Error response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'GetFolders',
+	 *	Result: false,
+	 *	ErrorCode: 102
+	 * }
+	 */
+	/**
 	 * Obtains list of folders for specified account.
 	 * @param int $AccountID Account identifier.
 	 * @return array
@@ -726,6 +1196,84 @@ class Module extends \Aurora\System\Module\AbstractModule
 		);
 	}
 	
+	/**
+	 * @api {post} ?/Api/ GetMessages
+	 * @apiName GetMessages
+	 * @apiGroup Mail
+	 * @apiDescription Obtains message list for specified account and folder.
+	 * 
+	 * @apiParam {string=Mail} Module Module name
+	 * @apiParam {string=GetMessages} Method Method name
+	 * @apiParam {string} AuthToken Auth token
+	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * {<br>
+	 * &emsp; **AccountID** *int* Account identifier.<br>
+	 * &emsp; **Folder** *string* Folder full name.<br>
+	 * &emsp; **Offset** *int* Says to skip that many folders before beginning to return them.<br>
+	 * &emsp; **Limit** *int* Limit says to return that many folders in the list.<br>
+	 * &emsp; **Search** *string* Search string.<br>
+	 * &emsp; **Filters** *string* List of conditions to obtain messages.<br>
+	 * &emsp; **UseThreads** *int* Indicates if it is necessary to return messages in threads.<br>
+	 * &emsp; **InboxUidnext** *string* (Optional) UIDNEXT Inbox last value that is known on client side.<br>
+	 * }
+	 * 
+	 * @apiParamExample {json} Request-Example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'GetMessages',
+	 *	AuthToken: 'token_value'
+	 *	Parameters: '{"AccountID": 12, "Folder": "Inbox", "Offset": 0, "Limit": 20, "Search": "", "Filters": "", "UseThreads": true}'
+	 * }
+	 * 
+	 * @apiSuccess {object[]} Result Array of response objects.
+	 * @apiSuccess {string} Result.Module Module name.
+	 * @apiSuccess {string} Result.Method Method name.
+	 * @apiSuccess {mixed} Result.Result Mail account properties in case of success, otherwise **false**.
+	 * @apiSuccess {object[]} Result.Result.Folders List of folders.
+	 * @apiSuccess {int} Result.Result.Folders.Count Count of folders.
+	 * @apiSuccess {object[]} Result.Result.Folders.Collection Collection of folders.
+	 * @apiSuccess {int} Result.Result.Folders.Collection.Type Type of folder: 1 - Inbox; 2 - Sent; 3 - Drafts; 4 - Spam; 5 - Trash; 10 = other folders.
+	 * @apiSuccess {string} Result.Result.Folders.Collection.Name Name of folder.
+	 * @apiSuccess {string} Result.Result.Folders.Collection.FullName Folder full name.
+	 * @apiSuccess {string} Result.Result.Folders.Collection.FullNameRaw Folder full name.
+	 * @apiSuccess {string} Result.Result.Folders.Collection.FullNameHash Hash of folder full name.
+	 * @apiSuccess {string} Result.Result.Folders.Collection.Delimiter Delimiter that is used in folder full name.
+	 * @apiSuccess {boolean} Result.Result.Folders.Collection.IsSubscribed Indicates if folder is subscribed.
+	 * @apiSuccess {boolean} Result.Result.Folders.Collection.IsSelectable Indicates if folder can be selected.
+	 * @apiSuccess {boolean} Result.Result.Folders.Collection.Exists Indicates if folder exists.
+	 * @apiSuccess {boolean} Result.Result.Folders.Collection.Extended Indicates if folder is extended.
+	 * @apiSuccess {object[]}} Result.Result.Folders.Collection.SubFolders List of sub folders.
+	 * @apiSuccess {string} Result.Result.Namespace
+	 * @apiSuccess {int} [Result.ErrorCode] Error code
+	 * 
+	 * @apiSuccessExample {json} Success response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'GetMessages',
+	 *	Result: {
+	 *		"@Count": 30,"@Collection": [
+	 *			{	"Folder": "INBOX", "Uid": 1689, "Subject": "You're invited to join AfterLogic", "MessageId": "string_id", 
+	 *				"Size": 2947, "TextSize": 321, "InternalTimeStampInUTC": 1493290584, "ReceivedOrDateTimeStampInUTC": 1493290584, 
+	 *				"TimeStampInUTC": 1493290584, "From": {"@Count": 1, "@Collection": [ { "DisplayName": "", "Email": "mail@localhost.dom2.local" } ] }, 
+	 *				"To": {"@Count": 1, "@Collection": [ { "DisplayName": "", "Email": "test@afterlogic.com" } ] }, "Cc": null, "Bcc": null, 
+	 *				"ReplyTo": { "@Count": 1, "@Collection": [ { "DisplayName": "AfterLogic", "Email":"mail@localhost.dom2.local" } ] }, 
+	 *				"IsSeen": true, "IsFlagged": false, "IsAnswered": false, "IsForwarded": false, "HasAttachments": false, "HasVcardAttachment": false,
+	 *				"HasIcalAttachment": false, "Importance": 3, "DraftInfo": null, "Sensitivity": 0, "TrimmedTextSize": 321, 
+	 *				"DownloadAsEmlUrl": "url_value", "Hash": "hash_value", "Threads": [], "Custom": []	},
+	 *			... ],
+	 *		"Uids": [1689,1667,1666,1651,1649,1648,1647,1646,1639,1638],
+	 *		"UidNext": "1690", "FolderHash": "97b2a280e7b9f2cbf86857e5cacf63b7", "MessageCount": 638, "MessageUnseenCount": 0,
+	 *		"MessageResultCount": 601, "FolderName": "INBOX", "Offset": 0, "Limit": 30, "Search": "", "Filters": "", "New": []
+	 * }
+	 * 
+	 * @apiSuccessExample {json} Error response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'GetMessages',
+	 *	Result: false,
+	 *	ErrorCode: 102
+	 * }
+	 */
 	/**
 	 * Obtains message list for specified account and folder.
 	 * @param int $AccountID Account identifier.
@@ -768,6 +1316,50 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$oAccount, $Folder, $iOffset, $iLimit, $sSearch, $UseThreads, $aFilters, $InboxUidnext);
 	}
 
+	/**
+	 * @api {post} ?/Api/ GetRelevantFoldersInformation
+	 * @apiName GetRelevantFoldersInformation
+	 * @apiGroup Mail
+	 * @apiDescription Obtains relevant information about total and unseen messages count in specified folders.
+	 * 
+	 * @apiParam {string=Mail} Module Module name
+	 * @apiParam {string=GetRelevantFoldersInformation} Method Method name
+	 * @apiParam {string} AuthToken Auth token
+	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * {<br>
+	 * &emsp; **AccountID** *int* Account identifier.<br>
+	 * &emsp; **Folders** *array* List of folders' full names.<br>
+	 * }
+	 * 
+	 * @apiParamExample {json} Request-Example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'GetRelevantFoldersInformation',
+	 *	AuthToken: 'token_value'
+	 *	Parameters: '{"AccountID": 12, "Folders": ["INBOX", "Spam"]}'
+	 * }
+	 * 
+	 * @apiSuccess {object[]} Result Array of response objects.
+	 * @apiSuccess {string} Result.Module Module name.
+	 * @apiSuccess {string} Result.Method Method name.
+	 * @apiSuccess {mixed} Result.Result Mail account properties in case of success, otherwise **false**.
+	 * @apiSuccess {object[]} Result.Result.Counts List of folders' data where key is folder full name and value is array like [message_count, unread_message_count, "next_message_uid", "hash_to_indicate_changes"]
+	 * @apiSuccess {int} [Result.ErrorCode] Error code
+	 * 
+	 * @apiSuccessExample {json} Success response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'GetRelevantFoldersInformation',
+	 *	Result: { "Counts": { "INBOX": [638, 0, "1690", "97b2a280e7b9f2cbf86857e5cacf63b7"], "Spam": [71, 69, "92", "3c9fe98367857e9930c725010e947d88" ] } }
+	 * 
+	 * @apiSuccessExample {json} Error response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'GetRelevantFoldersInformation',
+	 *	Result: false,
+	 *	ErrorCode: 102
+	 * }
+	 */
 	/**
 	 * Obtains relevant information abount total and unseen messages count in specified folders.
 	 * @param int $AccountID Account identifier.
@@ -812,9 +1404,52 @@ class Module extends \Aurora\System\Module\AbstractModule
 	}	
 	
 	/**
+	 * @api {post} ?/Api/ GetQuota
+	 * @apiName GetQuota
+	 * @apiGroup Mail
+	 * @apiDescription Obtains mail account quota.
+	 * 
+	 * @apiParam {string=Mail} Module Module name
+	 * @apiParam {string=GetQuota} Method Method name
+	 * @apiParam {string} AuthToken Auth token
+	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * {<br>
+	 * &emsp; **AccountID** *int* Account identifier.<br>
+	 * }
+	 * 
+	 * @apiParamExample {json} Request-Example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'GetQuota',
+	 *	AuthToken: 'token_value'
+	 *	Parameters: '{"AccountID": 12}'
+	 * }
+	 * 
+	 * @apiSuccess {object[]} Result Array of response objects.
+	 * @apiSuccess {string} Result.Module Module name.
+	 * @apiSuccess {string} Result.Method Method name.
+	 * @apiSuccess {mixed} Result.Result Array like [quota_limit, used_space] in case of success, otherwise **false**.
+	 * @apiSuccess {int} [Result.ErrorCode] Error code
+	 * 
+	 * @apiSuccessExample {json} Success response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'GetQuota',
+	 *	Result: [8976, 10240]
+	 * }
+	 * 
+	 * @apiSuccessExample {json} Error response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'GetQuota',
+	 *	Result: false,
+	 *	ErrorCode: 102
+	 * }
+	 */
+	/**
 	 * Obtains mail account quota.
 	 * @param int $AccountID Account identifier.
-	 * @return array
+	 * @return array|boolean
 	 */
 	public function GetQuota($AccountID)
 	{
@@ -824,6 +1459,106 @@ class Module extends \Aurora\System\Module\AbstractModule
 		return $this->oApiMailManager->getQuota($oAccount);
 	}
 
+	/**
+	 * @api {post} ?/Api/ GetMessagesBodies
+	 * @apiName GetMessagesBodies
+	 * @apiGroup Mail
+	 * @apiDescription Obtains full data of specified messages including plain text, html text and attachments.
+	 * 
+	 * @apiParam {string=Mail} Module Module name
+	 * @apiParam {string=GetMessagesBodies} Method Method name
+	 * @apiParam {string} AuthToken Auth token
+	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * {<br>
+	 * &emsp; **AccountID** *int* Account identifier.<br>
+	 * &emsp; **Folder** *string* Folder full name.<br>
+	 * &emsp; **Uids** *array* List of messages' uids.<br>
+	 * }
+	 * 
+	 * @apiParamExample {json} Request-Example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'GetMessagesBodies',
+	 *	AuthToken: 'token_value'
+	 *	Parameters: '{"AccountID": 1248, "Folder": "INBOX", "Uids": ["1591", "1589", "1588", "1587", "1586"]}'
+	 * }
+	 * 
+	 * @apiSuccess {object[]} Result Array of response objects.
+	 * @apiSuccess {string} Result.Module Module name.
+	 * @apiSuccess {string} Result.Method Method name.
+	 * @apiSuccess {mixed} Result.Result Array of messages in case of success, otherwise **false**.
+	 * @apiSuccess {string} Result.Result.Folder Full name of folder that contains the message.
+	 * @apiSuccess {int} Result.Result.Uid Message uid.
+	 * @apiSuccess {string} Result.Result.Subject Message subject.
+	 * @apiSuccess {string} Result.Result.MessageId Message string identifier that is retrieved from message headers.
+	 * @apiSuccess {int} Result.Result.Size Message size.
+	 * @apiSuccess {int} Result.Result.TextSize Message text size.
+	 * @apiSuccess {int} Result.Result.InternalTimeStampInUTC Timestamp of message receiving date.
+	 * @apiSuccess {int} Result.Result.ReceivedOrDateTimeStampInUTC Timestamp of date that is retrieved from message.
+	 * @apiSuccess {int} Result.Result.TimeStampInUTC InternalTimeStampInUTC or ReceivedOrDateTimeStampInUTC depending on UseDateFromHeaders setting
+	 * @apiSuccess {object} Result.Result.From Collection of sender addresses. Usually contains one address.
+	 * @apiSuccess {object} Result.Result.To Collection of recipient addresses.
+	 * @apiSuccess {object} Result.Result.Cc Collection of recipient addresses which receive copies of message.
+	 * @apiSuccess {object} Result.Result.Bcc Collection of recipient addresses which receive hidden copies of message.
+	 * @apiSuccess {object} Result.Result.ReplyTo Collection of address which is used for message reply.
+	 * @apiSuccess {boolean} Result.Result.IsSeen Indicates if message is seen.
+	 * @apiSuccess {boolean} Result.Result.IsFlagged Indicates if message is flagged.
+	 * @apiSuccess {boolean} Result.Result.IsAnswered Indicates if message is answered.
+	 * @apiSuccess {boolean} Result.Result.IsForwarded Indicates if message is forwarded.
+	 * @apiSuccess {boolean} Result.Result.HasAttachments Indicates if message has attachments.
+	 * @apiSuccess {boolean} Result.Result.HasVcardAttachment Indicates if message has attachment with VCARD.
+	 * @apiSuccess {boolean} Result.Result.HasIcalAttachment Indicates if message has attachment with ICAL.
+	 * @apiSuccess {int} Result.Result.Importance Importance value of the message, from 1 (highest) to 5 (lowest).
+	 * @apiSuccess {array} Result.Result.DraftInfo Contains information about the original message which is replied or forwarded: message type (reply/forward), UID and folder.
+	 * @apiSuccess {int} Result.Result.Sensitivity If Sensitivity header was set for the message, its value will be returned: 1 for "Confidential", 2 for "Private", 3 for "Personal". 
+	 * @apiSuccess {int} Result.Result.TrimmedTextSize Size of text if it is trimmed.
+	 * @apiSuccess {string} Result.Result.DownloadAsEmlUrl Url for download message as .eml file.
+	 * @apiSuccess {string} Result.Result.Hash Message hash.
+	 * @apiSuccess {string} Result.Result.Headers Block of headers of the message.
+	 * @apiSuccess {string} Result.Result.InReplyTo Value of **In-Reply-To** header which is supplied in replies/forwards and contains Message-ID of the original message. This approach allows for organizing threads.
+	 * @apiSuccess {string} Result.Result.References Content of References header block of the message. 
+	 * @apiSuccess {string} Result.Result.ReadingConfirmationAddressee Email address reading confirmation is to be sent to.
+	 * @apiSuccess {string} Result.Result.Html HTML body of the message.
+	 * @apiSuccess {boolean} Result.Result.Trimmed Indicates if message body is trimmed.
+	 * @apiSuccess {string} Result.Result.Plain Message plaintext body prepared for display.
+	 * @apiSuccess {string} Result.Result.PlainRaw Message plaintext body as is.
+	 * @apiSuccess {boolean} Result.Result.Rtl Indicates if message body contains symbols from one of rtl languages.
+	 * @apiSuccess {array} Result.Result.Extend List of custom content, implemented for use of iCal/vCard content.
+	 * @apiSuccess {boolean} Result.Result.Safety Indication of whether the sender is trustworthy so it's safe to display external images.
+	 * @apiSuccess {boolean} Result.Result.HasExternals Indicates if HTML message body contains images with external URLs.
+	 * @apiSuccess {array} Result.Result.FoundedCIDs List of content-IDs used for inline attachments.
+	 * @apiSuccess {array} Result.Result.FoundedContentLocationUrls
+	 * @apiSuccess {array} Result.Result.Attachments Information about attachments of the message.
+	 * @apiSuccess {int} [Result.ErrorCode] Error code
+	 * 
+	 * @apiSuccessExample {json} Success response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'GetMessagesBodies',
+	 *	Result: [
+	 *		{	"Folder": "INBOX", "Uid": 1591, "Subject": "test", "MessageId": "string_id", "Size": 2578, "TextSize": 243,
+	 *			"InternalTimeStampInUTC": 1490615414, "ReceivedOrDateTimeStampInUTC": 1490615414, "TimeStampInUTC": 1490615414,
+	 *			"From": {"@Count": 1, "@Collection": [ { "DisplayName": "", "Email": "test@afterlogic.com" } ] },
+	 *			"To": { "@Count": 1, "@Collection": [ { "DisplayName": "test", "Email":"test@afterlogic.com" } ] },
+	 *			"Cc": null, "Bcc": null, "ReplyTo": null, "IsSeen": true, "IsFlagged": false, "IsAnswered": false,
+	 *			"IsForwarded": false, "HasAttachments": false, "HasVcardAttachment": false, "HasIcalAttachment": false, "Importance": 3,
+	 *			"DraftInfo": null, "Sensitivity": 0, "TrimmedTextSize": 243, "DownloadAsEmlUrl": "url_value", "Hash": "hash_value",
+	 *			"Headers": "headers_value", "InReplyTo": "", "References": "", "ReadingConfirmationAddressee": "", 
+	 *			"Html": "html_text_of_message", "Trimmed": false, "Plain": "", "PlainRaw": "", "Rtl": false, "Extend": [],
+	 *			"Safety": false, "HasExternals": false, "FoundedCIDs": [], "FoundedContentLocationUrls": [], "Attachments": null
+	 *		},
+	 *		...
+	 *	]
+	 * }
+	 * 
+	 * @apiSuccessExample {json} Error response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'GetMessagesBodies',
+	 *	Result: false,
+	 *	ErrorCode: 102
+	 * }
+	 */
 	/**
 	 * Obtains full data of specified messages including plain text, html text and attachments.
 	 * @param int $AccountID Account identifier.
@@ -859,6 +1594,105 @@ class Module extends \Aurora\System\Module\AbstractModule
 		return $aList;
 	}
 
+	/**
+	 * @api {post} ?/Api/ GetMessage
+	 * @apiName GetMessage
+	 * @apiGroup Mail
+	 * @apiDescription Obtains full data of specified message including plain text, html text and attachments.
+	 * 
+	 * @apiParam {string=Mail} Module Module name
+	 * @apiParam {string=GetMessage} Method Method name
+	 * @apiParam {string} AuthToken Auth token
+	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * {<br>
+	 * &emsp; **AccountId** *int* Account identifier.<br>
+	 * &emsp; **Folder** *string* Folder full name.<br>
+	 * &emsp; **Uid** *string* Message uid.<br>
+	 * &emsp; **Rfc822MimeIndex** *string* If specified obtains message from attachment of another message.<br>
+	 * }
+	 * 
+	 * @apiParamExample {json} Request-Example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'GetMessage',
+	 *	AuthToken: 'token_value'
+	 *	Parameters: '{"AccountId": 12, "Folder": "Inbox", "Uid": 1232}'
+	 * }
+	 * 
+	 * @apiSuccess {object[]} Result Array of response objects.
+	 * @apiSuccess {string} Result.Module Module name.
+	 * @apiSuccess {string} Result.Method Method name.
+	 * @apiSuccess {mixed} Result.Result Message properties in case of success, otherwise **false**.
+	 * @apiSuccess {string} Result.Result.Folder Full name of folder that contains the message.
+	 * @apiSuccess {int} Result.Result.Uid Message uid.
+	 * @apiSuccess {string} Result.Result.Subject Message subject.
+	 * @apiSuccess {string} Result.Result.MessageId Message string identifier that is retrieved from message headers.
+	 * @apiSuccess {int} Result.Result.Size Message size.
+	 * @apiSuccess {int} Result.Result.TextSize Message text size.
+	 * @apiSuccess {int} Result.Result.InternalTimeStampInUTC Timestamp of message receiving date.
+	 * @apiSuccess {int} Result.Result.ReceivedOrDateTimeStampInUTC Timestamp of date that is retrieved from message.
+	 * @apiSuccess {int} Result.Result.TimeStampInUTC InternalTimeStampInUTC or ReceivedOrDateTimeStampInUTC depending on UseDateFromHeaders setting
+	 * @apiSuccess {object} Result.Result.From Collection of sender addresses. Usually contains one address.
+	 * @apiSuccess {object} Result.Result.To Collection of recipient addresses.
+	 * @apiSuccess {object} Result.Result.Cc Collection of recipient addresses which receive copies of message.
+	 * @apiSuccess {object} Result.Result.Bcc Collection of recipient addresses which receive hidden copies of message.
+	 * @apiSuccess {object} Result.Result.ReplyTo Collection of address which is used for message reply.
+	 * @apiSuccess {boolean} Result.Result.IsSeen Indicates if message is seen.
+	 * @apiSuccess {boolean} Result.Result.IsFlagged Indicates if message is flagged.
+	 * @apiSuccess {boolean} Result.Result.IsAnswered Indicates if message is answered.
+	 * @apiSuccess {boolean} Result.Result.IsForwarded Indicates if message is forwarded.
+	 * @apiSuccess {boolean} Result.Result.HasAttachments Indicates if message has attachments.
+	 * @apiSuccess {boolean} Result.Result.HasVcardAttachment Indicates if message has attachment with VCARD.
+	 * @apiSuccess {boolean} Result.Result.HasIcalAttachment Indicates if message has attachment with ICAL.
+	 * @apiSuccess {int} Result.Result.Importance Importance value of the message, from 1 (highest) to 5 (lowest).
+	 * @apiSuccess {array} Result.Result.DraftInfo Contains information about the original message which is replied or forwarded: message type (reply/forward), UID and folder.
+	 * @apiSuccess {int} Result.Result.Sensitivity If Sensitivity header was set for the message, its value will be returned: 1 for "Confidential", 2 for "Private", 3 for "Personal". 
+	 * @apiSuccess {int} Result.Result.TrimmedTextSize Size of text if it is trimmed.
+	 * @apiSuccess {string} Result.Result.DownloadAsEmlUrl Url for download message as .eml file.
+	 * @apiSuccess {string} Result.Result.Hash Message hash.
+	 * @apiSuccess {string} Result.Result.Headers Block of headers of the message.
+	 * @apiSuccess {string} Result.Result.InReplyTo Value of **In-Reply-To** header which is supplied in replies/forwards and contains Message-ID of the original message. This approach allows for organizing threads.
+	 * @apiSuccess {string} Result.Result.References Content of References header block of the message. 
+	 * @apiSuccess {string} Result.Result.ReadingConfirmationAddressee Email address reading confirmation is to be sent to.
+	 * @apiSuccess {string} Result.Result.Html HTML body of the message.
+	 * @apiSuccess {boolean} Result.Result.Trimmed Indicates if message body is trimmed.
+	 * @apiSuccess {string} Result.Result.Plain Message plaintext body prepared for display.
+	 * @apiSuccess {string} Result.Result.PlainRaw Message plaintext body as is.
+	 * @apiSuccess {boolean} Result.Result.Rtl Indicates if message body contains symbols from one of rtl languages.
+	 * @apiSuccess {array} Result.Result.Extend List of custom content, implemented for use of iCal/vCard content.
+	 * @apiSuccess {boolean} Result.Result.Safety Indication of whether the sender is trustworthy so it's safe to display external images.
+	 * @apiSuccess {boolean} Result.Result.HasExternals Indicates if HTML message body contains images with external URLs.
+	 * @apiSuccess {array} Result.Result.FoundedCIDs List of content-IDs used for inline attachments.
+	 * @apiSuccess {array} Result.Result.FoundedContentLocationUrls
+	 * @apiSuccess {array} Result.Result.Attachments Information about attachments of the message.
+	 * @apiSuccess {int} [Result.ErrorCode] Error code
+	 * 
+	 * @apiSuccessExample {json} Success response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'GetMessage',
+	 *	Result: {
+	 *		"Folder": "INBOX", "Uid": 1591, "Subject": "test", "MessageId": "string_id", "Size": 2578, "TextSize": 243,
+	 *		"InternalTimeStampInUTC": 1490615414, "ReceivedOrDateTimeStampInUTC": 1490615414, "TimeStampInUTC": 1490615414,
+	 *		"From": {"@Count": 1, "@Collection": [ { "DisplayName": "", "Email": "test@afterlogic.com" } ] },
+	 *		"To": { "@Count": 1, "@Collection": [ { "DisplayName": "test", "Email":"test@afterlogic.com" } ] },
+	 *		"Cc": null, "Bcc": null, "ReplyTo": null, "IsSeen": true, "IsFlagged": false, "IsAnswered": false,
+	 *		"IsForwarded": false, "HasAttachments": false, "HasVcardAttachment": false, "HasIcalAttachment": false, "Importance": 3,
+	 *		"DraftInfo": null, "Sensitivity": 0, "TrimmedTextSize": 243, "DownloadAsEmlUrl": "url_value", "Hash": "hash_value",
+	 *		"Headers": "headers_value", "InReplyTo": "", "References": "", "ReadingConfirmationAddressee": "", 
+	 *		"Html": "html_text_of_message", "Trimmed": false, "Plain": "", "PlainRaw": "", "Rtl": false, "Extend": [],
+	 *		"Safety": false, "HasExternals": false, "FoundedCIDs": [], "FoundedContentLocationUrls": [], "Attachments": null
+	 *	}
+	 * }
+	 * 
+	 * @apiSuccessExample {json} Error response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'GetMessage',
+	 *	Result: false,
+	 *	ErrorCode: 102
+	 * }
+	 */
 	/**
 	 * Obtains full data of specified message including plain text, html text and attachments.
 	 * @param int $AccountID Account identifier.
@@ -1052,6 +1886,51 @@ class Module extends \Aurora\System\Module\AbstractModule
 	}
 
 	/**
+	 * @api {post} ?/Api/ SetMessagesSeen
+	 * @apiName SetMessagesSeen
+	 * @apiGroup Mail
+	 * @apiDescription Puts on or off seen flag of message.
+	 * 
+	 * @apiParam {string=Mail} Module Module name
+	 * @apiParam {string=SetMessagesSeen} Method Method name
+	 * @apiParam {string} AuthToken Auth token
+	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * {<br>
+	 * &emsp; **AccountID** *int* Account identifier.<br>
+	 * &emsp; **Folder** *string* Folder full name.<br>
+	 * &emsp; **Uids** *string* List of messages' uids.<br>
+	 * &emsp; **SetAction** *boolean* Indicates if flag should be set or removed.<br>
+	 * }
+	 * 
+	 * @apiParamExample {json} Request-Example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'SetMessagesSeen',
+	 *	AuthToken: 'token_value'
+	 *	Parameters: '{ "AccountID": 12, "Folder": "Inbox", "Uids": "1243,1244,1245", "SetAction": false }'
+	 * }
+	 * 
+	 * @apiSuccess {object[]} Result Array of response objects.
+	 * @apiSuccess {string} Result.Module Module name.
+	 * @apiSuccess {string} Result.Method Method name.
+	 * @apiSuccess {boolean} Result.Result Indicates if seen flag was set successfully.
+	 * @apiSuccess {int} [Result.ErrorCode] Error code
+	 * 
+	 * @apiSuccessExample {json} Success response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'SetMessagesSeen',
+	 *	Result: true
+	 * 
+	 * @apiSuccessExample {json} Error response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'SetMessagesSeen',
+	 *	Result: false,
+	 *	ErrorCode: 102
+	 * }
+	 */
+	/**
 	 * Puts on or off seen flag of message.
 	 * @param int $AccountID Account identifier.
 	 * @param string $Folder Folder full name.
@@ -1066,6 +1945,51 @@ class Module extends \Aurora\System\Module\AbstractModule
 		return $this->setMessageFlag($AccountID, $Folder, $Uids, $SetAction, \MailSo\Imap\Enumerations\MessageFlag::SEEN);
 	}	
 	
+	/**
+	 * @api {post} ?/Api/ SetMessageFlagged
+	 * @apiName SetMessageFlagged
+	 * @apiGroup Mail
+	 * @apiDescription Puts on or off flagged flag of message.
+	 * 
+	 * @apiParam {string=Mail} Module Module name
+	 * @apiParam {string=SetMessageFlagged} Method Method name
+	 * @apiParam {string} AuthToken Auth token
+	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * {<br>
+	 * &emsp; **AccountID** *int* Account identifier.<br>
+	 * &emsp; **Folder** *string* Folder full name.<br>
+	 * &emsp; **Uids** *string* List of messages' uids.<br>
+	 * &emsp; **SetAction** *boolean* Indicates if flag should be set or removed.<br>
+	 * }
+	 * 
+	 * @apiParamExample {json} Request-Example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'SetMessageFlagged',
+	 *	AuthToken: 'token_value'
+	 *	Parameters: '{ "AccountID": 12, "Folder": "Inbox", "Uids": "1243,1244,1245", "SetAction": false }'
+	 * }
+	 * 
+	 * @apiSuccess {object[]} Result Array of response objects.
+	 * @apiSuccess {string} Result.Module Module name.
+	 * @apiSuccess {string} Result.Method Method name.
+	 * @apiSuccess {boolean} Result.Result Indicates if flagged flag was set successfully.
+	 * @apiSuccess {int} [Result.ErrorCode] Error code
+	 * 
+	 * @apiSuccessExample {json} Success response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'SetMessageFlagged',
+	 *	Result: true
+	 * 
+	 * @apiSuccessExample {json} Error response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'SetMessageFlagged',
+	 *	Result: false,
+	 *	ErrorCode: 102
+	 * }
+	 */
 	/**
 	 * Puts on or off flagged flag of message.
 	 * @param int $AccountID Account identifier.
@@ -1082,7 +2006,50 @@ class Module extends \Aurora\System\Module\AbstractModule
 	}
 	
 	/**
-	 * Puts on or off seen flag for all messages in folder.
+	 * @api {post} ?/Api/ SetAllMessagesSeen
+	 * @apiName SetAllMessagesSeen
+	 * @apiGroup Mail
+	 * @apiDescription Puts on seen flag for all messages in folder.
+	 * 
+	 * @apiParam {string=Mail} Module Module name
+	 * @apiParam {string=SetAllMessagesSeen} Method Method name
+	 * @apiParam {string} AuthToken Auth token
+	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * {<br>
+	 * &emsp; **AccountID** *int* Account identifier.<br>
+	 * &emsp; **Folder** *string* Folder full name.<br>
+	 * }
+	 * 
+	 * @apiParamExample {json} Request-Example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'SetAllMessagesSeen',
+	 *	AuthToken: 'token_value'
+	 *	Parameters: '{ "AccountID": 12, "Folder": "Inbox" }'
+	 * }
+	 * 
+	 * @apiSuccess {object[]} Result Array of response objects.
+	 * @apiSuccess {string} Result.Module Module name.
+	 * @apiSuccess {string} Result.Method Method name.
+	 * @apiSuccess {boolean} Result.Result Indicates if seen flag was set successfully.
+	 * @apiSuccess {int} [Result.ErrorCode] Error code
+	 * 
+	 * @apiSuccessExample {json} Success response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'SetAllMessagesSeen',
+	 *	Result: true
+	 * 
+	 * @apiSuccessExample {json} Error response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'SetAllMessagesSeen',
+	 *	Result: false,
+	 *	ErrorCode: 102
+	 * }
+	 */
+	/**
+	 * Puts on seen flag for all messages in folder.
 	 * @param int $AccountID Account identifier.
 	 * @param string $Folder Folder full name.
 	 * @return boolean
@@ -1103,6 +2070,51 @@ class Module extends \Aurora\System\Module\AbstractModule
 			\MailSo\Imap\Enumerations\MessageFlag::SEEN, \EMailMessageStoreAction::Add, true);
 	}
 
+	/**
+	 * @api {post} ?/Api/ MoveMessages
+	 * @apiName MoveMessages
+	 * @apiGroup Mail
+	 * @apiDescription Moves messages from one folder to another.
+	 * 
+	 * @apiParam {string=Mail} Module Module name
+	 * @apiParam {string=MoveMessages} Method Method name
+	 * @apiParam {string} AuthToken Auth token
+	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * {<br>
+	 * &emsp; **AccountID** *int* Account identifier.<br>
+	 * &emsp; **Folder** *string* Full name of the folder from which messages will be moved.<br>
+	 * &emsp; **ToFolder** *string* Full name of the folder to which messages will be moved.<br>
+	 * &emsp; **Uids** *string* Uids of messages to move.<br>
+	 * }
+	 * 
+	 * @apiParamExample {json} Request-Example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'MoveMessages',
+	 *	AuthToken: 'token_value'
+	 *	Parameters: '{ "AccountID": 12, "Folder": "Inbox", "ToFolder": "Trash", "Uids": "1212,1213,1215" }'
+	 * }
+	 * 
+	 * @apiSuccess {object[]} Result Array of response objects.
+	 * @apiSuccess {string} Result.Module Module name.
+	 * @apiSuccess {string} Result.Method Method name.
+	 * @apiSuccess {boolean} Result.Result Indicates if messages were moved successfully.
+	 * @apiSuccess {int} [Result.ErrorCode] Error code
+	 * 
+	 * @apiSuccessExample {json} Success response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'MoveMessages',
+	 *	Result: true
+	 * 
+	 * @apiSuccessExample {json} Error response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'MoveMessages',
+	 *	Result: false,
+	 *	ErrorCode: 102
+	 * }
+	 */
 	/**
 	 * Moves messages from one folder to another.
 	 * @param int $AccountID Account identifier.
@@ -1145,6 +2157,50 @@ class Module extends \Aurora\System\Module\AbstractModule
 	}
 	
 	/**
+	 * @api {post} ?/Api/ DeleteMessages
+	 * @apiName DeleteMessages
+	 * @apiGroup Mail
+	 * @apiDescription Deletes messages from folder.
+	 * 
+	 * @apiParam {string=Mail} Module Module name
+	 * @apiParam {string=DeleteMessages} Method Method name
+	 * @apiParam {string} AuthToken Auth token
+	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * {<br>
+	 * &emsp; **AccountID** *int* Account identifier.<br>
+	 * &emsp; **Folder** *string* Folder full name.<br>
+	 * &emsp; **Uids** *string* Uids of messages to delete.<br>
+	 * }
+	 * 
+	 * @apiParamExample {json} Request-Example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'DeleteMessages',
+	 *	AuthToken: 'token_value'
+	 *	Parameters: '{ "AccountID": 12, "Folder": "Inbox", "Uids": "1212,1213,1215" }'
+	 * }
+	 * 
+	 * @apiSuccess {object[]} Result Array of response objects.
+	 * @apiSuccess {string} Result.Module Module name.
+	 * @apiSuccess {string} Result.Method Method name.
+	 * @apiSuccess {boolean} Result.Result Indicates if messages were deleted successfully.
+	 * @apiSuccess {int} [Result.ErrorCode] Error code
+	 * 
+	 * @apiSuccessExample {json} Success response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'DeleteMessages',
+	 *	Result: true
+	 * 
+	 * @apiSuccessExample {json} Error response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'DeleteMessages',
+	 *	Result: false,
+	 *	ErrorCode: 102
+	 * }
+	 */
+	/**
 	 * Deletes messages from folder.
 	 * @param int $AccountID Account identifier.
 	 * @param string $Folder Folder full name.
@@ -1170,6 +2226,51 @@ class Module extends \Aurora\System\Module\AbstractModule
 		return true;
 	}
 	
+	/**
+	 * @api {post} ?/Api/ CreateFolder
+	 * @apiName CreateFolder
+	 * @apiGroup Mail
+	 * @apiDescription Creates folder in mail account.
+	 * 
+	 * @apiParam {string=Mail} Module Module name
+	 * @apiParam {string=CreateFolder} Method Method name
+	 * @apiParam {string} AuthToken Auth token
+	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * {<br>
+	 * &emsp; **AccountID** *int* Account identifier.<br>
+	 * &emsp; **FolderNameInUtf8** *string* Name of folder to create.<br>
+	 * &emsp; **FolderParentFullNameRaw** *string* Full name of parent folder.<br>
+	 * &emsp; **Delimiter** *string* Delimiter that is used if full folder name.<br>
+	 * }
+	 * 
+	 * @apiParamExample {json} Request-Example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'CreateFolder',
+	 *	AuthToken: 'token_value'
+	 *	Parameters: '{ "AccountID": 12, "Folder": "Inbox", "Uids": "1212,1213,1215" }'
+	 * }
+	 * 
+	 * @apiSuccess {object[]} Result Array of response objects.
+	 * @apiSuccess {string} Result.Module Module name.
+	 * @apiSuccess {string} Result.Method Method name.
+	 * @apiSuccess {boolean} Result.Result Indicates if messages were deleted successfully.
+	 * @apiSuccess {int} [Result.ErrorCode] Error code
+	 * 
+	 * @apiSuccessExample {json} Success response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'CreateFolder',
+	 *	Result: true
+	 * 
+	 * @apiSuccessExample {json} Error response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'CreateFolder',
+	 *	Result: false,
+	 *	ErrorCode: 102
+	 * }
+	 */
 	/**
 	 * Creates folder in mail account.
 	 * @param int $AccountID Account identifier.
@@ -1240,6 +2341,52 @@ class Module extends \Aurora\System\Module\AbstractModule
 	}
 	
 	/**
+	 * @api {post} ?/Api/ RenameFolder
+	 * @apiName RenameFolder
+	 * @apiGroup Mail
+	 * @apiDescription Obtains list of mail accounts for user.
+	 * 
+	 * @apiParam {string=Mail} Module Module name
+	 * @apiParam {string=RenameFolder} Method Method name
+	 * @apiParam {string} AuthToken Auth token
+	 * @apiParam {string} [Parameters] JSON.stringified object <br>
+	 * {<br>
+	 * &emsp; **AccountID** *int* Account identifier.<br>
+	 * &emsp; **PrevFolderFullNameRaw** *int* Full name of folder to rename.<br>
+	 * &emsp; **NewFolderNameInUtf8** *int* New folder name.<br>
+	 * }
+	 * 
+	 * @apiParamExample {json} Request-Example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'RenameFolder',
+	 *	AuthToken: 'token_value'
+	 * }
+	 * 
+	 * @apiSuccess {object[]} Result Array of response objects.
+	 * @apiSuccess {string} Result.Module Module name.
+	 * @apiSuccess {string} Result.Method Method name.
+	 * @apiSuccess {mixed} Result.Result New folder name information in case of success, otherwise **false**.
+	 * @apiSuccess {string} Result.Result.FullName New full name of folder.
+	 * @apiSuccess {string} Result.Result.FullNameHash Hash of new full name of folder.
+	 * @apiSuccess {int} [Result.ErrorCode] Error code
+	 * 
+	 * @apiSuccessExample {json} Success response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'RenameFolder',
+	 *	Result: { "FullName": "folder1", "FullNameHash": "hash_value" }
+	 * }
+	 * 
+	 * @apiSuccessExample {json} Error response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'RenameFolder',
+	 *	Result: false,
+	 *	ErrorCode: 102
+	 * }
+	 */
+	/**
 	 * Renames folder.
 	 * @param int $AccountID Account identifier.
 	 * @param string $PrevFolderFullNameRaw Full name of folder to rename.
@@ -1267,6 +2414,49 @@ class Module extends \Aurora\System\Module\AbstractModule
 	}
 
 	/**
+	 * @api {post} ?/Api/ DeleteFolder
+	 * @apiName DeleteFolder
+	 * @apiGroup Mail
+	 * @apiDescription Deletes folder.
+	 * 
+	 * @apiParam {string=Mail} Module Module name
+	 * @apiParam {string=DeleteFolder} Method Method name
+	 * @apiParam {string} AuthToken Auth token
+	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * {<br>
+	 * &emsp; **AccountID** *int* Account identifier.<br>
+	 * &emsp; **Folder** *string* Full name of folder to delete.<br>
+	 * }
+	 * 
+	 * @apiParamExample {json} Request-Example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'DeleteFolder',
+	 *	AuthToken: 'token_value'
+	 *	Parameters: '{ "AccountID": 12, "Folder": "folder2" }'
+	 * }
+	 * 
+	 * @apiSuccess {object[]} Result Array of response objects.
+	 * @apiSuccess {string} Result.Module Module name.
+	 * @apiSuccess {string} Result.Method Method name.
+	 * @apiSuccess {boolean} Result.Result Indicates if folder was deleted successfully.
+	 * @apiSuccess {int} [Result.ErrorCode] Error code
+	 * 
+	 * @apiSuccessExample {json} Success response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'DeleteFolder',
+	 *	Result: true
+	 * 
+	 * @apiSuccessExample {json} Error response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'DeleteFolder',
+	 *	Result: false,
+	 *	ErrorCode: 102
+	 * }
+	 */
+	/**
 	 * Deletes folder.
 	 * @param int $AccountID Account identifier.
 	 * @param string $Folder Full name of folder to delete.
@@ -1289,6 +2479,50 @@ class Module extends \Aurora\System\Module\AbstractModule
 		return true;
 	}	
 
+	/**
+	 * @api {post} ?/Api/ SubscribeFolder
+	 * @apiName SubscribeFolder
+	 * @apiGroup Mail
+	 * @apiDescription Subscribes/unsubscribes folder.
+	 * 
+	 * @apiParam {string=Mail} Module Module name
+	 * @apiParam {string=SubscribeFolder} Method Method name
+	 * @apiParam {string} AuthToken Auth token
+	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * {<br>
+	 * &emsp; **AccountID** *int* Account identifier.<br>
+	 * &emsp; **Folder** *string* Full name of folder to subscribe/unsubscribe.<br>
+	 * &emsp; **SetAction** *boolean* Indicates if folder should be subscribed or unsubscribed.<br>
+	 * }
+	 * 
+	 * @apiParamExample {json} Request-Example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'SubscribeFolder',
+	 *	AuthToken: 'token_value'
+	 *	Parameters: '{ "AccountID": 12, "Folder": "folder2", "SetAction": true }'
+	 * }
+	 * 
+	 * @apiSuccess {object[]} Result Array of response objects.
+	 * @apiSuccess {string} Result.Module Module name.
+	 * @apiSuccess {string} Result.Method Method name.
+	 * @apiSuccess {boolean} Result.Result Indicates if folder was subscribed/unsubscribed successfully.
+	 * @apiSuccess {int} [Result.ErrorCode] Error code
+	 * 
+	 * @apiSuccessExample {json} Success response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'SubscribeFolder',
+	 *	Result: true
+	 * 
+	 * @apiSuccessExample {json} Error response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'SubscribeFolder',
+	 *	Result: false,
+	 *	ErrorCode: 102
+	 * }
+	 */
 	/**
 	 * Subscribes/unsubscribes folder.
 	 * @param int $AccountID Account identifier.
@@ -1313,6 +2547,49 @@ class Module extends \Aurora\System\Module\AbstractModule
 		return true;
 	}	
 	
+	/**
+	 * @api {post} ?/Api/ UpdateFoldersOrder
+	 * @apiName UpdateFoldersOrder
+	 * @apiGroup Mail
+	 * @apiDescription Updates order of folders.
+	 * 
+	 * @apiParam {string=Mail} Module Module name
+	 * @apiParam {string=UpdateFoldersOrder} Method Method name
+	 * @apiParam {string} AuthToken Auth token
+	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * {<br>
+	 * &emsp; **AccountID** *int* Account identifier.<br>
+	 * &emsp; **FolderList** *array* List of folders with new order.<br>
+	 * }
+	 * 
+	 * @apiParamExample {json} Request-Example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'UpdateFoldersOrder',
+	 *	AuthToken: 'token_value'
+	 *	Parameters: '{ "AccountID": 12, "FolderList": ["INBOX", "Sent", "Drafts", "Trash", "Spam", "folder1"] }'
+	 * }
+	 * 
+	 * @apiSuccess {object[]} Result Array of response objects.
+	 * @apiSuccess {string} Result.Module Module name.
+	 * @apiSuccess {string} Result.Method Method name.
+	 * @apiSuccess {boolean} Result.Result Indicates if folders' order was changed successfully.
+	 * @apiSuccess {int} [Result.ErrorCode] Error code
+	 * 
+	 * @apiSuccessExample {json} Success response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'UpdateFoldersOrder',
+	 *	Result: true
+	 * 
+	 * @apiSuccessExample {json} Error response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'UpdateFoldersOrder',
+	 *	Result: false,
+	 *	ErrorCode: 102
+	 * }
+	 */
 	/**
 	 * Updates order of folders.
 	 * @param int $AccountID Account identifier.
@@ -1406,7 +2683,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param int $AccountID Account identifier.
 	 * @param string $FetcherID Fetcher identifier.
 	 * @param int $IdentityID Identity identifier.
-	 * @param array $DraftInfo Array ($sType, $sUid, $sFolder) where $sType - reply or forward type, $sUid - uid of message that was an original one, $sFolder - full name of folder which contains the original.
+	 * @param array $DraftInfo Contains information about the original message which is replied or forwarded: message type (reply/forward), UID and folder.
 	 * @param string $DraftUid Uid of message to save in Drafts folder.
 	 * @param string $To Message recipients.
 	 * @param string $Cc Recipients which will get a copy of the message.
@@ -1417,9 +2694,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param int $Importance Importance of the message - LOW = 5, NORMAL = 3, HIGH = 1.
 	 * @param bool $SendReadingConfirmation Indicates if it is necessary to include header that says
 	 * @param array $Attachments List of attachments.
-	 * @param string $InReplyTo Value of In-Reply-To header in message.
-	 * @param string $References Value of References header in message.
-	 * @param int $Sensitivity Value of Sensitivity header in message.
+	 * @param string $InReplyTo Value of **In-Reply-To** header which is supplied in replies/forwards and contains Message-ID of the original message. This approach allows for organizing threads.
+	 * @param string $References Content of References header block of the message. 
+	 * @param int $Sensitivity Sensitivity header for the message, its value will be returned: 1 for "Confidential", 2 for "Private", 3 for "Personal". 
 	 * @param string $DraftFolder Full name of Drafts folder.
 	 * @return bool
 	 * @throws \System\Exceptions\AuroraApiException
@@ -1487,7 +2764,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param int $AccountID Account identifier.
 	 * @param string $FetcherID Fetcher identifier.
 	 * @param int $IdentityID Identity identifier.
-	 * @param array $DraftInfo Array ($sType, $sUid, $sFolder) where $sType - reply or forward type, $sUid - uid of message that was an original one, $sFolder - full name of folder which contains the original.
+	 * @param array $DraftInfo Contains information about the original message which is replied or forwarded: message type (reply/forward), UID and folder.
 	 * @param string $DraftUid Uid of message to save in Drafts folder.
 	 * @param string $To Message recipients.
 	 * @param string $Cc Recipients which will get a copy of the message.
@@ -1498,9 +2775,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param int $Importance Importance of the message - LOW = 5, NORMAL = 3, HIGH = 1.
 	 * @param bool $SendReadingConfirmation Indicates if it is necessary to include header that says
 	 * @param array $Attachments List of attachments.
-	 * @param string $InReplyTo Value of In-Reply-To header in message.
-	 * @param string $References Value of References header in message.
-	 * @param int $Sensitivity Value of Sensitivity header in message.
+	 * @param string $InReplyTo Value of **In-Reply-To** header which is supplied in replies/forwards and contains Message-ID of the original message. This approach allows for organizing threads.
+	 * @param string $References Content of References header block of the message.
+	 * @param int $Sensitivity Sensitivity header for the message, its value will be returned: 1 for "Confidential", 2 for "Private", 3 for "Personal". 
 	 * @param string $SentFolder Full name of Sent folder.
 	 * @param string $DraftFolder Full name of Drafts folder.
 	 * @param string $ConfirmFolder Full name of folder that contains a message that should be marked as confirmed read.
@@ -2366,11 +3643,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param bool $bTextIsHtml Indicates if text of the message is html or plain.
 	 * @param string $sText Text of the message.
 	 * @param array $aAttachments List of attachments.
-	 * @param array $aDraftInfo Array ($sType, $sUid, $sFolder) where $sType - reply or forward type, $sUid - uid of message that was an original one, $sFolder - full name of folder which contains the original.
-	 * @param string $sInReplyTo Value of In-Reply-To header in message.
-	 * @param string $sReferences Value of References header in message.
+	 * @param array $aDraftInfo Contains information about the original message which is replied or forwarded: message type (reply/forward), UID and folder.
+	 * @param string $sInReplyTo Value of **In-Reply-To** header which is supplied in replies/forwards and contains Message-ID of the original message. This approach allows for organizing threads.
+	 * @param string $sReferences Content of References header block of the message.
 	 * @param int $iImportance Importance of the message - LOW = 5, NORMAL = 3, HIGH = 1.
-	 * @param int $iSensitivity Value of Sensitivity header in message.
+	 * @param int $iSensitivity Sensitivity header for the message, its value will be returned: 1 for "Confidential", 2 for "Private", 3 for "Personal". 
 	 * @param bool $bSendReadingConfirmation Indicates if it is necessary to include header that says
 	 * @param \CFetcher $oFetcher
 	 * @param bool $bWithDraftInfo
