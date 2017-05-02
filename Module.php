@@ -91,15 +91,19 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiGroup Mail
 	 * @apiDescription Obtains list of module settings for authenticated user.
 	 * 
+	 * @apiHeader {string} [Authorization] "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=GetSettings} Method Method name
-	 * @apiParam {string} [AuthToken] Auth token
 	 * 
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
-	 *	Method: 'GetSettings',
-	 *	AuthToken: 'token_value'
+	 *	Method: 'GetSettings'
 	 * }
 	 * 
 	 * @apiSuccess {object[]} Result Array of response objects.
@@ -195,9 +199,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiGroup Mail
 	 * @apiDescription Updates module's per user settings.
 	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
 	 * @apiParam {string=Files} Module Module name
 	 * @apiParam {string=UpdateSettings} Method Method name
-	 * @apiParam {string} AuthToken Auth token
 	 * @apiParam {string} Parameters JSON.stringified object <br>
 	 * {<br>
 	 * &emsp; **UseThreads** *boolean* Indicates if threads should be used for user.<br>
@@ -208,7 +217,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'UpdateSettings',
-	 *	AuthToken: 'token_value',
 	 *	Parameters: '{ UseThreads: true, AllowAutosaveInDrafts: false }'
 	 * }
 	 * 
@@ -268,9 +276,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiGroup Mail
 	 * @apiDescription Obtains list of mail accounts for user.
 	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=GetAccounts} Method Method name
-	 * @apiParam {string} AuthToken Auth token
 	 * @apiParam {string} [Parameters] JSON.stringified object <br>
 	 * {<br>
 	 * &emsp; **UserId** *int* (optional) User identifier.<br>
@@ -279,8 +292,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
-	 *	Method: 'GetAccounts',
-	 *	AuthToken: 'token_value'
+	 *	Method: 'GetAccounts'
 	 * }
 	 * 
 	 * @apiSuccess {object[]} Result Array of response objects.
@@ -327,9 +339,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiGroup Mail
 	 * @apiDescription Obtains mail account with specified identifier.
 	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=GetAccount} Method Method name
-	 * @apiParam {string} AuthToken Auth token
 	 * @apiParam {string} Parameters JSON.stringified object <br>
 	 * {<br>
 	 * &emsp; **AccountId** *int* Identifier of mail account to obtain.<br>
@@ -339,7 +356,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetAccount',
-	 *	AuthToken: 'token_value'
 	 *	Parameters: '{"AccountId": 12}'
 	 * }
 	 * 
@@ -408,9 +424,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiGroup Mail
 	 * @apiDescription Creates mail account.
 	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=CreateAccount} Method Method name
-	 * @apiParam {string} AuthToken Auth token
 	 * @apiParam {string} Parameters JSON.stringified object <br>
 	 * {<br>
 	 * &emsp; **UserId** *int* (optional) User identifier.<br>
@@ -425,7 +446,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'CreateAccount',
-	 *	AuthToken: 'token_value'
 	 *	Parameters: '{ "Email": "test@email", "IncomingLogin": "test@email", "IncomingPassword": "pass_value", "Server": { "ServerId": 10 } }'
 	 * }
 	 * 
@@ -543,9 +563,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiGroup Mail
 	 * @apiDescription Updates mail account.
 	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=UpdateAccount} Method Method name
-	 * @apiParam {string} AuthToken Auth token
 	 * @apiParam {string} Parameters JSON.stringified object <br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Identifier of account to update.<br>
@@ -560,7 +585,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'UpdateAccount',
-	 *	AuthToken: 'token_value'
 	 *	Parameters: '{ "Email": "test@email", "IncomingLogin": "test@email", "IncomingPassword": "pass_value", "Server": { "ServerId": 10 } }'
 	 * }
 	 * 
@@ -679,9 +703,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiGroup Mail
 	 * @apiDescription Deletes mail account.
 	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=DeleteAccount} Method Method name
-	 * @apiParam {string} AuthToken Auth token
 	 * @apiParam {string} Parameters JSON.stringified object <br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Identifier of account to update.<br>
@@ -691,7 +720,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'DeleteAccount',
-	 *	AuthToken: 'token_value'
 	 *	Parameters: '{ "AccountID": 12 }'
 	 * }
 	 * 
@@ -759,9 +787,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiGroup Mail
 	 * @apiDescription Obtains list of servers wich contains settings for IMAP and SMTP connections.
 	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=GetServers} Method Method name
-	 * @apiParam {string} AuthToken Auth token
 	 * @apiParam {string} [Parameters] JSON.stringified object <br>
 	 * {<br>
 	 * &emsp; **TenantId** *int* (optional) Identifier of tenant which contains servers to return. If TenantId is 0 returns server which are belonged to SuperAdmin, not Tenant.<br>
@@ -770,8 +803,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
-	 *	Method: 'GetServers',
-	 *	AuthToken: 'token_value'
+	 *	Method: 'GetServers'
 	 * }
 	 * 
 	 * @apiSuccess {object[]} Result Array of response objects.
@@ -816,9 +848,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiGroup Mail
 	 * @apiDescription Obtains server with specified server identifier.
 	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=GetServer} Method Method name
-	 * @apiParam {string} AuthToken Auth token
 	 * @apiParam {string} Parameters JSON.stringified object <br>
 	 * {<br>
 	 * &emsp; **ServerId** *int* Server identifier.<br>
@@ -828,7 +865,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetServer',
-	 *	AuthToken: 'token_value'
 	 *	Parameters: '{"ServerId": 10}'
 	 * }
 	 * 
@@ -888,9 +924,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiGroup Mail
 	 * @apiDescription Creates mail server.
 	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=CreateServer} Method Method name
-	 * @apiParam {string} AuthToken Auth token
 	 * @apiParam {string} Parameters JSON.stringified object <br>
 	 * {<br>
 	 * &emsp; **Name** *string* Server name.<br>
@@ -909,9 +950,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'CreateServer',
-	 *	AuthToken: 'token_value'
 	 *	Parameters: '{ "Name": "Server name", "IncomingServer": "mail.server", "IncomingPort": 143, "IncomingUseSsl": false, 
-	 * "OutgoingServer": "mail.server", "OutgoingPort": 25, "OutgoingUseSsl": false, "OutgoingUseAuth": false, "Domains": "" }'
+	 *			"OutgoingServer": "mail.server", "OutgoingPort": 25, "OutgoingUseSsl": false, "OutgoingUseAuth": false, "Domains": "" }'
 	 * }
 	 * 
 	 * @apiSuccess {object[]} Result Array of response objects.
@@ -972,9 +1012,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiGroup Mail
 	 * @apiDescription Updates mail server with specified identifier.
 	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=UpdateServer} Method Method name
-	 * @apiParam {string} AuthToken Auth token
 	 * @apiParam {string} Parameters JSON.stringified object <br>
 	 * {<br>
 	 * &emsp; **ServerId** *int* Server identifier.<br>
@@ -994,9 +1039,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'UpdateServer',
-	 *	AuthToken: 'token_value'
 	 *	Parameters: '{ "Name": "Server name", "IncomingServer": "mail.server", "IncomingPort": 143, "IncomingUseSsl": false, 
-	 * "OutgoingServer": "mail.server", "OutgoingPort": 25, "OutgoingUseSsl": false, "OutgoingUseAuth": false, "Domains": "" }'
+	 *			"OutgoingServer": "mail.server", "OutgoingPort": 25, "OutgoingUseSsl": false, "OutgoingUseAuth": false, "Domains": "" }'
 	 * }
 	 * 
 	 * @apiSuccess {object[]} Result Array of response objects.
@@ -1056,9 +1100,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiGroup Mail
 	 * @apiDescription Deletes mail server.
 	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=DeleteServer} Method Method name
-	 * @apiParam {string} AuthToken Auth token
 	 * @apiParam {string} Parameters JSON.stringified object <br>
 	 * {<br>
 	 * &emsp; **ServerId** *int* Identifier of server to delete.<br>
@@ -1069,7 +1118,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'DeleteServer',
-	 *	AuthToken: 'token_value'
 	 *	Parameters: '{ "ServerId": 10 }'
 	 * }
 	 * 
@@ -1119,9 +1167,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiGroup Mail
 	 * @apiDescription Obtains list of folders for specified account.
 	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=GetFolders} Method Method name
-	 * @apiParam {string} AuthToken Auth token
 	 * @apiParam {string} Parameters JSON.stringified object <br>
 	 * {<br>
 	 * &emsp; **AccountId** *int* Identifier of mail account that contains folders to obtain.<br>
@@ -1131,7 +1184,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetFolders',
-	 *	AuthToken: 'token_value'
 	 *	Parameters: '{"AccountId": 12}'
 	 * }
 	 * 
@@ -1202,9 +1254,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiGroup Mail
 	 * @apiDescription Obtains message list for specified account and folder.
 	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=GetMessages} Method Method name
-	 * @apiParam {string} AuthToken Auth token
 	 * @apiParam {string} Parameters JSON.stringified object <br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
@@ -1221,7 +1278,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetMessages',
-	 *	AuthToken: 'token_value'
 	 *	Parameters: '{"AccountID": 12, "Folder": "Inbox", "Offset": 0, "Limit": 20, "Search": "", "Filters": "", "UseThreads": true}'
 	 * }
 	 * 
@@ -1350,9 +1406,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiGroup Mail
 	 * @apiDescription Obtains relevant information about total and unseen messages count in specified folders.
 	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=GetRelevantFoldersInformation} Method Method name
-	 * @apiParam {string} AuthToken Auth token
 	 * @apiParam {string} Parameters JSON.stringified object <br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
@@ -1363,7 +1424,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetRelevantFoldersInformation',
-	 *	AuthToken: 'token_value'
 	 *	Parameters: '{"AccountID": 12, "Folders": ["INBOX", "Spam"]}'
 	 * }
 	 * 
@@ -1437,9 +1497,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiGroup Mail
 	 * @apiDescription Obtains mail account quota.
 	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=GetQuota} Method Method name
-	 * @apiParam {string} AuthToken Auth token
 	 * @apiParam {string} Parameters JSON.stringified object <br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
@@ -1449,7 +1514,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetQuota',
-	 *	AuthToken: 'token_value'
 	 *	Parameters: '{"AccountID": 12}'
 	 * }
 	 * 
@@ -1493,9 +1557,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiGroup Mail
 	 * @apiDescription Obtains full data of specified messages including plain text, html text and attachments.
 	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=GetMessagesBodies} Method Method name
-	 * @apiParam {string} AuthToken Auth token
 	 * @apiParam {string} Parameters JSON.stringified object <br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
@@ -1507,7 +1576,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetMessagesBodies',
-	 *	AuthToken: 'token_value'
 	 *	Parameters: '{"AccountID": 1248, "Folder": "INBOX", "Uids": ["1591", "1589", "1588", "1587", "1586"]}'
 	 * }
 	 * 
@@ -1628,9 +1696,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiGroup Mail
 	 * @apiDescription Obtains full data of specified message including plain text, html text and attachments.
 	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=GetMessage} Method Method name
-	 * @apiParam {string} AuthToken Auth token
 	 * @apiParam {string} Parameters JSON.stringified object <br>
 	 * {<br>
 	 * &emsp; **AccountId** *int* Account identifier.<br>
@@ -1643,7 +1716,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetMessage',
-	 *	AuthToken: 'token_value'
 	 *	Parameters: '{"AccountId": 12, "Folder": "Inbox", "Uid": 1232}'
 	 * }
 	 * 
@@ -1919,9 +1991,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiGroup Mail
 	 * @apiDescription Puts on or off seen flag of message.
 	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=SetMessagesSeen} Method Method name
-	 * @apiParam {string} AuthToken Auth token
 	 * @apiParam {string} Parameters JSON.stringified object <br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
@@ -1934,7 +2011,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'SetMessagesSeen',
-	 *	AuthToken: 'token_value'
 	 *	Parameters: '{ "AccountID": 12, "Folder": "Inbox", "Uids": "1243,1244,1245", "SetAction": false }'
 	 * }
 	 * 
@@ -1979,9 +2055,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiGroup Mail
 	 * @apiDescription Puts on or off flagged flag of message.
 	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=SetMessageFlagged} Method Method name
-	 * @apiParam {string} AuthToken Auth token
 	 * @apiParam {string} Parameters JSON.stringified object <br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
@@ -1994,7 +2075,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'SetMessageFlagged',
-	 *	AuthToken: 'token_value'
 	 *	Parameters: '{ "AccountID": 12, "Folder": "Inbox", "Uids": "1243,1244,1245", "SetAction": false }'
 	 * }
 	 * 
@@ -2039,9 +2119,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiGroup Mail
 	 * @apiDescription Puts on seen flag for all messages in folder.
 	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=SetAllMessagesSeen} Method Method name
-	 * @apiParam {string} AuthToken Auth token
 	 * @apiParam {string} Parameters JSON.stringified object <br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
@@ -2052,7 +2137,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'SetAllMessagesSeen',
-	 *	AuthToken: 'token_value'
 	 *	Parameters: '{ "AccountID": 12, "Folder": "Inbox" }'
 	 * }
 	 * 
@@ -2104,9 +2188,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiGroup Mail
 	 * @apiDescription Moves messages from one folder to another.
 	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=MoveMessages} Method Method name
-	 * @apiParam {string} AuthToken Auth token
 	 * @apiParam {string} Parameters JSON.stringified object <br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
@@ -2119,7 +2208,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'MoveMessages',
-	 *	AuthToken: 'token_value'
 	 *	Parameters: '{ "AccountID": 12, "Folder": "Inbox", "ToFolder": "Trash", "Uids": "1212,1213,1215" }'
 	 * }
 	 * 
@@ -2190,9 +2278,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiGroup Mail
 	 * @apiDescription Deletes messages from folder.
 	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=DeleteMessages} Method Method name
-	 * @apiParam {string} AuthToken Auth token
 	 * @apiParam {string} Parameters JSON.stringified object <br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
@@ -2204,7 +2297,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'DeleteMessages',
-	 *	AuthToken: 'token_value'
 	 *	Parameters: '{ "AccountID": 12, "Folder": "Inbox", "Uids": "1212,1213,1215" }'
 	 * }
 	 * 
@@ -2260,9 +2352,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiGroup Mail
 	 * @apiDescription Creates folder in mail account.
 	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=CreateFolder} Method Method name
-	 * @apiParam {string} AuthToken Auth token
 	 * @apiParam {string} Parameters JSON.stringified object <br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
@@ -2275,7 +2372,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'CreateFolder',
-	 *	AuthToken: 'token_value'
 	 *	Parameters: '{ "AccountID": 12, "Folder": "Inbox", "Uids": "1212,1213,1215" }'
 	 * }
 	 * 
@@ -2374,9 +2470,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiGroup Mail
 	 * @apiDescription Obtains list of mail accounts for user.
 	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=RenameFolder} Method Method name
-	 * @apiParam {string} AuthToken Auth token
 	 * @apiParam {string} [Parameters] JSON.stringified object <br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
@@ -2387,8 +2488,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
-	 *	Method: 'RenameFolder',
-	 *	AuthToken: 'token_value'
+	 *	Method: 'RenameFolder'
 	 * }
 	 * 
 	 * @apiSuccess {object[]} Result Array of response objects.
@@ -2447,9 +2547,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiGroup Mail
 	 * @apiDescription Deletes folder.
 	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=DeleteFolder} Method Method name
-	 * @apiParam {string} AuthToken Auth token
 	 * @apiParam {string} Parameters JSON.stringified object <br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
@@ -2460,7 +2565,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'DeleteFolder',
-	 *	AuthToken: 'token_value'
 	 *	Parameters: '{ "AccountID": 12, "Folder": "folder2" }'
 	 * }
 	 * 
@@ -2513,9 +2617,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiGroup Mail
 	 * @apiDescription Subscribes/unsubscribes folder.
 	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=SubscribeFolder} Method Method name
-	 * @apiParam {string} AuthToken Auth token
 	 * @apiParam {string} Parameters JSON.stringified object <br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
@@ -2527,7 +2636,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'SubscribeFolder',
-	 *	AuthToken: 'token_value'
 	 *	Parameters: '{ "AccountID": 12, "Folder": "folder2", "SetAction": true }'
 	 * }
 	 * 
@@ -2581,9 +2689,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiGroup Mail
 	 * @apiDescription Updates order of folders.
 	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=UpdateFoldersOrder} Method Method name
-	 * @apiParam {string} AuthToken Auth token
 	 * @apiParam {string} Parameters JSON.stringified object <br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
@@ -2594,7 +2707,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'UpdateFoldersOrder',
-	 *	AuthToken: 'token_value'
 	 *	Parameters: '{ "AccountID": 12, "FolderList": ["INBOX", "Sent", "Drafts", "Trash", "Spam", "folder1"] }'
 	 * }
 	 * 
@@ -2645,9 +2757,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiGroup Mail
 	 * @apiDescription Removes all messages from folder. Uses for Trash and Spam folders.
 	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=ClearFolder} Method Method name
-	 * @apiParam {string} AuthToken Auth token
 	 * @apiParam {string} Parameters JSON.stringified object <br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
@@ -2658,7 +2775,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'ClearFolder',
-	 *	AuthToken: 'token_value'
 	 *	Parameters: '{ "AccountID": 12, "Folder": "Trash" }'
 	 * }
 	 * 
@@ -2711,9 +2827,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiGroup Mail
 	 * @apiDescription Obtains message list for specified messages' uids.
 	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=GetMessagesByUids} Method Method name
-	 * @apiParam {string} AuthToken Auth token
 	 * @apiParam {string} Parameters JSON.stringified object <br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
@@ -2725,7 +2846,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetMessagesByUids',
-	 *	AuthToken: 'token_value'
 	 *	Parameters: '{ "AccountID": 12, "Folder": "Inbox", "Uids": ["1221", "1222", "1226"] }'
 	 * }
 	 * 
@@ -2833,9 +2953,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiGroup Mail
 	 * @apiDescription Obtains infomation about flagged flags for specified messages.
 	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=GetMessagesFlags} Method Method name
-	 * @apiParam {string} AuthToken Auth token
 	 * @apiParam {string} [Parameters] JSON.stringified object <br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
@@ -2846,8 +2971,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
-	 *	Method: 'GetMessagesFlags',
-	 *	AuthToken: 'token_value'
+	 *	Method: 'GetMessagesFlags'
 	 * }
 	 * 
 	 * @apiSuccess {object[]} Result Array of response objects.
@@ -2899,9 +3023,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiGroup Mail
 	 * @apiDescription Saves message to Drafts folder.
 	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=SaveMessage} Method Method name
-	 * @apiParam {string} AuthToken Auth token
 	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
@@ -2928,7 +3057,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'SaveMessage',
-	 *	AuthToken: 'token_value'
 	 *	Parameters: '{ "AccountID": 12, "FetcherID": "", "IdentityID": 14, "DraftInfo": [], "DraftUid": "", "To": "test@email",
 	 *			"Cc": "", "Bcc": "", "Subject": "", "Text": "text_value", "IsHtml": true, "Importance": 3, "SendReadingConfirmation": false,
 	 *			"Attachments": [], "InReplyTo": "", "References": "", "Sensitivity": 0, "DraftFolder": "Drafts" }'
@@ -3041,9 +3169,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiGroup Mail
 	 * @apiDescription Sends message.
 	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=SendMessage} Method Method name
-	 * @apiParam {string} AuthToken Auth token
 	 * @apiParam {string} Parameters JSON.stringified object <br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
@@ -3073,7 +3206,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'SendMessage',
-	 *	AuthToken: 'token_value'
 	 *	Parameters: '{ "AccountID": 12, "FetcherID": "", "IdentityID": 14, "DraftInfo": [], "DraftUid": "", "To": "test@email",
 	 *			"Cc": "", "Bcc": "", "Subject": "", "Text": "text_value", "IsHtml": true, "Importance": 3, "SendReadingConfirmation": false,
 	 *			"Attachments": [], "InReplyTo": "", "References": "", "Sensitivity": 0, "SentFolder": "Sent", "DraftFolder": "Drafts",
@@ -3254,9 +3386,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiGroup Mail
 	 * @apiDescription Setups new values of special folders.
 	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=SetupSystemFolders} Method Method name
-	 * @apiParam {string} AuthToken Auth token
 	 * @apiParam {string} Parameters JSON.stringified object <br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
@@ -3270,7 +3407,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'SetupSystemFolders',
-	 *	AuthToken: 'token_value'
 	 *	Parameters: '{ "AccountID": 12, "Sent": "Sent", "Drafts": "Drafts", "Trash": "Trash", "Spam": "Spam" }'
 	 * }
 	 * 
@@ -3336,9 +3472,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiGroup Mail
 	 * @apiDescription Marks sender email as safety for authenticated user. So pictures in messages from this sender will be always displayed.
 	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=SetEmailSafety} Method Method name
-	 * @apiParam {string} AuthToken Auth token
 	 * @apiParam {string} Parameters JSON.stringified object <br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
@@ -3349,7 +3490,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'SetEmailSafety',
-	 *	AuthToken: 'token_value'
 	 *	Parameters: '{ "AccountID": 12, "Email": "test@email" }'
 	 * }
 	 * 
@@ -3402,9 +3542,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiGroup Mail
 	 * @apiDescription Creates identity.
 	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=CreateIdentity} Method Method name
-	 * @apiParam {string} AuthToken Auth token
 	 * @apiParam {string} Parameters JSON.stringified object <br>
 	 * {<br>
 	 * &emsp; **UserId** *int* (Optional) User identifier.<br>
@@ -3417,7 +3562,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'CreateIdentity',
-	 *	AuthToken: 'token_value'
 	 *	Parameters: '{ "AccountID": 12, "FriendlyName": "My name", "Email": "test@email" }'
 	 * }
 	 * 
@@ -3463,9 +3607,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiGroup Mail
 	 * @apiDescription Updates identity.
 	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=UpdateIdentity} Method Method name
-	 * @apiParam {string} AuthToken Auth token
 	 * @apiParam {string} Parameters JSON.stringified object <br>
 	 * {<br>
 	 * &emsp; **UserId** *int* (Optional) User identifier.<br>
@@ -3481,7 +3630,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'UpdateIdentity',
-	 *	AuthToken: 'token_value'
 	 *	Parameters: '{ "AccountID": 12, "EntityId": 14, "FriendlyName": "New my name", "Email": "test@email", "Default": false, "AccountPart": false }'
 	 * }
 	 * 
@@ -3542,9 +3690,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiGroup Mail
 	 * @apiDescription Deletes identity.
 	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=DeleteIdentity} Method Method name
-	 * @apiParam {string} AuthToken Auth token
 	 * @apiParam {string} Parameters JSON.stringified object <br>
 	 * {<br>
 	 * &emsp; **EntityId** *int* Identity identifier.<br>
@@ -3554,7 +3707,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'DeleteIdentity',
-	 *	AuthToken: 'token_value'
 	 *	Parameters: '{ "EntityId": 14 }'
 	 * }
 	 * 
@@ -3597,9 +3749,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiGroup Mail
 	 * @apiDescription Obtaines all identities of specified user.
 	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=GetServers} Method Method name
-	 * @apiParam {string} AuthToken Auth token
 	 * @apiParam {string} [Parameters] JSON.stringified object <br>
 	 * {<br>
 	 * &emsp; **UserId** *int* (Optional) User identifier.<br>
@@ -3608,8 +3765,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
-	 *	Method: 'GetIdentities',
-	 *	AuthToken: 'token_value'
+	 *	Method: 'GetIdentities'
 	 * }
 	 * 
 	 * @apiSuccess {object[]} Result Array of response objects.
@@ -3662,9 +3818,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiGroup Mail
 	 * @apiDescription Updates signature.
 	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=UpdateSignature} Method Method name
-	 * @apiParam {string} AuthToken Auth token
 	 * @apiParam {string} Parameters JSON.stringified object <br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
@@ -3677,7 +3838,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'UpdateSignature',
-	 *	AuthToken: 'token_value'
 	 *	Parameters: '{ "AccountID": 12, "UseSignature": true, "Signature": "signature_value", "IdentityId": 14 }'
 	 * }
 	 * 
