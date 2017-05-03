@@ -207,7 +207,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * 
 	 * @apiParam {string=Files} Module Module name
 	 * @apiParam {string=UpdateSettings} Method Method name
-	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **UseThreads** *boolean* Indicates if threads should be used for user.<br>
 	 * &emsp; **AllowAutosaveInDrafts** *boolean* Indicates if message should be saved automatically while compose.<br>
@@ -284,7 +284,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=GetAccounts} Method Method name
-	 * @apiParam {string} [Parameters] JSON.stringified object <br>
+	 * @apiParam {string} [Parameters] JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **UserId** *int* (optional) User identifier.<br>
 	 * }
@@ -347,7 +347,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=GetAccount} Method Method name
-	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **AccountId** *int* Identifier of mail account to obtain.<br>
 	 * }
@@ -356,7 +356,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetAccount',
-	 *	Parameters: '{"AccountId": 12}'
+	 *	Parameters: '{ "AccountId": 12 }'
 	 * }
 	 * 
 	 * @apiSuccess {object[]} Result Array of response objects.
@@ -432,7 +432,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=CreateAccount} Method Method name
-	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **UserId** *int* (optional) User identifier.<br>
 	 * &emsp; **FriendlyName** *string* (optional) Friendly name.<br>
@@ -571,7 +571,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=UpdateAccount} Method Method name
-	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Identifier of account to update.<br>
 	 * &emsp; **FriendlyName** *string* New friendly name.<br>
@@ -711,7 +711,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=DeleteAccount} Method Method name
-	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Identifier of account to update.<br>
 	 * }
@@ -795,7 +795,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=GetServers} Method Method name
-	 * @apiParam {string} [Parameters] JSON.stringified object <br>
+	 * @apiParam {string} [Parameters] JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **TenantId** *int* (optional) Identifier of tenant which contains servers to return. If TenantId is 0 returns server which are belonged to SuperAdmin, not Tenant.<br>
 	 * }
@@ -856,7 +856,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=GetServer} Method Method name
-	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **ServerId** *int* Server identifier.<br>
 	 * }
@@ -865,7 +865,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetServer',
-	 *	Parameters: '{"ServerId": 10}'
+	 *	Parameters: '{ "ServerId": 10 }'
 	 * }
 	 * 
 	 * @apiSuccess {object[]} Result Array of response objects.
@@ -932,7 +932,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=CreateServer} Method Method name
-	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **Name** *string* Server name.<br>
 	 * &emsp; **IncomingServer** *string* IMAP server.<br>
@@ -1020,7 +1020,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=UpdateServer} Method Method name
-	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **ServerId** *int* Server identifier.<br>
 	 * &emsp; **Name** *string* New server name.<br>
@@ -1108,10 +1108,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=DeleteServer} Method Method name
-	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **ServerId** *int* Identifier of server to delete.<br>
-	 * &emsp; **TenantId** *int* (Optional) Identifier of tenant that contains mail server.<br>
+	 * &emsp; **TenantId** *int* (optional) Identifier of tenant that contains mail server.<br>
 	 * }
 	 * 
 	 * @apiParamExample {json} Request-Example:
@@ -1175,7 +1175,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=GetFolders} Method Method name
-	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **AccountId** *int* Identifier of mail account that contains folders to obtain.<br>
 	 * }
@@ -1184,7 +1184,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetFolders',
-	 *	Parameters: '{"AccountId": 12}'
+	 *	Parameters: '{ "AccountId": 12 }'
 	 * }
 	 * 
 	 * @apiSuccess {object[]} Result Array of response objects.
@@ -1262,7 +1262,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=GetMessages} Method Method name
-	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
 	 * &emsp; **Folder** *string* Folder full name.<br>
@@ -1271,14 +1271,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **Search** *string* Search string.<br>
 	 * &emsp; **Filters** *string* List of conditions to obtain messages.<br>
 	 * &emsp; **UseThreads** *int* Indicates if it is necessary to return messages in threads.<br>
-	 * &emsp; **InboxUidnext** *string* (Optional) UIDNEXT Inbox last value that is known on client side.<br>
+	 * &emsp; **InboxUidnext** *string* (optional) UIDNEXT Inbox last value that is known on client side.<br>
 	 * }
 	 * 
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetMessages',
-	 *	Parameters: '{"AccountID": 12, "Folder": "Inbox", "Offset": 0, "Limit": 20, "Search": "", "Filters": "", "UseThreads": true}'
+	 *	Parameters: '{ "AccountID": 12, "Folder": "Inbox", "Offset": 0, "Limit": 20, "Search": "", "Filters": "", "UseThreads": true }'
 	 * }
 	 * 
 	 * @apiSuccess {object[]} Result Array of response objects.
@@ -1414,7 +1414,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=GetRelevantFoldersInformation} Method Method name
-	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
 	 * &emsp; **Folders** *array* List of folders' full names.<br>
@@ -1424,7 +1424,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetRelevantFoldersInformation',
-	 *	Parameters: '{"AccountID": 12, "Folders": ["INBOX", "Spam"]}'
+	 *	Parameters: '{ "AccountID": 12, "Folders": [ "INBOX", "Spam" ] }'
 	 * }
 	 * 
 	 * @apiSuccess {object[]} Result Array of response objects.
@@ -1505,7 +1505,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=GetQuota} Method Method name
-	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
 	 * }
@@ -1514,7 +1514,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetQuota',
-	 *	Parameters: '{"AccountID": 12}'
+	 *	Parameters: '{ "AccountID": 12 }'
 	 * }
 	 * 
 	 * @apiSuccess {object[]} Result Array of response objects.
@@ -1565,7 +1565,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=GetMessagesBodies} Method Method name
-	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
 	 * &emsp; **Folder** *string* Folder full name.<br>
@@ -1576,7 +1576,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetMessagesBodies',
-	 *	Parameters: '{"AccountID": 1248, "Folder": "INBOX", "Uids": ["1591", "1589", "1588", "1587", "1586"]}'
+	 *	Parameters: '{ "AccountID": 1248, "Folder": "INBOX", "Uids": [ "1591", "1589", "1588", "1587", "1586" ] }'
 	 * }
 	 * 
 	 * @apiSuccess {object[]} Result Array of response objects.
@@ -1704,7 +1704,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=GetMessage} Method Method name
-	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **AccountId** *int* Account identifier.<br>
 	 * &emsp; **Folder** *string* Folder full name.<br>
@@ -1716,7 +1716,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetMessage',
-	 *	Parameters: '{"AccountId": 12, "Folder": "Inbox", "Uid": 1232}'
+	 *	Parameters: '{ "AccountId": 12, "Folder": "Inbox", "Uid": 1232 }'
 	 * }
 	 * 
 	 * @apiSuccess {object[]} Result Array of response objects.
@@ -1999,7 +1999,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=SetMessagesSeen} Method Method name
-	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
 	 * &emsp; **Folder** *string* Folder full name.<br>
@@ -2063,7 +2063,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=SetMessageFlagged} Method Method name
-	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
 	 * &emsp; **Folder** *string* Folder full name.<br>
@@ -2127,7 +2127,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=SetAllMessagesSeen} Method Method name
-	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
 	 * &emsp; **Folder** *string* Folder full name.<br>
@@ -2196,7 +2196,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=MoveMessages} Method Method name
-	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
 	 * &emsp; **Folder** *string* Full name of the folder from which messages will be moved.<br>
@@ -2286,7 +2286,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=DeleteMessages} Method Method name
-	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
 	 * &emsp; **Folder** *string* Folder full name.<br>
@@ -2360,7 +2360,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=CreateFolder} Method Method name
-	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
 	 * &emsp; **FolderNameInUtf8** *string* Name of folder to create.<br>
@@ -2478,7 +2478,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=RenameFolder} Method Method name
-	 * @apiParam {string} [Parameters] JSON.stringified object <br>
+	 * @apiParam {string} [Parameters] JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
 	 * &emsp; **PrevFolderFullNameRaw** *int* Full name of folder to rename.<br>
@@ -2555,7 +2555,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=DeleteFolder} Method Method name
-	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
 	 * &emsp; **Folder** *string* Full name of folder to delete.<br>
@@ -2625,7 +2625,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=SubscribeFolder} Method Method name
-	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
 	 * &emsp; **Folder** *string* Full name of folder to subscribe/unsubscribe.<br>
@@ -2697,7 +2697,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=UpdateFoldersOrder} Method Method name
-	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
 	 * &emsp; **FolderList** *array* List of folders with new order.<br>
@@ -2707,7 +2707,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'UpdateFoldersOrder',
-	 *	Parameters: '{ "AccountID": 12, "FolderList": ["INBOX", "Sent", "Drafts", "Trash", "Spam", "folder1"] }'
+	 *	Parameters: '{ "AccountID": 12, "FolderList": [ "INBOX", "Sent", "Drafts", "Trash", "Spam", "folder1" ] }'
 	 * }
 	 * 
 	 * @apiSuccess {object[]} Result Array of response objects.
@@ -2765,7 +2765,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=ClearFolder} Method Method name
-	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
 	 * &emsp; **Folder** *string* Folder full name.<br>
@@ -2835,7 +2835,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=GetMessagesByUids} Method Method name
-	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
 	 * &emsp; **Folder** *string* Folder full name.<br>
@@ -2846,7 +2846,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetMessagesByUids',
-	 *	Parameters: '{ "AccountID": 12, "Folder": "Inbox", "Uids": ["1221", "1222", "1226"] }'
+	 *	Parameters: '{ "AccountID": 12, "Folder": "Inbox", "Uids": [ "1221", "1222", "1226" ] }'
 	 * }
 	 * 
 	 * @apiSuccess {object[]} Result Array of response objects.
@@ -2961,7 +2961,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=GetMessagesFlags} Method Method name
-	 * @apiParam {string} [Parameters] JSON.stringified object <br>
+	 * @apiParam {string} [Parameters] JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
 	 * &emsp; **Folder** *string* Folder full name.<br>
@@ -3177,7 +3177,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=SendMessage} Method Method name
-	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
 	 * &emsp; **FetcherID** *string* Fetcher identifier.<br>
@@ -3394,7 +3394,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=SetupSystemFolders} Method Method name
-	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
 	 * &emsp; **Sent** *string* New value of Sent folder full name.<br>
@@ -3480,7 +3480,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=SetEmailSafety} Method Method name
-	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
 	 * &emsp; **Email** *string* Sender email.<br>
@@ -3550,9 +3550,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=CreateIdentity} Method Method name
-	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
-	 * &emsp; **UserId** *int* (Optional) User identifier.<br>
+	 * &emsp; **UserId** *int* (optional) User identifier.<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
 	 * &emsp; **FriendlyName** *string* Identity friendly name.<br>
 	 * &emsp; **Email** *string* Identity email.<br>
@@ -3615,9 +3615,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=UpdateIdentity} Method Method name
-	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
-	 * &emsp; **UserId** *int* (Optional) User identifier.<br>
+	 * &emsp; **UserId** *int* (optional) User identifier.<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
 	 * &emsp; **EntityId** *int* Identity identifier.<br>
 	 * &emsp; **FriendlyName** *string* New value of identity friendly name.<br>
@@ -3698,7 +3698,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=DeleteIdentity} Method Method name
-	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **EntityId** *int* Identity identifier.<br>
 	 * }
@@ -3757,9 +3757,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=GetServers} Method Method name
-	 * @apiParam {string} [Parameters] JSON.stringified object <br>
+	 * @apiParam {string} [Parameters] JSON.stringified object<br>
 	 * {<br>
-	 * &emsp; **UserId** *int* (Optional) User identifier.<br>
+	 * &emsp; **UserId** *int* (optional) User identifier.<br>
 	 * }
 	 * 
 	 * @apiParamExample {json} Request-Example:
@@ -3826,12 +3826,12 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * 
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=UpdateSignature} Method Method name
-	 * @apiParam {string} Parameters JSON.stringified object <br>
+	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
 	 * &emsp; **UseSignature** *boolean* Indicates if signature should be used in outgoing mails.<br>
 	 * &emsp; **Signature** *string* Account or identity signature.<br>
-	 * &emsp; **IdentityId** *int* (Optional) Identity identifier.<br>
+	 * &emsp; **IdentityId** *int* (optional) Identity identifier.<br>
 	 * }
 	 * 
 	 * @apiParamExample {json} Request-Example:
@@ -3909,6 +3909,56 @@ class Module extends \Aurora\System\Module\AbstractModule
 	}
 	
 	/**
+	 * @api {post} ?/Api/ UploadAttachment
+	 * @apiName UploadAttachment
+	 * @apiGroup Mail
+	 * @apiDescription Uploads attachment.
+	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
+	 * @apiParam {string=Mail} Module Module name
+	 * @apiParam {string=UploadAttachment} Method Method name
+	 * @apiParam {string} [Parameters] JSON.stringified object<br>
+	 * {<br>
+	 * &emsp; **UserId** *int* (optional) User identifier.<br>
+	 * &emsp; **AccountID** *int* Account identifier.<br>
+	 * }
+	 * @apiParam {string} UploadData Data of uploaded file.
+	 * 
+	 * @apiParamExample {json} Request-Example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'UploadAttachment',
+	 *	Parameters: '{ "AccountID": 12 }'
+	 * }
+	 * 
+	 * @apiSuccess {object[]} Result Array of response objects.
+	 * @apiSuccess {string} Result.Module Module name.
+	 * @apiSuccess {string} Result.Method Method name.
+	 * @apiSuccess {mixed} Result.Result Attachment properties in case of success, otherwise **false**.
+	 * @apiSuccess {int} [Result.ErrorCode] Error code
+	 * 
+	 * @apiSuccessExample {json} Success response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'UploadAttachment',
+	 *	Result: { "Attachment": { "Name": "name.txt", "TempName": "temp_name_value", "MimeType": "text/plain", "Size": 14,
+	 *			"Hash": "hash_value", "Actions": { "view": { "url": "url_value" }, "download": { "url": "url_value" } }, "ThumbnailUrl": "" } }
+	 * }
+	 * 
+	 * @apiSuccessExample {json} Error response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'UploadAttachment',
+	 *	Result: false,
+	 *	ErrorCode: 102
+	 * }
+	 */
+	/**
 	 * Uploads attachment.
 	 * @param int $UserId User identifier.
 	 * @param int $AccountID Account identifier.
@@ -3972,8 +4022,56 @@ class Module extends \Aurora\System\Module\AbstractModule
 	}
 	
 	/**
+	 * @api {post} ?/Api/ SaveAttachmentsAsTempFiles
+	 * @apiName SaveAttachmentsAsTempFiles
+	 * @apiGroup Mail
+	 * @apiDescription Retrieves attachments from message and saves them as files in temporary folder.
+	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
+	 * @apiParam {string=Mail} Module Module name
+	 * @apiParam {string=SaveAttachmentsAsTempFiles} Method Method name
+	 * @apiParam {string} [Parameters] JSON.stringified object<br>
+	 * {<br>
+	 * &emsp; **AccountID** *int* Account identifier.<br>
+	 * &emsp; **Attachments** *array* List of attachments hashes.<br>
+	 * }
+	 * 
+	 * @apiParamExample {json} Request-Example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'SaveAttachmentsAsTempFiles',
+	 *	Parameters: '{ "Attachments": [ "hash_value" ], "AccountID": 12 }'
+	 * }
+	 * 
+	 * @apiSuccess {object[]} Result Array of response objects.
+	 * @apiSuccess {string} Result.Module Module name.
+	 * @apiSuccess {string} Result.Method Method name.
+	 * @apiSuccess {mixed} Result.Result Attachments' properties in case of success, otherwise **false**.
+	 * @apiSuccess {int} [Result.ErrorCode] Error code
+	 * 
+	 * @apiSuccessExample {json} Success response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'SaveAttachmentsAsTempFiles',
+	 *	Result: { "temp_name_value": "hash_value" }
+	 * }
+	 * 
+	 * @apiSuccessExample {json} Error response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'SaveAttachmentsAsTempFiles',
+	 *	Result: false,
+	 *	ErrorCode: 102
+	 * }
+	 */
+	/**
 	 * Retrieves attachments from message and saves them as files in temporary folder.
-	 * @param int $AccountID Account identifies.
+	 * @param int $AccountID Account identifier.
 	 * @param array $Attachments List of attachments hashes.
 	 * @return array|boolean
 	 * @throws \Aurora\System\Exceptions\ApiException
@@ -4038,6 +4136,58 @@ class Module extends \Aurora\System\Module\AbstractModule
 	}	
 	
 	/**
+	 * @api {post} ?/Api/ SaveMessageAsTempFile
+	 * @apiName SaveMessageAsTempFile
+	 * @apiGroup Mail
+	 * @apiDescription Retrieves message and saves it as .eml file in temporary folder.
+	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
+	 * @apiParam {string=Mail} Module Module name
+	 * @apiParam {string=SaveMessageAsTempFile} Method Method name
+	 * @apiParam {string} [Parameters] JSON.stringified object<br>
+	 * {<br>
+	 * &emsp; **AccountID** *int* Account identifier.<br>
+	 * &emsp; **MessageFolder** *string* Full name of folder.<br>
+	 * &emsp; **MessageUid** *string* Message uid.<br>
+	 * &emsp; **FileName** *string* Name of created .eml file.<br>
+	 * }
+	 * 
+	 * @apiParamExample {json} Request-Example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'SaveMessageAsTempFile',
+	 *	Parameters: '{ "MessageFolder": "INBOX", "MessageUid": "1691", "FileName": "subject.eml", "AccountID": 12 }'
+	 * }
+	 * 
+	 * @apiSuccess {object[]} Result Array of response objects.
+	 * @apiSuccess {string} Result.Module Module name.
+	 * @apiSuccess {string} Result.Method Method name.
+	 * @apiSuccess {mixed} Result.Result .eml attachment properties in case of success, otherwise **false**.
+	 * @apiSuccess {int} [Result.ErrorCode] Error code
+	 * 
+	 * @apiSuccessExample {json} Success response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'SaveMessageAsTempFile',
+	 *	Result: {	"Name": "subject.eml", "FileName": "subject.eml", "TempName":"temp_name_value", 
+	 *				"MimeType": "message/rfc822", "Size": 1669, "Hash": "hash_value", "Actions": { "view": { "url": "view_url" }, 
+	 *				"download": { "url": "download_url" } }, "ThumbnailUrl": "" } }
+	 * }
+	 * 
+	 * @apiSuccessExample {json} Error response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'SaveMessageAsTempFile',
+	 *	Result: false,
+	 *	ErrorCode: 102
+	 * }
+	 */
+	/**
 	 * Retrieves message and saves it as .eml file in temporary folder.
 	 * @param int $AccountID Account identifier.
 	 * @param string $MessageFolder Full name of folder.
@@ -4089,6 +4239,55 @@ class Module extends \Aurora\System\Module\AbstractModule
 		return $mResult;
 	}	
 	
+	/**
+	 * @api {post} ?/Api/ UploadMessage
+	 * @apiName UploadMessage
+	 * @apiGroup Mail
+	 * @apiDescription Uploads message and puts it to specified folder.
+	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
+	 * @apiParam {string=Mail} Module Module name
+	 * @apiParam {string=UploadMessage} Method Method name
+	 * @apiParam {string} [Parameters] JSON.stringified object<br>
+	 * {<br>
+	 * &emsp; **AccountID** *int* Account identifier.<br>
+	 * &emsp; **Folder** *string* Folder full name.<br>
+	 * }
+	 * @apiParam {string} UploadData Information about uploaded .eml file.
+	 * 
+	 * @apiParamExample {json} Request-Example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'UploadMessage',
+	 *	Parameters: '{ "AccountID": 12, "Folder": "INBOX" }'
+	 * }
+	 * 
+	 * @apiSuccess {object[]} Result Array of response objects.
+	 * @apiSuccess {string} Result.Module Module name.
+	 * @apiSuccess {string} Result.Method Method name.
+	 * @apiSuccess {boolean} Result.Result Indicates if message was uploaded successfully.
+	 * @apiSuccess {int} [Result.ErrorCode] Error code
+	 * 
+	 * @apiSuccessExample {json} Success response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'UploadMessage',
+	 *	Result: true
+	 * }
+	 * 
+	 * @apiSuccessExample {json} Error response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'UploadMessage',
+	 *	Result: false,
+	 *	ErrorCode: 102
+	 * }
+	 */
 	/**
 	 * Uploads message and puts it to specified folder.
 	 * @param int $AccountID Account identifier.
@@ -4150,6 +4349,54 @@ class Module extends \Aurora\System\Module\AbstractModule
 	}
 	
 	/**
+	 * @api {post} ?/Api/ ChangePassword
+	 * @apiName ChangePassword
+	 * @apiGroup Mail
+	 * @apiDescription Setups new values of special folders.
+	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
+	 * @apiParam {string=Mail} Module Module name
+	 * @apiParam {string=ChangePassword} Method Method name
+	 * @apiParam {string} Parameters JSON.stringified object<br>
+	 * {<br>
+	 * &emsp; **AccountId** *int* Account identifier.<br>
+	 * &emsp; **CurrentPassword** *string* Current password.<br>
+	 * &emsp; **NewPassword** *string* New password.<br>
+	 * }
+	 * 
+	 * @apiParamExample {json} Request-Example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'ChangePassword',
+	 *	Parameters: '{ "AccountId": 12, "CurrentPassword": "pass_value", "NewPassword": "new_pass_value" }'
+	 * }
+	 * 
+	 * @apiSuccess {object[]} Result Array of response objects.
+	 * @apiSuccess {string} Result.Module Module name.
+	 * @apiSuccess {string} Result.Method Method name.
+	 * @apiSuccess {boolean} Result.Result Indicates if password was changed successfully.
+	 * @apiSuccess {int} [Result.ErrorCode] Error code
+	 * 
+	 * @apiSuccessExample {json} Success response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'ChangePassword',
+	 *	Result: true
+	 * 
+	 * @apiSuccessExample {json} Error response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'ChangePassword',
+	 *	Result: false,
+	 *	ErrorCode: 102
+	 * }
+	 */
+	/**
 	 * This method will trigger some event, subscribers of which perform all change password process
 	 * 
 	 * @param int $AccountId Account identifier.
@@ -4166,6 +4413,52 @@ class Module extends \Aurora\System\Module\AbstractModule
 		return $mResult;
 	}
 	
+	/**
+	 * @api {post} ?/Api/ GetFilters
+	 * @apiName GetFilters
+	 * @apiGroup Mail
+	 * @apiDescription Obtains filters for specified account.
+	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
+	 * @apiParam {string=Mail} Module Module name
+	 * @apiParam {string=GetFilters} Method Method name
+	 * @apiParam {string} [Parameters] JSON.stringified object<br>
+	 * {<br>
+	 * &emsp; **AccountID** *int* Account identifier.<br>
+	 * }
+	 * 
+	 * @apiParamExample {json} Request-Example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'GetFilters',
+	 *	Parameters: '{ "AccountID": 12 }'
+	 * }
+	 * 
+	 * @apiSuccess {object[]} Result Array of response objects.
+	 * @apiSuccess {string} Result.Module Module name.
+	 * @apiSuccess {string} Result.Method Method name.
+	 * @apiSuccess {mixed} Result.Result List of filters in case of success, otherwise **false**.
+	 * @apiSuccess {int} [Result.ErrorCode] Error code
+	 * 
+	 * @apiSuccessExample {json} Success response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'GetFilters',
+	 *	Result: []
+	 * 
+	 * @apiSuccessExample {json} Error response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'GetFilters',
+	 *	Result: false,
+	 *	ErrorCode: 102
+	 * }
+	 */
 	/**
 	 * Obtains filters for specified account.
 	 * @param int $AccountID Account identifier.
@@ -4187,6 +4480,54 @@ class Module extends \Aurora\System\Module\AbstractModule
 		return $mResult;
 	}
 	
+	/**
+	 * @api {post} ?/Api/ UpdateFilters
+	 * @apiName UpdateFilters
+	 * @apiGroup Mail
+	 * @apiDescription Updates filters.
+	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
+	 * @apiParam {string=Mail} Module Module name
+	 * @apiParam {string=UpdateFilters} Method Method name
+	 * @apiParam {string} Parameters JSON.stringified object<br>
+	 * {<br>
+	 * &emsp; **AccountID** *int* Account identifier<br>
+	 * &emsp; **Filters** *array* New filters data.<br>
+	 * }
+	 * 
+	 * @apiParamExample {json} Request-Example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'UpdateFilters',
+	 *	Parameters: '{ "AccountID": 12, "Filters": [ { "Enable": "1", "Field": 0, "Filter": "test", 
+	 *				"Condition": 0, "Action": 3, "FolderFullName": "test" } ] }'
+	 * }
+	 * 
+	 * @apiSuccess {object[]} Result Array of response objects.
+	 * @apiSuccess {string} Result.Module Module name.
+	 * @apiSuccess {string} Result.Method Method name.
+	 * @apiSuccess {boolean} Result.Result Indicates if filters were updated successfully.
+	 * @apiSuccess {int} [Result.ErrorCode] Error code
+	 * 
+	 * @apiSuccessExample {json} Success response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'UpdateFilters',
+	 *	Result: true
+	 * 
+	 * @apiSuccessExample {json} Error response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'UpdateFilters',
+	 *	Result: false,
+	 *	ErrorCode: 102
+	 * }
+	 */
 	/**
 	 * Updates filters.
 	 * @param int $AccountID Account identifier
@@ -4225,6 +4566,55 @@ class Module extends \Aurora\System\Module\AbstractModule
 	}
 	
 	/**
+	 * @api {post} ?/Api/ GetForward
+	 * @apiName GetForward
+	 * @apiGroup Mail
+	 * @apiDescription Obtains forward data for specified account.
+	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
+	 * @apiParam {string=Mail} Module Module name
+	 * @apiParam {string=GetForward} Method Method name
+	 * @apiParam {string} Parameters JSON.stringified object<br>
+	 * {<br>
+	 * &emsp; **AccountID** *int* Account identifier.<br>
+	 * }
+	 * 
+	 * @apiParamExample {json} Request-Example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'GetForward',
+	 *	Parameters: '{ "AccountID": 12 }'
+	 * }
+	 * 
+	 * @apiSuccess {object[]} Result Array of response objects.
+	 * @apiSuccess {string} Result.Module Module name.
+	 * @apiSuccess {string} Result.Method Method name.
+	 * @apiSuccess {mixed} Result.Result Forward properties in case of success, otherwise **false**.
+	 * @apiSuccess {boolean} Result.Result.Enable Indicates if forward is enabled.
+	 * @apiSuccess {string} Result.Result.Email Server UUID.
+	 * @apiSuccess {int} [Result.ErrorCode] Error code
+	 * 
+	 * @apiSuccessExample {json} Success response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'GetForward',
+	 *	Result: { "Enable": false, "Email": "" }
+	 * }
+	 * 
+	 * @apiSuccessExample {json} Error response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'GetForward',
+	 *	Result: false,
+	 *	ErrorCode: 102
+	 * }
+	 */
+	/**
 	 * Obtains forward data for specified account.
 	 * @param int $AccountID Account identifier.
 	 * @return array|boolean
@@ -4245,6 +4635,54 @@ class Module extends \Aurora\System\Module\AbstractModule
 		return $mResult;
 	}
 	
+	/**
+	 * @api {post} ?/Api/ UpdateForward
+	 * @apiName UpdateForward
+	 * @apiGroup Mail
+	 * @apiDescription Updates forward.
+	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
+	 * @apiParam {string=Mail} Module Module name
+	 * @apiParam {string=UpdateForward} Method Method name
+	 * @apiParam {string} Parameters JSON.stringified object<br>
+	 * {<br>
+	 * &emsp; **AccountID** *int* Account identifier.<br>
+	 * &emsp; **Enable** *boolean* Indicates if forward is enabled.<br>
+	 * &emsp; **Email** *string* Email that should be used for message forward.<br>
+	 * }
+	 * 
+	 * @apiParamExample {json} Request-Example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'UpdateForward',
+	 *	Parameters: '{ "AccountID": 12, "Enable": true, "Email": "test2@email" }'
+	 * }
+	 * 
+	 * @apiSuccess {object[]} Result Array of response objects.
+	 * @apiSuccess {string} Result.Module Module name.
+	 * @apiSuccess {string} Result.Method Method name.
+	 * @apiSuccess {boolean} Result.Result Indicates if server was updated successfully.
+	 * @apiSuccess {int} [Result.ErrorCode] Error code
+	 * 
+	 * @apiSuccessExample {json} Success response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'UpdateForward',
+	 *	Result: true
+	 * 
+	 * @apiSuccessExample {json} Error response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'UpdateForward',
+	 *	Result: false,
+	 *	ErrorCode: 102
+	 * }
+	 */
 	/**
 	 * Updates forward.
 	 * @param int $AccountID Account identifier.
@@ -4269,6 +4707,56 @@ class Module extends \Aurora\System\Module\AbstractModule
 	}
 	
 	/**
+	 * @api {post} ?/Api/ GetAutoresponder
+	 * @apiName GetAutoresponder
+	 * @apiGroup Mail
+	 * @apiDescription Obtains autoresponder for specified account.
+	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
+	 * @apiParam {string=Mail} Module Module name
+	 * @apiParam {string=GetAutoresponder} Method Method name
+	 * @apiParam {string} Parameters JSON.stringified object<br>
+	 * {<br>
+	 * &emsp; **AccountID** *int* Account identifier.<br>
+	 * }
+	 * 
+	 * @apiParamExample {json} Request-Example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'GetAutoresponder',
+	 *	Parameters: '{ "AccountID": 12 }'
+	 * }
+	 * 
+	 * @apiSuccess {object[]} Result Array of response objects.
+	 * @apiSuccess {string} Result.Module Module name.
+	 * @apiSuccess {string} Result.Method Method name.
+	 * @apiSuccess {mixed} Result.Result Autoresponder properties in case of success, otherwise **false**.
+	 * @apiSuccess {boolean} Result.Result.Enable Indicates if autoresponder is enabled.
+	 * @apiSuccess {string} Result.Result.Subject Subject of auto-respond message.
+	 * @apiSuccess {string} Result.Result.Message Text of auto-respond message.
+	 * @apiSuccess {int} [Result.ErrorCode] Error code
+	 * 
+	 * @apiSuccessExample {json} Success response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'GetAutoresponder',
+	 *	Result: { Enable: false, Subject: "", Message: "" }
+	 * }
+	 * 
+	 * @apiSuccessExample {json} Error response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'GetAutoresponder',
+	 *	Result: false,
+	 *	ErrorCode: 102
+	 * }
+	 */
+	/**
 	 * Obtains autoresponder for specified account.
 	 * @param int $AccountID Account identifier.
 	 * @return array|boolean
@@ -4289,6 +4777,55 @@ class Module extends \Aurora\System\Module\AbstractModule
 		return $mResult;
 	}
 	
+	/**
+	 * @api {post} ?/Api/ UpdateAutoresponder
+	 * @apiName UpdateAutoresponder
+	 * @apiGroup Mail
+	 * @apiDescription Updates autoresponder data.
+	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
+	 * @apiParam {string=Mail} Module Module name
+	 * @apiParam {string=UpdateAutoresponder} Method Method name
+	 * @apiParam {string} Parameters JSON.stringified object<br>
+	 * {<br>
+	 * &emsp; **AccountID** *int* Account identifier.<br>
+	 * &emsp; **Enable** *boolean* Indicates if autoresponder is enabled.<br>
+	 * &emsp; **Subject** *string* Subject of auto-respond message.<br>
+	 * &emsp; **Message** *string* Text of auto-respond message.<br>
+	 * }
+	 * 
+	 * @apiParamExample {json} Request-Example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'UpdateAutoresponder',
+	 *	Parameters: '{ "AccountID": 12, "Enable": true, "Subject": "subject_value", "Text": "text_value" }'
+	 * }
+	 * 
+	 * @apiSuccess {object[]} Result Array of response objects.
+	 * @apiSuccess {string} Result.Module Module name.
+	 * @apiSuccess {string} Result.Method Method name.
+	 * @apiSuccess {boolean} Result.Result Indicates if Autoresponder was updated successfully.
+	 * @apiSuccess {int} [Result.ErrorCode] Error code
+	 * 
+	 * @apiSuccessExample {json} Success response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'UpdateAutoresponder',
+	 *	Result: true
+	 * 
+	 * @apiSuccessExample {json} Error response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'UpdateAutoresponder',
+	 *	Result: false,
+	 *	ErrorCode: 102
+	 * }
+	 */
 	/**
 	 * Updates autoresponder data.
 	 * @param int $AccountID Account identifier.
