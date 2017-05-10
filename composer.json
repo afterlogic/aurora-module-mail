@@ -1,6 +1,5 @@
 {
 	"name": "afterlogic/aurora-module-mail",
-	"version":"0.4.0",
 	"type": "aurora-module"
 	"require":{
 		"php":">=5.4.0",
