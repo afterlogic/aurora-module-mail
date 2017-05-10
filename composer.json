@@ -1,14 +1,10 @@
 {
 	"name": "afterlogic/aurora-module-mail",
-    	"version":"0.1.0",
-    	"type": "aurora-module",
-    	"dist":{
-               "url":"https://github.com/afterlogic/aurora-module-mail/archive/master.zip",
-                "type":"zip"
-        },
+	"version":"0.4.0",
+	"type": "aurora-module"
 	"require":{
 		"php":">=5.4.0",
-		"afterlogic/aurora-framework": "~0.1",
+		"afterlogic/aurora-framework": "~0.4",
 		"tijsverkoyen/css-to-inline-styles": "~1.3.0",
 		"knplabs/knp-snappy": "*"
 	},
