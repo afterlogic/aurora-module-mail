@@ -3349,7 +3349,15 @@ class Module extends \Aurora\System\Module\AbstractModule
 						$iCode = \Aurora\System\Notifications::CannotSaveMessageInSentItems;
 						break;
 					case \Aurora\System\Exceptions\Errs::Mail_MailboxUnavailable:
-						$iCode = \Aurora\System\Notifications::MailboxUnavailable;
+						$oServer = $oAccount->getServer();
+						if ($oServer->OutgoingUseAuth)
+						{
+							$iCode = \Aurora\System\Notifications::UnableSendToRecipients;
+						}
+						else
+						{
+							$iCode = \Aurora\System\Notifications::ExternalRecipientsBlocked;
+						}
 						break;
 				}
 
