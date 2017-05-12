@@ -65,7 +65,7 @@ class CApiMailServersManager extends \Aurora\System\Managers\AbstractManager
 			$oServer->Domains = $Domains;
 			if (!$this->oEavManager->saveEntity($oServer))
 			{
-				throw new \Aurora\System\Exceptions\ManagerException(Errs::UsersManager_UserCreateFailed);
+				throw new \Aurora\System\Exceptions\ManagerException(\Aurora\System\Exceptions\Errs::UsersManager_UserCreateFailed);
 			}
 			return $oServer->EntityId;
 		}
@@ -251,7 +251,7 @@ class CApiMailServersManager extends \Aurora\System\Managers\AbstractManager
 				$oServer->Domains = $Domains;
 				if (!$this->oEavManager->saveEntity($oServer))
 				{
-					throw new \Aurora\System\Exceptions\ManagerException(Errs::UsersManager_UserCreateFailed);
+					throw new \Aurora\System\Exceptions\ManagerException(\Aurora\System\Exceptions\Errs::UsersManager_UserCreateFailed);
 				}
 				$bResult = true;
 			}

@@ -3339,16 +3339,16 @@ class Module extends \Aurora\System\Module\AbstractModule
 				$iCode = \Aurora\System\Notifications::CanNotSendMessage;
 				switch ($oException->getCode())
 				{
-					case \Errs::Mail_InvalidRecipients:
+					case \Aurora\System\Exceptions\Errs::Mail_InvalidRecipients:
 						$iCode = \Aurora\System\Notifications::InvalidRecipients;
 						break;
-					case \Errs::Mail_CannotSendMessage:
+					case \Aurora\System\Exceptions\Errs::Mail_CannotSendMessage:
 						$iCode = \Aurora\System\Notifications::CanNotSendMessage;
 						break;
-					case \Errs::Mail_CannotSaveMessageInSentItems:
+					case \Aurora\System\Exceptions\Errs::Mail_CannotSaveMessageInSentItems:
 						$iCode = \Aurora\System\Notifications::CannotSaveMessageInSentItems;
 						break;
-					case \Errs::Mail_MailboxUnavailable:
+					case \Aurora\System\Exceptions\Errs::Mail_MailboxUnavailable:
 						$iCode = \Aurora\System\Notifications::MailboxUnavailable;
 						break;
 				}
