@@ -4936,7 +4936,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$aArgs['Password']
 		);
 
-		if (!$oAccount)
+		$bNewAccount = false;
+		$bAllowNewUsersRegister = $this->getConfig('AllowNewUsersRegister', false);
+		if ($bAllowNewUsersRegister && !$oAccount)
 		{
 			$sEmail = $aArgs['Login'];
 			$sDomain = \MailSo\Base\Utils::GetDomainFromEmail($sEmail);
@@ -4948,19 +4950,21 @@ class Module extends \Aurora\System\Module\AbstractModule
 				$oAccount->IncomingLogin = $aArgs['Login'];
 				$oAccount->IncomingPassword = $aArgs['Password'];
 				$oAccount->ServerId = $oServer->EntityId;
+				$bNewAccount = true;
 			}
 		}
+		
 		if ($oAccount instanceof \CMailAccount)
 		{
 			try
 			{
-				$this->oApiMailManager->validateAccountConnection($oAccount);
-				
-				$bResult =  true;
+				if ($bAllowNewUsersRegister || !$bNewAccount)
+				{
+					$this->oApiMailManager->validateAccountConnection($oAccount);
+					$bResult =  true;
+				}
 
-				$bAllowNewUsersRegister = $this->getConfig('AllowNewUsersRegister', false);
-				
-				if ($oServer && $bAllowNewUsersRegister)
+				if ($bAllowNewUsersRegister && $bNewAccount)
 				{
 					$oAccount = $this->GetDecorator()->CreateAccount(
 						0, 
@@ -4973,7 +4977,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 					if ($oAccount)
 					{
 						$oAccount->UseToAuthorize = true;
-						$this->oApiAccountsManager->UpdateAccount($oAccount);
+						$bResult = $this->oApiAccountsManager->updateAccount($oAccount);
 					}
 					else
 					{
@@ -4981,12 +4985,15 @@ class Module extends \Aurora\System\Module\AbstractModule
 					}
 				}
 				
-				$mResult = array(
-					'token' => 'auth',
-					'sign-me' => $aArgs['SignMe'],
-					'id' => $oAccount->IdUser,
-					'account' => $oAccount->EntityId
-				);
+				if ($bResult)
+				{
+					$mResult = array(
+						'token' => 'auth',
+						'sign-me' => $aArgs['SignMe'],
+						'id' => $oAccount->IdUser,
+						'account' => $oAccount->EntityId
+					);
+				}
 			}
 			catch (\Exception $oEx) {}
 		}			
