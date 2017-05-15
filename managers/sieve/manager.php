@@ -512,14 +512,12 @@ class CApiMailSieveManager extends \Aurora\System\Managers\AbstractManager
 			if (!$oSieve->IsConnected())
 			{
 				$oMailModule = \Aurora\System\Api::GetModule('Mail');
-				$sGeneralHost = $oMailModule->getConfig('SieveHost', '');
-				$iGeneralHostPort = (int) $oMailModule->getConfig('SievePort', 2000);
 				$sGeneralPassword = $oMailModule->getConfig('SieveGeneralPassword', '');
 				
 				$oServer = $oMailModule->oApiServersManager->getServer($oAccount->ServerId);
 				
-				$sHost = $oServer->Internal || 0 === strlen($sGeneralHost) ? $oServer->IncomingServer : $sGeneralHost;
-				$iPort = $oServer->Internal ? 2000 : $iGeneralHostPort;
+				$sHost = $oServer->IncomingServer;
+				$iPort = $oServer->SievePort;
 				$sPassword = 0 === strlen($sGeneralPassword) ? $oAccount->IncomingPassword : $sGeneralPassword;
 				
 				$bResult = $oSieve

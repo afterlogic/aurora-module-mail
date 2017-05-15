@@ -42,12 +42,17 @@ class CApiMailServersManager extends \Aurora\System\Managers\AbstractManager
 	 * @param int $iOutgoingPort
 	 * @param boolean $bOutgoingUseSsl
 	 * @param boolean $bOutgoingUseAuth
+	 * @param string $sDomains
+	 * @param boolean $bEnableSieve
+	 * @param int $iSievePort
+	 * @param string $sOwnerType
 	 * @param int $iTenantId
 	 * @return int|boolean
 	 * @throws \Aurora\System\Exceptions\ManagerException
 	 */
 	public function createServer($sName, $sIncomingServer, $iIncomingPort, $bIncomingUseSsl,
-			$sOutgoingServer, $iOutgoingPort, $bOutgoingUseSsl, $bOutgoingUseAuth, $Domains, $sOwnerType = \EMailServerOwnerType::Account, $iTenantId = 0)
+			$sOutgoingServer, $iOutgoingPort, $bOutgoingUseSsl, $bOutgoingUseAuth, $sDomains, 
+			$bEnableSieve, $iSievePort, $sOwnerType = \EMailServerOwnerType::Account, $iTenantId = 0)
 	{
 		try
 		{
@@ -62,7 +67,9 @@ class CApiMailServersManager extends \Aurora\System\Managers\AbstractManager
 			$oServer->OutgoingPort = $iOutgoingPort;
 			$oServer->OutgoingUseSsl = $bOutgoingUseSsl;
 			$oServer->OutgoingUseAuth = $bOutgoingUseAuth;
-			$oServer->Domains = $Domains;
+			$oServer->Domains = $sDomains;
+			$oServer->EnableSieve = $bEnableSieve;
+			$oServer->SievePort = $iSievePort;
 			if (!$this->oEavManager->saveEntity($oServer))
 			{
 				throw new \Aurora\System\Exceptions\ManagerException(\Aurora\System\Exceptions\Errs::UsersManager_UserCreateFailed);
@@ -226,12 +233,16 @@ class CApiMailServersManager extends \Aurora\System\Managers\AbstractManager
 	 * @param int $iOutgoingPort
 	 * @param boolean $bOutgoingUseSsl
 	 * @param boolean $bOutgoingUseAuth
+	 * @param string $sDomains
+	 * @param boolean $bEnableSieve
+	 * @param int $iSievePort
 	 * @param int $iTenantId
 	 * @return boolean
 	 * @throws \Aurora\System\Exceptions\ManagerException
 	 */
 	public function updateServer($iServerId, $sName, $sIncomingServer, $iIncomingPort, $bIncomingUseSsl,
-			$sOutgoingServer, $iOutgoingPort, $bOutgoingUseSsl, $bOutgoingUseAuth, $Domains, $iTenantId = 0)
+			$sOutgoingServer, $iOutgoingPort, $bOutgoingUseSsl, $bOutgoingUseAuth, $sDomains,
+			$bEnableSieve, $iSievePort, $iTenantId = 0)
 	{
 		$bResult = false;
 		
@@ -248,7 +259,9 @@ class CApiMailServersManager extends \Aurora\System\Managers\AbstractManager
 				$oServer->OutgoingPort = $iOutgoingPort;
 				$oServer->OutgoingUseSsl = $bOutgoingUseSsl;
 				$oServer->OutgoingUseAuth = $bOutgoingUseAuth;
-				$oServer->Domains = $Domains;
+				$oServer->Domains = $sDomains;
+				$oServer->EnableSieve = $bEnableSieve;
+				$oServer->SievePort = $iSievePort;
 				if (!$this->oEavManager->saveEntity($oServer))
 				{
 					throw new \Aurora\System\Exceptions\ManagerException(\Aurora\System\Exceptions\Errs::UsersManager_UserCreateFailed);
