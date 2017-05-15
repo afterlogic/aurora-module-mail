@@ -179,7 +179,7 @@ class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 				0,
 				1,
 				array(
-					'IdUser' => $oAccount->EntityId,
+					'IdAccount' => $oAccount->EntityId,
 					'Type' => $iTypeValue
 				)
 			);
@@ -191,7 +191,7 @@ class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 			}
 			else 
 			{
-				$oSystemFolder->IdUser = $oAccount->EntityId;
+				$oSystemFolder->IdAccount = $oAccount->EntityId;
 			}
 			$oSystemFolder->FolderFullName = $sKey;
 			$oSystemFolder->Type = $iTypeValue;
@@ -217,7 +217,7 @@ class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 			0,
 			9,
 			array(
-				'IdUser' => $oAccount->EntityId
+				'IdAccount' => $oAccount->EntityId
 			)
 		);
 		if (count($aEntities) > 0)
@@ -229,6 +229,30 @@ class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 		}
 		
 		return $aFolders;
+	}
+
+	/**
+	 * Deletes information about system folders of the account.
+	 * @param int $iAccountId Account identifier.
+	 * @return boolean
+	 */
+	public function deleteSystemFolderNames($iAccountId)
+	{
+		$bResult = true;
+		
+		$iOffset = 0;
+		$iLimit = 0;
+		$aFilters = array('IdAccount' => array($iAccountId, '='));
+		$aSystemFolders = $this->oEavManager->getEntities('CSystemFolder',  array(), $iOffset, $iLimit, $aFilters);
+		if (is_array($aSystemFolders))
+		{
+			foreach ($aSystemFolders as $oSystemFolder)
+			{
+				$bResult = $bResult && $this->oEavManager->deleteEntity($oSystemFolder->EntityId);
+			}
+		}
+		
+		return $bResult;
 	}
 
 	/**

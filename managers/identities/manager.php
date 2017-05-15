@@ -194,6 +194,30 @@ class CApiMailIdentitiesManager extends \Aurora\System\Managers\AbstractManager
 	}
 	
 	/**
+	 * Deletes identities of the account.
+	 * @param int $iAccountId Account identifier.
+	 * @return boolean
+	 */
+	public function deleteAccountIdentities($iAccountId)
+	{
+		$bResult = true;
+		
+		$iOffset = 0;
+		$iLimit = 0;
+		$aFilters = array('IdAccount' => array($iAccountId, '='));
+		$aIdentities = $this->oEavManager->getEntities('CIdentity', array(), $iOffset, $iLimit, $aFilters);
+		if (is_array($aIdentities))
+		{
+			foreach ($aIdentities as $oIdentity)
+			{
+				$bResult = $bResult && $this->oEavManager->deleteEntity($oIdentity->EntityId);
+			}
+		}
+		
+		return $bResult;
+	}
+	
+	/**
 	 * @param int $iUserId
 	 */
 	public function resetDefaultIdentity($iUserId)

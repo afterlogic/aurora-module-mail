@@ -9,7 +9,7 @@
  */
 
 /**
- * @property int $IdUser
+ * @property int $IdAccount
  * @property string $FolderFullName
  * @property int $Type
  *
@@ -20,17 +20,8 @@
 class CSystemFolder extends \Aurora\System\EAV\Entity
 {
 	protected $aStaticMap = array(
-		'IdUser'			=> array('int', 0),
+		'IdAccount'			=> array('int', 0),
 		'FolderFullName'	=> array('string', ''),
 		'Type'				=> array('int', 0)
 	);
-
-	public function toResponseArray()
-	{
-		return array(
-			'IdUser' => $this->IdUser,
-			'FolderFullName' => $this->FolderFullName,
-			'Type' => $this->Type
-		);
-	}
 }

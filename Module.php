@@ -766,6 +766,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 			
 			if ($oAccount)
 			{
+				$this->oApiIdentitiesManager->deleteAccountIdentities($oAccount->EntityId);
+				$this->oApiMailManager->deleteSystemFolderNames($oAccount->EntityId);
 				$bServerRemoved = true;
 				$oServer = $oAccount->getServer();
 				if ($oServer->OwnerType === \EMailServerOwnerType::Account)
