@@ -1446,13 +1446,14 @@ class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 	 * @param resource $rMessage Resource the message is appended from.
 	 * @param string $sFolder Folder the message is appended to.
 	 * @param int $iStreamSize Size of stream.
+	 * @param int $iUid
 	 *
 	 * @return void
 	 */
-	public function appendMessageFromStream($oAccount, $rMessage, $sFolder, $iStreamSize)
+	public function appendMessageFromStream($oAccount, $rMessage, $sFolder, $iStreamSize, &$iUid = null)
 	{
 		$oImapClient =& $this->_getImapClient($oAccount);
-		$oImapClient->MessageAppendStream($sFolder, $rMessage, $iStreamSize);
+		$oImapClient->MessageAppendStream($sFolder, $rMessage, $iStreamSize, null, $iUid);
 	}	
 
 	/**
