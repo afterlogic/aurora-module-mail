@@ -4957,6 +4957,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$sEmail = $aArgs['Login'];
 			$sDomain = \MailSo\Base\Utils::GetDomainFromEmail($sEmail);
 			$oServer = $this->oApiServersManager->GetServerByDomain(strtolower($sDomain));
+			if (!$oServer)
+			{
+				$oServer = $this->oApiServersManager->GetServerByDomain('*');
+			}
 			if ($oServer)
 			{
 				$oAccount = \Aurora\System\EAV\Entity::createInstance('CMailAccount', $this->GetName());

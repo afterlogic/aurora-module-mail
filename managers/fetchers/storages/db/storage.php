@@ -34,8 +34,8 @@ class CApiMailFetchersDbStorage extends CApiMailFetchersStorage
 		$this->oConnection =& $oManager->GetConnection();
 		$this->oCommandCreator =& $oManager->GetCommandCreator(
 			$this, array(
-				EDbType::MySQL => 'CApiMailFetchersCommandCreatorMySQL',
-				EDbType::PostgreSQL => 'CApiMailFetchersCommandCreatorPostgreSQL'
+				\Aurora\System\Enums\DbType::MySQL => 'CApiMailFetchersCommandCreatorMySQL',
+				\Aurora\System\Enums\DbType::PostgreSQL => 'CApiMailFetchersCommandCreatorPostgreSQL'
 			)
 		);
 	}
