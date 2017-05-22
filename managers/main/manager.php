@@ -1446,13 +1446,14 @@ class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 	 * @param resource $rMessage Resource the message is appended from.
 	 * @param string $sFolder Folder the message is appended to.
 	 * @param int $iStreamSize Size of stream.
+	 * @param int $iUid
 	 *
 	 * @return void
 	 */
-	public function appendMessageFromStream($oAccount, $rMessage, $sFolder, $iStreamSize)
+	public function appendMessageFromStream($oAccount, $rMessage, $sFolder, $iStreamSize, &$iUid = null)
 	{
 		$oImapClient =& $this->_getImapClient($oAccount);
-		$oImapClient->MessageAppendStream($sFolder, $rMessage, $iStreamSize);
+		$oImapClient->MessageAppendStream($sFolder, $rMessage, $iStreamSize, null, $iUid);
 	}	
 
 	/**
@@ -1731,11 +1732,8 @@ class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 
 			if (0 < strlen($sFromEmail))
 			{
-//				$oApiUsersManager = /* @var CApiUsersManager */\Aurora\System\Api::GetSystemManager('users');
-				$oSettings =&\Aurora\System\Api::GetSettings();
-				$bAlwaysShowImagesInMessage = !!$oSettings->GetConf('WebMail/AlwaysShowImagesInMessage');
-				$oMessage->setSafety($bAlwaysShowImagesInMessage ? true : 
-						$oApiUsersManager->getSafetySender($oAccount->IdUser, $sFromEmail, true));
+				$bAlwaysShowImagesInMessage = $this->GetModule()->getConfig('AlwaysShowImagesInMessage', false);
+				$oMessage->setSafety($bAlwaysShowImagesInMessage ? true : $this->isSafetySender($oAccount->IdUser, $sFromEmail));
 			}
 		}
 
@@ -2707,7 +2705,7 @@ class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 			$bIndexAsUid = false;
 			$aIndexOrUids = array();
 
-			$bUseSortIfSupported = !!$oSettings->GetConf('WebMail/UseSortImapForDateMode');
+			$bUseSortIfSupported = $this->GetModule()->getConfig('UseSortImapForDateMode', false);
 			if ($bUseSortIfSupported)
 			{
 				$bUseSortIfSupported = $oImapClient->IsSupported('SORT');

@@ -1141,6 +1141,10 @@ class CApiMailMessage
 			{
 				$sPlain = $this->getPlain();
 			}
+			else if (5000 > strlen($sHtml))
+			{
+				$mResult['HtmlRaw'] = $sHtml;
+			}
 
 			$aContentLocationUrls = array();
 			$aFoundedContentLocationUrls = array();

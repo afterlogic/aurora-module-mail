@@ -43,6 +43,10 @@
 		true,
 		"bool"
 	],
+	"AlwaysShowImagesInMessage": [
+		false,
+		"bool"
+	],
 	"AutoSaveIntervalSeconds": [
 		60,
 		"int"
@@ -84,6 +88,10 @@
 		"bool"
 	],
 	"UseDateFromHeaders": [
+		false,
+		"bool"
+	],
+	"UseSortImapForDateMode": [
 		false,
 		"bool"
 	],
