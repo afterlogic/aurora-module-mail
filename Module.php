@@ -1973,8 +1973,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 			if (0 < \strlen($sFromEmail))
 			{
-				$bAlwaysShowImagesInMessage = !!\Aurora\System\Api::GetSettings()->GetConf('WebMail/AlwaysShowImagesInMessage');
-
+				$bAlwaysShowImagesInMessage = !!$this->getConfig('AlwaysShowImagesInMessage', false);
 				$oMessage->setSafety($bAlwaysShowImagesInMessage ? true : 
 						$this->oApiMailManager->isSafetySender($oAccount->IdUser, $sFromEmail));
 			}

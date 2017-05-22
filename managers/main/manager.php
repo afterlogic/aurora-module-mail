@@ -1732,11 +1732,8 @@ class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 
 			if (0 < strlen($sFromEmail))
 			{
-//				$oApiUsersManager = /* @var CApiUsersManager */\Aurora\System\Api::GetSystemManager('users');
-//				$oSettings =&\Aurora\System\Api::GetSettings();
-//				$bAlwaysShowImagesInMessage = !!$oSettings->GetConf('WebMail/AlwaysShowImagesInMessage');
-//				$oMessage->setSafety($bAlwaysShowImagesInMessage ? true : 
-//						$oApiUsersManager->getSafetySender($oAccount->IdUser, $sFromEmail, true));
+				$bAlwaysShowImagesInMessage = $this->GetModule()->getConfig('AlwaysShowImagesInMessage', false);
+				$oMessage->setSafety($bAlwaysShowImagesInMessage ? true : $this->isSafetySender($oAccount->IdUser, $sFromEmail));
 			}
 		}
 
@@ -2708,7 +2705,7 @@ class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 			$bIndexAsUid = false;
 			$aIndexOrUids = array();
 
-			$bUseSortIfSupported = !!$oSettings->GetConf('WebMail/UseSortImapForDateMode');
+			$bUseSortIfSupported = $this->GetModule()->getConfig('UseSortImapForDateMode', false);
 			if ($bUseSortIfSupported)
 			{
 				$bUseSortIfSupported = $oImapClient->IsSupported('SORT');
