@@ -1733,10 +1733,10 @@ class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 			if (0 < strlen($sFromEmail))
 			{
 //				$oApiUsersManager = /* @var CApiUsersManager */\Aurora\System\Api::GetSystemManager('users');
-				$oSettings =&\Aurora\System\Api::GetSettings();
-				$bAlwaysShowImagesInMessage = !!$oSettings->GetConf('WebMail/AlwaysShowImagesInMessage');
-				$oMessage->setSafety($bAlwaysShowImagesInMessage ? true : 
-						$oApiUsersManager->getSafetySender($oAccount->IdUser, $sFromEmail, true));
+//				$oSettings =&\Aurora\System\Api::GetSettings();
+//				$bAlwaysShowImagesInMessage = !!$oSettings->GetConf('WebMail/AlwaysShowImagesInMessage');
+//				$oMessage->setSafety($bAlwaysShowImagesInMessage ? true : 
+//						$oApiUsersManager->getSafetySender($oAccount->IdUser, $sFromEmail, true));
 			}
 		}
 
