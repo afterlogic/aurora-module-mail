@@ -12,7 +12,7 @@
  * @package Mail
  * @subpackage Enum
  */
-class EMailMessageListSortType extends \AbstractEnumeration
+class EMailMessageListSortType extends \Aurora\System\Enums\AbstractEnumeration
 {
 	const Date = 0;
 	const From_ = 1;
@@ -25,7 +25,7 @@ class EMailMessageListSortType extends \AbstractEnumeration
  * @package Mail
  * @subpackage Enum
  */
-class EMailMessageStoreAction extends \AbstractEnumeration
+class EMailMessageStoreAction extends \Aurora\System\Enums\AbstractEnumeration
 {
 	const Add = 0;
 	const Remove = 1;
@@ -36,7 +36,7 @@ class EMailMessageStoreAction extends \AbstractEnumeration
  * @package Mail
  * @subpackage Enum
  */
-class EMailMessageFlag extends \AbstractEnumeration
+class EMailMessageFlag extends \Aurora\System\Enums\AbstractEnumeration
 {
 	const Recent = '\Recent';
 	const Seen = '\Seen';
@@ -50,7 +50,7 @@ class EMailMessageFlag extends \AbstractEnumeration
  * @package Api
  * @subpackage Enum
  */
-class EFolderType extends \AbstractEnumeration
+class EFolderType extends \Aurora\System\Enums\AbstractEnumeration
 {
 	const Inbox = 1;
 	const Sent = 2;
@@ -80,7 +80,7 @@ class EFolderType extends \AbstractEnumeration
  * @package Mail
  * @subpackage Enum
  */
-class EMailServerOwnerType extends \AbstractEnumeration
+class EMailServerOwnerType extends \Aurora\System\Enums\AbstractEnumeration
 {
 	const Account = 'account';
 	const Tenant = 'tenant';

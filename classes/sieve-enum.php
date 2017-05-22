@@ -12,7 +12,7 @@
  * @package Sieve
  * @subpackage Enum
  */
-class EFilterFiels extends \AbstractEnumeration
+class EFilterFiels extends \Aurora\System\Enums\AbstractEnumeration
 {
 	const From = 0;
 	const To = 1;
@@ -26,7 +26,7 @@ class EFilterFiels extends \AbstractEnumeration
  * @package Sieve
  * @subpackage Enum
  */
-class EFilterCondition extends \AbstractEnumeration
+class EFilterCondition extends \Aurora\System\Enums\AbstractEnumeration
 {
 	const ContainSubstring = 0;
 	const ContainExactPhrase = 1;
@@ -38,7 +38,7 @@ class EFilterCondition extends \AbstractEnumeration
  * @package Sieve
  * @subpackage Enum
  */
-class EFilterAction extends \AbstractEnumeration
+class EFilterAction extends \Aurora\System\Enums\AbstractEnumeration
 {
 	const DoNothing = 0;
 	const DeleteFromServerImmediately = 1;

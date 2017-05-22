@@ -77,6 +77,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 		
 		$this->subscribeEvent('Login', array($this, 'onLogin'));
 		$this->subscribeEvent('Core::AfterDeleteUser', array($this, 'onAfterDeleteUser'));
+		
+		\MailSo\Config::$PreferStartTlsIfAutoDetect = !!$this->getConfig('PreferStarttls', true);
 	}
 	
 	/***** public functions might be called with web API *****/
@@ -152,7 +154,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function GetSettings()
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::Anonymous);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::Anonymous);
 		
 		$aSettings = array(
 			'Accounts' => array(),
@@ -171,7 +173,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		);
 		
 		$oUser = \Aurora\System\Api::getAuthenticatedUser();
-		if ($oUser && $oUser->Role === \EUserRole::NormalUser)
+		if ($oUser && $oUser->Role === \Aurora\System\Enums\UserRole::NormalUser)
 		{
 			$aAcc = $this->GetAccounts($oUser->EntityId);
 			$aResponseAcc = [];
@@ -250,19 +252,19 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function UpdateSettings($UseThreads, $AllowAutosaveInDrafts)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		$oUser = \Aurora\System\Api::getAuthenticatedUser();
 		if ($oUser)
 		{
-			if ($oUser->Role === \EUserRole::NormalUser)
+			if ($oUser->Role === \Aurora\System\Enums\UserRole::NormalUser)
 			{
 				$oCoreDecorator = \Aurora\System\Api::GetModuleDecorator('Core');
 				$oUser->{$this->GetName().'::UseThreads'} = $UseThreads;
 				$oUser->{$this->GetName().'::AllowAutosaveInDrafts'} = $AllowAutosaveInDrafts;
 				return $oCoreDecorator->UpdateUserObject($oUser);
 			}
-			if ($oUser->Role === \EUserRole::SuperAdmin)
+			if ($oUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin)
 			{
 				return true;
 			}
@@ -329,7 +331,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function GetAccounts($UserId)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		return $this->oApiAccountsManager->getUserAccounts($UserId);
 	}
@@ -404,7 +406,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function GetAccount($AccountId)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		$mResult = false;
 		
@@ -500,7 +502,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function CreateAccount($UserId = 0, $FriendlyName = '', $Email = '', $IncomingLogin = '', 
 			$IncomingPassword = '', $Server = null)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::Anonymous);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::Anonymous);
 		
 		$sDomains = explode('@', $Email)[1];
 
@@ -627,7 +629,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function UpdateAccount($AccountID, $UseToAuthorize = null, $Email = null, $FriendlyName = null, $IncomingLogin = null, 
 			$IncomingPassword = null, $Server = null)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		if ($AccountID > 0)
 		{
@@ -756,7 +758,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function DeleteAccount($AccountID)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		$bResult = false;
 
@@ -844,7 +846,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function GetServers($TenantId = 0)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		return $this->oApiServersManager->getServerList($TenantId);
 	}
@@ -919,7 +921,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function GetServer($ServerId)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		return $this->oApiServersManager->getServer($ServerId);
 	}
@@ -1005,11 +1007,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 		
 		if ($TenantId === 0)
 		{
-			\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::SuperAdmin);
+			\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::SuperAdmin);
 		}
 		else
 		{
-			\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::TenantAdmin);
+			\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::TenantAdmin);
 		}
 		
 		return $this->oApiServersManager->createServer($Name, $IncomingServer, $IncomingPort, $IncomingUseSsl,
@@ -1097,11 +1099,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 	{
 		if ($TenantId === 0)
 		{
-			\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::SuperAdmin);
+			\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::SuperAdmin);
 		}
 		else
 		{
-			\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::TenantAdmin);
+			\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::TenantAdmin);
 		}
 		
 		return $this->oApiServersManager->updateServer($ServerId, $Name, $IncomingServer, $IncomingPort, $IncomingUseSsl,
@@ -1166,11 +1168,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 	{
 		if ($TenantId === 0)
 		{
-			\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::SuperAdmin);
+			\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::SuperAdmin);
 		}
 		else
 		{
-			\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::TenantAdmin);
+			\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::TenantAdmin);
 		}
 		
 		return $this->oApiServersManager->deleteServer($ServerId, $TenantId);
@@ -1255,7 +1257,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function GetFolders($AccountID)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 		$oFolderCollection = $this->oApiMailManager->getFolders($oAccount);
@@ -1393,7 +1395,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function GetMessages($AccountID, $Folder, $Offset = 0, $Limit = 20, $Search = '', $Filters = '', $UseThreads = false, $InboxUidnext = '')
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		$sSearch = \trim((string) $Search);
 		
@@ -1480,7 +1482,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function GetRelevantFoldersInformation($AccountID, $Folders)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		if (!\is_array($Folders) || 0 === \count($Folders))
 		{
@@ -1567,7 +1569,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function GetQuota($AccountID)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 		return $this->oApiMailManager->getQuota($oAccount);
@@ -1688,7 +1690,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function GetMessagesBodies($AccountID, $Folder, $Uids)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		if (0 === \strlen(\trim($Folder)) || !\is_array($Uids) || 0 === \count($Uids))
 		{
@@ -1827,7 +1829,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function GetMessage($AccountID, $Folder, $Uid, $Rfc822MimeIndex = '')
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		$iBodyTextLimit = 600000;
 		
@@ -2067,7 +2069,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function SetMessagesSeen($AccountID, $Folder, $Uids, $SetAction)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		return $this->setMessageFlag($AccountID, $Folder, $Uids, $SetAction, \MailSo\Imap\Enumerations\MessageFlag::SEEN);
 	}	
@@ -2132,7 +2134,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function SetMessageFlagged($AccountID, $Folder, $Uids, $SetAction)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		return $this->setMessageFlag($AccountID, $Folder, $Uids, $SetAction, \MailSo\Imap\Enumerations\MessageFlag::FLAGGED);
 	}
@@ -2194,7 +2196,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function SetAllMessagesSeen($AccountID, $Folder)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		if (0 === \strlen(\trim($Folder)))
 		{
@@ -2267,7 +2269,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function MoveMessages($AccountID, $Folder, $ToFolder, $Uids)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		$aUids = \Aurora\System\Utils::ExplodeIntUids((string) $Uids);
 
@@ -2356,7 +2358,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function DeleteMessages($AccountID, $Folder, $Uids)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		$aUids = \Aurora\System\Utils::ExplodeIntUids((string) $Uids);
 
@@ -2434,7 +2436,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function CreateFolder($AccountID, $FolderNameInUtf8, $FolderParentFullNameRaw, $Delimiter)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		if (0 === \strlen($FolderNameInUtf8) || 1 !== \strlen($Delimiter))
 		{
@@ -2554,7 +2556,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function RenameFolder($AccountID, $PrevFolderFullNameRaw, $NewFolderNameInUtf8)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		if (0 === \strlen($PrevFolderFullNameRaw) || 0 === \strlen($NewFolderNameInUtf8))
 		{
@@ -2628,7 +2630,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function DeleteFolder($AccountID, $Folder)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		if (0 === \strlen(\trim($Folder)))
 		{
@@ -2701,7 +2703,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function SubscribeFolder($AccountID, $Folder, $SetAction)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		if (0 === \strlen(\trim($Folder)))
 		{
@@ -2772,7 +2774,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function UpdateFoldersOrder($AccountID, $FolderList)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		if (!\is_array($FolderList))
 		{
@@ -2840,7 +2842,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function ClearFolder($AccountID, $Folder)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		if (0 === \strlen(\trim($Folder)))
 		{
@@ -2972,7 +2974,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function GetMessagesByUids($AccountID, $Folder, $Uids)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		if (0 === \strlen(trim($Folder)) || !\is_array($Uids))
 		{
@@ -3042,7 +3044,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function GetMessagesFlags($AccountID, $Folder, $Uids)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		if (0 === \strlen(\trim($Folder)) || !\is_array($Uids))
 		{
@@ -3150,7 +3152,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$SendReadingConfirmation = false, $Attachments = array(), $InReplyTo = "", 
 			$References = "", $Sensitivity = \MailSo\Mime\Enumerations\Sensitivity::NOTHING, $DraftFolder = "")
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		$mResult = false;
 
@@ -3305,7 +3307,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$References = "", $Sensitivity = \MailSo\Mime\Enumerations\Sensitivity::NOTHING, $SentFolder = "",
 			$DraftFolder = "", $ConfirmFolder = "", $ConfirmUid = "")
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 
@@ -3490,7 +3492,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function SetupSystemFolders($AccountID, $Sent, $Drafts, $Trash, $Spam)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 		
@@ -3572,7 +3574,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function SetEmailSafety($AccountID, $Email)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		if (0 === \strlen(\trim($Email)))
 		{
@@ -3646,7 +3648,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function CreateIdentity($UserId, $AccountID, $FriendlyName, $Email)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		return $this->oApiIdentitiesManager->createIdentity($UserId, $AccountID, $FriendlyName, $Email);
 	}
@@ -3718,7 +3720,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function UpdateIdentity($UserId, $AccountID, $EntityId, $FriendlyName, $Email, $Default = false, $AccountPart = false)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		if ($Default)
 		{
@@ -3789,7 +3791,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function DeleteIdentity($EntityId)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		return $this->oApiIdentitiesManager->deleteIdentity($EntityId);
 	}
@@ -3859,7 +3861,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function GetIdentities($UserId)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		return $this->oApiIdentitiesManager->getIdentities($UserId);
 	}
@@ -3925,7 +3927,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function UpdateSignature($AccountID, $UseSignature = null, $Signature = null, $IdentityId = null)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		if ($AccountID > 0)
 		{
@@ -4020,7 +4022,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function UploadAttachment($UserId, $AccountID, $UploadData)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		$sUUID = \Aurora\System\Api::getUserUUIDById($UserId);
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
@@ -4134,7 +4136,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$mResult = false;
 		$self = $this;
 
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 		if ($oAccount instanceof \CMailAccount)
@@ -4256,7 +4258,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$mResult = false;
 		$self = $this;
 
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 		if ($oAccount instanceof \CMailAccount)
@@ -4353,7 +4355,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function UploadMessage($AccountID, $Folder, $UploadData)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		$bResult = false;
 
@@ -4461,7 +4463,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function ChangePassword($AccountId, $CurrentPassword, $NewPassword)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		$mResult = false;
 		
@@ -4522,7 +4524,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function GetFilters($AccountID)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		$mResult = false;
 		
@@ -4593,7 +4595,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function UpdateFilters($AccountID, $Filters)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		$bResult = false;
 		
@@ -4678,7 +4680,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function GetForward($AccountID)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		$mResult = false;
 		
@@ -4750,7 +4752,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function UpdateForward($AccountID, $Enable = false, $Email = "")
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		$mResult = false;
 		
@@ -4821,7 +4823,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function GetAutoresponder($AccountID)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		$mResult = false;
 		
@@ -4895,7 +4897,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function UpdateAutoresponder($AccountID, $Enable = false, $Subject = "", $Message = "")
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		$mResult = false;
 		
@@ -5349,7 +5351,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	
 	public function EntryMessageNewtab()
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::Anonymous);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::Anonymous);
 
 		$oApiIntegrator = \Aurora\System\Api::GetSystemManager('integrator');
 
@@ -5385,7 +5387,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	
 	public function EntryDownloadAttachment()
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\EUserRole::NormalUser);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		$this->getRaw(
 			(string) \Aurora\System\Application::GetPathItemByIndex(1, ''),

@@ -484,7 +484,7 @@ class CApiMailSieveManager extends \Aurora\System\Managers\AbstractManager
 			if (!isset($this->aSieves[$oAccount->Email]))
 			{
 				$oSieve = \MailSo\Sieve\ManageSieveClient::NewInstance();
-				$oSieve->SetLogger(\Aurora\System\Api::MailSoLogger());
+				$oSieve->SetLogger(\Aurora\System\Api::SystemLogger());
 
 				$this->aSieves[$oAccount->Email] = $oSieve;
 			}

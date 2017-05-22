@@ -81,7 +81,7 @@ class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 
 				$this->aImapClientCache[$sCacheKey] = \MailSo\Imap\ImapClient::NewInstance();
 				$this->aImapClientCache[$sCacheKey]->SetTimeOuts($iConnectTimeOut, $iSocketTimeOut); // TODO
-				$this->aImapClientCache[$sCacheKey]->SetLogger(\Aurora\System\Api::MailSoLogger());
+				$this->aImapClientCache[$sCacheKey]->SetLogger(\Aurora\System\Api::SystemLogger());
 			}
 
 			$oResult =& $this->aImapClientCache[$sCacheKey];

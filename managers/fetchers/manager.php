@@ -35,7 +35,7 @@ class CApiMailFetchersManager extends \Aurora\System\Managers\AbstractManagerWit
 		{
 			$oPop3Client = \MailSo\Pop3\Pop3Client::NewInstance();
 			$oPop3Client->SetTimeOuts(5, 5);
-			$oPop3Client->SetLogger(\Aurora\System\Api::MailSoLogger());
+			$oPop3Client->SetLogger(\Aurora\System\Api::SystemLogger());
 			
 			if (!$oPop3Client->IsConnected())
 			{
