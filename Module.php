@@ -63,8 +63,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$this->oApiSieveManager = new Managers\Sieve\Manager('', $this);
 		
 		$this->extendObject('CUser', array(
-				'AllowAutosaveInDrafts'	=> array('bool', (bool)$this->getConfig('AllowAutosaveInDrafts', false)),
-				'UseThreads'			=> array('bool', true),
+				'AllowAutosaveInDrafts'	=> array('bool', $this->getConfig('AllowAutosaveInDrafts', false)),
+				'UseThreads'			=> array('bool', $this->getConfig('AllowThreads', true)),
 			)
 		);
 
@@ -193,6 +193,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 			}
 		}
 		
+		if ($oUser && $oUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin)
+		{
+			$aSettings['UseThreads'] = $aSettings['AllowThreads'];
+		}
+		
 		return $aSettings;
 	}
 	
@@ -266,7 +271,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 			}
 			if ($oUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin)
 			{
-				return true;
+				$this->setConfig('AllowThreads', $UseThreads);
+				$this->setConfig('AllowAutosaveInDrafts', $AllowAutosaveInDrafts);
+				return $this->saveModuleConfig();
 			}
 		}
 		
