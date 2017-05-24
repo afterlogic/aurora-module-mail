@@ -10,12 +10,14 @@
 
 use Aurora\System\Exceptions;
 
+namespace Aurora\Modules\Mail\Managers\Main;
+
 /**
  * Manager for work with ImapClient.
  * 
  * @package Mail
  */
-class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
+class Manager extends \Aurora\System\Managers\AbstractManager
 {
 	/**
 	 * @var array List of ImapClient objects.
@@ -35,15 +37,15 @@ class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 	 * 
 	 * @return void
 	 */
-	public function __construct(\Aurora\System\Managers\GlobalManager &$oManager, $sForcedStorage = '', \Aurora\System\Module\AbstractModule $oModule = null)
+	public function __construct($sForcedStorage = '', \Aurora\System\Module\AbstractModule $oModule = null)
 	{
-		parent::__construct('main', $oManager, $oModule);
+		parent::__construct('main', $oModule);
 
 		$this->aImapClientCache = array();
 		
 		if ($oModule instanceof \Aurora\System\Module\AbstractModule)
 		{
-			$this->oEavManager = \Aurora\System\Api::GetSystemManager('eav', 'db');
+			$this->oEavManager = new \Aurora\System\Managers\Eav\Manager();
 		}
 	}
 
@@ -56,7 +58,7 @@ class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 	 *
 	 * @return \MailSo\Imap\ImapClient|null
 	 */
-	public function &_getImapClient(CMailAccount $oAccount, $iForceConnectTimeOut = 0, $iForceSocketTimeOut = 0)
+	public function &_getImapClient(\CMailAccount $oAccount, $iForceConnectTimeOut = 0, $iForceSocketTimeOut = 0)
 	{
 		$oResult = null;
 		if ($oAccount)
@@ -270,28 +272,28 @@ class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 		try
 		{
 			$aFoldersMap = array(
-				EFolderType::Inbox => array('INBOX', 'Inbox'),
-				EFolderType::Drafts => array('Drafts', 'Draft'),
-				EFolderType::Sent => array('Sent', 'Sent Items', 'Sent Mail'),
-				EFolderType::Spam => array('Spam', 'Junk', 'Junk Mail', 'Junk E-mail', 'Bulk Mail'),
-				EFolderType::Trash => array('Trash', 'Bin', 'Deleted', 'Deleted Items'),
+				\EFolderType::Inbox => array('INBOX', 'Inbox'),
+				\EFolderType::Drafts => array('Drafts', 'Draft'),
+				\EFolderType::Sent => array('Sent', 'Sent Items', 'Sent Mail'),
+				\EFolderType::Spam => array('Spam', 'Junk', 'Junk Mail', 'Junk E-mail', 'Bulk Mail'),
+				\EFolderType::Trash => array('Trash', 'Bin', 'Deleted', 'Deleted Items'),
 			);
 			
-			unset($aFoldersMap[EFolderType::Inbox]);
+			unset($aFoldersMap[\EFolderType::Inbox]);
 			
 			$aTypes = [
-				EFolderType::Inbox, 
-				EFolderType::Drafts, 
-				EFolderType::Sent, 
-				EFolderType::Spam, 
-				EFolderType::Trash
+				\EFolderType::Inbox, 
+				\EFolderType::Drafts, 
+				\EFolderType::Sent, 
+				\EFolderType::Spam, 
+				\EFolderType::Trash
 			];
 
 			$aUnExistenSystemNames = array();
 			$aSystemNames = $this->getSystemFolderNames($oAccount);
 
 			$oInbox = $oFolderCollection->getFolder('INBOX');
-			$oInbox->setType(EFolderType::Inbox);
+			$oInbox->setType(\EFolderType::Inbox);
 
 			if (is_array($aSystemNames) && 0 < count($aSystemNames))
 			{
@@ -322,7 +324,7 @@ class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 						$iXListType = $oFolder->getFolderXListType();
 						$iKey = array_search($iXListType, $aTypes);
 
-						if (false !== $iKey && EFolderType::Custom === $oFolder->getType() && isset($aFoldersMap[$iXListType]))
+						if (false !== $iKey && \EFolderType::Custom === $oFolder->getType() && isset($aFoldersMap[$iXListType]))
 						{
 							unset($aTypes[$iKey]);
 							unset($aFoldersMap[$iXListType]);
@@ -336,7 +338,7 @@ class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 				{
 					$oFolderCollection->foreachOnlyRoot(
 						function (/* @var $oFolder CApiMailFolder */ $oFolder) use (&$aFoldersMap) {
-							if (EFolderType::Custom === $oFolder->getType())
+							if (\EFolderType::Custom === $oFolder->getType())
 							{
 								foreach ($aFoldersMap as $iFolderType => $aFoldersNames)
 								{
@@ -391,7 +393,7 @@ class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 				}
 			}
 		}
-		catch (Exception $oException)
+		catch (\Exception $oException)
 		{
 			$bAddSystemFolder = false;
 		}
@@ -472,7 +474,7 @@ class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 
 			foreach ($aFolders as /* @var $oImapFolder \MailSo\Imap\Folder */ $oImapFolder)
 			{
-				$aMailFoldersHelper[] = CApiMailFolder::createInstance($oImapFolder,
+				$aMailFoldersHelper[] = \CApiMailFolder::createInstance($oImapFolder,
 					in_array($oImapFolder->FullNameRaw(), $aImapSubscribedFoldersHelper) || $oImapFolder->IsInbox()
 				);
 			}
@@ -480,7 +482,7 @@ class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 
 		if (is_array($aMailFoldersHelper))
 		{
-			$oFolderCollection = CApiMailFolderCollection::createInstance();
+			$oFolderCollection = \CApiMailFolderCollection::createInstance();
 
 			if ($oNamespace)
 			{
@@ -507,7 +509,7 @@ class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 
 			if (!$aFoldersOrderList)
 			{
-				if (EFolderType::Custom !== $oFolderA->getType() || EFolderType::Custom !== $oFolderB->getType())
+				if (\EFolderType::Custom !== $oFolderA->getType() || \EFolderType::Custom !== $oFolderB->getType())
 				{
 					if ($oFolderA->getType() === $oFolderB->getType())
 					{
@@ -817,7 +819,7 @@ class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 			{
 				foreach ($aFolders as /* @var $oImapFolder \MailSo\Imap\Folder */ $oImapFolder)
 				{
-					$oFolder = CApiMailFolder::createInstance($oImapFolder, true);
+					$oFolder = \CApiMailFolder::createInstance($oImapFolder, true);
 					if ($oFolder)
 					{
 						$mStatus = $oFolder->getStatus();
@@ -1472,7 +1474,7 @@ class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 	 * @throws \Aurora\System\Exceptions\InvalidArgumentException
 	 */
 	public function setMessageFlag($oAccount, $sFolderFullNameRaw, $aUids, $sFlagString,
-		$iAction = EMailMessageStoreAction::Add, $bSetToAll = false, $bSkipNonPermanentsFlags = false)
+		$iAction = \EMailMessageStoreAction::Add, $bSetToAll = false, $bSkipNonPermanentsFlags = false)
 	{
 		if (0 === strlen($sFolderFullNameRaw) || (!$bSetToAll && (!is_array($aUids) || 0 === count($aUids))))
 		{
@@ -1529,13 +1531,13 @@ class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 		$sResultAction = \MailSo\Imap\Enumerations\StoreAction::ADD_FLAGS_SILENT;
 		switch ($iAction)
 		{
-			case EMailMessageStoreAction::Add:
+			case \EMailMessageStoreAction::Add:
 				$sResultAction = \MailSo\Imap\Enumerations\StoreAction::ADD_FLAGS_SILENT;
 				break;
-			case EMailMessageStoreAction::Remove:
+			case \EMailMessageStoreAction::Remove:
 				$sResultAction = \MailSo\Imap\Enumerations\StoreAction::REMOVE_FLAGS_SILENT;
 				break;
-			case EMailMessageStoreAction::Set:
+			case \EMailMessageStoreAction::Set:
 				$sResultAction = \MailSo\Imap\Enumerations\StoreAction::SET_FLAGS_SILENT;
 				break;
 		}
@@ -1714,7 +1716,7 @@ class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 		$aFetchResponse = $oImapClient->Fetch($aFetchItems, $iUid, true);
 		if (0 < count($aFetchResponse))
 		{
-			$oMessage = CApiMailMessage::createInstance($sFolderFullNameRaw, $aFetchResponse[0], $oBodyStructure, $sRfc822SubMimeIndex, $aAscPartsIds);
+			$oMessage = \CApiMailMessage::createInstance($sFolderFullNameRaw, $aFetchResponse[0], $oBodyStructure, $sRfc822SubMimeIndex, $aAscPartsIds);
 		}
 
 		if ($oMessage)
@@ -2681,7 +2683,7 @@ class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 		$iMessageUnseenCount = $aList[1];
 		$sUidNext = $aList[2];
 
-		$oMessageCollection = CApiMailMessageCollection::createInstance();
+		$oMessageCollection = \CApiMailMessageCollection::createInstance();
 
 		$oMessageCollection->FolderName = $sFolderFullNameRaw;
 		$oMessageCollection->Offset = $iOffset;
@@ -2752,11 +2754,11 @@ class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 							$aAttachmentsParts = $oBodyStructure->SearchAttachmentsParts();
 							if ($aAttachmentsParts && 0 < count($aAttachmentsParts))
 							{
-								$oAttachments = CApiMailAttachmentCollection::createInstance();
+								$oAttachments = \CApiMailAttachmentCollection::createInstance();
 								foreach ($aAttachmentsParts as /* @var $oAttachmentItem \MailSo\Imap\BodyStructure */ $oAttachmentItem)
 								{
 									$oAttachments->Add(
-										CApiMailAttachment::createInstance($sFolderFullNameRaw, $sUid, $oAttachmentItem)
+										\CApiMailAttachment::createInstance($sFolderFullNameRaw, $sUid, $oAttachmentItem)
 									);
 								}
 
@@ -2921,7 +2923,7 @@ class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 							{
 								if (isset($aFetchIndexArray[$iFUid]))
 								{
-									$oMailMessage = CApiMailMessage::createInstance(
+									$oMailMessage = \CApiMailMessage::createInstance(
 										$oMessageCollection->FolderName, $aFetchIndexArray[$iFUid]);
 
 									if (!$bIndexAsUid)
@@ -2990,7 +2992,7 @@ class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 		$iMessageUnseenCount = $aList[1];
 		$sUidNext = $aList[2];
 
-		$oMessageCollection = CApiMailMessageCollection::createInstance();
+		$oMessageCollection = \CApiMailMessageCollection::createInstance();
 
 		$oMessageCollection->FolderName = $sFolderFullNameRaw;
 		$oMessageCollection->Offset = 0;
@@ -3048,7 +3050,7 @@ class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 							{
 								if (isset($aFetchIndexArray[$iFUid]))
 								{
-									$oMailMessage = CApiMailMessage::createInstance(
+									$oMailMessage = \CApiMailMessage::createInstance(
 										$oMessageCollection->FolderName, $aFetchIndexArray[$iFUid]);
 
 									if (!$bIndexAsUid)
@@ -3185,7 +3187,7 @@ class CApiMailMainManager extends \Aurora\System\Managers\AbstractManager
 						break;
 					}
 
-					$oMailMessage = CApiMailMessage::createInstance($sFolderFullNameRaw, $oFetchResponseItem);
+					$oMailMessage = \CApiMailMessage::createInstance($sFolderFullNameRaw, $oFetchResponseItem);
 					if ($oMailMessage)
 					{
 						$iCurUid = $oMailMessage->getUid();

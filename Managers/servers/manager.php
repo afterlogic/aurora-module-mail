@@ -8,12 +8,9 @@
  * For full statements of the licenses see LICENSE-AFTERLOGIC and LICENSE-AGPL3 files.
  */
 
-/**
- * CApiMailServersManager class summary
- * 
- * @package Servers
- */
-class CApiMailServersManager extends \Aurora\System\Managers\AbstractManager
+namespace Aurora\Modules\Mail\Managers\Servers;
+
+class Manager extends \Aurora\System\Managers\AbstractManager
 {
 	/**
 	 * @var \Aurora\System\Managers\Eav\Manager
@@ -21,15 +18,14 @@ class CApiMailServersManager extends \Aurora\System\Managers\AbstractManager
 	public $oEavManager = null;
 	
 	/**
-	 * @param \Aurora\System\Managers\GlobalManager &$oManager
 	 * @param string $sForcedStorage
 	 * @param \Aurora\System\Module\AbstractModule $oModule
 	 */
-	public function __construct(\Aurora\System\Managers\GlobalManager &$oManager, $sForcedStorage = '', \Aurora\System\Module\AbstractModule $oModule = null)
+	public function __construct($sForcedStorage = '', \Aurora\System\Module\AbstractModule $oModule = null)
 	{
-		parent::__construct('servers', $oManager, $oModule);
+		parent::__construct('servers', $oModule);
 		
-		$this->oEavManager = \Aurora\System\Api::GetSystemManager('eav', 'db');
+		$this->oEavManager = new \Aurora\System\Managers\Eav\Manager();
 	}
 
 	/**
@@ -183,7 +179,7 @@ class CApiMailServersManager extends \Aurora\System\Managers\AbstractManager
 		$iOffset = 0;
 		$iLimit = 0;
 		$sOrderBy = 'Name';
-		$iOrderType = \ESortOrder::ASC;
+		$iOrderType = \Aurora\System\Enums\SortOrder::ASC;
 		
 		$aFilters = [];
 		if ($iTenantId === 0)

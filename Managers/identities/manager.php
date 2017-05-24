@@ -8,10 +8,9 @@
  * For full statements of the licenses see LICENSE-AFTERLOGIC and LICENSE-AGPL3 files.
  */
 
-/**
- * CApiMailIdentitiesManager class
- */
-class CApiMailIdentitiesManager extends \Aurora\System\Managers\AbstractManager
+namespace Aurora\Modules\Mail\Managers\Identities;
+
+class Manager extends \Aurora\System\Managers\AbstractManager
 {
 	/**
 	 * @var \Aurora\System\Managers\Eav\Manager
@@ -23,11 +22,11 @@ class CApiMailIdentitiesManager extends \Aurora\System\Managers\AbstractManager
 	 * @param string $sForcedStorage
 	 * @param \Aurora\System\Module\AbstractModule $oModule
 	 */
-	public function __construct(\Aurora\System\Managers\GlobalManager &$oManager, $sForcedStorage = '', \Aurora\System\Module\AbstractModule $oModule = null)
+	public function __construct($sForcedStorage = '', \Aurora\System\Module\AbstractModule $oModule = null)
 	{
-		parent::__construct('accounts', $oManager, $oModule);
+		parent::__construct('accounts', $oModule);
 		
-		$this->oEavManager = \Aurora\System\Api::GetSystemManager('eav', 'db');
+		$this->oEavManager = new \Aurora\System\Managers\Eav\Manager();
 	}
 
 	/**
@@ -170,7 +169,7 @@ class CApiMailIdentitiesManager extends \Aurora\System\Managers\AbstractManager
 			$aFilters = ['$AND' => $aFilters];
 		}
 		$sOrderBy = 'FriendlyName';
-		$iOrderType = \ESortOrder::ASC;
+		$iOrderType = \Aurora\System\Enums\SortOrder::ASC;
 		
 		try
 		{

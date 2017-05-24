@@ -8,10 +8,9 @@
  * For full statements of the licenses see LICENSE-AFTERLOGIC and LICENSE-AGPL3 files.
  */
 
-/**
- * @package Sieve
- */
-class CApiMailSieveManager extends \Aurora\System\Managers\AbstractManager
+namespace Aurora\Modules\Mail\Managers\Sieve;
+
+class Manager extends \Aurora\System\Managers\AbstractManager
 {
 	/**
 	 * @var bool
@@ -51,9 +50,9 @@ class CApiMailSieveManager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * @param \Aurora\System\Managers\GlobalManager &$oManager
 	 */
-	public function __construct(\Aurora\System\Managers\GlobalManager &$oManager, $sForcedStorage = '', \Aurora\System\Module\AbstractModule $oModule = null)
+	public function __construct($sForcedStorage = '', \Aurora\System\Module\AbstractModule $oModule = null)
 	{
-		parent::__construct('sieve', $oManager, $oModule);
+		parent::__construct('sieve', $oModule);
 
 //		\Aurora\System\Api::Inc('common.net.protocols.sieve');
 		$oMailModule = \Aurora\System\Api::GetModule('Mail'); 

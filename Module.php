@@ -55,12 +55,12 @@ class Module extends \Aurora\System\Module\AbstractModule
 			)
 		);
 		
-		$this->oApiAccountsManager = $this->GetManager('accounts');
-		$this->oApiServersManager = $this->GetManager('servers');
-		$this->oApiIdentitiesManager = $this->GetManager('identities');
-		$this->oApiMailManager = $this->GetManager('main');
-		$this->oApiFileCache = \Aurora\System\Api::GetSystemManager('Filecache');
-		$this->oApiSieveManager = $this->GetManager('sieve');
+		$this->oApiAccountsManager = new Managers\Accounts\Manager('', $this);
+		$this->oApiServersManager = new Managers\Servers\Manager('', $this);
+		$this->oApiIdentitiesManager = new Managers\Identities\Manager('', $this);
+		$this->oApiMailManager = new Managers\Main\Manager('', $this);
+		$this->oApiFileCache = new \Aurora\System\Managers\Filecache\Manager();
+		$this->oApiSieveManager = new Managers\Sieve\Manager('', $this);
 		
 		$this->extendObject('CUser', array(
 				'AllowAutosaveInDrafts'	=> array('bool', (bool)$this->getConfig('AllowAutosaveInDrafts', false)),
@@ -3167,7 +3167,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
 			$iFetcherID = (int) $FetcherID;
 
-			$oApiFetchers = $this->GetManager('fetchers');
+			$oApiFetchers = Managers\Fetchers\Manager('', $this);
 			$aFetchers = $oApiFetchers->getFetchers($oAccount);
 			if (\is_array($aFetchers) && 0 < \count($aFetchers))
 			{

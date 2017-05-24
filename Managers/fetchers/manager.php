@@ -8,19 +8,16 @@
  * For full statements of the licenses see LICENSE-AFTERLOGIC and LICENSE-AGPL3 files.
  */
 
-/**
- * CApiFetchersManager class summary
- *
- * @package Fetchers
- */
-class CApiMailFetchersManager extends \Aurora\System\Managers\AbstractManagerWithStorage
+namespace Aurora\Modules\Mail\Managers\Fetchers;
+
+class Manager extends \Aurora\System\Managers\AbstractManagerWithStorage
 {
 	/**
 	 * @param \Aurora\System\Managers\GlobalManager &$oManager
 	 */
-	public function __construct(\Aurora\System\Managers\GlobalManager &$oManager, $sForcedStorage = '', \Aurora\System\Module\AbstractModule $oModule = null)
+	public function __construct($sForcedStorage = '', \Aurora\System\Module\AbstractModule $oModule = null)
 	{
-		parent::__construct('fetchers', $oManager, $sForcedStorage, $oModule);
+		parent::__construct('fetchers', $sForcedStorage, $oModule);
 	}
 
 	/**
