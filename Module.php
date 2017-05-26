@@ -259,7 +259,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
 			if ($oUser->Role === \Aurora\System\Enums\UserRole::NormalUser)
 			{
-				$oCoreDecorator = \Aurora\System\Api::GetModuleDecorator('Core');
+				$oCoreDecorator = \Aurora\Modules\Core\Module::Decorator();
 				$oUser->{$this->GetName().'::UseThreads'} = $UseThreads;
 				$oUser->{$this->GetName().'::AllowAutosaveInDrafts'} = $AllowAutosaveInDrafts;
 				return $oCoreDecorator->UpdateUserObject($oUser);
@@ -537,7 +537,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$oAccount->ServerId = $iServerId;
 
 			$oUser = null;
-			$oCoreDecorator = \Aurora\System\Api::GetModuleDecorator('Core');
+			$oCoreDecorator = \Aurora\Modules\Core\Module::Decorator();
 			if ($oCoreDecorator)
 			{
 				$oUser = $oCoreDecorator->GetUser($UserId);
