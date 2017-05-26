@@ -52,7 +52,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 */
 	public function __construct($sForcedStorage = '', \Aurora\System\Module\AbstractModule $oModule = null)
 	{
-		parent::__construct('sieve', $oModule);
+		parent::__construct($oModule);
 
 //		\Aurora\System\Api::Inc('common.net.protocols.sieve');
 		$oMailModule = \Aurora\System\Api::GetModule('Mail'); 

@@ -17,7 +17,7 @@ class Manager extends \Aurora\System\Managers\AbstractManagerWithStorage
 	 */
 	public function __construct($sForcedStorage = '', \Aurora\System\Module\AbstractModule $oModule = null)
 	{
-		parent::__construct('fetchers', $sForcedStorage, $oModule);
+		parent::__construct($sForcedStorage, $oModule);
 	}
 
 	/**

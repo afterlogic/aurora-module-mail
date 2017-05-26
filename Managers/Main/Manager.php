@@ -39,7 +39,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 */
 	public function __construct($sForcedStorage = '', \Aurora\System\Module\AbstractModule $oModule = null)
 	{
-		parent::__construct('main', $oModule);
+		parent::__construct($oModule);
 
 		$this->aImapClientCache = array();
 		
