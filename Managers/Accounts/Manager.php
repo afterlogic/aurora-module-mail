@@ -210,7 +210,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 *
 	 * @return bool
 	 */
-	public function isExists(CMailAccount $oAccount)
+	public function isExists(\CMailAccount $oAccount)
 	{
 		$bResult = false;
 		try
@@ -245,7 +245,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 *
 	 * @return bool
 	 */
-	public function createAccount (CMailAccount &$oAccount)
+	public function createAccount (\CMailAccount &$oAccount)
 	{
 		$bResult = false;
 		try
@@ -281,7 +281,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 *
 	 * @return bool
 	 */
-	public function updateAccount (CMailAccount &$oAccount)
+	public function updateAccount (\CMailAccount &$oAccount)
 	{
 		$bResult = false;
 		try
@@ -312,7 +312,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 *
 	 * @return bool
 	 */
-	public function deleteAccount(CMailAccount $oAccount)
+	public function deleteAccount(\CMailAccount $oAccount)
 	{
 		$bResult = false;
 		try

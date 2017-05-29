@@ -4984,7 +4984,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 				if ($bAllowNewUsersRegister && $bNewAccount)
 				{
-					$oAccount = $this->GetDecorator()->CreateAccount(
+					$oAccount = $this->Decorator()->CreateAccount(
 						0, 
 						$sEmail, 
 						$sEmail, 
