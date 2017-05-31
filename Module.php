@@ -5356,7 +5356,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::Anonymous);
 
-		$oApiIntegrator = \Aurora\System\Api::GetSystemManager('integrator');
+		$oApiIntegrator = new \Aurora\Modules\Core\Managers\Integrator();
 
 		if ($oApiIntegrator)
 		{
