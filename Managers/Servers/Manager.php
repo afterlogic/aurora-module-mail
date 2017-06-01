@@ -52,7 +52,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	{
 		try
 		{
-			$oServer = new CMailServer($this->oModule->GetName());
+			$oServer = new \CMailServer($this->oModule->GetName());
 			$oServer->OwnerType = $sOwnerType;
 			$oServer->TenantId = $iTenantId;
 			$oServer->Name = $sName;
