@@ -59,7 +59,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$this->oApiServersManager = new Managers\Servers\Manager('', $this);
 		$this->oApiIdentitiesManager = new Managers\Identities\Manager('', $this);
 		$this->oApiMailManager = new Managers\Main\Manager('', $this);
-		$this->oApiFileCache = new \Aurora\System\Managers\Filecache\Manager();
+		$this->oApiFileCache = new \Aurora\System\Managers\Filecache();
 		$this->oApiSieveManager = new Managers\Sieve\Manager('', $this);
 		
 		$this->extendObject('CUser', array(

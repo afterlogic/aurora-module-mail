@@ -25,7 +25,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	protected $aImapClientCache;
 	
 	/**
-	 * @var \Aurora\System\Managers\Eav\Manager
+	 * @var \Aurora\System\Managers\Eav
 	 */
 	private $oEavManager = null;
 	
@@ -45,7 +45,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		
 		if ($oModule instanceof \Aurora\System\Module\AbstractModule)
 		{
-			$this->oEavManager = new \Aurora\System\Managers\Eav\Manager();
+			$this->oEavManager = new \Aurora\System\Managers\Eav();
 		}
 	}
 
