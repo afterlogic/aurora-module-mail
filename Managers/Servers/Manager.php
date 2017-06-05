@@ -220,50 +220,21 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	
 	/**
 	 * 
-	 * @param int $iServerId
-	 * @param string $sName
-	 * @param string $sIncomingServer
-	 * @param int $iIncomingPort
-	 * @param boolean $bIncomingUseSsl
-	 * @param string $sOutgoingServer
-	 * @param int $iOutgoingPort
-	 * @param boolean $bOutgoingUseSsl
-	 * @param boolean $bOutgoingUseAuth
-	 * @param string $sDomains
-	 * @param boolean $bEnableSieve
-	 * @param int $iSievePort
-	 * @param int $iTenantId
+	 * @param instanceof \CMailServer
 	 * @return boolean
 	 * @throws \Aurora\System\Exceptions\ManagerException
 	 */
-	public function updateServer($iServerId, $sName, $sIncomingServer, $iIncomingPort, $bIncomingUseSsl,
-			$sOutgoingServer, $iOutgoingPort, $bOutgoingUseSsl, $bOutgoingUseAuth, $sDomains,
-			$bEnableSieve, $iSievePort, $iTenantId = 0)
+	public function updateServer(\CMailServer $oServer)
 	{
 		$bResult = false;
 		
 		try
 		{
-			$oServer = $this->getServer($iServerId);
-			if ($oServer && $oServer->TenantId === $iTenantId)
+			if (!$this->oEavManager->saveEntity($oServer))
 			{
-				$oServer->Name = $sName;
-				$oServer->IncomingServer = $sIncomingServer;
-				$oServer->IncomingPort = $iIncomingPort;
-				$oServer->IncomingUseSsl = $bIncomingUseSsl;
-				$oServer->OutgoingServer = $sOutgoingServer;
-				$oServer->OutgoingPort = $iOutgoingPort;
-				$oServer->OutgoingUseSsl = $bOutgoingUseSsl;
-				$oServer->OutgoingUseAuth = $bOutgoingUseAuth;
-				$oServer->Domains = $sDomains;
-				$oServer->EnableSieve = $bEnableSieve;
-				$oServer->SievePort = $iSievePort;
-				if (!$this->oEavManager->saveEntity($oServer))
-				{
-					throw new \Aurora\System\Exceptions\ManagerException(\Aurora\System\Exceptions\Errs::UsersManager_UserCreateFailed);
-				}
-				$bResult = true;
+				throw new \Aurora\System\Exceptions\ManagerException(\Aurora\System\Exceptions\Errs::UsersManager_UserCreateFailed);
 			}
+			$bResult = true;
 		}
 		catch (\Aurora\System\Exceptions\BaseException $oException)
 		{

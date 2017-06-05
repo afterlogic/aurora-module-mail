@@ -663,8 +663,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 					{
 						$iNewServerId = $this->oApiServersManager->createServer($Server['IncomingServer'], $Server['IncomingServer'], 
 								$Server['IncomingPort'], $Server['IncomingUseSsl'], $Server['OutgoingServer'], 
-								$Server['OutgoingPort'], $Server['OutgoingUseSsl'], $Server['OutgoingUseAuth'], 
-								\EMailServerOwnerType::Account, 0);
+								$Server['OutgoingPort'], $Server['OutgoingUseSsl'], $Server['OutgoingUseAuth']);
 						$oAccount->updateServer($iNewServerId);
 					}
 					elseif ($oAccount->ServerId === $Server['ServerId'])
@@ -672,10 +671,16 @@ class Module extends \Aurora\System\Module\AbstractModule
 						$oAccServer = $oAccount->getServer();
 						if ($oAccServer && $oAccServer->OwnerType === \EMailServerOwnerType::Account)
 						{
-							$this->oApiServersManager->updateServer($Server['ServerId'], $Server['IncomingServer'], 
-									$Server['IncomingServer'], $Server['IncomingPort'], $Server['IncomingUseSsl'], 
-									$Server['OutgoingServer'], $Server['OutgoingPort'], $Server['OutgoingUseSsl'], 
-									$Server['OutgoingUseAuth'], 0);
+							$oAccServer->Name = $Server['IncomingServer'];
+							$oAccServer->IncomingServer = $Server['IncomingServer'];
+							$oAccServer->IncomingPort = $Server['IncomingPort'];
+							$oAccServer->IncomingUseSsl = $Server['IncomingUseSsl'];
+							$oAccServer->OutgoingServer = $Server['OutgoingServer'];
+							$oAccServer->OutgoingPort = $Server['OutgoingPort'];
+							$oAccServer->OutgoingUseSsl = $Server['OutgoingUseSsl'];
+							$oAccServer->OutgoingUseAuth = $Server['OutgoingUseAuth'];
+							
+							$this->oApiServersManager->updateServer($oAccServer);		
 						}
 					}
 					else
@@ -1097,6 +1102,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function UpdateServer($ServerId, $Name, $IncomingServer, $IncomingPort, $IncomingUseSsl,
 			$OutgoingServer, $OutgoingPort, $OutgoingUseSsl, $OutgoingUseAuth, $Domains, $EnableSieve, $SievePort, $TenantId = 0)
 	{
+		$bResult = false;
+		
 		if ($TenantId === 0)
 		{
 			\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::SuperAdmin);
@@ -1106,8 +1113,30 @@ class Module extends \Aurora\System\Module\AbstractModule
 			\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::TenantAdmin);
 		}
 		
-		return $this->oApiServersManager->updateServer($ServerId, $Name, $IncomingServer, $IncomingPort, $IncomingUseSsl,
-			$OutgoingServer, $OutgoingPort, $OutgoingUseSsl, $OutgoingUseAuth, $Domains, $EnableSieve, $SievePort, $TenantId);
+		$oServer = $this->oApiServersManager->getServer($iServerId);
+		
+		if ($oServer->TenantId === $iTenantId)
+		{
+			$oServer->Name = $Name;
+			$oServer->IncomingServer = $IncomingServer;
+			$oServer->IncomingPort = $IncomingPort;
+			$oServer->IncomingUseSsl = $IncomingUseSsl;
+			$oServer->OutgoingServer = $OutgoingServer;
+			$oServer->OutgoingPort = $OutgoingPort;
+			$oServer->OutgoingUseSsl = $OutgoingUseSsl;
+			$oServer->OutgoingUseAuth = $OutgoingUseAuth;
+			$oServer->Domains = $Domains;
+			$oServer->EnableSieve = $EnableSieve;
+			$oServer->SievePort = $SievePort;
+			
+			$bResult = $this->oApiServersManager->updateServer($oServer);
+		}
+		else
+		{
+			$bResult = false;
+		}
+		
+		return $bResult;
 	}
 	
 	/**
