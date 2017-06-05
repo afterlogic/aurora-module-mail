@@ -22,7 +22,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public $oApiSieveManager = null;
 	
 	/* 
-	 * @var $oApiFileCache \Aurora\System\Managers\Filecache\Manager 
+	 * @var $oApiFileCache \Aurora\System\Managers\Filecache 
 	 */	
 	public $oApiFileCache = null;
 	
