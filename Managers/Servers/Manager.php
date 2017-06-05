@@ -48,7 +48,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 */
 	public function createServer($sName, $sIncomingServer, $iIncomingPort, $bIncomingUseSsl,
 			$sOutgoingServer, $iOutgoingPort, $bOutgoingUseSsl, $bOutgoingUseAuth, $sDomains, 
-			$bEnableSieve, $iSievePort, $sOwnerType = \EMailServerOwnerType::Account, $iTenantId = 0)
+			$bEnableSieve = false, $iSievePort = 2000, $sOwnerType = \EMailServerOwnerType::Account, $iTenantId = 0)
 	{
 		try
 		{
