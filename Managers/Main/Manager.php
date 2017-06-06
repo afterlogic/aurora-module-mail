@@ -92,9 +92,17 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 				$oServer = $oAccount->getServer();
 				if ($oServer instanceof \CMailServer)
 				{
-					$oResult->Connect($oServer->IncomingServer, $oServer->IncomingPort, $oServer->IncomingUseSsl
-							? \MailSo\Net\Enumerations\ConnectionSecurityType::SSL
-							: \MailSo\Net\Enumerations\ConnectionSecurityType::NONE, $bVerifySsl);
+					try 
+					{
+						$oResult->Connect($oServer->IncomingServer, $oServer->IncomingPort, $oServer->IncomingUseSsl
+								? \MailSo\Net\Enumerations\ConnectionSecurityType::SSL
+								: \MailSo\Net\Enumerations\ConnectionSecurityType::NONE, $bVerifySsl);
+					}
+					catch (\Exception $oEx) 
+					{
+						throw new \Aurora\System\Exceptions\Exception($oEx->getMessage(), \Aurora\System\Exceptions\ErrorCodes::Mail_AccountConnectToMailServerFailed, $oEx);
+
+					}
 				}
 			}
 
@@ -103,7 +111,15 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 //				$sProxyAuthUser = !empty($oAccount->CustomFields['ProxyAuthUser'])
 //					? $oAccount->CustomFields['ProxyAuthUser'] : '';
 
-				$oResult->Login($oAccount->IncomingLogin, $oAccount->IncomingPassword, '');
+				try 
+				{
+					$oResult->Login($oAccount->IncomingLogin, $oAccount->IncomingPassword, '');
+				}
+				catch (\MailSo\Imap\Exceptions\LoginBadCredentialsException $oEx) 
+				{
+					throw new \Aurora\System\Exceptions\Exception($oEx->getMessage(), \Aurora\System\Exceptions\ErrorCodes::Mail_AccountLoginFailed, $oEx);
+					
+				}
 			}
 		}
 
