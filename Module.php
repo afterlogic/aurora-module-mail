@@ -48,8 +48,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 				'ics',
 				'vcard',
 				'server',
-				'sieve-enum',
-				'filter',
 				'system-folder',
 				'sender'
 			)

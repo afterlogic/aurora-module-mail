@@ -20,7 +20,10 @@
  * @package Sieve
  * @subpackage Classes
  */
-class CFilter extends \Aurora\System\AbstractContainer
+
+namespace Aurora\Modules\Mail\Classes;
+
+class SieveFilter extends \Aurora\System\AbstractContainer
 {
 	/**
 	 * @param CAccount $oAccount
@@ -32,10 +35,10 @@ class CFilter extends \Aurora\System\AbstractContainer
 		$this->SetDefaults(array(
 			'IdAccount'	=> $oAccount->EntityId,
 			'Enable'	=> true,
-			'Field'		=> EFilterFiels::From,
+			'Field'		=> \Aurora\Modules\Mail\Enums\FilterFields::From,
 			'Filter'	=> '',
-			'Condition'	=> EFilterCondition::ContainSubstring,
-			'Action'	=> EFilterAction::DoNothing,
+			'Condition'	=> \Aurora\Modules\Mail\Enums\FilterCondition::ContainSubstring,
+			'Action'	=> \Aurora\Modules\Mail\Enums\FilterAction::DoNothing,
 			'FolderFullName' => ''
 		));
 	}

@@ -8,37 +8,13 @@
  * For full statements of the licenses see LICENSE-AFTERLOGIC and LICENSE-AGPL3 files.
  */
 
-/**
- * @package Sieve
- * @subpackage Enum
- */
-class EFilterFiels extends \Aurora\System\Enums\AbstractEnumeration
-{
-	const From = 0;
-	const To = 1;
-	const Subject = 2;
-	const XSpam = 3;
-	const XVirus = 4;
-	const CustomHeader = 5;
-}
+namespace Aurora\Modules\Mail\Enums;
 
 /**
  * @package Sieve
  * @subpackage Enum
  */
-class EFilterCondition extends \Aurora\System\Enums\AbstractEnumeration
-{
-	const ContainSubstring = 0;
-	const ContainExactPhrase = 1;
-	const NotContainSubstring = 2;
-	const StartFrom = 3;
-}
-
-/**
- * @package Sieve
- * @subpackage Enum
- */
-class EFilterAction extends \Aurora\System\Enums\AbstractEnumeration
+class FilterAction extends \Aurora\System\Enums\AbstractEnumeration
 {
 	const DoNothing = 0;
 	const DeleteFromServerImmediately = 1;
