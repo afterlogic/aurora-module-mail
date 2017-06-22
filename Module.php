@@ -4489,9 +4489,23 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function ChangePassword($AccountId, $CurrentPassword, $NewPassword)
 	{
+		$mResult = false;
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
-		$mResult = false;
+		if ($AccountId > 0)
+		{
+			$oAccount = $this->oApiAccountsManager->getAccountById($AccountId);
+			
+			if ($oAccount)
+			{
+				$oAccount->IncomingPassword = $NewPassword;
+				if ($this->oApiAccountsManager->updateAccount($oAccount))
+				{
+					return $oAccount;
+				}
+			}
+		}
+
 		
 		return $mResult;
 	}
