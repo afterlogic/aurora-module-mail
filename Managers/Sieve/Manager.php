@@ -223,7 +223,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		
 		if (is_array($aData))
 		{
-			$oFilter = new \Aurora\Modules\Mail\Classes\SieveFilter($oAccount);
+			$oFilter = new \Aurora\Modules\Mail\classes\SieveFilter($oAccount);
 		
 			$oFilter->Enable = (bool) trim($aData['Enable']);
 			$oFilter->Field = (int) trim($aData['Field']);
