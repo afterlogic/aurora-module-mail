@@ -223,7 +223,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		
 		if (is_array($aData))
 		{
-			$oFilter = new CFilter($oAccount);
+			$oFilter = new \Aurora\Modules\Mail\Classes\SieveFilter($oAccount);
 		
 			$oFilter->Enable = (bool) trim($aData['Enable']);
 			$oFilter->Field = (int) trim($aData['Field']);
@@ -231,7 +231,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			$oFilter->Action = (int) trim($aData['Action']);
 			$oFilter->Filter = (string) trim($aData['Filter']);
 
-			if (\EFilterAction::MoveToFolder === $oFilter->Action && isset($aData['FolderFullName']))
+			if (\Aurora\Modules\Mail\Enums\FilterAction::MoveToFolder === $oFilter->Action && isset($aData['FolderFullName']))
 			{
 				$oFilter->FolderFullName = \Aurora\System\Utils::ConvertEncoding($aData['FolderFullName'],
 					$this->sSieveFolderCharset, 'utf7-imap');
@@ -249,7 +249,6 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	public function getSieveFilters($oAccount)
 	{
 		$mResult = false;
-
 		$sScript = $this->getFiltersRawData($oAccount);
 		
 		if (false !== $sScript)
@@ -307,14 +306,14 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
 		if ($oAccount)
 		{
-			foreach ($aFilters as /* @var $oFilter CFilter */ $oFilter)
+			foreach ($aFilters as /* @var $oFilter SieveFilter */ $oFilter)
 			{
 				if  ('' === trim($oFilter->Filter))
 				{
 					continue;
 				}
 
-				if  (EFilterAction::MoveToFolder === $oFilter->Action && '' === trim($oFilter->FolderFullName))
+				if  (\Aurora\Modules\Mail\Enums\FilterAction::MoveToFolder === $oFilter->Action && '' === trim($oFilter->FolderFullName))
 				{
 					continue;
 				}
@@ -323,14 +322,14 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 				switch($oFilter->Field)
 				{
 					default :
-					case EFilterFiels::From:
+					case \Aurora\Modules\Mail\Enums\FilterFields::From:
 						$aFields[] = 'From';
 						break;
-					case EFilterFiels::To:
+					case \Aurora\Modules\Mail\Enums\FilterFields::To:
 						$aFields[] = 'To';
 						$aFields[] = 'CC';
 						break;
-					case EFilterFiels::Subject:
+					case \Aurora\Modules\Mail\Enums\FilterFields::Subject:
 						$aFields[] = 'Subject';
 						break;
 				}
@@ -345,20 +344,20 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 				$sFields = implode(',', $aFields);
 				switch ($oFilter->Condition)
 				{
-					case EFilterCondition::ContainSubstring:
+					case \Aurora\Modules\Mail\Enums\FilterCondition::ContainSubstring:
 						$sCondition = 'if header :contains ['.$sFields.'] "'.$this->_quoteValue($oFilter->Filter).'" {';
 						break;
-					case EFilterCondition::ContainExactPhrase:
+					case \Aurora\Modules\Mail\Enums\FilterCondition::ContainExactPhrase:
 						$sCondition = 'if header :is ['.$sFields.'] "'.$this->_quoteValue($oFilter->Filter).'" {';
 						break;
-					case EFilterCondition::NotContainSubstring:
+					case \Aurora\Modules\Mail\Enums\FilterCondition::NotContainSubstring:
 						$sCondition = 'if not header :contains ['.$sFields.'] "'.$this->_quoteValue($oFilter->Filter).'" {';
 						break;
 				}
 
 				// folder
 				$sFolderFullName = '';
-				if (EFilterAction::MoveToFolder === $oFilter->Action)
+				if (\Aurora\Modules\Mail\Enums\FilterAction::MoveToFolder === $oFilter->Action)
 				{
 					$sFolderFullName = \Aurora\System\Utils::ConvertEncoding($oFilter->FolderFullName,
 						'utf7-imap', $this->sSieveFolderCharset);
@@ -368,11 +367,11 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 				$sAction = '';
 				switch($oFilter->Action)
 				{
-					case EFilterAction::DeleteFromServerImmediately:
+					case \Aurora\Modules\Mail\Enums\FilterAction::DeleteFromServerImmediately:
 						$sAction = 'discard ;';
 						$sAction .= 'stop ;';
 						break;
-					case EFilterAction::MoveToFolder:
+					case \Aurora\Modules\Mail\Enums\FilterAction::MoveToFolder:
 						$sAction = 'fileinto "'.$this->_quoteValue($sFolderFullName).'" ;'."\n";
 						$sAction .= 'stop ;';
 						break;

@@ -48,8 +48,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 				'ics',
 				'vcard',
 				'server',
-				'sieve-enum',
-				'filter',
 				'system-folder',
 				'sender'
 			)
@@ -1113,9 +1111,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 			\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::TenantAdmin);
 		}
 		
-		$oServer = $this->oApiServersManager->getServer($iServerId);
-		
-		if ($oServer->TenantId === $iTenantId)
+		$oServer = $this->oApiServersManager->getServer($ServerId);
+
+		if ($oServer && $oServer->TenantId === $TenantId)
 		{
 			$oServer->Name = $Name;
 			$oServer->IncomingServer = $IncomingServer;
