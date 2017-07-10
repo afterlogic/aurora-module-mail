@@ -8,9 +8,9 @@
  * For full statements of the licenses see LICENSE-AFTERLOGIC and LICENSE-AGPL3 files.
  */
 
-use Aurora\System\Exceptions;
-
 namespace Aurora\Modules\Mail\Managers\Main;
+
+use Aurora\System\Exceptions;
 
 /**
  * Manager for work with ImapClient.
