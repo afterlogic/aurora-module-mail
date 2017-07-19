@@ -116,7 +116,7 @@ class CApiMailFolderCollection extends \MailSo\Base\Collection
 	 *
 	 * @return int
 	 */
-	protected function __sortHelper($oFolderA, $oFolderB)
+	protected function _sortHelper($oFolderA, $oFolderB)
 	{
 		return strnatcmp($oFolderA->getFullName(), $oFolderB->getFullName());
 	}
@@ -168,7 +168,7 @@ class CApiMailFolderCollection extends \MailSo\Base\Collection
 		$aSortedByLenImapFolders = array_merge($aSortedByLenImapFolders, $aAddedFolders);
 		unset($aAddedFolders);
 
-		uasort($aSortedByLenImapFolders, array(&$this, '__sortHelper'));
+		uasort($aSortedByLenImapFolders, array(&$this, '_sortHelper'));
 
 		// INBOX and Utf-7 modified sort
 		$aFoot = $aTop = array();

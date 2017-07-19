@@ -2315,7 +2315,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 * 
 	 * @return int
 	 */
-	public function __sortHelper($a, $b, $aSortUidsFlipped)
+	public function _sortHelper($a, $b, $aSortUidsFlipped)
 	{
 		if ($a === $b)
 		{
@@ -2354,7 +2354,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		$self = $this;
 
 		\usort($aInput, function ($a, $b) use ($self, $aSortUidsFlipped) {
-			return $self->__sortHelper($a, $b, $aSortUidsFlipped);
+			return $self->_sortHelper($a, $b, $aSortUidsFlipped);
 		});
 	}
 
@@ -2371,7 +2371,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		$self = $this;
 
 		\uksort($aThreads, function ($a, $b) use ($self, $aSortUidsFlipped) {
-			return $self->__sortHelper($a, $b, $aSortUidsFlipped);
+			return $self->_sortHelper($a, $b, $aSortUidsFlipped);
 		});
 	}
 
