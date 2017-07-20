@@ -190,6 +190,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 				$aSettings['UseThreads'] = $oUser->{$this->GetName().'::UseThreads'};
 			}
 		}
+		if ($oUser && $oUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin)
+		{
+			$aSettings['UseThreads'] = $aSettings['AllowThreads'];
+			$aSettings['AllowThreads'] = true;
+		}
 		
 		return $aSettings;
 	}
@@ -264,7 +269,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 			}
 			if ($oUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin)
 			{
-				return true;
+				$this->setConfig('AllowThreads', $UseThreads);
+				$this->setConfig('AllowAutosaveInDrafts', $AllowAutosaveInDrafts);
+				return $this->saveModuleConfig();
 			}
 		}
 		
