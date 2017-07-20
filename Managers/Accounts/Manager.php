@@ -59,6 +59,49 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	
 	/**
 	 * 
+	 * @param int $iAccountId
+	 * @return boolean|CMailAccount
+	 * @throws \Aurora\System\Exceptions\BaseException
+	 */
+	public function getAccountByEmail($sEmail)
+	{
+		$oAccount = false;
+		try
+		{
+			if (is_string($sEmail))
+			{
+				$aResults = $this->oEavManager->getEntities(
+					'CMailAccount',
+					array(),
+					0,
+					0,
+					array(
+						'Email' => $sEmail,
+						'IsDisabled' => false,
+						'UseToAuthorize' => [true, '=']
+					)
+				);
+
+				if (is_array($aResults) && isset($aResults[0]))
+				{
+					$oAccount = $aResults[0];
+				}
+			}
+			else
+			{
+				throw new \Aurora\System\Exceptions\BaseException(\Aurora\System\Exceptions\Errs::Validation_InvalidParameters);
+			}
+		}
+		catch (\Aurora\System\Exceptions\BaseException $oException)
+		{
+			$oAccount = false;
+			$this->setLastException($oException);
+		}
+		return $oAccount;
+	}
+
+	/**
+	 * 
 	 * @param string $sEmail
 	 * @param string $sIncomingPassword
 	 * @return CMailAccount|boolean
