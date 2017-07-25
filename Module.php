@@ -168,6 +168,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			'AllowThreads' => $this->getConfig('AllowThreads', false),
 			'AutoSaveIntervalSeconds' => $this->getConfig('AutoSaveIntervalSeconds', 60),
 			'ImageUploadSizeLimit' => $this->getConfig('ImageUploadSizeLimit', 0),
+			'SmtpAuthType' => (new \Aurora\Modules\Mail\Enums\SmtpAuthType)->getMap(),
 		);
 		
 		$oUser = \Aurora\System\Api::getAuthenticatedUser();
@@ -317,7 +318,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * "FriendlyName": "", "IncomingLogin": "test@email", "UseSignature": false, "Signature": "", 
 	 * "ServerId": 10, "Server": { "EntityId": 10, "UUID": "uuid_value", "TenantId": 0, "Name": "Mail server", 
 	 * "IncomingServer": "mail.email", "IncomingPort": 143, "IncomingUseSsl": false, "OutgoingServer": "mail.email", 
-	 * "OutgoingPort": 25, "OutgoingUseSsl": false, "OutgoingUseAuth": false, "OwnerType": "superadmin", 
+	 * "OutgoingPort": 25, "OutgoingUseSsl": false, "SmtpAuthType": "0", "OwnerType": "superadmin", 
 	 * "Domains": "", "ServerId": 10 }, "CanBeUsedToAuthorize": true } ]
 	 * }
 	 * 
@@ -392,7 +393,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * "FriendlyName": "", "IncomingLogin": "test@email", "UseSignature": false, "Signature": "", 
 	 * "ServerId": 10, "Server": { "EntityId": 10, "UUID": "uuid_value", "TenantId": 0, "Name": "Mail server", 
 	 * "IncomingServer": "mail.email", "IncomingPort": 143, "IncomingUseSsl": false, "OutgoingServer": "mail.email", 
-	 * "OutgoingPort": 25, "OutgoingUseSsl": false, "OutgoingUseAuth": false, "OwnerType": "superadmin", 
+	 * "OutgoingPort": 25, "OutgoingUseSsl": false, "SmtpAuthType": "0", "OwnerType": "superadmin", 
 	 * "Domains": "", "ServerId": 10 }, "CanBeUsedToAuthorize": true }
 	 * }
 	 * 
@@ -483,7 +484,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * "FriendlyName": "", "IncomingLogin": "test@email", "UseSignature": false, "Signature": "",
 	 * "ServerId": 10, "Server": { "ServerId": 10, "Name": "Mail server", "IncomingServer": "mail.server",
 	 * "IncomingPort": 143, "IncomingUseSsl": false, "OutgoingServer": "mail.server", "OutgoingPort": 25,
-	 * "OutgoingUseSsl": false, "OutgoingUseAuth": false, "Domains": "" }, "CanBeUsedToAuthorize": true }
+	 * "OutgoingUseSsl": false, "SmtpAuthType": "0", "Domains": "" }, "CanBeUsedToAuthorize": true }
 	 * }
 	 * 
 	 * @apiSuccessExample {json} Error response example:
@@ -517,16 +518,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$iServerId = $Server['ServerId'];
 			if ($Server !== null && $iServerId === 0)
 			{
-				$iServerId = $this->oApiServersManager->createServer(
-					$Server['IncomingServer'], 
-					$Server['IncomingServer'], 
-					$Server['IncomingPort'], 
-					$Server['IncomingUseSsl'],
-					$Server['OutgoingServer'], 
-					$Server['OutgoingPort'], 
-					$Server['OutgoingUseSsl'], 
-					$Server['OutgoingUseAuth'],
-					$Server['Domains'] = $sDomains
+				$iServerId = $this->oApiServersManager->createServer($Server['IncomingServer'], 
+					$Server['IncomingServer'], $Server['IncomingPort'], $Server['IncomingUseSsl'], 
+					$Server['OutgoingServer'], $Server['OutgoingPort'], $Server['OutgoingUseSsl'], 
+					$Server['SmtpAuthType'], $sDomains
 				);
 				
 				$bCustomServerCreated = true;
@@ -666,9 +661,12 @@ class Module extends \Aurora\System\Module\AbstractModule
 				{
 					if ($Server['ServerId'] === 0)
 					{
-						$iNewServerId = $this->oApiServersManager->createServer($Server['IncomingServer'], $Server['IncomingServer'], 
-								$Server['IncomingPort'], $Server['IncomingUseSsl'], $Server['OutgoingServer'], 
-								$Server['OutgoingPort'], $Server['OutgoingUseSsl'], $Server['OutgoingUseAuth']);
+						$sDomains = explode('@', $oAccount->Email)[1];
+						$iNewServerId = $this->oApiServersManager->createServer($Server['IncomingServer'],
+							$Server['IncomingServer'], $Server['IncomingPort'], $Server['IncomingUseSsl'], 
+							$Server['OutgoingServer'], $Server['OutgoingPort'], $Server['OutgoingUseSsl'], 
+							$Server['SmtpAuthType'], $sDomains
+						);
 						$oAccount->updateServer($iNewServerId);
 					}
 					elseif ($oAccount->ServerId === $Server['ServerId'])
@@ -683,7 +681,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 							$oAccServer->OutgoingServer = $Server['OutgoingServer'];
 							$oAccServer->OutgoingPort = $Server['OutgoingPort'];
 							$oAccServer->OutgoingUseSsl = $Server['OutgoingUseSsl'];
-							$oAccServer->OutgoingUseAuth = $Server['OutgoingUseAuth'];
+							$oAccServer->SmtpAuthType = $Server['SmtpAuthType'];
 							
 							$this->oApiServersManager->updateServer($oAccServer);		
 						}
@@ -837,7 +835,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 *	Method: 'GetServers',
 	 *	Result: [ { "EntityId": 10, "UUID": "uuid_value", "TenantId": 0, "Name": "Mail server", 
 	 * "IncomingServer": "mail.email", "IncomingPort": 143, "IncomingUseSsl": false, "OutgoingServer": "mail.email", 
-	 * "OutgoingPort": 25, "OutgoingUseSsl": false, "OutgoingUseAuth": false, "OwnerType": "superadmin", 
+	 * "OutgoingPort": 25, "OutgoingUseSsl": false, "SmtpAuthType": "0", "OwnerType": "superadmin", 
 	 * "Domains": "", "ServerId": 10 } ]
 	 * }
 	 * 
@@ -901,7 +899,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiSuccess {string} Result.Result.OutgoingServer SMTP server.
 	 * @apiSuccess {int} Result.Result.OutgoingPort SMTP port.
 	 * @apiSuccess {boolean} Result.Result.OutgoingUseSsl Indicates if SSL should be used for SMTP connection.
-	 * @apiSuccess {boolean} Result.Result.OutgoingUseAuth Indicates if SMTP authentication should be done.
+	 * @apiSuccess {string} Result.Result.SmtpAuthType SMTP authentication type: '0' - no authentication, '1' - specified credentials, '2' - user credentials
+	 * @apiSuccess {string} Result.Result.SmtpLogin
+	 * @apiSuccess {string} Result.Result.SmtpPassword
 	 * @apiSuccess {string} Result.Result.OwnerType Owner type: 'superadmin' - server was created by SuperAdmin user, 'tenant' - server was created by TenantAdmin user, 'account' - server was created when account was created and any existent server was chosen.
 	 * @apiSuccess {string} Result.Result.Domains List of server domain separated by comma.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
@@ -912,7 +912,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 *	Method: 'GetServer',
 	 *	Result: { "ServerId": 10, "UUID": "uuid_value", "TenantId": 0, "Name": "Mail server", 
 	 * "IncomingServer": "mail.email", "IncomingPort": 143, "IncomingUseSsl": false, "OutgoingServer": "mail.email", 
-	 * "OutgoingPort": 25, "OutgoingUseSsl": false, "OutgoingUseAuth": false, "OwnerType": "superadmin", 
+	 * "OutgoingPort": 25, "OutgoingUseSsl": false, "SmtpAuthType": "0", "OwnerType": "superadmin", 
 	 * "Domains": "" }
 	 * }
 	 * 
@@ -959,7 +959,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **OutgoingServer** *string* SMTP server.<br>
 	 * &emsp; **OutgoingPort** *int* Port for connection to SMTP server.<br>
 	 * &emsp; **OutgoingUseSsl** *boolean* Indicates if it is necessary to use SSL while connecting to SMTP server.<br>
-	 * &emsp; **OutgoingUseAuth** *boolean* Indicates if it is necessary to use authentication while connecting to SMTP server.<br>
+	 * &emsp; **SmtpAuthType** *string* SMTP authentication type: '0' - no authentication, '1' - specified credentials, '2' - user credentials.<br>
+	 * &emsp; **SmtpLogin** *string* (optional)<br>
+	 * &emsp; **SmtpPassword** *string* (optional)<br>
 	 * &emsp; **Domains** *string* List of domains separated by comma.<br>
 	 * &emsp; **TenantId** *int* (optional) If tenant identifier is specified creates mail server belonged to specified tenant.<br>
 	 * }
@@ -970,7 +972,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 *	Method: 'CreateServer',
 	 *	Parameters: '{ "Name": "Server name", "IncomingServer": "mail.server", "IncomingPort": 143,
 	 *			"IncomingUseSsl": false, "OutgoingServer": "mail.server", "OutgoingPort": 25,
-	 *			"OutgoingUseSsl": false, "OutgoingUseAuth": false, "Domains": "" }'
+	 *			"OutgoingUseSsl": false, "SmtpAuthType": "0", "Domains": "" }'
 	 * }
 	 * 
 	 * @apiSuccess {object[]} Result Array of response objects.
@@ -1003,15 +1005,18 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param string $OutgoingServer SMTP server.
 	 * @param int $OutgoingPort Port for connection to SMTP server.
 	 * @param boolean $OutgoingUseSsl Indicates if it is necessary to use SSL while connecting to SMTP server.
-	 * @param boolean $OutgoingUseAuth Indicates if it is necessary to use authentication while connecting to SMTP server.
+	 * @param string $SmtpAuthType SMTP authentication type: '0' - no authentication, '1' - specified credentials, '2' - user credentials.
 	 * @param string $Domains List of domains separated by comma.
 	 * @param boolean $EnableSieve
 	 * @param int $SievePort
-	 * @param int $TenantId If tenant identifier is specified creates mail server belonged to specified tenant.
+	 * @param string $SmtpLogin (optional)
+	 * @param string $SmtpPassword (optional)
+	 * @param int $TenantId (optional) If tenant identifier is specified creates mail server belonged to specified tenant.
 	 * @return int|boolean
 	 */
 	public function CreateServer($Name, $IncomingServer, $IncomingPort, $IncomingUseSsl,
-			$OutgoingServer, $OutgoingPort, $OutgoingUseSsl, $OutgoingUseAuth, $Domains, $EnableSieve, $SievePort, $TenantId = 0)
+			$OutgoingServer, $OutgoingPort, $OutgoingUseSsl, $SmtpAuthType, $Domains, $EnableSieve, 
+			$SievePort, $SmtpLogin = '', $SmtpPassword = '', $TenantId = 0)
 	{
 		$sOwnerType = ($TenantId === 0) ? \EMailServerOwnerType::SuperAdmin : \EMailServerOwnerType::Tenant;
 		
@@ -1024,8 +1029,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 			\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::TenantAdmin);
 		}
 		
-		return $this->oApiServersManager->createServer($Name, $IncomingServer, $IncomingPort, $IncomingUseSsl,
-			$OutgoingServer, $OutgoingPort, $OutgoingUseSsl, $OutgoingUseAuth, $Domains, $EnableSieve, $SievePort, $sOwnerType, $TenantId);
+		return $this->oApiServersManager->createServer($Name, $IncomingServer, $IncomingPort,
+			$IncomingUseSsl, $OutgoingServer, $OutgoingPort, $OutgoingUseSsl, $SmtpAuthType, $Domains, 
+			$SmtpLogin, $SmtpPassword, $EnableSieve, $SievePort, $sOwnerType, $TenantId
+		);
 	}
 	
 	/**
@@ -1052,7 +1059,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **OutgoingServer** *string* New SMTP server.<br>
 	 * &emsp; **OutgoingPort** *int* New port for connection to SMTP server.<br>
 	 * &emsp; **OutgoingUseSsl** *boolean* Indicates if it is necessary to use SSL while connecting to SMTP server.<br>
-	 * &emsp; **OutgoingUseAuth** *boolean* Indicates if it is necessary to use authentication while connecting to SMTP server.<br>
+	 * &emsp; **SmtpAuthType** *string* SMTP authentication type: '0' - no authentication, '1' - specified credentials, '2' - user credentials.<br>
+	 * &emsp; **SmtpLogin** *string* (optional)<br>
+	 * &emsp; **SmtpPassword** *string* (optional)<br>
 	 * &emsp; **Domains** *string* New list of domains separated by comma.<br>
 	 * &emsp; **TenantId** *int* If tenant identifier is specified creates mail server belonged to specified tenant.<br>
 	 * }
@@ -1063,7 +1072,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 *	Method: 'UpdateServer',
 	 *	Parameters: '{ "Name": "Server name", "IncomingServer": "mail.server", "IncomingPort": 143,
 	 * "IncomingUseSsl": false, "OutgoingServer": "mail.server", "OutgoingPort": 25, "OutgoingUseSsl": false,
-	 * "OutgoingUseAuth": false, "Domains": "" }'
+	 * "SmtpAuthType": "0", "Domains": "" }'
 	 * }
 	 * 
 	 * @apiSuccess {object[]} Result Array of response objects.
@@ -1097,15 +1106,18 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param string $OutgoingServer New SMTP server.
 	 * @param int $OutgoingPort New port for connection to SMTP server.
 	 * @param boolean $OutgoingUseSsl Indicates if it is necessary to use SSL while connecting to SMTP server.
-	 * @param boolean $OutgoingUseAuth Indicates if it is necessary to use authentication while connecting to SMTP server.
+	 * @param boolean $SmtpAuthType SMTP authentication type: '0' - no authentication, '1' - specified credentials, '2' - user credentials.
 	 * @param string $Domains New list of domains separated by comma.
 	 * @param boolean $EnableSieve
 	 * @param int $SievePort
+	 * @param boolean $SmtpLogin (optional)
+	 * @param boolean $SmtpPassword (optional)
 	 * @param int $TenantId If tenant identifier is specified updates mail server belonged to specified tenant.
 	 * @return boolean
 	 */
 	public function UpdateServer($ServerId, $Name, $IncomingServer, $IncomingPort, $IncomingUseSsl,
-			$OutgoingServer, $OutgoingPort, $OutgoingUseSsl, $OutgoingUseAuth, $Domains, $EnableSieve, $SievePort, $TenantId = 0)
+			$OutgoingServer, $OutgoingPort, $OutgoingUseSsl, $SmtpAuthType, $Domains, $EnableSieve, 
+			$SievePort, $SmtpLogin = '', $SmtpPassword = '', $TenantId = 0)
 	{
 		$bResult = false;
 		
@@ -1129,7 +1141,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$oServer->OutgoingServer = $OutgoingServer;
 			$oServer->OutgoingPort = $OutgoingPort;
 			$oServer->OutgoingUseSsl = $OutgoingUseSsl;
-			$oServer->OutgoingUseAuth = $OutgoingUseAuth;
+			$oServer->SmtpAuthType = $SmtpAuthType;
+			$oServer->SmtpLogin = $SmtpLogin;
+			$oServer->SmtpPassword = $SmtpPassword;
 			$oServer->Domains = $Domains;
 			$oServer->EnableSieve = $EnableSieve;
 			$oServer->SievePort = $SievePort;
@@ -3390,7 +3404,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 						break;
 					case \Aurora\System\Exceptions\Errs::Mail_MailboxUnavailable:
 						$oServer = $oAccount->getServer();
-						if ($oServer->OutgoingUseAuth)
+						if ($oServer->SmtpAuthType === \Aurora\Modules\Mail\Enums\SmtpAuthType::UseUserCredentials)
 						{
 							$iCode = \Aurora\System\Notifications::UnableSendToRecipients;
 						}

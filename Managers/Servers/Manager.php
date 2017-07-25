@@ -37,7 +37,9 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 * @param string $sOutgoingServer
 	 * @param int $iOutgoingPort
 	 * @param boolean $bOutgoingUseSsl
-	 * @param boolean $bOutgoingUseAuth
+	 * @param string $sSmtpAuthType
+	 * @param string $sSmtpLogin
+	 * @param string $sSmtpPassword
 	 * @param string $sDomains
 	 * @param boolean $bEnableSieve
 	 * @param int $iSievePort
@@ -47,7 +49,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 * @throws \Aurora\System\Exceptions\ManagerException
 	 */
 	public function createServer($sName, $sIncomingServer, $iIncomingPort, $bIncomingUseSsl,
-			$sOutgoingServer, $iOutgoingPort, $bOutgoingUseSsl, $bOutgoingUseAuth, $sDomains, 
+			$sOutgoingServer, $iOutgoingPort, $bOutgoingUseSsl, $sSmtpAuthType, $sDomains, $sSmtpLogin = 0, $sSmtpPassword = 0, 
 			$bEnableSieve = false, $iSievePort = 2000, $sOwnerType = \EMailServerOwnerType::Account, $iTenantId = 0)
 	{
 		try
@@ -62,7 +64,9 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			$oServer->OutgoingServer = $sOutgoingServer;
 			$oServer->OutgoingPort = $iOutgoingPort;
 			$oServer->OutgoingUseSsl = $bOutgoingUseSsl;
-			$oServer->OutgoingUseAuth = $bOutgoingUseAuth;
+			$oServer->SmtpAuthType = $sSmtpAuthType;
+			$oServer->SmtpLogin = $sSmtpLogin;
+			$oServer->SmtpPassword = $sSmtpPassword;
 			$oServer->Domains = $sDomains;
 			$oServer->EnableSieve = $bEnableSieve;
 			$oServer->SievePort = $iSievePort;

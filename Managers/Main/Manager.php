@@ -1231,36 +1231,15 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 						$oSmtpClient->SetLogger($oLogger);
 					}
 
+					$oServer = $oAccount->getServer();
 					$iSecure = \MailSo\Net\Enumerations\ConnectionSecurityType::AUTO_DETECT;
 					if ($oFetcher)
 					{
 						$iSecure = $oFetcher->OutgoingMailSecurity;
 					}
-					else if ($oAccount->getServer()->OutgoingUseSsl)
+					else if ($oServer->OutgoingUseSsl)
 					{
 						$iSecure = \MailSo\Net\Enumerations\ConnectionSecurityType::SSL;
-					}
-
-					$sOutgoingLogin = '';
-					if ($oFetcher)
-					{
-						$sOutgoingLogin = $oFetcher->IncomingLogin;
-					}
-
-					if (0 === strlen($sOutgoingLogin))
-					{
-						$sOutgoingLogin = $oAccount->IncomingLogin;
-					}
-
-					$sOutgoingPassword = '';
-					if ($oFetcher)
-					{
-						$sOutgoingPassword = $oFetcher->IncomingPassword;
-					}
-
-					if (0 === strlen($sOutgoingPassword))
-					{
-						$sOutgoingPassword = $oAccount->IncomingPassword;
 					}
 
 					$sEhlo = \MailSo\Smtp\SmtpClient::EhloHelper();
@@ -1271,12 +1250,20 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 					}
 					else
 					{
-						$oSmtpClient->Connect($oAccount->getServer()->OutgoingServer, $oAccount->getServer()->OutgoingPort, $sEhlo, $iSecure, $bVerifySsl);
+						$oSmtpClient->Connect($oServer->OutgoingServer, $oServer->OutgoingPort, $sEhlo, $iSecure, $bVerifySsl);
 					}
 					
-					if (($oFetcher && $oFetcher->OutgoingUseAuth) || (!$oFetcher && $oAccount->getServer()->OutgoingUseAuth))
+					if ($oFetcher && $oFetcher->OutgoingUseAuth)
 					{
-						$oSmtpClient->Login($sOutgoingLogin, $sOutgoingPassword);
+						$oSmtpClient->Login($oFetcher->IncomingLogin, $oFetcher->IncomingPassword);
+					}
+					else if ($oServer->SmtpAuthType === \Aurora\Modules\Mail\Enums\SmtpAuthType::UseUserCredentials)
+					{
+						$oSmtpClient->Login($oAccount->IncomingLogin, $oAccount->IncomingPassword);
+					}
+					else if ($oServer->SmtpAuthType === \Aurora\Modules\Mail\Enums\SmtpAuthType::UseSpecifiedCredentials)
+					{
+						$oSmtpClient->Login($oServer->SmtpLogin, $oServer->SmtpPassword);
 					}
 
 					$oSmtpClient->MailFrom($oFetcher ? $oFetcher->Email : $oAccount->Email, (string) $iMessageStreamSize);
