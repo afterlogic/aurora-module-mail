@@ -5075,7 +5075,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 					);
 				}
 			}
-			catch (\Exception $oEx) {}
+			catch (\Aurora\System\Exceptions\ApiException $oException)
+			{
+					throw $oException;
+			}
+			catch (\Exception $oException) {}
 		}			
 
 		return $bResult;
