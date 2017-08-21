@@ -5152,7 +5152,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param boolean $bSendReadingConfirmation Indicates if it is necessary to include header that says
 	 * @param \CFetcher $oFetcher
 	 * @param boolean $bWithDraftInfo
-	 * @param \CIdentity $oIdentity
+	 * @param \CMailIdentity $oIdentity
 	 * @return \MailSo\Mime\Message
 	 */
 	private function buildMessage($oAccount, $sTo = '', $sCc = '', $sBcc = '', 

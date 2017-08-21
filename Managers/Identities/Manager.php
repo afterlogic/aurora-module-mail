@@ -40,7 +40,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	{
 		try
 		{
-			$oIdentity = new CIdentity($this->oModule->GetName());
+			$oIdentity = new \CMailIdentity($this->oModule->GetName());
 			$oIdentity->IdUser = $iUserId;
 			$oIdentity->IdAccount = $iAccountID;
 			$oIdentity->FriendlyName = $sFriendlyName;
@@ -174,7 +174,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		try
 		{
 			$aResult = $this->oEavManager->getEntities(
-				'CIdentity', 
+				'CMailIdentity', 
 				array(),
 				$iOffset,
 				$iLimit,
@@ -204,7 +204,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		$iOffset = 0;
 		$iLimit = 0;
 		$aFilters = array('IdAccount' => array($iAccountId, '='));
-		$aIdentities = $this->oEavManager->getEntities('CIdentity', array(), $iOffset, $iLimit, $aFilters);
+		$aIdentities = $this->oEavManager->getEntities('CMailIdentity', array(), $iOffset, $iLimit, $aFilters);
 		if (is_array($aIdentities))
 		{
 			foreach ($aIdentities as $oIdentity)

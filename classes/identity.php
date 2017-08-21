@@ -14,7 +14,7 @@
  * @package Users
  * @subpackage Classes
  */
-class CIdentity extends \Aurora\System\EAV\Entity
+class CMailIdentity extends \Aurora\System\EAV\Entity
 {
 	protected $aStaticMap = array(
 		'IdUser'		=> array('int', 0),
