@@ -28,7 +28,8 @@ class CMailAccount extends \Aurora\System\EAV\Entity
 		'UseSignature'		=> array('bool', false),
 		'Signature'			=> array('string', ''),
 		'ServerId'			=> array('int',  0),
-		'FoldersOrder'		=> array('text', '')
+		'FoldersOrder'		=> array('text', ''),
+		'UseThreading'		=> array('bool', false),
 	);
 
 	public function updateServer($iServerId)

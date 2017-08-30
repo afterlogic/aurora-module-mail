@@ -62,7 +62,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 		
 		$this->extendObject('CUser', array(
 				'AllowAutosaveInDrafts'	=> array('bool', (bool)$this->getConfig('AllowAutosaveInDrafts', false)),
-				'UseThreads'			=> array('bool', true),
 			)
 		);
 
@@ -121,10 +120,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiSuccess {boolean} Result.Result.AllowForward=false Indicates if forward is allowed.
 	 * @apiSuccess {boolean} Result.Result.AllowAutoresponder=false Indicates if autoresponder is allowed.
 	 * @apiSuccess {boolean} Result.Result.AllowInsertImage=false Indicates if insert of images in composed message body is allowed.
-	 * @apiSuccess {boolean} Result.Result.AllowThreads=false Indicates if threads in message list are allowed.
 	 * @apiSuccess {int} Result.Result.AutoSaveIntervalSeconds=60 Interval for autosave of message on compose in seconds.
 	 * @apiSuccess {int} Result.Result.ImageUploadSizeLimit=0 Max size of upload image in message text in bytes.
-	 * @apiSuccess {boolean} Result.Result.UseThreads=false Indicates if user turned on threads functionality.
 	 * 
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
 	 * 
@@ -135,7 +132,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 *	Result: { Accounts: [], AllowAddAccounts: true, AllowAutosaveInDrafts: true,
 	 * AllowChangeEmailSettings: true, AllowFetchers: false, AllowIdentities: true,
 	 * AllowFilters: false, AllowForward: false, AllowAutoresponder: false, AllowInsertImage: true,
-	 * AllowThreads: true, AutoSaveIntervalSeconds: 60, ImageUploadSizeLimit: 0, UseThreads: false }
+	 * AutoSaveIntervalSeconds: 60, ImageUploadSizeLimit: 0 }
 	 * }
 	 * 
 	 * @apiSuccessExample {json} Error response example:
@@ -165,7 +162,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 			'AllowForward' => $this->getConfig('AllowForward', false),
 			'AllowAutoresponder' => $this->getConfig('AllowAutoresponder', false),
 			'AllowInsertImage' => $this->getConfig('AllowInsertImage', false),
-			'AllowThreads' => $this->getConfig('AllowThreads', false),
 			'AutoSaveIntervalSeconds' => $this->getConfig('AutoSaveIntervalSeconds', 60),
 			'ImageUploadSizeLimit' => $this->getConfig('ImageUploadSizeLimit', 0),
 			'SmtpAuthType' => (new \Aurora\Modules\Mail\Enums\SmtpAuthType)->getMap(),
@@ -186,15 +182,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 			{
 				$aSettings['AllowAutosaveInDrafts'] = $oUser->{$this->GetName().'::AllowAutosaveInDrafts'};
 			}
-			if (isset($oUser->{$this->GetName().'::UseThreads'}))
-			{
-				$aSettings['UseThreads'] = $oUser->{$this->GetName().'::UseThreads'};
-			}
-		}
-		if ($oUser && $oUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin)
-		{
-			$aSettings['UseThreads'] = $aSettings['AllowThreads'];
-			$aSettings['AllowThreads'] = true;
 		}
 		
 		return $aSettings;
@@ -216,7 +203,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiParam {string=UpdateSettings} Method Method name
 	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
-	 * &emsp; **UseThreads** *boolean* Indicates if threads should be used for user.<br>
 	 * &emsp; **AllowAutosaveInDrafts** *boolean* Indicates if message should be saved automatically while compose.<br>
 	 * }
 	 * 
@@ -224,7 +210,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'UpdateSettings',
-	 *	Parameters: '{ UseThreads: true, AllowAutosaveInDrafts: false }'
+	 *	Parameters: '{ AllowAutosaveInDrafts: false }'
 	 * }
 	 * 
 	 * @apiSuccess {object[]} Result Array of response objects.
@@ -250,11 +236,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	/**
 	 * Updates module's per user settings.
-	 * @param boolean $UseThreads Indicates if threads should be used for user.
 	 * @param boolean $AllowAutosaveInDrafts Indicates if message should be saved automatically while compose.
 	 * @return boolean
 	 */
-	public function UpdateSettings($UseThreads, $AllowAutosaveInDrafts)
+	public function UpdateSettings($AllowAutosaveInDrafts)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
@@ -264,13 +249,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 			if ($oUser->Role === \Aurora\System\Enums\UserRole::NormalUser)
 			{
 				$oCoreDecorator = \Aurora\Modules\Core\Module::Decorator();
-				$oUser->{$this->GetName().'::UseThreads'} = $UseThreads;
 				$oUser->{$this->GetName().'::AllowAutosaveInDrafts'} = $AllowAutosaveInDrafts;
 				return $oCoreDecorator->UpdateUserObject($oUser);
 			}
 			if ($oUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin)
 			{
-				$this->setConfig('AllowThreads', $UseThreads);
 				$this->setConfig('AllowAutosaveInDrafts', $AllowAutosaveInDrafts);
 				return $this->saveModuleConfig();
 			}
@@ -319,7 +302,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * "ServerId": 10, "Server": { "EntityId": 10, "UUID": "uuid_value", "TenantId": 0, "Name": "Mail server", 
 	 * "IncomingServer": "mail.email", "IncomingPort": 143, "IncomingUseSsl": false, "OutgoingServer": "mail.email", 
 	 * "OutgoingPort": 25, "OutgoingUseSsl": false, "SmtpAuthType": "0", "OwnerType": "superadmin", 
-	 * "Domains": "", "ServerId": 10 }, "CanBeUsedToAuthorize": true } ]
+	 * "Domains": "", "ServerId": 10 }, "CanBeUsedToAuthorize": true, "UseThreading": true } ]
 	 * }
 	 * 
 	 * @apiSuccessExample {json} Error response example:
@@ -383,6 +366,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiSuccess {int} Result.Result.ServerId Server identifier.
 	 * @apiSuccess {object} Result.Result.Server Server properties that are used for connection to IMAP and SMTP servers.
 	 * @apiSuccess {boolean} Result.Result.CanBeUsedToAuthorize Indicates if account can be used for authentication. It is forbidden to use account for authentication if another user has account with the same credentials and it is allowed to authenticate.
+	 * @apiSuccess {boolean} Result.Result.UseThreading Indicates if account uses mail threading.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
 	 * 
 	 * @apiSuccessExample {json} Success response example:
@@ -394,7 +378,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * "ServerId": 10, "Server": { "EntityId": 10, "UUID": "uuid_value", "TenantId": 0, "Name": "Mail server", 
 	 * "IncomingServer": "mail.email", "IncomingPort": 143, "IncomingUseSsl": false, "OutgoingServer": "mail.email", 
 	 * "OutgoingPort": 25, "OutgoingUseSsl": false, "SmtpAuthType": "0", "OwnerType": "superadmin", 
-	 * "Domains": "", "ServerId": 10 }, "CanBeUsedToAuthorize": true }
+	 * "Domains": "", "ServerId": 10 }, "CanBeUsedToAuthorize": true, "UseThreading": true }
 	 * }
 	 * 
 	 * @apiSuccessExample {json} Error response example:
@@ -521,7 +505,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 				$iServerId = $this->oApiServersManager->createServer($Server['IncomingServer'], 
 					$Server['IncomingServer'], $Server['IncomingPort'], $Server['IncomingUseSsl'], 
 					$Server['OutgoingServer'], $Server['OutgoingPort'], $Server['OutgoingUseSsl'], 
-					$Server['SmtpAuthType'], $sDomains
+					$Server['SmtpAuthType'], $sDomains, $Server['EnableThreading']
 				);
 				
 				$bCustomServerCreated = true;
@@ -535,6 +519,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$oAccount->IncomingLogin = $IncomingLogin;
 			$oAccount->IncomingPassword = $IncomingPassword;
 			$oAccount->ServerId = $iServerId;
+			$oServer = $oAccount->getServer();
+			$oAccount->UseThreading = $oServer->EnableThreading;
 
 			$oUser = null;
 			$oCoreDecorator = \Aurora\Modules\Core\Module::Decorator();
@@ -620,14 +606,15 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param boolean $UseToAuthorize Indicates if account can be used to authorize user.
 	 * @param string $Email New email.
 	 * @param string $FriendlyName New friendly name.
-	 * @param string $IncomingLogin New loging for IMAP connection.
+	 * @param string $IncomingLogin New login for IMAP connection.
 	 * @param string $IncomingPassword New password for IMAP connection.
 	 * @param array $Server List of settings for IMAP and SMTP connections.
+	 * @param boolean $UseThreading Indicates if account uses mail threading.
 	 * @return boolean
 	 * @throws \Aurora\System\Exceptions\ApiException
 	 */
 	public function UpdateAccount($AccountID, $UseToAuthorize = null, $Email = null, $FriendlyName = null, $IncomingLogin = null, 
-			$IncomingPassword = null, $Server = null)
+			$IncomingPassword = null, $Server = null, $UseThreading = null)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
@@ -665,7 +652,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 						$iNewServerId = $this->oApiServersManager->createServer($Server['IncomingServer'],
 							$Server['IncomingServer'], $Server['IncomingPort'], $Server['IncomingUseSsl'], 
 							$Server['OutgoingServer'], $Server['OutgoingPort'], $Server['OutgoingUseSsl'], 
-							$Server['SmtpAuthType'], $sDomains
+							$Server['SmtpAuthType'], $sDomains, $Server['EnableThreading']
 						);
 						$oAccount->updateServer($iNewServerId);
 					}
@@ -695,6 +682,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 						}
 						$oAccount->updateServer($Server['ServerId']);
 					}
+				}
+				
+				if ($UseThreading !== null)
+				{
+					$oAccount->UseThreading = $UseThreading;
 				}
 				
 				if ($this->oApiAccountsManager->updateAccount($oAccount))
@@ -1007,6 +999,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param boolean $OutgoingUseSsl Indicates if it is necessary to use SSL while connecting to SMTP server.
 	 * @param string $SmtpAuthType SMTP authentication type: '0' - no authentication, '1' - specified credentials, '2' - user credentials.
 	 * @param string $Domains List of domains separated by comma.
+	 * @param boolean $EnableThreading
 	 * @param boolean $EnableSieve
 	 * @param int $SievePort
 	 * @param string $SmtpLogin (optional)
@@ -1015,7 +1008,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @return int|boolean
 	 */
 	public function CreateServer($Name, $IncomingServer, $IncomingPort, $IncomingUseSsl,
-			$OutgoingServer, $OutgoingPort, $OutgoingUseSsl, $SmtpAuthType, $Domains, $EnableSieve, 
+			$OutgoingServer, $OutgoingPort, $OutgoingUseSsl, $SmtpAuthType, $Domains, $EnableThreading, $EnableSieve, 
 			$SievePort, $SmtpLogin = '', $SmtpPassword = '', $TenantId = 0)
 	{
 		$sOwnerType = ($TenantId === 0) ? \EMailServerOwnerType::SuperAdmin : \EMailServerOwnerType::Tenant;
@@ -1031,7 +1024,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		
 		return $this->oApiServersManager->createServer($Name, $IncomingServer, $IncomingPort,
 			$IncomingUseSsl, $OutgoingServer, $OutgoingPort, $OutgoingUseSsl, $SmtpAuthType, $Domains, 
-			$SmtpLogin, $SmtpPassword, $EnableSieve, $SievePort, $sOwnerType, $TenantId
+			$EnableThreading, $SmtpLogin, $SmtpPassword, $EnableSieve, $SievePort, $sOwnerType, $TenantId
 		);
 	}
 	
@@ -1108,6 +1101,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param boolean $OutgoingUseSsl Indicates if it is necessary to use SSL while connecting to SMTP server.
 	 * @param boolean $SmtpAuthType SMTP authentication type: '0' - no authentication, '1' - specified credentials, '2' - user credentials.
 	 * @param string $Domains New list of domains separated by comma.
+	 * @param boolean $EnableThreading
 	 * @param boolean $EnableSieve
 	 * @param int $SievePort
 	 * @param boolean $SmtpLogin (optional)
@@ -1116,7 +1110,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @return boolean
 	 */
 	public function UpdateServer($ServerId, $Name, $IncomingServer, $IncomingPort, $IncomingUseSsl,
-			$OutgoingServer, $OutgoingPort, $OutgoingUseSsl, $SmtpAuthType, $Domains, $EnableSieve, 
+			$OutgoingServer, $OutgoingPort, $OutgoingUseSsl, $SmtpAuthType, $Domains, $EnableThreading, $EnableSieve, 
 			$SievePort, $SmtpLogin = '', $SmtpPassword = '', $TenantId = 0)
 	{
 		$bResult = false;
@@ -1145,6 +1139,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$oServer->SmtpLogin = $SmtpLogin;
 			$oServer->SmtpPassword = $SmtpPassword;
 			$oServer->Domains = $Domains;
+			$oServer->EnableThreading = $EnableThreading;
 			$oServer->EnableSieve = $EnableSieve;
 			$oServer->SievePort = $SievePort;
 			
@@ -1337,7 +1332,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **Limit** *int* Limit says to return that many messages in the list.<br>
 	 * &emsp; **Search** *string* Search string.<br>
 	 * &emsp; **Filters** *string* List of conditions to obtain messages.<br>
-	 * &emsp; **UseThreads** *int* Indicates if it is necessary to return messages in threads.<br>
+	 * &emsp; **UseThreading** *int* Indicates if it is necessary to return messages in threads.<br>
 	 * &emsp; **InboxUidnext** *string* (optional) UIDNEXT Inbox last value that is known on client side.<br>
 	 * }
 	 * 
@@ -1346,7 +1341,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 *	Module: 'Mail',
 	 *	Method: 'GetMessages',
 	 *	Parameters: '{ "AccountID": 12, "Folder": "Inbox", "Offset": 0, "Limit": 20, "Search": "",
-	 *		"Filters": "", "UseThreads": true }'
+	 *		"Filters": "", "UseThreading": true }'
 	 * }
 	 * 
 	 * @apiSuccess {object[]} Result Array of response objects.
@@ -1436,12 +1431,12 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param int $Limit Limit says to return that many messages in the list.
 	 * @param string $Search Search string.
 	 * @param string $Filters List of conditions to obtain messages.
-	 * @param int $UseThreads Indicates if it is necessary to return messages in threads.
+	 * @param int $UseThreading Indicates if it is necessary to return messages in threads.
 	 * @param string $InboxUidnext UIDNEXT Inbox last value that is known on client side.
 	 * @return array
 	 * @throws \Aurora\System\Exceptions\ApiException
 	 */
-	public function GetMessages($AccountID, $Folder, $Offset = 0, $Limit = 20, $Search = '', $Filters = '', $UseThreads = false, $InboxUidnext = '')
+	public function GetMessages($AccountID, $Folder, $Offset = 0, $Limit = 20, $Search = '', $Filters = '', $UseThreading = false, $InboxUidnext = '')
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
@@ -1467,7 +1462,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 
 		return $this->oApiMailManager->getMessageList(
-			$oAccount, $Folder, $iOffset, $iLimit, $sSearch, $UseThreads, $aFilters, $InboxUidnext);
+			$oAccount, $Folder, $iOffset, $iLimit, $sSearch, $UseThreading, $aFilters, $InboxUidnext);
 	}
 
 	/**
@@ -5057,6 +5052,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 					if ($oAccount)
 					{
 						$oAccount->UseToAuthorize = true;
+						$oAccount->UseThreading = $oServer->EnableThreading;
 						$bResult = $this->oApiAccountsManager->updateAccount($oAccount);
 					}
 					else

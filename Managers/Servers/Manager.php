@@ -38,9 +38,10 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 * @param int $iOutgoingPort
 	 * @param boolean $bOutgoingUseSsl
 	 * @param string $sSmtpAuthType
+	 * @param string $sDomains
+	 * @param boolean $bEnableThreading
 	 * @param string $sSmtpLogin
 	 * @param string $sSmtpPassword
-	 * @param string $sDomains
 	 * @param boolean $bEnableSieve
 	 * @param int $iSievePort
 	 * @param string $sOwnerType
@@ -49,7 +50,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 * @throws \Aurora\System\Exceptions\ManagerException
 	 */
 	public function createServer($sName, $sIncomingServer, $iIncomingPort, $bIncomingUseSsl,
-			$sOutgoingServer, $iOutgoingPort, $bOutgoingUseSsl, $sSmtpAuthType, $sDomains, $sSmtpLogin = 0, $sSmtpPassword = 0, 
+			$sOutgoingServer, $iOutgoingPort, $bOutgoingUseSsl, $sSmtpAuthType, $sDomains, $bEnableThreading = true, $sSmtpLogin = 0, $sSmtpPassword = 0, 
 			$bEnableSieve = false, $iSievePort = 2000, $sOwnerType = \EMailServerOwnerType::Account, $iTenantId = 0)
 	{
 		try
@@ -68,6 +69,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			$oServer->SmtpLogin = $sSmtpLogin;
 			$oServer->SmtpPassword = $sSmtpPassword;
 			$oServer->Domains = $sDomains;
+			$oServer->EnableThreading = $bEnableThreading;
 			$oServer->EnableSieve = $bEnableSieve;
 			$oServer->SievePort = $iSievePort;
 			if (!$this->oEavManager->saveEntity($oServer))

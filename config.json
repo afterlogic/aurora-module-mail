@@ -39,10 +39,6 @@
 		true,
 		"bool"
 	],
-	"AllowThreads": [
-		true,
-		"bool"
-	],
 	"AlwaysShowImagesInMessage": [
 		false,
 		"bool"

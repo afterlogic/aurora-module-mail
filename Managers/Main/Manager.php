@@ -2656,7 +2656,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 * @param int $iOffset = 0. Offset value for obtaining a partial list.
 	 * @param int $iLimit = 20. Limit value for obtaining a partial list.
 	 * @param string $sSearch = ''. Search text.
-	 * @param bool $bUseThreads = false. If **true**, message list will be returned in threaded mode.
+	 * @param bool $bUseThreading = false. If **true**, message list will be returned in threaded mode.
 	 * @param array $aFilters = array(). Contains filters for searching of messages.
 	 * @param string $sInboxUidnext = ''. Uidnext value of Inbox folder.
 	 *
@@ -2665,7 +2665,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 * @throws \Aurora\System\Exceptions\InvalidArgumentException
 	 */
 	public function getMessageList($oAccount, $sFolderFullNameRaw, $iOffset = 0, $iLimit = 20,
-		$sSearch = '', $bUseThreads = false, $aFilters = array(), $sInboxUidnext = '')
+		$sSearch = '', $bUseThreading = false, $aFilters = array(), $sInboxUidnext = '')
 	{
 		if (0 === strlen($sFolderFullNameRaw) || 0 > $iOffset || 0 >= $iLimit || 999 < $iLimit)
 		{
@@ -2696,10 +2696,11 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		$oMessageCollection->Filters = implode(',', $aFilters);
 
 		$aThreads = array();
-		$bUseThreadsIfSupported = $this->GetModule()->getConfig('AllowThreads');
-		if ($bUseThreadsIfSupported)
+		$oServer = $oAccount->getServer();
+		$bUseThreadingIfSupported = $oServer->EnableThreading && $oAccount->UseThreading;
+		if ($bUseThreadingIfSupported)
 		{
-			$bUseThreadsIfSupported = $bUseThreads;
+			$bUseThreadingIfSupported = $bUseThreading;
 		}
 
 		$oMessageCollection->FolderHash = $aList[3];
@@ -2716,9 +2717,9 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 				$bUseSortIfSupported = $oImapClient->IsSupported('SORT');
 			}
 			
-			if ($bUseThreadsIfSupported)
+			if ($bUseThreadingIfSupported)
 			{
-				$bUseThreadsIfSupported = $oImapClient->IsSupported('THREAD=REFS') || $oImapClient->IsSupported('THREAD=REFERENCES') || $oImapClient->IsSupported('THREAD=ORDEREDSUBJECT');
+				$bUseThreadingIfSupported = $oImapClient->IsSupported('THREAD=REFS') || $oImapClient->IsSupported('THREAD=REFERENCES') || $oImapClient->IsSupported('THREAD=ORDEREDSUBJECT');
 			}
 
 			if (0 < strlen($sSearch) || 0 < count($aFilters))
@@ -2837,7 +2838,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			}
 			else
 			{
-				if ($bUseThreadsIfSupported && 1 < $iMessageCount)
+				if ($bUseThreadingIfSupported && 1 < $iMessageCount)
 				{
 					$bIndexAsUid = true;
 					$aThreadUids = array();
@@ -2944,7 +2945,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			}
 		}
 
-		if (!$bSearch && $bUseThreadsIfSupported && 0 < count($aThreads))
+		if (!$bSearch && $bUseThreadingIfSupported && 0 < count($aThreads))
 		{
 			$oMessageCollection->ForeachList(function (/* @var $oMessage CApiMailMessage */ $oMessage) use ($aThreads) {
 				$iUid = $oMessage->getUid();

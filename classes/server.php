@@ -31,6 +31,7 @@ class CMailServer extends \Aurora\System\EAV\Entity
 		'Domains'	 		=> array('text', ''),
 		'EnableSieve'		=> array('bool', false),
 		'SievePort'			=> array('int',  2000),
+		'EnableThreading'	=> array('bool', true),
 	);	
 
 	public function toResponseArray()
