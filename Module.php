@@ -1897,7 +1897,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$oMessage = false;
 
 		$aTextMimeIndexes = array();
-		$aAscPartsIds = array();
 
 		$aFetchResponse = $oImapClient->Fetch(array(
 			\MailSo\Imap\Enumerations\FetchType::BODYSTRUCTURE), $iUid, true);
@@ -1923,22 +1922,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 				$aParts, 
 				$aCustomParts
 			);
-			
-			$bParseAsc = true;
-			if ($bParseAsc)
-			{
-				$aAscParts = $oBodyStructure->SearchByCallback(function (/* @var $oPart \MailSo\Imap\BodyStructure */ $oPart) {
-					return '.asc' === \strtolower(\substr(\trim($oPart->FileName()), -4));
-				});
-
-				if (\is_array($aAscParts) && 0 < \count($aAscParts))
-				{
-					foreach ($aAscParts as $oPart)
-					{
-						$aAscPartsIds[] = $oPart->PartID();
-					}
-				}
-			}
 		}
 
 		$aFetchItems = array(
@@ -1984,14 +1967,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$aFetchItems[] = \MailSo\Imap\Enumerations\FetchType::BODY_PEEK.'['.$oCustomPart->PartID().']';
 		}
 
-		if (0 < \count($aAscPartsIds))
-		{
-			foreach ($aAscPartsIds as $sPartID)
-			{
-				$aFetchItems[] = \MailSo\Imap\Enumerations\FetchType::BODY_PEEK.'['.$sPartID.']';
-			}
-		}
-
 		if (!$oBodyStructure)
 		{
 			$aFetchItems[] = \MailSo\Imap\Enumerations\FetchType::BODYSTRUCTURE;
@@ -2000,7 +1975,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$aFetchResponse = $oImapClient->Fetch($aFetchItems, $iUid, true);
 		if (0 < \count($aFetchResponse))
 		{
-			$oMessage = \CApiMailMessage::createInstance($Folder, $aFetchResponse[0], $oBodyStructure, $Rfc822MimeIndex, $aAscPartsIds);
+			$oMessage = \CApiMailMessage::createInstance($Folder, $aFetchResponse[0], $oBodyStructure, $Rfc822MimeIndex);
 		}
 
 		if ($oMessage)
@@ -5337,8 +5312,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 		\preg_match("/\<EMailAddress\>(.*?)\<\/EMailAddress\>/", $sInput, $aEmailAddress);
 		if (!empty($aMatches[1]) && !empty($aEmailAddress[1]))
 		{
-			$sIncomingServer = \trim(\Aurora\System\Api::GetSettings()->GetConf('WebMail/ExternalHostNameOfLocalImap'));
-			$sOutgoingServer = \trim(\Aurora\System\Api::GetSettings()->GetConf('WebMail/ExternalHostNameOfLocalSmtp'));
+			$sIncomingServer = \trim($this->getConfig('ExternalHostNameOfLocalImap'));
+			$sOutgoingServer = \trim($this->getConfig('ExternalHostNameOfLocalSmtp'));
 
 			if (0 < \strlen($sIncomingServer) && 0 < \strlen($sOutgoingServer))
 			{

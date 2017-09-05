@@ -676,13 +676,12 @@ class CApiMailMessage
 	 * @param \MailSo\Imap\FetchResponse $oFetchResponse FetchResponse object.
 	 * @param \MailSo\Imap\BodyStructure $oBodyStructure = null. BodyStructure object.
 	 * @param string $sRfc822SubMimeIndex = ''. Index at which a message is taken to parse. Index is used if the message is another message attachment.
-	 * @param array $aAscPartsIds = array(). List of message parts wich is .asc files. It is need for setting content in it's CApiMailAttachment object.
 	 *
 	 * @return CApiMailMessage
 	 */
-	public static function createInstance($sRawFolderFullName, $oFetchResponse, $oBodyStructure = null, $sRfc822SubMimeIndex = '', $aAscPartsIds = array())
+	public static function createInstance($sRawFolderFullName, $oFetchResponse, $oBodyStructure = null, $sRfc822SubMimeIndex = '')
 	{
-		return self::createEmptyInstance()->initialize($sRawFolderFullName, $oFetchResponse, $oBodyStructure, $sRfc822SubMimeIndex, $aAscPartsIds);
+		return self::createEmptyInstance()->initialize($sRawFolderFullName, $oFetchResponse, $oBodyStructure, $sRfc822SubMimeIndex);
 	}
 
 	/**
@@ -692,11 +691,10 @@ class CApiMailMessage
 	 * @param \MailSo\Imap\FetchResponse $oFetchResponse FetchResponse object.
 	 * @param \MailSo\Imap\BodyStructure $oBodyStructure = null. BodyStructure object.
 	 * @param string $sRfc822SubMimeIndex = ''. Index at which a message is taken to parse. Index is used if the message is another message attachment.
-	 * @param array $aAscPartsIds = array(). List of message parts wich is .asc files. It is need for setting content in it's CApiMailAttachment object.
 	 *
 	 * @return CApiMailMessage
 	 */
-	public function initialize($sRawFolderFullName, $oFetchResponse, $oBodyStructure = null, $sRfc822SubMimeIndex = '', $aAscPartsIds = array())
+	public function initialize($sRawFolderFullName, $oFetchResponse, $oBodyStructure = null, $sRfc822SubMimeIndex = '')
 	{
 		if (!$oBodyStructure)
 		{
@@ -1030,14 +1028,17 @@ class CApiMailMessage
 				$this->oAttachments = CApiMailAttachmentCollection::createInstance();
 				foreach ($aAttachmentsParts as /* @var $oAttachmentItem \MailSo\Imap\BodyStructure */ $oAttachmentItem)
 				{
-					$this->oAttachments->Add(
-						CApiMailAttachment::createInstance($this->sFolder, $this->iUid, $oAttachmentItem)
+					$oAttachment = CApiMailAttachment::createInstance($this->sFolder, $this->iUid, $oAttachmentItem);
+					
+					$bGetContent = false;
+					\Aurora\System\Api::GetModuleManager()->broadcastEvent(
+						'Mail',
+						'GetAttachmentContent', 
+						$oAttachment, 
+						$bGetContent
 					);
-				}
-				
-				$this->oAttachments->ForeachList(function ($oAttachment) use ($aAscPartsIds, $oFetchResponse) {
-
-					if ($oAttachment && in_array($oAttachment->getMimeIndex(), $aAscPartsIds))
+					
+					if ($bGetContent)
 					{
 						$mContent = $oFetchResponse->GetFetchValue(\MailSo\Imap\Enumerations\FetchType::BODY.'['.$oAttachment->getMimeIndex().']');
 						if (is_string($mContent))
@@ -1046,7 +1047,9 @@ class CApiMailMessage
 								\MailSo\Base\Utils::DecodeEncodingValue($mContent, $oAttachment->getEncoding()));
 						}
 					}
-				});
+					
+					$this->oAttachments->Add($oAttachment);
+				}
 			}
 		}
 
