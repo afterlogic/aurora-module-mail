@@ -60,7 +60,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$this->oApiFileCache = new \Aurora\System\Managers\Filecache();
 		$this->oApiSieveManager = new Managers\Sieve\Manager('', $this);
 		
-		$this->extendObject('CUser', array(
+		$this->extendObject('\Aurora\Modules\Core\Clases\CUser', array(
 				'AllowAutosaveInDrafts'	=> array('bool', (bool)$this->getConfig('AllowAutosaveInDrafts', false)),
 			)
 		);
@@ -527,7 +527,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			if ($oCoreDecorator)
 			{
 				$oUser = $oCoreDecorator->GetUser($UserId);
-				if ($oUser instanceof \CUser && $oUser->PublicId === $Email && !$this->oApiAccountsManager->useToAuthorizeAccountExists($Email))
+				if ($oUser instanceof \Aurora\Modules\Core\Clases\CUser && $oUser->PublicId === $Email && !$this->oApiAccountsManager->useToAuthorizeAccountExists($Email))
 				{
 					$oAccount->UseToAuthorize = true;
 				}

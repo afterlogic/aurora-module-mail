@@ -2605,7 +2605,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 								foreach ($aAttachmentsParts as /* @var $oAttachmentItem \MailSo\Imap\BodyStructure */ $oAttachmentItem)
 								{
 									$oAttachments->Add(
-										\CApiMailAttachment::createInstance($sFolderFullNameRaw, $sUid, $oAttachmentItem)
+										\Aurora\Modules\Mail\Clases\CApiMailAttachment::createInstance($sFolderFullNameRaw, $sUid, $oAttachmentItem)
 									);
 								}
 

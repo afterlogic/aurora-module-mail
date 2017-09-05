@@ -14,6 +14,9 @@
  * @package Mail
  * @subpackage Classes
  */
+
+namespace Aurora\Modules\Mail\Clases;
+
 class CApiMailAttachment
 {
 	/**
