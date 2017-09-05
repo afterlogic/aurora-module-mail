@@ -41,7 +41,7 @@ class CApiMailFetchersDbStorage extends CApiMailFetchersStorage
 	}
 
 	/**
-	 * @param CAccount $oAccount
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
 	 *
 	 * @return array|bool
 	 */
@@ -67,7 +67,7 @@ class CApiMailFetchersDbStorage extends CApiMailFetchersStorage
 	}
 
 	/**
-	 * @param CAccount $oAccount
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
 	 * @param CFetcher $oFetcher
 	 * @return bool
 	 */
@@ -85,7 +85,7 @@ class CApiMailFetchersDbStorage extends CApiMailFetchersStorage
 	}
 
 	/**
-	 * @param CAccount $oAccount
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
 	 * @param CFetcher $oFetcher
 	 *
 	 * @return bool
@@ -99,7 +99,7 @@ class CApiMailFetchersDbStorage extends CApiMailFetchersStorage
 	}
 
 	/**
-	 * @param CAccount $oAccount
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
 	 * @param int $iFetcherID
 	 *
 	 * @return bool

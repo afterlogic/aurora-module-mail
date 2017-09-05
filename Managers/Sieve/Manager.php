@@ -80,7 +80,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	}
 
 	/**
-	 * @param CAccount $oAccount
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
 	 * @return array
 	 */
 	public function getAutoresponder($oAccount)
@@ -112,7 +112,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	}
 
 	/**
-	 * @param CAccount $oAccount
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
 	 * @param string $sSubject
 	 * @param string $sText
 	 * @param bool $bEnabled
@@ -147,7 +147,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	}
 
 	/**
-	 * @param CAccount $oAccount
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
 	 * 
 	 * @return bool
 	 */
@@ -168,7 +168,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 //	}
 
 	/**
-	 * @param CAccount $oAccount
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
 	 * 
 	 * @return array
 	 */
@@ -194,7 +194,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	}
 
 	/**
-	 * @param CAccount $oAccount
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
 	 * @param string $sForward
 	 * @param bool $bEnabled Default true
 	 * 
@@ -404,7 +404,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	}
 
 	/**
-	 * @param CAccount $oAccount
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
 	 * @param string $sForward
 	 * @param bool $bEnabled = true
 	 * 
@@ -426,7 +426,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * @depricated
 	 * 
-	 * @param CAccount $oAccount
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
 	 * @param string $sSectionName Default ''
 	 * @param string $sSectionData Default ''
 	 * 
@@ -444,7 +444,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	}
 
 	/**
-	 * @param CAccount $oAccount
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
 	 * @return string
 	 */
 	public function getFiltersRawData($oAccount)
@@ -454,7 +454,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	}
 
 	/**
-	 * @param CAccount $oAccount
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
 	 * @param string $sFiltersRawData
 	 * @return bool
 	 */
@@ -471,7 +471,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	}
 
 	/**
-	 * @param CAccount $oAccount
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
 	 * @return \MailSo\Sieve\ManageSieveClient|false
 	 */
 	protected function _getSieveDriver(\CMailAccount $oAccount)
@@ -496,7 +496,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	}
 
 	/**
-	 * @param CAccount $oAccount
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
 	 * 
 	 * @return \MailSo\Sieve\ManageSieveClient|false
 	 */
@@ -538,7 +538,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	}
 
 	/**
-	 * @param CAccount $oAccount
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
 	 * 
 	 * @return string|false
 	 */
@@ -566,7 +566,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	}
 
 	/**
-	 * @param CAccount $oAccount
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
 	 * @param string $sText
 	 * 
 	 * @return bool
@@ -603,7 +603,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	}
 
 	/**
-	 * @param CAccount $oAccount
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
 	 * 
 	 * @return bool
 	 */
@@ -614,7 +614,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	}
 
 	/**
-	 * @param CAccount $oAccount
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
 	 * 
 	 * @param bool $bForced Default false
 	 */

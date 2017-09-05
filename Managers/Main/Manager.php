@@ -129,13 +129,13 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * Creates a new instance of ImapClient class.
 	 * 
-	 * @param CAccount $oAccount Account object.
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount Account object.
 	 * @param type $iForceConnectTimeOut = 0. The value overrides connection timeout value.
 	 * @param type $iForceSocketTimeOut = 0. The value overrides socket timeout value.
 	 *
 	 * @return \MailSo\Imap\ImapClient|null 
 	 */
-	public function &getImapClient(CAccount $oAccount, $iForceConnectTimeOut = 0, $iForceSocketTimeOut = 0)
+	public function &getImapClient(\Aurora\Modules\StandardAuth\Classes\Account $oAccount, $iForceConnectTimeOut = 0, $iForceSocketTimeOut = 0)
 	{
 		$oImap = false;
 		try
@@ -182,7 +182,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * Updates information on system folders use.
 	 * 
-	 * @param CAccount $oAccount Account object.
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount Account object.
 	 * @param array $aSystemNames Array containing mapping of folder types and their actual IMAP names.
 	 *
 	 * @return bool
@@ -222,7 +222,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * Gets information about system folders of the account.
 	 * 
-	 * @param CAccount $oAccount Account object.
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount Account object.
 	 *
 	 * @return array|bool
 	 */
@@ -276,7 +276,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * Initializes system folders.
 	 * 
-	 * @param CAccount $oAccount Account object.
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount Account object.
 	 * @param CApiMailFolderCollection $oFolderCollection Collection of folders.
 	 * @param bool $bCreateUnExistenSystemFilders Create non-existen system folders.
 	 *
@@ -578,7 +578,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * Obtains folders order.
 	 * 
-	 * @param CAccount $oAccount Account object.
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount Account object.
 	 *
 	 * @return array
 	 */
@@ -599,7 +599,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * Updates folders order.
 	 * 
-	 * @param CAccount $oAccount Account object.
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount Account object.
 	 * @param array $aOrder New folders order.
 	 *
 	 * @return bool
@@ -613,7 +613,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * Creates a new folder using its full name in IMAP folders tree. 
 	 * 
-	 * @param CAccount $oAccount Account object.
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount Account object.
 	 * @param string $sFolderFullNameRaw Raw full name of the folder.
 	 * @param bool $bSubscribeOnCreation = true. If **true** the folder will be subscribed and thus made visible in the interface.
 	 * 
@@ -686,7 +686,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * Checks if particular extension is supported.
 	 * 
-	 * @param CAccount $oAccount Account object.
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount Account object.
 	 * @param string $sExtensionName Extension name.
 	 *
 	 * @return bool
@@ -705,7 +705,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * Obtains information about particular folder.
 	 * 
-	 * @param CAccount $oAccount Account object.
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount Account object.
 	 * @param string $sFolderFullNameRaw Raw full name of the folder.
 	 *
 	 * @return array array containing the following elements:
@@ -729,7 +729,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * Retrieves information about new message, primarily used for Inbox folder. 
 	 * 
-	 * @param CAccount $oAccount Account object.
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount Account object.
 	 * @param string $sFolderFullNameRaw Raw full name of the folder.
 	 * @param string $sUidnext UIDNEXT value used for this operation.
 	 *
@@ -875,7 +875,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * Creates a new folder.
 	 * 
-	 * @param CAccount $oAccount Account object.
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount Account object.
 	 * @param string $sFolderNameInUtf8 Folder name in utf8.
 	 * @param string $sDelimiter IMAP delimiter value.
 	 * @param string $sFolderParentFullNameRaw = ''. Parent folder this new one is created under.
@@ -916,7 +916,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * Deletes folder.
 	 * 
-	 * @param CAccount $oAccount Account object.
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount Account object.
 	 * @param string $sFolderFullNameRaw Raw full name of the folder.
 	 * @param bool $bUnsubscribeOnDeletion = true. If **true** the folder will be unsubscribed along with its deletion.
 	 *
@@ -942,7 +942,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * Changes folder's name.
 	 * 
-	 * @param CAccount $oAccount Account object.
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount Account object.
 	 * @param string $sPrevFolderFullNameRaw Raw full name of the folder.
 	 * @param string $sNewTopFolderNameInUtf8 = ''. New name for the folder in utf8.
 	 *
@@ -1028,7 +1028,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * Subscribes to IMAP folder or unsubscribes from it.
 	 * 
-	 * @param CAccount $oAccount Account object.
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount Account object.
 	 * @param string $sFolderFullNameRaw Raw full name of the folder. 
 	 * @param bool $bSubscribeAction = true. If **true** the folder will be subscribed, otherwise unsubscribed.
 	 *
@@ -1056,7 +1056,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * Purges all the content of a particular folder.
 	 * 
-	 * @param CAccount $oAccount Account object.
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount Account object.
 	 * @param string $sFolderFullNameRaw Raw full name of the folder.
 	 *
 	 * @return void
@@ -1089,7 +1089,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * Deletes one or several messages from IMAP.
 	 * 
-	 * @param CAccount $oAccount Account object.
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount Account object.
 	 * @param string $sFolderFullNameRaw Folder the messages are to be deleted from.
 	 * @param array $aUids List of message UIDs.
 	 * 
@@ -1121,7 +1121,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * Moves message from one folder to another.
 	 * 
-	 * @param CAccount $oAccount Account object.
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount Account object.
 	 * @param string $sFromFolderFullNameRaw Raw full name of the source folder.
 	 * @param string $sToFolderFullNameRaw Raw full name of the destination folder.
 	 * @param array $aUids List of message UIDs.
@@ -1156,7 +1156,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * Copies one or several message from one folder to another.
 	 * 
-	 * @param CAccount $oAccount Account object.
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount Account object.
 	 * @param string $sFromFolderFullNameRaw Raw full name of source folder.
 	 * @param string $sToFolderFullNameRaw Raw full name of destination folder.
 	 * @param array $aUids List of message UIDs.
@@ -1183,7 +1183,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * Sends message out.
 	 * 
-	 * @param CAccount $oAccount Account object.
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount Account object.
 	 * @param \MailSo\Mime\Message $oMessage Message to be sent out.
 	 * @param CFetcher $oFetcher = null. Fetcher object which may override sending settings.
 	 * @param string $sSentFolder = ''. Name of Sent folder.
@@ -1366,7 +1366,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * Saves message to a specific folder. The method is primarily used for saving drafts.
 	 * 
-	 * @param CAccount $oAccount Account object.
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount Account object.
 	 * @param \MailSo\Mime\Message $oMessage Object representing message to be saved.
 	 * @param string $sDraftFolder Folder the message is saved to.
 	 * @param string $sDraftUid = ''. UID of the message to be replaced; saving new draft removes the previous version.
@@ -1432,7 +1432,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * Appends message from file to a specific folder.
 	 * 
-	 * @param CAccount $oAccount Account object.
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount Account object.
 	 * @param string $sMessageFileName Path to .eml file.
 	 * @param string $sFolderToAppend Folder the message is appended to.
 	 *
@@ -1447,7 +1447,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * Appends message from stream to a specific folder.
 	 * 
-	 * @param CAccount $oAccount Account object.
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount Account object.
 	 * @param resource $rMessage Resource the message is appended from.
 	 * @param string $sFolder Folder the message is appended to.
 	 * @param int $iStreamSize Size of stream.
@@ -1464,7 +1464,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * Sets, removes or toggles flags of one or several messages.
 	 * 
-	 * @param CAccount $oAccount Account object.
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount Account object.
 	 * @param string $sFolderFullNameRaw Raw full name of the folder.
 	 * @param array $aUids List of message UIDs .
 	 * @param string $sFlagString String holding a list of flags to be modified.
@@ -1552,7 +1552,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * Searches for a message with a specific Message-ID value and returns it's uid.
 	 * 
-	 * @param CAccount $oAccount Account object.
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount Account object.
 	 * @param string $sFolderName Name of the folder to look for message in.
 	 * @param string $sMessageId Message-ID value of the message.
 	 *
@@ -1577,7 +1577,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * Retrieves quota information for the account.
 	 * 
-	 * @param CAccount $oAccount Account object.
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount Account object.
 	 *
 	 * @return array|bool Array of quota values or bool if the information is unavailable.
 	 */
@@ -1591,7 +1591,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * This is universal function for obtaining any MIME data via stream.
 	 * 
-	 * @param CAccount $oAccount Account object.
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount Account object.
 	 * @param mixed $mCallback This callback accepts the following parameters: $rMessageMimeIndexStream, $sContentType, $sFileName, $sMimeIndex.
 	 * @param string $sFolderName Folder the message resides in.
 	 * @param int $iUid UID of the message we're working with.
@@ -2812,7 +2812,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * Obtains a list of specific messages.
 	 * 
-	 * @param CAccount $oAccount Account object.
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount Account object.
 	 * @param string $sFolderFullNameRaw Raw full name of the folder.
 	 * @param array $aUids List of message UIDs.
 	 *
@@ -2926,7 +2926,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * Obtains list of flags for one or several messages.
 	 * 
-	 * @param CAccount $oAccount Account object.
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount Account object.
 	 * @param string $sFolderFullNameRaw Raw full name of the folder.
 	 * @param array $aUids List of message UIDs.
 	 *

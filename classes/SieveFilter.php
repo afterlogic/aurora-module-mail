@@ -26,7 +26,7 @@ namespace Aurora\Modules\Mail\Classes;
 class SieveFilter extends \Aurora\System\AbstractContainer
 {
 	/**
-	 * @param CAccount $oAccount
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
 	 */
 	public function __construct(\CMailAccount $oAccount)
 	{

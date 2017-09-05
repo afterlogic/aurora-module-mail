@@ -5107,7 +5107,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	
 	/**
 	 * Builds message for further sending or saving.
-	 * @param \CAccount $oAccount
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
 	 * @param string $sTo Message recipients.
 	 * @param string $sCc Recipients which will get a copy of the message.
 	 * @param string $sBcc Recipients which will get a hidden copy of the message.

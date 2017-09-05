@@ -40,9 +40,9 @@
 class CFetcher extends \Aurora\System\AbstractContainer
 {
 	/**
-	 * @param CAccount $oAccount
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
 	 */
-	public function __construct(CAccount $oAccount)
+	public function __construct(\Aurora\Modules\StandardAuth\Classes\Account $oAccount)
 	{
 		parent::__construct(get_class($this));
 

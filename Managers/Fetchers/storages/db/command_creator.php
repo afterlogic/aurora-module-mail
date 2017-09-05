@@ -15,7 +15,7 @@
 class CApiMailFetchersCommandCreator extends \Aurora\System\Db\CommandCreator
 {
 	/**
-	 * @param CAccount $oAccount
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
 	 * @return string
 	 */
 	public function getFetchers($oAccount)
@@ -30,7 +30,7 @@ class CApiMailFetchersCommandCreator extends \Aurora\System\Db\CommandCreator
 	}
 
 	/**
-	 * @param CAccount $oAccount
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
 	 * @param int $iFetcherID
 	 * @return string
 	 */
@@ -43,7 +43,7 @@ class CApiMailFetchersCommandCreator extends \Aurora\System\Db\CommandCreator
 	}
 
 	/**
-	 * @param CAccount $oAccount
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
 	 * @param CFetcher $oFetcher
 	 * @return string
 	 */
@@ -61,7 +61,7 @@ class CApiMailFetchersCommandCreator extends \Aurora\System\Db\CommandCreator
 	}
 
 	/**
-	 * @param CAccount $oAccount
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
 	 * @param CFetcher $oFetcher
 	 * @return string
 	 */
