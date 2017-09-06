@@ -217,7 +217,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		return true;
 	}
 	
-	public function createFilterInstance(\CMailAccount $oAccount, $aData)
+	public function createFilterInstance(\Aurora\Modules\Mail\Classes\Account $oAccount, $aData)
 	{
 		$oFilter = null;
 		
@@ -474,10 +474,10 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
 	 * @return \MailSo\Sieve\ManageSieveClient|false
 	 */
-	protected function _getSieveDriver(\CMailAccount $oAccount)
+	protected function _getSieveDriver(\Aurora\Modules\Mail\Classes\Account $oAccount)
 	{
 		$oSieve = false;
-		if ($oAccount instanceof \CMailAccount)
+		if ($oAccount instanceof \Aurora\Modules\Mail\Classes\Account)
 		{
 			if (!isset($this->aSieves[$oAccount->Email]))
 			{

@@ -52,13 +52,13 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * Returns ImapClient object from cache.
 	 * 
-	 * @param CMailAccount $oAccount Account object.
+	 * @param Aurora\Modules\Mail\Classes\Account $oAccount Account object.
 	 * @param int $iForceConnectTimeOut = 0. The value overrides connection timeout value.
 	 * @param int $iForceSocketTimeOut = 0. The value overrides socket timeout value.
 	 *
 	 * @return \MailSo\Imap\ImapClient|null
 	 */
-	public function &_getImapClient(\CMailAccount $oAccount, $iForceConnectTimeOut = 0, $iForceSocketTimeOut = 0)
+	public function &_getImapClient(\Aurora\Modules\Mail\Classes\Account $oAccount, $iForceConnectTimeOut = 0, $iForceSocketTimeOut = 0)
 	{
 		$oResult = null;
 		if ($oAccount)
@@ -90,7 +90,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			if (!$oResult->IsConnected())
 			{
 				$oServer = $oAccount->getServer();
-				if ($oServer instanceof \CMailServer)
+				if ($oServer instanceof \Aurora\Modules\Mail\Classes\Server)
 				{
 					try 
 					{
@@ -152,7 +152,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * Checks if user of the account can successfully connect to mail server.
 	 * 
-	 * @param CMailAccount $oAccount Account object.
+	 * @param Aurora\Modules\Mail\Classes\Account $oAccount Account object.
 	 * 
 	 * @return void
 	 *
@@ -192,7 +192,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		foreach ($aSystemNames as $sKey => $iTypeValue)
 		{
 			$aEntities = $this->oEavManager->getEntities(
-				'CSystemFolder', 
+				'Aurora\Modules\Mail\Classes\SystemFolder', 
 				array(),
 				0,
 				1,
@@ -201,9 +201,9 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 					'Type' => $iTypeValue
 				)
 			);
-			$oSystemFolder = new \CSystemFolder($this->GetModule()->GetName());
+			$oSystemFolder = new \Aurora\Modules\Mail\Classes\SystemFolder($this->GetModule()->GetName());
 			
-			if (count($aEntities) > 0 && $aEntities[0] instanceof \CSystemFolder)
+			if (count($aEntities) > 0 && $aEntities[0] instanceof \Aurora\Modules\Mail\Classes\SystemFolder)
 			{
 				$oSystemFolder = $aEntities[0];
 			}
@@ -230,7 +230,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	{
 		$aFolders = array();
 		$aEntities = $this->oEavManager->getEntities(
-			'CSystemFolder', 
+			'Aurora\Modules\Mail\Classes\SystemFolder', 
 			array(),
 			0,
 			9,
@@ -261,7 +261,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		$iOffset = 0;
 		$iLimit = 0;
 		$aFilters = array('IdAccount' => array($iAccountId, '='));
-		$aSystemFolders = $this->oEavManager->getEntities('CSystemFolder',  array(), $iOffset, $iLimit, $aFilters);
+		$aSystemFolders = $this->oEavManager->getEntities('Aurora\Modules\Mail\Classes\SystemFolder',  array(), $iOffset, $iLimit, $aFilters);
 		if (is_array($aSystemFolders))
 		{
 			foreach ($aSystemFolders as $oSystemFolder)
@@ -277,7 +277,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 * Initializes system folders.
 	 * 
 	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount Account object.
-	 * @param CApiMailFolderCollection $oFolderCollection Collection of folders.
+	 * @param \Aurora\Modules\Mail\Classes\FolderCollection $oFolderCollection Collection of folders.
 	 * @param bool $bCreateUnExistenSystemFilders Create non-existen system folders.
 	 *
 	 * @return bool
@@ -288,28 +288,28 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		try
 		{
 			$aFoldersMap = array(
-				\EFolderType::Inbox => array('INBOX', 'Inbox'),
-				\EFolderType::Drafts => array('Drafts', 'Draft'),
-				\EFolderType::Sent => array('Sent', 'Sent Items', 'Sent Mail'),
-				\EFolderType::Spam => array('Spam', 'Junk', 'Junk Mail', 'Junk E-mail', 'Bulk Mail'),
-				\EFolderType::Trash => array('Trash', 'Bin', 'Deleted', 'Deleted Items'),
+				\Aurora\Modules\Mail\Enums\FolderType::Inbox => array('INBOX', 'Inbox'),
+				\Aurora\Modules\Mail\Enums\FolderType::Drafts => array('Drafts', 'Draft'),
+				\Aurora\Modules\Mail\Enums\FolderType::Sent => array('Sent', 'Sent Items', 'Sent Mail'),
+				\Aurora\Modules\Mail\Enums\FolderType::Spam => array('Spam', 'Junk', 'Junk Mail', 'Junk E-mail', 'Bulk Mail'),
+				\Aurora\Modules\Mail\Enums\FolderType::Trash => array('Trash', 'Bin', 'Deleted', 'Deleted Items'),
 			);
 			
-			unset($aFoldersMap[\EFolderType::Inbox]);
+			unset($aFoldersMap[\Aurora\Modules\Mail\Enums\FolderType::Inbox]);
 			
 			$aTypes = [
-				\EFolderType::Inbox, 
-				\EFolderType::Drafts, 
-				\EFolderType::Sent, 
-				\EFolderType::Spam, 
-				\EFolderType::Trash
+				\Aurora\Modules\Mail\Enums\FolderType::Inbox, 
+				\Aurora\Modules\Mail\Enums\FolderType::Drafts, 
+				\Aurora\Modules\Mail\Enums\FolderType::Sent, 
+				\Aurora\Modules\Mail\Enums\FolderType::Spam, 
+				\Aurora\Modules\Mail\Enums\FolderType::Trash
 			];
 
 			$aUnExistenSystemNames = array();
 			$aSystemNames = $this->getSystemFolderNames($oAccount);
 
 			$oInbox = $oFolderCollection->getFolder('INBOX');
-			$oInbox->setType(\EFolderType::Inbox);
+			$oInbox->setType(\Aurora\Modules\Mail\Enums\FolderType::Inbox);
 
 			if (is_array($aSystemNames) && 0 < count($aSystemNames))
 			{
@@ -321,7 +321,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 					$iKey = array_search($iFolderType, $aTypes);
 					if (false !== $iKey)
 					{
-						$oFolder = /* @var $oFolder CApiMailFolder */ $oFolderCollection->getFolder($sSystemFolderFullName, true);
+						$oFolder = /* @var $oFolder \Aurora\Modules\Mail\Classes\Folder */ $oFolderCollection->getFolder($sSystemFolderFullName, true);
 						if ($oFolder)
 						{
 							unset($aTypes[$iKey]);
@@ -336,11 +336,11 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			else
 			{
 				// set system type from flags
-				$oFolderCollection->foreachWithSubFolders(function (/* @var $oFolder CApiMailFolder */ $oFolder) use (&$aTypes, &$aFoldersMap) {
+				$oFolderCollection->foreachWithSubFolders(function (/* @var $oFolder \Aurora\Modules\Mail\Classes\Folder */ $oFolder) use (&$aTypes, &$aFoldersMap) {
 						$iXListType = $oFolder->getFolderXListType();
 						$iKey = array_search($iXListType, $aTypes);
 
-						if (false !== $iKey && \EFolderType::Custom === $oFolder->getType() && isset($aFoldersMap[$iXListType]))
+						if (false !== $iKey && \Aurora\Modules\Mail\Enums\FolderType::Custom === $oFolder->getType() && isset($aFoldersMap[$iXListType]))
 						{
 							unset($aTypes[$iKey]);
 							unset($aFoldersMap[$iXListType]);
@@ -353,8 +353,8 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 				if (is_array($aFoldersMap) && 0 < count($aFoldersMap))
 				{
 					$oFolderCollection->foreachOnlyRoot(
-						function (/* @var $oFolder CApiMailFolder */ $oFolder) use (&$aFoldersMap) {
-							if (\EFolderType::Custom === $oFolder->getType())
+						function (/* @var $oFolder \Aurora\Modules\Mail\Classes\Folder */ $oFolder) use (&$aFoldersMap) {
+							if (\Aurora\Modules\Mail\Enums\FolderType::Custom === $oFolder->getType())
 							{
 								foreach ($aFoldersMap as $iFolderType => $aFoldersNames)
 								{
@@ -421,7 +421,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	{
 		$bResult = false;
 		$aEntities = $this->oEavManager->getEntities(
-			'CSender', 
+			'Aurora\Modules\Mail\Classes\Sender', 
 			array(),
 			0,
 			1,
@@ -443,7 +443,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		$bResult = true;
 		if (!$this->isSafetySender($iIdUser, $sEmail))
 		{
-			$oEntity = \CSender::createInstance($this->GetName());
+			$oEntity = \Aurora\Modules\Mail\Classes\Sender::createInstance($this->GetName());
 			
 			$oEntity->IdUser = $iIdUser;
 			$oEntity->Email = $sEmail;
@@ -455,10 +455,10 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * Obtains the list of IMAP folders.
 	 * 
-	 * @param CMailAccount $oAccount Account object.
+	 * @param Aurora\Modules\Mail\Classes\Account $oAccount Account object.
 	 * @param bool $bCreateUnExistenSystemFolders = true. Creating folders is required for WebMail work, usually it is done on first login to the account.
 	 *
-	 * @return CApiMailFolderCollection Collection of folders.
+	 * @return \Aurora\Modules\Mail\Classes\FolderCollection Collection of folders.
 	 */
 	public function getFolders($oAccount, $bCreateUnExistenSystemFolders = true)
 	{
@@ -490,7 +490,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
 			foreach ($aFolders as /* @var $oImapFolder \MailSo\Imap\Folder */ $oImapFolder)
 			{
-				$aMailFoldersHelper[] = \CApiMailFolder::createInstance($oImapFolder,
+				$aMailFoldersHelper[] = \Aurora\Modules\Mail\Classes\Folder::createInstance($oImapFolder,
 					in_array($oImapFolder->FullNameRaw(), $aImapSubscribedFoldersHelper) || $oImapFolder->IsInbox()
 				);
 			}
@@ -498,7 +498,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
 		if (is_array($aMailFoldersHelper))
 		{
-			$oFolderCollection = \CApiMailFolderCollection::createInstance();
+			$oFolderCollection = \Aurora\Modules\Mail\Classes\FolderCollection::createInstance();
 
 			if ($oNamespace)
 			{
@@ -525,7 +525,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
 			if (!$aFoldersOrderList)
 			{
-				if (\EFolderType::Custom !== $oFolderA->getType() || \EFolderType::Custom !== $oFolderB->getType())
+				if (\Aurora\Modules\Mail\Enums\FolderType::Custom !== $oFolderA->getType() || \Aurora\Modules\Mail\Enums\FolderType::Custom !== $oFolderB->getType())
 				{
 					if ($oFolderA->getType() === $oFolderB->getType())
 					{
@@ -559,7 +559,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		if (null === $aFoldersOrderList)
 		{
 			$aNewFoldersOrderList = array();
-			$oFolderCollection->foreachWithSubFolders(function (/* @var $oFolder CApiMailFolder */ $oFolder) use (&$aNewFoldersOrderList) {
+			$oFolderCollection->foreachWithSubFolders(function (/* @var $oFolder \Aurora\Modules\Mail\Classes\Folder */ $oFolder) use (&$aNewFoldersOrderList) {
 				if ($oFolder)
 				{
 					$aNewFoldersOrderList[] = $oFolder->getRawFullName();
@@ -812,7 +812,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * Obtains information about particular folders.
 	 * 
-	 * @param CMailAccount $oAccount Account object.
+	 * @param Aurora\Modules\Mail\Classes\Account $oAccount Account object.
 	 * @param array $aFolderFullNamesRaw Array containing a list of folder names to obtain information for.
 	 *
 	 * @return array Array containing elements like those returned by **getFolderInformation** method. 
@@ -835,7 +835,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			{
 				foreach ($aFolders as /* @var $oImapFolder \MailSo\Imap\Folder */ $oImapFolder)
 				{
-					$oFolder = \CApiMailFolder::createInstance($oImapFolder, true);
+					$oFolder = \Aurora\Modules\Mail\Classes\Folder::createInstance($oImapFolder, true);
 					if ($oFolder)
 					{
 						$mStatus = $oFolder->getStatus();
@@ -1185,7 +1185,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 * 
 	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount Account object.
 	 * @param \MailSo\Mime\Message $oMessage Message to be sent out.
-	 * @param CFetcher $oFetcher = null. Fetcher object which may override sending settings.
+	 * @param \Aurora\Modules\Mail\Classes\Fetcher $oFetcher = null. Fetcher object which may override sending settings.
 	 * @param string $sSentFolder = ''. Name of Sent folder.
 	 * @param string $sDraftFolder = ''. Name of Sent folder.
 	 * @param string $sDraftUid = ''. Last UID value of the message saved in Drafts folder.
@@ -1468,7 +1468,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 * @param string $sFolderFullNameRaw Raw full name of the folder.
 	 * @param array $aUids List of message UIDs .
 	 * @param string $sFlagString String holding a list of flags to be modified.
-	 * @param int $iAction = EMailMessageStoreAction::Add. Flag triggering mode.
+	 * @param int $iAction = \Aurora\Modules\Mail\Enums\MessageListSortType::Add. Flag triggering mode.
 	 * @param bool $bSetToAll = false. If **true** flags will be applied to all messages in folder.
 	 * @param bool $bSkipNonPermanentsFlags = false. If **true** flags wich is not permanent will be skipped.
 	 *
@@ -1477,7 +1477,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 * @throws \Aurora\System\Exceptions\InvalidArgumentException
 	 */
 	public function setMessageFlag($oAccount, $sFolderFullNameRaw, $aUids, $sFlagString,
-		$iAction = \EMailMessageStoreAction::Add, $bSetToAll = false, $bSkipNonPermanentsFlags = false)
+		$iAction = \Aurora\Modules\Mail\Enums\MessageListSortType::Add, $bSetToAll = false, $bSkipNonPermanentsFlags = false)
 	{
 		if (0 === strlen($sFolderFullNameRaw) || (!$bSetToAll && (!is_array($aUids) || 0 === count($aUids))))
 		{
@@ -1534,13 +1534,13 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		$sResultAction = \MailSo\Imap\Enumerations\StoreAction::ADD_FLAGS_SILENT;
 		switch ($iAction)
 		{
-			case \EMailMessageStoreAction::Add:
+			case \Aurora\Modules\Mail\Enums\MessageListSortType::Add:
 				$sResultAction = \MailSo\Imap\Enumerations\StoreAction::ADD_FLAGS_SILENT;
 				break;
-			case \EMailMessageStoreAction::Remove:
+			case \Aurora\Modules\Mail\Enums\MessageListSortType::Remove:
 				$sResultAction = \MailSo\Imap\Enumerations\StoreAction::REMOVE_FLAGS_SILENT;
 				break;
-			case \EMailMessageStoreAction::Set:
+			case \Aurora\Modules\Mail\Enums\MessageListSortType::Set:
 				$sResultAction = \MailSo\Imap\Enumerations\StoreAction::SET_FLAGS_SILENT;
 				break;
 		}
@@ -2494,7 +2494,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * Obtains message list with messages data.
 	 * 
-	 * @param CMailAccount $oAccount Account object.
+	 * @param Aurora\Modules\Mail\Classes\Account $oAccount Account object.
 	 * @param string $sFolderFullNameRaw Raw full name of the folder.
 	 * @param int $iOffset = 0. Offset value for obtaining a partial list.
 	 * @param int $iLimit = 20. Limit value for obtaining a partial list.
@@ -2503,7 +2503,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 * @param array $aFilters = array(). Contains filters for searching of messages.
 	 * @param string $sInboxUidnext = ''. Uidnext value of Inbox folder.
 	 *
-	 * @return CApiMailMessageCollection
+	 * @return \Aurora\Modules\Mail\Classes\MessageCollection
 	 *
 	 * @throws \Aurora\System\Exceptions\InvalidArgumentException
 	 */
@@ -2529,7 +2529,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		$iMessageUnseenCount = $aList[1];
 		$sUidNext = $aList[2];
 
-		$oMessageCollection = \CApiMailMessageCollection::createInstance();
+		$oMessageCollection = \Aurora\Modules\Mail\Classes\MessageCollection::createInstance();
 
 		$oMessageCollection->FolderName = $sFolderFullNameRaw;
 		$oMessageCollection->Offset = $iOffset;
@@ -2601,11 +2601,11 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 							$aAttachmentsParts = $oBodyStructure->SearchAttachmentsParts();
 							if ($aAttachmentsParts && 0 < count($aAttachmentsParts))
 							{
-								$oAttachments = \CApiMailAttachmentCollection::createInstance();
+								$oAttachments = \Aurora\Modules\Mail\Classes\AttachmentCollection::createInstance();
 								foreach ($aAttachmentsParts as /* @var $oAttachmentItem \MailSo\Imap\BodyStructure */ $oAttachmentItem)
 								{
 									$oAttachments->Add(
-										\Aurora\Modules\Mail\Clases\CApiMailAttachment::createInstance($sFolderFullNameRaw, $sUid, $oAttachmentItem)
+										\Aurora\Modules\Mail\Classes\Attachment::createInstance($sFolderFullNameRaw, $sUid, $oAttachmentItem)
 									);
 								}
 
@@ -2770,7 +2770,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 							{
 								if (isset($aFetchIndexArray[$iFUid]))
 								{
-									$oMailMessage = \CApiMailMessage::createInstance(
+									$oMailMessage = \Aurora\Modules\Mail\Classes\Message::createInstance(
 										$oMessageCollection->FolderName, $aFetchIndexArray[$iFUid]);
 
 									if (!$bIndexAsUid)
@@ -2790,7 +2790,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
 		if (!$bSearch && $bUseThreadingIfSupported && 0 < count($aThreads))
 		{
-			$oMessageCollection->ForeachList(function (/* @var $oMessage CApiMailMessage */ $oMessage) use ($aThreads) {
+			$oMessageCollection->ForeachList(function (/* @var $oMessage \Aurora\Modules\Mail\Classes\Message */ $oMessage) use ($aThreads) {
 				$iUid = $oMessage->getUid();
 				if (isset($aThreads[$iUid]) && is_array($aThreads[$iUid]))
 				{
@@ -2816,7 +2816,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 * @param string $sFolderFullNameRaw Raw full name of the folder.
 	 * @param array $aUids List of message UIDs.
 	 *
-	 * @return CApiMailMessageCollection
+	 * @return \Aurora\Modules\Mail\Classes\MessageCollection
 	 *
 	 * @throws \Aurora\System\Exceptions\InvalidArgumentException
 	 */
@@ -2839,7 +2839,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		$iMessageUnseenCount = $aList[1];
 		$sUidNext = $aList[2];
 
-		$oMessageCollection = \CApiMailMessageCollection::createInstance();
+		$oMessageCollection = \Aurora\Modules\Mail\Classes\MessageCollection::createInstance();
 
 		$oMessageCollection->FolderName = $sFolderFullNameRaw;
 		$oMessageCollection->Offset = 0;
@@ -2897,7 +2897,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 							{
 								if (isset($aFetchIndexArray[$iFUid]))
 								{
-									$oMailMessage = \CApiMailMessage::createInstance(
+									$oMailMessage = \Aurora\Modules\Mail\Classes\Message::createInstance(
 										$oMessageCollection->FolderName, $aFetchIndexArray[$iFUid]);
 
 									if (!$bIndexAsUid)
@@ -2930,7 +2930,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 * @param string $sFolderFullNameRaw Raw full name of the folder.
 	 * @param array $aUids List of message UIDs.
 	 *
-	 * @return CApiMailMessageCollection
+	 * @return \Aurora\Modules\Mail\Classes\MessageCollection
 	 *
 	 * @throws \Aurora\System\Exceptions\InvalidArgumentException
 	 */

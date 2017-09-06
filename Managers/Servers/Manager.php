@@ -51,11 +51,11 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 */
 	public function createServer($sName, $sIncomingServer, $iIncomingPort, $bIncomingUseSsl,
 			$sOutgoingServer, $iOutgoingPort, $bOutgoingUseSsl, $sSmtpAuthType, $sDomains, $bEnableThreading = true, $sSmtpLogin = 0, $sSmtpPassword = 0, 
-			$bEnableSieve = false, $iSievePort = 2000, $sOwnerType = \EMailServerOwnerType::Account, $iTenantId = 0)
+			$bEnableSieve = false, $iSievePort = 2000, $sOwnerType = \Aurora\Modules\Mail\Enums\ServerOwnerType::Account, $iTenantId = 0)
 	{
 		try
 		{
-			$oServer = new \CMailServer($this->oModule->GetName());
+			$oServer = new \Aurora\Modules\Mail\Classes\Server($this->oModule->GetName());
 			$oServer->OwnerType = $sOwnerType;
 			$oServer->TenantId = $iTenantId;
 			$oServer->Name = $sName;
@@ -99,7 +99,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		try
 		{
 			$oServer = $this->getServer($iServerId);
-			if ($oServer && ($oServer->OwnerType !== \EMailServerOwnerType::Tenant || $oServer->TenantId === $iTenantId))
+			if ($oServer && ($oServer->OwnerType !== \Aurora\Modules\Mail\Enums\ServerOwnerType::Tenant || $oServer->TenantId === $iTenantId))
 			{
 				$bResult = $this->oEavManager->deleteEntity($iServerId);
 			}
@@ -146,7 +146,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		try
 		{
 			$aResult = $this->oEavManager->getEntities(
-				'CMailServer', 
+				'Aurora\Modules\Mail\Classes\Server', 
 				array(),
 				0,
 				999,
@@ -190,15 +190,15 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		$aFilters = [];
 		if ($iTenantId === 0)
 		{
-			$aFilters = ['OwnerType' => [\EMailServerOwnerType::SuperAdmin, '=']];
+			$aFilters = ['OwnerType' => [\Aurora\Modules\Core\Classes\Aurora\Modules\Mail\Enums\ServerOwnerType::SuperAdmin, '=']];
 		}
 		else
 		{
 			$aFilters = ['OR' => [
-				'OwnerType' => [\EMailServerOwnerType::SuperAdmin, '='],
+				'OwnerType' => [\Aurora\Modules\Mail\Enums\ServerOwnerType::SuperAdmin, '='],
 				'AND' => [
 					'TenantId' => [$iTenantId, '='],
-					'OwnerType' => [\EMailServerOwnerType::Tenant, '='],
+					'OwnerType' => [\Aurora\Modules\Mail\Enums\ServerOwnerType::Tenant, '='],
 				],
 			]];
 		}
@@ -206,7 +206,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		try
 		{
 			$aResult = $this->oEavManager->getEntities(
-				'CMailServer', 
+				'Aurora\Modules\Mail\Classes\Server', 
 				array(),
 				$iOffset,
 				$iLimit,
@@ -226,11 +226,11 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	
 	/**
 	 * 
-	 * @param instanceof \CMailServer
+	 * @param instanceof \Aurora\Modules\Mail\Classes\Server
 	 * @return boolean
 	 * @throws \Aurora\System\Exceptions\ManagerException
 	 */
-	public function updateServer(\CMailServer $oServer)
+	public function updateServer(\Aurora\Modules\Mail\Classes\Server $oServer)
 	{
 		$bResult = false;
 		

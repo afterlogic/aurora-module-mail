@@ -32,7 +32,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * 
 	 * @param int $iAccountId
-	 * @return boolean|CMailAccount
+	 * @return boolean|Aurora\Modules\Mail\Classes\Account
 	 * @throws \Aurora\System\Exceptions\BaseException
 	 */
 	public function getAccountById($iAccountId)
@@ -60,7 +60,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * 
 	 * @param int $iAccountId
-	 * @return boolean|CMailAccount
+	 * @return boolean|Aurora\Modules\Mail\Classes\Account
 	 * @throws \Aurora\System\Exceptions\BaseException
 	 */
 	public function getAccountByEmail($sEmail)
@@ -71,7 +71,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			if (is_string($sEmail))
 			{
 				$aResults = $this->oEavManager->getEntities(
-					'CMailAccount',
+					'Aurora\Modules\Mail\Classes\Account',
 					array(),
 					0,
 					0,
@@ -104,7 +104,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 * 
 	 * @param string $sEmail
 	 * @param string $sIncomingPassword
-	 * @return CMailAccount|boolean
+	 * @return Aurora\Modules\Mail\Classes\Account|boolean
 	 */
 	public function getUseToAuthorizeAccount($sEmail, $sIncomingPassword)
 	{
@@ -112,7 +112,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		try
 		{
 			$aResults = $this->oEavManager->getEntities(
-				'CMailAccount', 
+				'Aurora\Modules\Mail\Classes\Account', 
 				array(),
 				0,
 				0,
@@ -149,7 +149,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		try
 		{
 			$aResults = $this->oEavManager->getEntities(
-				'CMailAccount', 
+				'Aurora\Modules\Mail\Classes\Account', 
 				array(
 					'Email'
 				),
@@ -191,7 +191,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		try
 		{
 			$mResult = $this->oEavManager->getEntities(
-				'CMailAccount',
+				'Aurora\Modules\Mail\Classes\Account',
 				array(),
 				0,
 				0,
@@ -217,7 +217,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		try
 		{
 			$mResult = $this->oEavManager->getEntitiesCount(
-				'CMailAccount',
+				'Aurora\Modules\Mail\Classes\Account',
 				array('IdUser' => $iUserId)
 			);
 		}
@@ -230,7 +230,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	}
 	
 	/**
-	 * @param CMailAccount $oAccount
+	 * @param Aurora\Modules\Mail\Classes\Account $oAccount
 	 *
 	 * @return bool
 	 */
@@ -249,17 +249,17 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	}
 	
 	/**
-	 * @param CMailAccount $oAccount
+	 * @param Aurora\Modules\Mail\Classes\Account $oAccount
 	 *
 	 * @return bool
 	 */
-	public function isExists(\CMailAccount $oAccount)
+	public function isExists(\Aurora\Modules\Mail\Classes\Account $oAccount)
 	{
 		$bResult = false;
 		try
 		{
 			$aResults = $this->oEavManager->getEntities(
-				'CMailAccount',
+				'Aurora\Modules\Mail\Classes\Account',
 				['Email'],
 				0,
 				0,
@@ -284,11 +284,11 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	}
 	
 	/**
-	 * @param CMailAccount $oAccount
+	 * @param Aurora\Modules\Mail\Classes\Account $oAccount
 	 *
 	 * @return bool
 	 */
-	public function createAccount (\CMailAccount &$oAccount)
+	public function createAccount (\Aurora\Modules\Mail\Classes\Account &$oAccount)
 	{
 		$bResult = false;
 		try
@@ -320,11 +320,11 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	}
 	
 	/**
-	 * @param CMailAccount $oAccount
+	 * @param Aurora\Modules\Mail\Classes\Account $oAccount
 	 *
 	 * @return bool
 	 */
-	public function updateAccount (\CMailAccount &$oAccount)
+	public function updateAccount (\Aurora\Modules\Mail\Classes\Account &$oAccount)
 	{
 		$bResult = false;
 		try
@@ -349,13 +349,13 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	}
 	
 	/**
-	 * @param CMailAccount $oAccount
+	 * @param Aurora\Modules\Mail\Classes\Account $oAccount
 	 *
 	 * @throws $oException
 	 *
 	 * @return bool
 	 */
-	public function deleteAccount(\CMailAccount $oAccount)
+	public function deleteAccount(\Aurora\Modules\Mail\Classes\Account $oAccount)
 	{
 		$bResult = false;
 		try

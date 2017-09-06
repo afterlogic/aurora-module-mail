@@ -33,25 +33,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function init() 
 	{
-		$this->incClasses(
-			array(
-				'account',
-				'identity',
-				'fetcher',
-				'enum',
-				'folder',
-				'folder-collection',
-				'message',
-				'message-collection',
-				'attachment',
-				'attachment-collection',
-				'ics',
-				'vcard',
-				'server',
-				'system-folder',
-				'sender'
-			)
-		);
 		
 		$this->oApiAccountsManager = new Managers\Accounts\Manager('', $this);
 		$this->oApiServersManager = new Managers\Servers\Manager('', $this);
@@ -60,7 +41,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$this->oApiFileCache = new \Aurora\System\Managers\Filecache();
 		$this->oApiSieveManager = new Managers\Sieve\Manager('', $this);
 		
-		$this->extendObject('\Aurora\Modules\Core\Clases\CUser', array(
+		$this->extendObject('Aurora\Modules\Core\Classes\User', array(
 				'AllowAutosaveInDrafts'	=> array('bool', (bool)$this->getConfig('AllowAutosaveInDrafts', false)),
 			)
 		);
@@ -392,7 +373,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	/**
 	 * Obtains mail account with specified identifier.
 	 * @param int $AccountId Identifier of mail account to obtain.
-	 * @return \CMailAccount|boolean
+	 * @return \Aurora\Modules\Mail\Classes\Account|boolean
 	 */
 	public function GetAccount($AccountId)
 	{
@@ -487,7 +468,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param string $IncomingLogin Login for IMAP connection.
 	 * @param string $IncomingPassword Password for IMAP connection.
 	 * @param array $Server List of settings for IMAP and SMTP connections.
-	 * @return \CMailAccount|boolean
+	 * @return \Aurora\Modules\Mail\Classes\Account|boolean
 	 */
 	public function CreateAccount($UserId = 0, $FriendlyName = '', $Email = '', $IncomingLogin = '', 
 			$IncomingPassword = '', $Server = null)
@@ -511,7 +492,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 				$bCustomServerCreated = true;
 			}
 
-			$oAccount = new \CMailAccount($this->GetName());
+			$oAccount = new \Aurora\Modules\Mail\Classes\Account($this->GetName());
 
 			$oAccount->IdUser = $UserId;
 			$oAccount->FriendlyName = $FriendlyName;
@@ -527,7 +508,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			if ($oCoreDecorator)
 			{
 				$oUser = $oCoreDecorator->GetUser($UserId);
-				if ($oUser instanceof \Aurora\Modules\Core\Clases\CUser && $oUser->PublicId === $Email && !$this->oApiAccountsManager->useToAuthorizeAccountExists($Email))
+				if ($oUser instanceof \Aurora\Modules\Core\Classes\User && $oUser->PublicId === $Email && !$this->oApiAccountsManager->useToAuthorizeAccountExists($Email))
 				{
 					$oAccount->UseToAuthorize = true;
 				}
@@ -659,7 +640,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 					elseif ($oAccount->ServerId === $Server['ServerId'])
 					{
 						$oAccServer = $oAccount->getServer();
-						if ($oAccServer && $oAccServer->OwnerType === \EMailServerOwnerType::Account)
+						if ($oAccServer && $oAccServer->OwnerType === \Aurora\Modules\Mail\Enums\ServerOwnerType::Account)
 						{
 							$oAccServer->Name = $Server['IncomingServer'];
 							$oAccServer->IncomingServer = $Server['IncomingServer'];
@@ -676,7 +657,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 					else
 					{
 						$oAccServer = $oAccount->getServer();
-						if ($oAccServer && $oAccServer->OwnerType === \EMailServerOwnerType::Account)
+						if ($oAccServer && $oAccServer->OwnerType === \Aurora\Modules\Mail\Enums\ServerOwnerType::Account)
 						{
 							$this->oApiServersManager->deleteServer($oAccServer->EntityId);
 						}
@@ -772,7 +753,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 				$this->oApiMailManager->deleteSystemFolderNames($oAccount->EntityId);
 				$bServerRemoved = true;
 				$oServer = $oAccount->getServer();
-				if ($oServer->OwnerType === \EMailServerOwnerType::Account)
+				if ($oServer->OwnerType === \Aurora\Modules\Mail\Enums\ServerOwnerType::Account)
 				{
 					$bServerRemoved = $this->oApiServersManager->deleteServer($oServer->EntityId);
 				}
@@ -919,7 +900,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	/**
 	 * Obtains server with specified server identifier.
 	 * @param int $ServerId Server identifier.
-	 * @return \CMailServer|boolean
+	 * @return \Aurora\Modules\Mail\Classes\Server|boolean
 	 */
 	public function GetServer($ServerId)
 	{
@@ -1011,7 +992,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$OutgoingServer, $OutgoingPort, $OutgoingUseSsl, $SmtpAuthType, $Domains, $EnableThreading, $EnableSieve, 
 			$SievePort, $SmtpLogin = '', $SmtpPassword = '', $TenantId = 0)
 	{
-		$sOwnerType = ($TenantId === 0) ? \EMailServerOwnerType::SuperAdmin : \EMailServerOwnerType::Tenant;
+		$sOwnerType = ($TenantId === 0) ? \Aurora\Modules\Mail\Enums\ServerOwnerType::SuperAdmin : \Aurora\Modules\Mail\Enums\ServerOwnerType::Tenant;
 		
 		if ($TenantId === 0)
 		{
@@ -1746,7 +1727,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			if (\is_numeric($iUid))
 			{
 				$oMessage = $this->GetMessage($AccountID, $Folder, (string) $iUid);
-				if ($oMessage instanceof \CApiMailMessage)
+				if ($oMessage instanceof \Aurora\Modules\Mail\Classes\Message)
 				{
 					$aList[] = $oMessage;
 				}
@@ -1866,7 +1847,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param string $Folder Folder full name.
 	 * @param string $Uid Message uid.
 	 * @param string $Rfc822MimeIndex If specified obtains message from attachment of another message.
-	 * @return \CApiMailMessage
+	 * @return \Aurora\Modules\Mail\Classes\Message
 	 * @throws \Aurora\System\Exceptions\ApiException
 	 * @throws CApiInvalidArgumentException
 	 */
@@ -1975,7 +1956,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$aFetchResponse = $oImapClient->Fetch($aFetchItems, $iUid, true);
 		if (0 < \count($aFetchResponse))
 		{
-			$oMessage = \CApiMailMessage::createInstance($Folder, $aFetchResponse[0], $oBodyStructure, $Rfc822MimeIndex);
+			$oMessage = \Aurora\Modules\Mail\Classes\Message::createInstance($Folder, $aFetchResponse[0], $oBodyStructure, $Rfc822MimeIndex, $aAscPartsIds);
 		}
 
 		if ($oMessage)
@@ -2018,7 +1999,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$this->broadcastEvent('ExtendMessageData', $aData, $oMessage);
 		}
 
-		if (!($oMessage instanceof \CApiMailMessage))
+		if (!($oMessage instanceof \Aurora\Modules\Mail\Classes\Message))
 		{
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::CanNotGetMessage);
 		}
@@ -2223,7 +2204,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 
 		return $this->oApiMailManager->setMessageFlag($oAccount, $Folder, array(),
-			\MailSo\Imap\Enumerations\MessageFlag::SEEN, \EMailMessageStoreAction::Add, true);
+			\MailSo\Imap\Enumerations\MessageFlag::SEEN, \Aurora\Modules\Mail\Enums\MessageListSortType::Add, true);
 	}
 
 	/**
@@ -3189,7 +3170,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$aFetchers = $oApiFetchers->getFetchers($oAccount);
 			if (\is_array($aFetchers) && 0 < \count($aFetchers))
 			{
-				foreach ($aFetchers as /* @var $oFetcherItem \CFetcher */ $oFetcherItem)
+				foreach ($aFetchers as /* @var $oFetcherItem \Aurora\Modules\Mail\Classes\Fetcher */ $oFetcherItem)
 				{
 					if ($oFetcherItem && $iFetcherID === $oFetcherItem->IdFetcher && $oAccount->IdUser === $oFetcherItem->IdUser)
 					{
@@ -3336,7 +3317,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$aFetchers = $this->oApiFetchersManager->getFetchers($oAccount);
 			if (\is_array($aFetchers) && 0 < count($aFetchers))
 			{
-				foreach ($aFetchers as /* @var $oFetcherItem \CFetcher */ $oFetcherItem)
+				foreach ($aFetchers as /* @var $oFetcherItem \Aurora\Modules\Mail\Classes\Fetcher */ $oFetcherItem)
 				{
 					if ($oFetcherItem && $iFetcherID === $oFetcherItem->IdFetcher && $oAccount->IdUser === $oFetcherItem->IdUser)
 					{
@@ -3419,13 +3400,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 							$this->oApiMailManager->setMessageFlag($oAccount,
 								$sDraftInfoFolder, array($sDraftInfoUid),
 								\MailSo\Imap\Enumerations\MessageFlag::ANSWERED,
-								\EMailMessageStoreAction::Add);
+								\Aurora\Modules\Mail\Enums\MessageListSortType::Add);
 							break;
 						case 'forward':
 							$this->oApiMailManager->setMessageFlag($oAccount,
 								$sDraftInfoFolder, array($sDraftInfoUid),
 								'$Forwarded',
-								\EMailMessageStoreAction::Add);
+								\Aurora\Modules\Mail\Enums\MessageListSortType::Add);
 							break;
 					}
 				}
@@ -3437,7 +3418,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 				try
 				{
 					$mResult = $this->oApiMailManager->setMessageFlag($oAccount, $ConfirmFolder, array($ConfirmUid), '$ReadConfirm', 
-						\EMailMessageStoreAction::Add, false, true);
+						\Aurora\Modules\Mail\Enums\MessageListSortType::Add, false, true);
 				}
 				catch (\Exception $oException) {}
 			}
@@ -3516,19 +3497,19 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$aData = array();
 		if (0 < \strlen(\trim($Sent)))
 		{
-			$aData[$Sent] = \EFolderType::Sent;
+			$aData[$Sent] = \Aurora\Modules\Mail\Enums\FolderType::Sent;
 		}
 		if (0 < \strlen(\trim($Drafts)))
 		{
-			$aData[$Drafts] = \EFolderType::Drafts;
+			$aData[$Drafts] = \Aurora\Modules\Mail\Enums\FolderType::Drafts;
 		}
 		if (0 < \strlen(\trim($Trash)))
 		{
-			$aData[$Trash] = \EFolderType::Trash;
+			$aData[$Trash] = \Aurora\Modules\Mail\Enums\FolderType::Trash;
 		}
 		if (0 < \strlen(\trim($Spam)))
 		{
-			$aData[$Spam] = \EFolderType::Spam;
+			$aData[$Spam] = \Aurora\Modules\Mail\Enums\FolderType::Spam;
 		}
 
 		return $this->oApiMailManager->setSystemFolderNames($oAccount, $aData);
@@ -4047,7 +4028,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$sError = '';
 		$aResponse = array();
 
-		if ($oAccount instanceof \CMailAccount)
+		if ($oAccount instanceof \Aurora\Modules\Mail\Classes\Account)
 		{
 			if (\is_array($UploadData))
 			{
@@ -4156,7 +4137,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
-		if ($oAccount instanceof \CMailAccount)
+		if ($oAccount instanceof \Aurora\Modules\Mail\Classes\Account)
 		{
 			$sUUID = \Aurora\System\Api::getUserUUIDById($oAccount->IdUser);
 			try
@@ -4278,7 +4259,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
-		if ($oAccount instanceof \CMailAccount)
+		if ($oAccount instanceof \Aurora\Modules\Mail\Classes\Account)
 		{
 			$sUUID = \Aurora\System\Api::getUserUUIDById($oAccount->IdUser);
 			try
@@ -4995,7 +4976,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			}
 			if ($oServer)
 			{
-				$oAccount = \Aurora\System\EAV\Entity::createInstance('CMailAccount', $this->GetName());
+				$oAccount = \Aurora\System\EAV\Entity::createInstance('Aurora\Modules\Mail\Classes\Account', $this->GetName());
 				$oAccount->Email = $aArgs['Login'];
 				$oAccount->IncomingLogin = $aArgs['Login'];
 				$oAccount->IncomingPassword = $aArgs['Password'];
@@ -5004,7 +4985,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			}
 		}
 		
-		if ($oAccount instanceof \CMailAccount)
+		if ($oAccount instanceof \Aurora\Modules\Mail\Classes\Account)
 		{
 			try
 			{
@@ -5078,7 +5059,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 
 		return $this->oApiMailManager->setMessageFlag($oAccount, $sFolderFullNameRaw, $aUids, $sFlagName,
-			$bSetAction ? \EMailMessageStoreAction::Add : \EMailMessageStoreAction::Remove);
+			$bSetAction ? \Aurora\Modules\Mail\Enums\MessageListSortType::Add : \Aurora\Modules\Mail\Enums\MessageListSortType::Remove);
 	}
 	
 	/**
@@ -5121,9 +5102,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param int $iImportance Importance of the message - LOW = 5, NORMAL = 3, HIGH = 1.
 	 * @param int $iSensitivity Sensitivity header for the message, its value will be returned: 1 for "Confidential", 2 for "Private", 3 for "Personal". 
 	 * @param boolean $bSendReadingConfirmation Indicates if it is necessary to include header that says
-	 * @param \CFetcher $oFetcher
+	 * @param \Aurora\Modules\Mail\Classes\Fetcher $oFetcher
 	 * @param boolean $bWithDraftInfo
-	 * @param \CMailIdentity $oIdentity
+	 * @param \Aurora\Modules\Mail\Classes\Identity $oIdentity
 	 * @return \MailSo\Mime\Message
 	 */
 	private function buildMessage($oAccount, $sTo = '', $sCc = '', $sBcc = '', 

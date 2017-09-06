@@ -20,7 +20,7 @@ class CApiMailFetchersCommandCreator extends \Aurora\System\Db\CommandCreator
 	 */
 	public function getFetchers($oAccount)
 	{
-		$aMap = \Aurora\System\AbstractContainer::DbReadKeys(CFetcher::getStaticMap());
+		$aMap = \Aurora\System\AbstractContainer::DbReadKeys(\Aurora\Modules\Mail\Classes\Fetcher::getStaticMap());
 		$aMap = array_map(array($this, 'escapeColumn'), $aMap);
 
 		$sSql = 'SELECT %s FROM %sawm_fetchers WHERE %s = %d';
@@ -44,7 +44,7 @@ class CApiMailFetchersCommandCreator extends \Aurora\System\Db\CommandCreator
 
 	/**
 	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
-	 * @param CFetcher $oFetcher
+	 * @param \Aurora\Modules\Mail\Classes\Fetcher $oFetcher
 	 * @return string
 	 */
 	public function createFetcher($oAccount, $oFetcher)
@@ -62,7 +62,7 @@ class CApiMailFetchersCommandCreator extends \Aurora\System\Db\CommandCreator
 
 	/**
 	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
-	 * @param CFetcher $oFetcher
+	 * @param \Aurora\Modules\Mail\Classes\Fetcher $oFetcher
 	 * @return string
 	 */
 	public function updateFetcher($oAccount, $oFetcher)

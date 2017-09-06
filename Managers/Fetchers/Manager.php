@@ -21,7 +21,7 @@ class Manager extends \Aurora\System\Managers\AbstractManagerWithStorage
 	}
 
 	/**
-	 * @param CFetcher $oFetcher
+	 * @param \Aurora\Modules\Mail\Classes\Fetcher $oFetcher
 	 *
 	 * @return \MailSo\Pop3\Pop3Client|null
 	 */
@@ -50,7 +50,7 @@ class Manager extends \Aurora\System\Managers\AbstractManagerWithStorage
 
 	/**
 	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
-	 * @param CFetcher $oFetcher
+	 * @param \Aurora\Modules\Mail\Classes\Fetcher $oFetcher
 	 *
 	 * @return bool
 	 */
@@ -122,7 +122,7 @@ class Manager extends \Aurora\System\Managers\AbstractManagerWithStorage
 
 	/**
 	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
-	 * @param CFetcher $oFetcher
+	 * @param \Aurora\Modules\Mail\Classes\Fetcher $oFetcher
 	 *
 	 * @return bool
 	 */

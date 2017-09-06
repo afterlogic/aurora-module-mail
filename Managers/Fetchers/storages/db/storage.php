@@ -55,7 +55,7 @@ class CApiMailFetchersDbStorage extends CApiMailFetchersStorage
 
 			while (false !== ($oRow = $this->oConnection->GetNextRecord()))
 			{
-				$oFetcher = new CFetcher($oAccount);
+				$oFetcher = new \Aurora\Modules\Mail\Classes\Fetcher($oAccount);
 				$oFetcher->InitByDbRow($oRow);
 				
 				$mResult[] = $oFetcher;
@@ -68,7 +68,7 @@ class CApiMailFetchersDbStorage extends CApiMailFetchersStorage
 
 	/**
 	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
-	 * @param CFetcher $oFetcher
+	 * @param \Aurora\Modules\Mail\Classes\Fetcher $oFetcher
 	 * @return bool
 	 */
 	public function createFetcher($oAccount, &$oFetcher)
@@ -86,7 +86,7 @@ class CApiMailFetchersDbStorage extends CApiMailFetchersStorage
 
 	/**
 	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
-	 * @param CFetcher $oFetcher
+	 * @param \Aurora\Modules\Mail\Classes\Fetcher $oFetcher
 	 *
 	 * @return bool
 	 */
