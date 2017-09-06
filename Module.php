@@ -1956,7 +1956,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$aFetchResponse = $oImapClient->Fetch($aFetchItems, $iUid, true);
 		if (0 < \count($aFetchResponse))
 		{
-			$oMessage = \Aurora\Modules\Mail\Classes\Message::createInstance($Folder, $aFetchResponse[0], $oBodyStructure, $Rfc822MimeIndex, $aAscPartsIds);
+			$oMessage = \Aurora\Modules\Mail\Classes\Message::createInstance($Folder, $aFetchResponse[0], $oBodyStructure, $Rfc822MimeIndex);
 		}
 
 		if ($oMessage)
