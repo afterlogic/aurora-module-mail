@@ -34,15 +34,20 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function init() 
 	{
 		
-		$this->oApiAccountsManager = new Managers\Accounts\Manager('', $this);
-		$this->oApiServersManager = new Managers\Servers\Manager('', $this);
-		$this->oApiIdentitiesManager = new Managers\Identities\Manager('', $this);
-		$this->oApiMailManager = new Managers\Main\Manager('', $this);
+		$this->oApiAccountsManager = new Managers\Accounts\Manager($this);
+		$this->oApiServersManager = new Managers\Servers\Manager($this);
+		$this->oApiIdentitiesManager = new Managers\Identities\Manager($this);
+		$this->oApiMailManager = new Managers\Main\Manager($this);
 		$this->oApiFileCache = new \Aurora\System\Managers\Filecache();
-		$this->oApiSieveManager = new Managers\Sieve\Manager('', $this);
+		$this->oApiSieveManager = new Managers\Sieve\Manager($this);
 		
-		$this->extendObject('Aurora\Modules\Core\Classes\User', array(
-				'AllowAutosaveInDrafts'	=> array('bool', (bool)$this->getConfig('AllowAutosaveInDrafts', false)),
+		$this->extendObject('Aurora\Modules\Core\Classes\User', 
+			array(
+				'AllowAutosaveInDrafts'	=> 
+					array(
+						'bool', 
+						(bool) $this->getConfig('AllowAutosaveInDrafts', false)
+					),
 			)
 		);
 

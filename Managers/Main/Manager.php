@@ -33,11 +33,11 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * Initializes manager property.
 	 * 
-	 * @param \Aurora\System\Managers\GlobalManager &$oManager Manager object.
+	 * @param \Aurora\System\Module\AbstractModule $oModule
 	 * 
 	 * @return void
 	 */
-	public function __construct($sForcedStorage = '', \Aurora\System\Module\AbstractModule $oModule = null)
+	public function __construct(\Aurora\System\Module\AbstractModule $oModule = null)
 	{
 		parent::__construct($oModule);
 
