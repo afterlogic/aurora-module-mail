@@ -41,13 +41,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$this->oApiFileCache = new \Aurora\System\Managers\Filecache();
 		$this->oApiSieveManager = new Managers\Sieve\Manager($this);
 		
-		$this->extendObject('Aurora\Modules\Core\Classes\User', 
+		$this->extendObject(
+			'Aurora\Modules\Core\Classes\User', 
 			array(
-				'AllowAutosaveInDrafts'	=> 
-					array(
-						'bool', 
-						(bool) $this->getConfig('AllowAutosaveInDrafts', false)
-					),
+				'AllowAutosaveInDrafts'	=> array(
+					'bool', 
+					(bool) $this->getConfig('AllowAutosaveInDrafts', false)
+				),
 			)
 		);
 
