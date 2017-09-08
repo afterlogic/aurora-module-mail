@@ -12,10 +12,11 @@
  * @package Fetchers
  * @subpackage Storages
  */
-class CApiMailFetchersStorage extends \Aurora\System\Managers\AbstractManagerStorage
+class CApiMailFetchersStorage extends \Aurora\System\Managers\AbstractStorage
 {
 	/**
-	 * @param \Aurora\System\Managers\GlobalManager &$oManager
+	 * 
+	 * @param \Aurora\System\Managers\AbstractManager $oManager
 	 */
 	public function __construct($sStorageName, \Aurora\System\Managers\AbstractManager &$oManager)
 	{

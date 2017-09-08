@@ -13,7 +13,8 @@ namespace Aurora\Modules\Mail\Managers\Fetchers;
 class Manager extends \Aurora\System\Managers\AbstractManagerWithStorage
 {
 	/**
-	 * @param \Aurora\System\Managers\GlobalManager &$oManager
+	 * 
+	 * @param \Aurora\System\Managers\AbstractManager $oManager
 	 */
 	public function __construct($sForcedStorage = '', \Aurora\System\Module\AbstractModule $oModule = null)
 	{

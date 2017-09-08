@@ -54,7 +54,6 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	{
 		parent::__construct($oModule);
 
-//		\Aurora\System\Api::Inc('common.net.protocols.sieve');
 		$oMailModule = \Aurora\System\Api::GetModule('Mail'); 
 		
 		$this->aSieves = array();
