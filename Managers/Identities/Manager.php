@@ -172,7 +172,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		try
 		{
 			$aResult = $this->oEavManager->getEntities(
-				'Aurora\Modules\Mail\Classes\Identity', 
+				$this->getModule()->getNamespace() . '\Classes\Identity',
 				array(),
 				$iOffset,
 				$iLimit,
@@ -202,7 +202,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		$iOffset = 0;
 		$iLimit = 0;
 		$aFilters = array('IdAccount' => array($iAccountId, '='));
-		$aIdentities = $this->oEavManager->getEntities('Aurora\Modules\Mail\Classes\Identity', array(), $iOffset, $iLimit, $aFilters);
+		$aIdentities = $this->oEavManager->getEntities($this->getModule()->getNamespace() . '\Classes\Identity', array(), $iOffset, $iLimit, $aFilters);
 		if (is_array($aIdentities))
 		{
 			foreach ($aIdentities as $oIdentity)

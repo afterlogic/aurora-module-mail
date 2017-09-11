@@ -145,7 +145,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		try
 		{
 			$aResult = $this->oEavManager->getEntities(
-				'Aurora\Modules\Mail\Classes\Server', 
+				$this->getModule()->getNamespace() . '\Classes\Server',
 				array(),
 				0,
 				999,
@@ -205,7 +205,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		try
 		{
 			$aResult = $this->oEavManager->getEntities(
-				'Aurora\Modules\Mail\Classes\Server', 
+				$this->getModule()->getNamespace() . '\Classes\Server',
 				array(),
 				$iOffset,
 				$iLimit,

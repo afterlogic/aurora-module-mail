@@ -192,7 +192,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		foreach ($aSystemNames as $sKey => $iTypeValue)
 		{
 			$aEntities = $this->oEavManager->getEntities(
-				'Aurora\Modules\Mail\Classes\SystemFolder', 
+				$this->getModule()->getNamespace() . '\Classes\SystemFolder',
 				array(),
 				0,
 				1,
@@ -230,7 +230,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	{
 		$aFolders = array();
 		$aEntities = $this->oEavManager->getEntities(
-			'Aurora\Modules\Mail\Classes\SystemFolder', 
+			$this->getModule()->getNamespace() . '\Classes\SystemFolder',
 			array(),
 			0,
 			9,
@@ -261,7 +261,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		$iOffset = 0;
 		$iLimit = 0;
 		$aFilters = array('IdAccount' => array($iAccountId, '='));
-		$aSystemFolders = $this->oEavManager->getEntities('Aurora\Modules\Mail\Classes\SystemFolder',  array(), $iOffset, $iLimit, $aFilters);
+		$aSystemFolders = $this->oEavManager->getEntities($this->getModule()->getNamespace() . '\Classes\SystemFolder',  array(), $iOffset, $iLimit, $aFilters);
 		if (is_array($aSystemFolders))
 		{
 			foreach ($aSystemFolders as $oSystemFolder)
@@ -421,7 +421,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	{
 		$bResult = false;
 		$aEntities = $this->oEavManager->getEntities(
-			'Aurora\Modules\Mail\Classes\Sender', 
+			$this->getModule()->getNamespace() . '\Classes\Sender',
 			array(),
 			0,
 			1,
