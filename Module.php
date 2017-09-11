@@ -33,7 +33,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function init() 
 	{
-		
 		$this->oApiAccountsManager = new Managers\Accounts\Manager($this);
 		$this->oApiServersManager = new Managers\Servers\Manager($this);
 		$this->oApiIdentitiesManager = new Managers\Identities\Manager($this);
@@ -5370,6 +5369,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		\header('Content-Type: text/xml');
 		$sResult = '<'.'?xml version="1.0" encoding="utf-8"?'.'>'."\n".$sResult;
+		
+		echo $sResult;
 
 		\Aurora\System\Api::Log('');
 		\Aurora\System\Api::Log($sResult);		

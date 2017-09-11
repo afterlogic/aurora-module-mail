@@ -106,5 +106,13 @@
 	"PreferStarttls": [
         true,
         "bool"
-    ]
+    ],
+	"ExternalHostNameOfLocalImap": [
+		"",
+		"string"
+	],
+	"ExternalHostNameOfLocalSmtp": [
+		"",
+		"string"
+	]
 }
