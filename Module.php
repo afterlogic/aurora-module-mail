@@ -2209,7 +2209,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 
 		return $this->oApiMailManager->setMessageFlag($oAccount, $Folder, array(),
-			\MailSo\Imap\Enumerations\MessageFlag::SEEN, \Aurora\Modules\Mail\Enums\MessageListSortType::Add, true);
+			\MailSo\Imap\Enumerations\MessageFlag::SEEN, \Aurora\Modules\Mail\Enums\MessageStoreAction::Add, true);
 	}
 
 	/**
@@ -3405,13 +3405,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 							$this->oApiMailManager->setMessageFlag($oAccount,
 								$sDraftInfoFolder, array($sDraftInfoUid),
 								\MailSo\Imap\Enumerations\MessageFlag::ANSWERED,
-								\Aurora\Modules\Mail\Enums\MessageListSortType::Add);
+								\Aurora\Modules\Mail\Enums\MessageStoreAction::Add);
 							break;
 						case 'forward':
 							$this->oApiMailManager->setMessageFlag($oAccount,
 								$sDraftInfoFolder, array($sDraftInfoUid),
 								'$Forwarded',
-								\Aurora\Modules\Mail\Enums\MessageListSortType::Add);
+								\Aurora\Modules\Mail\Enums\MessageStoreAction::Add);
 							break;
 					}
 				}
@@ -3423,7 +3423,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 				try
 				{
 					$mResult = $this->oApiMailManager->setMessageFlag($oAccount, $ConfirmFolder, array($ConfirmUid), '$ReadConfirm', 
-						\Aurora\Modules\Mail\Enums\MessageListSortType::Add, false, true);
+						\Aurora\Modules\Mail\Enums\MessageStoreAction::Add, false, true);
 				}
 				catch (\Exception $oException) {}
 			}
@@ -5064,7 +5064,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 
 		return $this->oApiMailManager->setMessageFlag($oAccount, $sFolderFullNameRaw, $aUids, $sFlagName,
-			$bSetAction ? \Aurora\Modules\Mail\Enums\MessageListSortType::Add : \Aurora\Modules\Mail\Enums\MessageListSortType::Remove);
+			$bSetAction ? \Aurora\Modules\Mail\Enums\MessageStoreAction::Add : \Aurora\Modules\Mail\Enums\MessageStoreAction::Remove);
 	}
 	
 	/**

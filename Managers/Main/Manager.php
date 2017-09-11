@@ -1468,7 +1468,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 * @param string $sFolderFullNameRaw Raw full name of the folder.
 	 * @param array $aUids List of message UIDs .
 	 * @param string $sFlagString String holding a list of flags to be modified.
-	 * @param int $iAction = \Aurora\Modules\Mail\Enums\MessageListSortType::Add. Flag triggering mode.
+	 * @param int $iAction = \Aurora\Modules\Mail\Enums\MessageStoreAction::Add. Flag triggering mode.
 	 * @param bool $bSetToAll = false. If **true** flags will be applied to all messages in folder.
 	 * @param bool $bSkipNonPermanentsFlags = false. If **true** flags wich is not permanent will be skipped.
 	 *
@@ -1477,7 +1477,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 * @throws \Aurora\System\Exceptions\InvalidArgumentException
 	 */
 	public function setMessageFlag($oAccount, $sFolderFullNameRaw, $aUids, $sFlagString,
-		$iAction = \Aurora\Modules\Mail\Enums\MessageListSortType::Add, $bSetToAll = false, $bSkipNonPermanentsFlags = false)
+		$iAction = \Aurora\Modules\Mail\Enums\MessageStoreAction::Add, $bSetToAll = false, $bSkipNonPermanentsFlags = false)
 	{
 		if (0 === strlen($sFolderFullNameRaw) || (!$bSetToAll && (!is_array($aUids) || 0 === count($aUids))))
 		{
@@ -1534,13 +1534,13 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		$sResultAction = \MailSo\Imap\Enumerations\StoreAction::ADD_FLAGS_SILENT;
 		switch ($iAction)
 		{
-			case \Aurora\Modules\Mail\Enums\MessageListSortType::Add:
+			case \Aurora\Modules\Mail\Enums\MessageStoreAction::Add:
 				$sResultAction = \MailSo\Imap\Enumerations\StoreAction::ADD_FLAGS_SILENT;
 				break;
-			case \Aurora\Modules\Mail\Enums\MessageListSortType::Remove:
+			case \Aurora\Modules\Mail\Enums\MessageStoreAction::Remove:
 				$sResultAction = \MailSo\Imap\Enumerations\StoreAction::REMOVE_FLAGS_SILENT;
 				break;
-			case \Aurora\Modules\Mail\Enums\MessageListSortType::Set:
+			case \Aurora\Modules\Mail\Enums\MessageStoreAction::Set:
 				$sResultAction = \MailSo\Imap\Enumerations\StoreAction::SET_FLAGS_SILENT;
 				break;
 		}
