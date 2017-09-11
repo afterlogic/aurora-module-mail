@@ -8,6 +8,8 @@
  * For full statements of the licenses see LICENSE-AFTERLOGIC and LICENSE-AGPL3 files.
  */
 
+namespace Aurora\Modules\Mail\Classes;
+
 /**
  * @property int $IdUser
  * @property string $Email
@@ -16,9 +18,6 @@
  * @package Mail
  * @subpackage Classes
  */
-
-namespace Aurora\Modules\Mail\Classes;
-
 class Sender extends \Aurora\System\EAV\Entity
 {
 	protected $aStaticMap = array(

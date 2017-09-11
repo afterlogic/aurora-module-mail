@@ -443,7 +443,10 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		$bResult = true;
 		if (!$this->isSafetySender($iIdUser, $sEmail))
 		{
-			$oEntity = \Aurora\Modules\Mail\Classes\Sender::createInstance($this->GetName());
+			$oEntity = \Aurora\System\EAV\Entity::createInstance(
+				$this->getModule()->getNamespace().'\Classes\Sender',
+				$this->getModule()->GetName()
+			);
 			
 			$oEntity->IdUser = $iIdUser;
 			$oEntity->Email = $sEmail;
