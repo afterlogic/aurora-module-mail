@@ -101,10 +101,9 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * 
 	 * @param string $sEmail
-	 * @param string $sIncomingPassword
 	 * @return Aurora\Modules\Mail\Classes\Account|boolean
 	 */
-	public function getUseToAuthorizeAccount($sEmail, $sIncomingPassword)
+	public function getAccountUsedToAuthorize($sEmail)
 	{
 		$oAccount = false;
 		try
@@ -117,7 +116,6 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 				array(
 					'Email' => $sEmail,
 					'IsDisabled' => false,
-					'IncomingPassword' => $sIncomingPassword,
 					'UseToAuthorize' => [true, '=']
 				)
 			);

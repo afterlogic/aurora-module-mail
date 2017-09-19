@@ -4962,11 +4962,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$bResult = false;
 		$oServer = null;
 		
-		$oAccount = $this->oApiAccountsManager->getUseToAuthorizeAccount(
-			$aArgs['Login'], 
-			$aArgs['Password']
-		);
+		$oAccount = $this->oApiAccountsManager->getAccountUsedToAuthorize($aArgs['Login']);
 
+		
 		$bNewAccount = false;
 		$bAllowNewUsersRegister = $this->getConfig('AllowNewUsersRegister', false);
 		if ($bAllowNewUsersRegister && !$oAccount)
@@ -4995,7 +4993,16 @@ class Module extends \Aurora\System\Module\AbstractModule
 			{
 				if ($bAllowNewUsersRegister || !$bNewAccount)
 				{
+					$bNeedToUpdatePassword = $aArgs['Password'] !== $oAccount->IncomingPassword;
+					$oAccount->IncomingPassword = $aArgs['Password'];
+					
 					$this->oApiMailManager->validateAccountConnection($oAccount);
+					
+					if ($bNeedToUpdatePassword) 
+					{
+						$this->oApiAccountsManager->updateAccount($oAccount);
+					}
+					
 					$bResult =  true;
 				}
 
