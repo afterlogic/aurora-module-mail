@@ -5393,13 +5393,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
 			$aConfig = array(
 				'new_tab' => true,
-				'modules_list' => array(
-					'MailWebclient', 
-					'ContactsWebclient', 
-					'CalendarWebclient', 
-					'MailSensitivityWebclientPlugin', 
-					'OpenPgpWebclient'
-				)
+				'modules_list' => $oApiIntegrator->GetModulesForEntry('MailWebclient')
 			);
 
 			$oCoreWebclientModule = \Aurora\System\Api::GetModule('CoreWebclient');
