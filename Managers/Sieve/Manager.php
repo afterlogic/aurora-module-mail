@@ -50,16 +50,14 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * @param \Aurora\System\Module\AbstractModule $oModule
 	 */
-	public function __construct(\Aurora\System\Module\AbstractModule $oModule = null)
+	public function __construct(\Aurora\System\Module\AbstractModule $oModule)
 	{
 		parent::__construct($oModule);
 
-		$oMailModule = \Aurora\System\Api::GetModule('Mail'); 
-		
 		$this->aSieves = array();
 		$this->sGeneralPassword = '';
-		$this->sSieveFileName = $oMailModule->getConfig('SieveFileName', 'sieve');
-		$this->sSieveFolderCharset = $oMailModule->getConfig('SieveFiltersFolderCharset', 'utf-8');
+		$this->sSieveFileName = $oModule->getConfig('SieveFileName', 'sieve');
+		$this->sSieveFolderCharset = $oModule->getConfig('SieveFiltersFolderCharset', 'utf-8');
 		$this->bSectionsParsed = false;
 		$this->aSectionsData = array();
 		$this->aSectionsOrders = array(
