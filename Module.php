@@ -2005,7 +2005,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		if (!($oMessage instanceof \Aurora\Modules\Mail\Classes\Message))
 		{
-			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::CanNotGetMessage);
+			throw new \Aurora\System\Exceptions\ApiException(Notifications::CanNotGetMessage);
 		}
 
 		return $oMessage;
@@ -2289,12 +2289,12 @@ class Module extends \Aurora\System\Module\AbstractModule
 		catch (\MailSo\Imap\Exceptions\NegativeResponseException $oException)
 		{
 			$oResponse = /* @var $oResponse \MailSo\Imap\Response */ $oException->GetLastResponse();
-			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::CanNotMoveMessageQuota, $oException,
+			throw new \Aurora\System\Exceptions\ApiException(Notifications::CanNotMoveMessageQuota, $oException,
 				$oResponse instanceof \MailSo\Imap\Response ? $oResponse->Tag.' '.$oResponse->StatusOrIndex.' '.$oResponse->HumanReadable : '');
 		}
 		catch (\Exception $oException)
 		{
-			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::CanNotMoveMessage, $oException,
+			throw new \Aurora\System\Exceptions\ApiException(Notifications::CanNotMoveMessage, $oException,
 				$oException->getMessage());
 		}
 
@@ -3198,7 +3198,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			}
 			catch (\Aurora\System\Exceptions\ManagerException $oException)
 			{
-				$iCode = \Aurora\System\Notifications::CanNotSaveMessage;
+				$iCode = Notifications::CanNotSaveMessage;
 				throw new \Aurora\System\Exceptions\ApiException($iCode, $oException);
 			}
 		}
@@ -3345,27 +3345,27 @@ class Module extends \Aurora\System\Module\AbstractModule
 			}
 			catch (\Aurora\System\Exceptions\ManagerException $oException)
 			{
-				$iCode = \Aurora\System\Notifications::CanNotSendMessage;
+				$iCode = Notifications::CanNotSendMessage;
 				switch ($oException->getCode())
 				{
-					case \Aurora\System\Exceptions\Errs::Mail_InvalidRecipients:
-						$iCode = \Aurora\System\Notifications::InvalidRecipients;
+					case Exceptions\Errs::InvalidRecipients:
+						$iCode = Notifications::InvalidRecipients;
 						break;
-					case \Aurora\System\Exceptions\Errs::Mail_CannotSendMessage:
-						$iCode = \Aurora\System\Notifications::CanNotSendMessage;
+					case Exceptions\Errs::CannotSendMessage:
+						$iCode = Notifications::CanNotSendMessage;
 						break;
-					case \Aurora\System\Exceptions\Errs::Mail_CannotSaveMessageInSentItems:
-						$iCode = \Aurora\System\Notifications::CannotSaveMessageInSentItems;
+					case Exceptions\Errs::CannotSaveMessageInSentItems:
+						$iCode = Notifications::CannotSaveMessageInSentItems;
 						break;
-					case \Aurora\System\Exceptions\Errs::Mail_MailboxUnavailable:
+					case Exceptions\Errs::MailboxUnavailable:
 						$oServer = $oAccount->getServer();
 						if ($oServer->SmtpAuthType === \Aurora\Modules\Mail\Enums\SmtpAuthType::UseUserCredentials)
 						{
-							$iCode = \Aurora\System\Notifications::UnableSendToRecipients;
+							$iCode = Notifications::UnableSendToRecipients;
 						}
 						else
 						{
-							$iCode = \Aurora\System\Notifications::ExternalRecipientsBlocked;
+							$iCode = Notifications::ExternalRecipientsBlocked;
 						}
 						break;
 				}
@@ -4390,18 +4390,18 @@ class Module extends \Aurora\System\Module\AbstractModule
 					} 
 					else 
 					{
-						throw new \ProjectCore\Exceptions\ClientException(\ProjectCore\Notifications::UnknownError);
+						throw new \Aurora\Sysytem\Exceptions\ApiException(\Aurora\System\Notifications::UnknownError);
 					}
 				}
 				else
 				{
-					throw new \ProjectCore\Exceptions\ClientException(\ProjectCore\Notifications::IncorrectFileExtension);
+					throw new \Aurora\Sysytem\Exceptions\ApiException(\Aurora\System\Notifications::IncorrectFileExtension);
 				}
 			}
 		}
 		else
 		{
-			throw new \ProjectCore\Exceptions\ClientException(\ProjectCore\Notifications::InvalidInputParameter);
+			throw new \Aurora\Sysytem\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
 		}
 
 		return $bResult;
