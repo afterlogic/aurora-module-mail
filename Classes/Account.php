@@ -29,7 +29,7 @@ class Account extends \Aurora\System\EAV\Entity
 		'IncomingLogin'		=> array('string', ''),
 		'IncomingPassword'	=> array('encrypted', ''),
 		'UseSignature'		=> array('bool', false),
-		'Signature'			=> array('string', ''),
+		'Signature'			=> array('text', ''),
 		'ServerId'			=> array('int',  0),
 		'FoldersOrder'		=> array('text', ''),
 		'UseThreading'		=> array('bool', false),
