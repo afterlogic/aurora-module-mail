@@ -5422,45 +5422,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 			(string) \Aurora\System\Application::GetPathItemByIndex(2, '')
 		);		
 	}	
-
-	/**
-	 * @param string $sKey
-	 *
-	 * @return void
-	 */
-	private function cacheByKey($sKey)
-	{
-		if (!empty($sKey))
-		{
-			$iUtcTimeStamp = \time();
-			$iExpireTime = 3600 * 24 * 5;
-
-			\header('Cache-Control: private', true);
-			\header('Pragma: private', true);
-			\header('Etag: '.\md5('Etag:'.\md5($sKey)), true);
-			\header('Last-Modified: '.\gmdate('D, d M Y H:i:s', $iUtcTimeStamp - $iExpireTime).' UTC', true);
-			\header('Expires: '.\gmdate('D, j M Y H:i:s', $iUtcTimeStamp + $iExpireTime).' UTC', true);
-		}
-	}
-
-	/**
-	 * @param string $sKey
-	 *
-	 * @return void
-	 */
-	private function verifyCacheByKey($sKey)
-	{
-		if (!empty($sKey))
-		{
-			$sIfModifiedSince = $this->oHttp->GetHeader('If-Modified-Since', '');
-			if (!empty($sIfModifiedSince))
-			{
-				$this->oHttp->StatusHeader(304);
-				$this->cacheByKey($sKey);
-				exit();
-			}
-		}
-	}	
 	
 	/**
 	 * @param string $sHash
@@ -5519,7 +5480,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$bCache = true;
 		if ($bCache && 0 < \strlen($sFolder) && 0 < $iUid)
 		{
-			$this->verifyCacheByKey($sHash);
+			\Aurora\System\Managers\Response::verifyCacheByKey($sHash);
 		}
 		
 		return $this->oApiMailManager->directMessageToStream($oAccount,
@@ -5546,7 +5507,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 					if ($bCache)
 					{
-						$self->cacheByKey($sHash);
+						\Aurora\System\Managers\Response::cacheByKey($sHash);
 					}
 
 					\Aurora\System\Utils::OutputFileResource($sUUID, $sContentType, $sFileName, $rResource, $bThumbnail, $bDownload);
