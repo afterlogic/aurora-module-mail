@@ -100,7 +100,11 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 					}
 					catch (\Exception $oEx) 
 					{
-						throw new \Aurora\System\Exceptions\Exception($oEx->getMessage(), \Aurora\System\Exceptions\ErrorCodes::Mail_AccountConnectToMailServerFailed, $oEx);
+						throw new \Aurora\System\Exceptions\Exception(
+							$oEx->getMessage(), 
+							\Aurora\Modules\Mail\Exceptions\Errs::AccountConnectToMailServerFailed, 
+							$oEx
+						);
 
 					}
 				}
@@ -117,8 +121,11 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 				}
 				catch (\MailSo\Imap\Exceptions\LoginBadCredentialsException $oEx) 
 				{
-					throw new \Aurora\System\Exceptions\Exception($oEx->getMessage(), \Aurora\System\Exceptions\ErrorCodes::Mail_AccountLoginFailed, $oEx);
-					
+					throw new \Aurora\System\Exceptions\Exception(
+						$oEx->getMessage(), 
+						\Aurora\Modules\Mail\Exceptions\Errs::AccountLoginFailed, 
+						$oEx
+					);
 				}
 			}
 		}
