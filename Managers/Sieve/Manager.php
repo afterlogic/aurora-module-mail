@@ -571,6 +571,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	protected function _setSieveFile($oAccount, $sText)
 	{
 		$sText = str_replace("\r", '', $sText);
+		$sText = rtrim(str_replace("\n", "\r\n", $sText));
 		$bResult = false;
 		
 		try
