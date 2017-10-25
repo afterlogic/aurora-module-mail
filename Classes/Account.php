@@ -21,7 +21,7 @@ class Account extends \Aurora\System\EAV\Entity
 	private $oServer = null;
 	
 	protected $aStaticMap = array(
-		'IsDisabled'		=> array('bool', false),
+		'IsDisabled'		=> array('bool', false, true),
 		'IdUser'			=> array('int', 0),
 		'UseToAuthorize'	=> array('bool', false),
 		'Email'				=> array('string', ''),
