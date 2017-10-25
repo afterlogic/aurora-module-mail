@@ -19,7 +19,7 @@ namespace Aurora\Modules\Mail\Classes;
 class Server extends \Aurora\System\EAV\Entity
 {
 	protected $aStaticMap = array(
-		'TenantId'			=> array('int',  0),
+		'TenantId'			=> array('int',  0, true),
 		'Name'				=> array('string', ''),
 		'IncomingServer'	=> array('string', ''),
 		'IncomingPort'		=> array('int',  143),
@@ -30,8 +30,8 @@ class Server extends \Aurora\System\EAV\Entity
 		'SmtpAuthType'		=> array('string', \Aurora\Modules\Mail\Enums\SmtpAuthType::NoAuthentication),
 		'SmtpLogin'			=> array('string', ''),
 		'SmtpPassword'		=> array('string', ''),
-		'OwnerType'			=> array('string', \Aurora\Modules\Mail\Enums\ServerOwnerType::Account),
-		'Domains'	 		=> array('text', ''),
+		'OwnerType'			=> array('string', \Aurora\Modules\Mail\Enums\ServerOwnerType::Account, true),
+		'Domains'	 		=> array('text', '', true),
 		'EnableSieve'		=> array('bool', false),
 		'SievePort'			=> array('int',  2000),
 		'EnableThreading'	=> array('bool', true),

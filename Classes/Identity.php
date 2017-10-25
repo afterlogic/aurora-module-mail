@@ -20,8 +20,8 @@ namespace Aurora\Modules\Mail\Classes;
 class Identity extends \Aurora\System\EAV\Entity
 {
 	protected $aStaticMap = array(
-		'IdUser'		=> array('int', 0),
-		'IdAccount'		=> array('int', 0),
+		'IdUser'		=> array('int', 0, true),
+		'IdAccount'		=> array('int', 0, true),
 		'Default'		=> array('bool', false),
 		'Email'			=> array('string', ''),
 		'FriendlyName'	=> array('string', ''),

@@ -22,9 +22,9 @@ class Account extends \Aurora\System\EAV\Entity
 	
 	protected $aStaticMap = array(
 		'IsDisabled'		=> array('bool', false, true),
-		'IdUser'			=> array('int', 0),
-		'UseToAuthorize'	=> array('bool', false),
-		'Email'				=> array('string', ''),
+		'IdUser'			=> array('int', 0, true),
+		'UseToAuthorize'	=> array('bool', false, true),
+		'Email'				=> array('string', '', true),
 		'FriendlyName'		=> array('string', ''),
 		'IncomingLogin'		=> array('string', ''),
 		'IncomingPassword'	=> array('encrypted', ''),

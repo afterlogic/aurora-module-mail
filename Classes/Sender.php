@@ -21,8 +21,8 @@ namespace Aurora\Modules\Mail\Classes;
 class Sender extends \Aurora\System\EAV\Entity
 {
 	protected $aStaticMap = array(
-		'IdUser'	=> array('int', 0),
-		'Email'		=> array('string', '')
+		'IdUser'	=> array('int', 0, true),
+		'Email'		=> array('string', '', true)
 	);	
 
 	public function toResponseArray()

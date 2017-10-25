@@ -23,8 +23,8 @@ namespace Aurora\Modules\Mail\Classes;
 class SystemFolder extends \Aurora\System\EAV\Entity
 {
 	protected $aStaticMap = array(
-		'IdAccount'			=> array('int', 0),
+		'IdAccount'			=> array('int', 0, true),
 		'FolderFullName'	=> array('string', ''),
-		'Type'				=> array('int', 0)
+		'Type'				=> array('int', 0, true)
 	);
 }
