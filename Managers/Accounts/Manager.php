@@ -69,7 +69,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			if (is_string($sEmail))
 			{
 				$aResults = $this->oEavManager->getEntities(
-					$this->getModule()->getNamespace() . '\Classes\Account',
+					'Aurora\Modules\Mail\Classes\Account',
 					array(),
 					0,
 					0,
@@ -109,7 +109,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		try
 		{
 			$aResults = $this->oEavManager->getEntities(
-				$this->getModule()->getNamespace() . '\Classes\Account',
+				 'Aurora\Modules\Mail\Classes\Account',
 				array(),
 				0,
 				0,
@@ -145,7 +145,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		try
 		{
 			$aResults = $this->oEavManager->getEntities(
-				$this->getModule()->getNamespace() . '\Classes\Account',
+				'Aurora\Modules\Mail\Classes\Account',
 				array(
 					'Email'
 				),
@@ -187,7 +187,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		try
 		{
 			$mResult = $this->oEavManager->getEntities(
-				$this->getModule()->getNamespace() . '\Classes\Account',
+				'Aurora\Modules\Mail\Classes\Account',
 				array(),
 				0,
 				0,
@@ -213,7 +213,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		try
 		{
 			$mResult = $this->oEavManager->getEntitiesCount(
-				$this->getModule()->getNamespace() . '\Classes\Account',
+				'Aurora\Modules\Mail\Classes\Account',
 				array('IdUser' => $iUserId)
 			);
 		}
@@ -255,7 +255,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		try
 		{
 			$aResults = $this->oEavManager->getEntities(
-				$this->getModule()->getNamespace() . '\Classes\Account',
+				'Aurora\Modules\Mail\Classes\Account',
 				['Email'],
 				0,
 				0,

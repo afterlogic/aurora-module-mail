@@ -388,13 +388,30 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$oUser = \Aurora\System\Api::getAuthenticatedUser();
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountId);
 		
-		if ($oAccount->IdUser === $oUser->EntityId)
+		if ($oAccount && $oAccount->IdUser === $oUser->EntityId)
 		{
 			$mResult = $oAccount;
 		}
 				
 		return $mResult;
 	}
+	
+	public function GetAccountByEmail($Email)
+	{
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
+		
+		$mResult = false;
+		
+		$oUser = \Aurora\System\Api::getAuthenticatedUser();
+		$oAccount = $this->oApiAccountsManager->getAccountByEmail($Email);
+		
+		if ($oAccount /*&& $oAccount->IdUser === $oUser->EntityId*/)
+		{
+			$mResult = $oAccount;
+		}
+				
+		return $mResult;
+	}	
 	
 	/**
 	 * @api {post} ?/Api/ CreateAccount
@@ -478,57 +495,72 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$IncomingPassword = '', $Server = null)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::Anonymous);
-		
-		$sDomains = explode('@', $Email)[1];
 
-		if ($Email)
+		$oAccount = $this->GetAccountByEmail($IncomingLogin);
+		if (!$oAccount)
 		{
-			$bCustomServerCreated = false;
-			$iServerId = $Server['ServerId'];
-			if ($Server !== null && $iServerId === 0)
+			$sDomains = explode('@', $Email)[1];
+
+			if ($Email)
 			{
-				$iServerId = $this->oApiServersManager->createServer($Server['IncomingServer'], 
-					$Server['IncomingServer'], $Server['IncomingPort'], $Server['IncomingUseSsl'], 
-					$Server['OutgoingServer'], $Server['OutgoingPort'], $Server['OutgoingUseSsl'], 
-					$Server['SmtpAuthType'], $sDomains, $Server['EnableThreading']
-				);
-				
-				$bCustomServerCreated = true;
-			}
-
-			$oAccount = new \Aurora\Modules\Mail\Classes\Account($this->GetName());
-
-			$oAccount->IdUser = $UserId;
-			$oAccount->FriendlyName = $FriendlyName;
-			$oAccount->Email = $Email;
-			$oAccount->IncomingLogin = $IncomingLogin;
-			$oAccount->IncomingPassword = $IncomingPassword;
-			$oAccount->ServerId = $iServerId;
-			$oServer = $oAccount->getServer();
-			$oAccount->UseThreading = $oServer->EnableThreading;
-
-			$oUser = null;
-			$oCoreDecorator = \Aurora\Modules\Core\Module::Decorator();
-			if ($oCoreDecorator)
-			{
-				$oUser = $oCoreDecorator->GetUser($UserId);
-				if ($oUser instanceof \Aurora\Modules\Core\Classes\User && $oUser->PublicId === $Email && !$this->oApiAccountsManager->useToAuthorizeAccountExists($Email))
+				$bCustomServerCreated = false;
+				$iServerId = $Server['ServerId'];
+				if ($Server !== null && $iServerId === 0)
 				{
-					$oAccount->UseToAuthorize = true;
+					$iServerId = $this->oApiServersManager->createServer($Server['IncomingServer'], 
+						$Server['IncomingServer'], $Server['IncomingPort'], $Server['IncomingUseSsl'], 
+						$Server['OutgoingServer'], $Server['OutgoingPort'], $Server['OutgoingUseSsl'], 
+						$Server['SmtpAuthType'], $sDomains, $Server['EnableThreading']
+					);
+
+					$bCustomServerCreated = true;
+				}
+				
+				if ($Server === null)
+				{
+					$oServer = $this->oApiServersManager->getServerByDomain($sDomains);
+					if ($oServer)
+					{
+						$iServerId = $oServer->EntityId;
+					}
+				}
+
+				$oAccount = new \Aurora\Modules\Mail\Classes\Account($this->GetName());
+
+				$oAccount->IdUser = $UserId;
+				$oAccount->FriendlyName = $FriendlyName;
+				$oAccount->Email = $Email;
+				$oAccount->IncomingLogin = $IncomingLogin;
+				$oAccount->IncomingPassword = $IncomingPassword;
+				$oAccount->ServerId = $iServerId;
+				$oServer = $oAccount->getServer();
+				if ($oServer)
+				{
+					$oAccount->UseThreading = $oServer->EnableThreading;
+				}
+
+				$oUser = null;
+				$oCoreDecorator = \Aurora\Modules\Core\Module::Decorator();
+				if ($oCoreDecorator)
+				{
+					$oUser = $oCoreDecorator->GetUser($UserId);
+					if ($oUser instanceof \Aurora\Modules\Core\Classes\User && $oUser->PublicId === $Email && !$this->oApiAccountsManager->useToAuthorizeAccountExists($Email))
+					{
+						$oAccount->UseToAuthorize = true;
+					}
+				}
+				$bAccoutResult = $this->oApiAccountsManager->createAccount($oAccount);
+
+				if ($bAccoutResult)
+				{
+					return $oAccount;
+				}
+				else if ($bCustomServerCreated)
+				{
+					$this->oApiServersManager->deleteServer($iServerId);
 				}
 			}
-			$bAccoutResult = $this->oApiAccountsManager->createAccount($oAccount);
-
-			if ($bAccoutResult)
-			{
-				return $oAccount;
-			}
-			else if ($bCustomServerCreated)
-			{
-				$this->oApiServersManager->deleteServer($iServerId);
-			}
 		}
-
 		return false;
 	}
 	
