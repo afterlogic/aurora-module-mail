@@ -388,7 +388,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$oUser = \Aurora\System\Api::getAuthenticatedUser();
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountId);
 		
-		if ($oAccount && $oAccount->IdUser === $oUser->EntityId)
+		if ($oAccount && ($oAccount->IdUser === $oUser->EntityId || $oUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin))
 		{
 			$mResult = $oAccount;
 		}
