@@ -4976,7 +4976,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
 			foreach($mResult as $oItem)
 			{
-				$this->DeleteAccount($oItem->EntityId);
+				$this->Decorator()->DeleteAccount($oItem->EntityId);
 			}
 		}
 	}
