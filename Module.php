@@ -495,8 +495,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$IncomingPassword = '', $Server = null)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::Anonymous);
-
+		\Aurora\System\Api::skipCheckUserRole(true);
 		$oAccount = $this->GetAccountByEmail($IncomingLogin);
+		\Aurora\System\Api::skipCheckUserRole(false);
 		if (!$oAccount)
 		{
 			$sDomains = explode('@', $Email)[1];
