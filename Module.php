@@ -59,6 +59,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		
 		$this->subscribeEvent('Login', array($this, 'onLogin'));
 		$this->subscribeEvent('Core::AfterDeleteUser', array($this, 'onAfterDeleteUser'));
+		$this->subscribeEvent('Core::GetAccounts', array($this, 'onGetAccounts'));
 		
 		\MailSo\Config::$PreferStartTlsIfAutoDetect = !!$this->getConfig('PreferStarttls', true);
 	}
@@ -5080,6 +5081,39 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		return $bResult;
 	}
+	
+	/**
+	 * 
+	 * @param array $aArgs
+	 * @param array $aResult
+	 */
+	public function onGetAccounts($aArgs, &$aResult)
+	{
+		$bWithPassword = $aArgs['WithPassword'];
+		$aUserInfo = \Aurora\System\Api::getAuthenticatedUserInfo($aArgs['AuthToken']);
+		if (isset($aUserInfo['userId']))
+		{
+			$mResult = $this->GetAccounts($aUserInfo['userId']);
+			if (\is_array($mResult))
+			{
+				foreach($mResult as $oItem)
+				{
+					$aItem = array(
+						'Type' => $oItem->getName(),
+						'Module' => $oItem->getModule(),
+						'Id' => $oItem->EntityId,
+						'UUID' => $oItem->UUID,
+						'Login' => $oItem->IncomingLogin
+					);
+					if ($bWithPassword)
+					{
+						$aItem['Password'] = $oItem->IncomingPassword;
+					}
+					$aResult[] = $aItem;
+				}
+			}
+		}
+	}		
 	
 	/**
 	 * Puts on or off some flag of message.
