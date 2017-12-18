@@ -23,4 +23,5 @@ class Errs {
 	const CannotSendMessage = 4007;
 	const CannotSaveMessageInSentItems = 4008;
 	const MailboxUnavailable = 4009;
+	const FolderAlreadyExists = 4010;
 }

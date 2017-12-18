@@ -2472,6 +2472,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function CreateFolder($AccountID, $FolderNameInUtf8, $FolderParentFullNameRaw, $Delimiter)
 	{
+		$bResult = true;
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		if (0 === \strlen($FolderNameInUtf8) || 1 !== \strlen($Delimiter))
@@ -2481,7 +2482,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 
-		$this->oApiMailManager->createFolder($oAccount, $FolderNameInUtf8, $Delimiter, $FolderParentFullNameRaw);
+		try
+		{
+			$this->oApiMailManager->createFolder($oAccount, $FolderNameInUtf8, $Delimiter, $FolderParentFullNameRaw);
+		} 
+		catch (\MailSo\Mail\Exceptions\AlreadyExistsFolder $ex) 
+		{
+			throw new \Aurora\System\Exceptions\ApiException(Exceptions\Errs::FolderAlreadyExists);
+		}
 
 		$aFoldersOrderList = $this->oApiMailManager->getFoldersOrder($oAccount);
 		if (\is_array($aFoldersOrderList) && 0 < \count($aFoldersOrderList))
@@ -2527,7 +2535,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			}
 		}
 
-		return true;
+		return $bResult;
 	}
 	
 	/**
