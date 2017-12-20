@@ -5003,13 +5003,15 @@ class Module extends \Aurora\System\Module\AbstractModule
 	{
 		$bResult = false;
 		$oServer = null;
+		$iUserId = 0;
 		
 		$oAccount = $this->oApiAccountsManager->getAccountUsedToAuthorize($aArgs['Login']);
 
-		
 		$bNewAccount = false;
 		$bAllowNewUsersRegister = $this->getConfig('AllowNewUsersRegister', false);
-		if ($bAllowNewUsersRegister && !$oAccount)
+		$bAutocreateMailAccountOnNewUserFirstLogin = $this->getConfig('AutocreateMailAccountOnNewUserFirstLogin', false);
+		
+		if (($bAllowNewUsersRegister || $bAutocreateMailAccountOnNewUserFirstLogin) && !$oAccount)
 		{
 			$sEmail = $aArgs['Login'];
 			$sDomain = \MailSo\Base\Utils::GetDomainFromEmail($sEmail);
@@ -5033,7 +5035,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
 			try
 			{
-				if ($bAllowNewUsersRegister || !$bNewAccount)
+				if ($bAllowNewUsersRegister || $bAutocreateMailAccountOnNewUserFirstLogin || !$bNewAccount)
 				{
 					$bNeedToUpdatePassword = $aArgs['Password'] !== $oAccount->IncomingPassword;
 					$oAccount->IncomingPassword = $aArgs['Password'];
@@ -5048,10 +5050,22 @@ class Module extends \Aurora\System\Module\AbstractModule
 					$bResult =  true;
 				}
 
-				if ($bAllowNewUsersRegister && $bNewAccount)
+				if (($bAllowNewUsersRegister || $bAutocreateMailAccountOnNewUserFirstLogin) && $bNewAccount)
 				{
+					if ($bAutocreateMailAccountOnNewUserFirstLogin)
+					{
+						$oCoreDecorator = /* @var $oCoreDecorator \Aurora\Modules\Core\Module */ \Aurora\Modules\Core\Module::Decorator();
+						\Aurora\System\Api::skipCheckUserRole(true);
+						$oUser = $oCoreDecorator->GetUserByPublicId($aArgs['Login']);
+						\Aurora\System\Api::skipCheckUserRole(false);
+						if ($oUser instanceof \Aurora\Modules\Core\Classes\User)
+						{
+							$iUserId = $oUser->EntityId;
+						}
+					}
+					
 					$oAccount = $this->Decorator()->CreateAccount(
-						0, 
+						$iUserId, 
 						$sEmail, 
 						$sEmail, 
 						$aArgs['Login'],

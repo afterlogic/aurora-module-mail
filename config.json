@@ -114,5 +114,9 @@
 	"ExternalHostNameOfLocalSmtp": [
 		"",
 		"string"
+	],
+	"AutocreateMailAccountOnNewUserFirstLogin": [
+		false,
+		"string"
 	]
 }
