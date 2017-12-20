@@ -15,10 +15,29 @@ namespace Aurora\Modules\Mail;
  */
 class Module extends \Aurora\System\Module\AbstractModule
 {
+	/* 
+	 * @var $oApiMailManager Managers\Main
+	 */	
 	public $oApiMailManager = null;
+
+	/* 
+	 * @var $oApiAccountsManager Managers\Accounts
+	 */	
 	public $oApiAccountsManager = null;
+
+	/* 
+	 * @var $oApiServersManager Managers\Servers
+	 */	
 	public $oApiServersManager = null;
+	
+	/* 
+	 * @var $oApiIdentitiesManager Managers\Identities
+	 */	
 	public $oApiIdentitiesManager = null;
+
+	/* 
+	 * @var $oApiSieveManager Managers\Sieve
+	 */	
 	public $oApiSieveManager = null;
 	
 	/* 
