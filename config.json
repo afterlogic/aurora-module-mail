@@ -76,7 +76,7 @@
         "string"
     ],
 	"SievePort": [
-		2000,
+		4190,
 		"int"
 	],
 	"UseBodyStructuresForHasAttachmentsSearch": [

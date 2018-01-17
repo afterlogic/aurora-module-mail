@@ -33,7 +33,7 @@ class Server extends \Aurora\System\EAV\Entity
 		'OwnerType'			=> array('string', \Aurora\Modules\Mail\Enums\ServerOwnerType::Account, true),
 		'Domains'	 		=> array('text', '', true),
 		'EnableSieve'		=> array('bool', false),
-		'SievePort'			=> array('int',  2000),
+		'SievePort'			=> array('int',  4190),
 		'EnableThreading'	=> array('bool', true),
 	);	
 
