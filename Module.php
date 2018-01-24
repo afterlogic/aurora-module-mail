@@ -518,6 +518,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		\Aurora\System\Api::skipCheckUserRole(true);
 		$oAccount = $this->GetAccountByEmail($IncomingLogin);
 		\Aurora\System\Api::skipCheckUserRole(false);
+		
 		if (!$oAccount)
 		{
 			$sDomains = explode('@', $Email)[1];
@@ -5073,10 +5074,23 @@ class Module extends \Aurora\System\Module\AbstractModule
 				{
 					if ($bAutocreateMailAccountOnNewUserFirstLogin)
 					{
-						$oCoreDecorator = /* @var $oCoreDecorator \Aurora\Modules\Core\Module */ \Aurora\Modules\Core\Module::Decorator();
-						\Aurora\System\Api::skipCheckUserRole(true);
-						$oUser = $oCoreDecorator->GetUserByPublicId($aArgs['Login']);
-						\Aurora\System\Api::skipCheckUserRole(false);
+						$oUser = null;
+						$aSubArgs = array(
+							'UserName' => $sEmail,
+							'Email' => $sEmail,
+							'UserId' => $iUserId
+						);
+						$this->broadcastEvent(
+							'CreateAccount', 
+							$aSubArgs,
+							$oUser
+						);
+						
+						
+//						$oCoreDecorator = /* @var $oCoreDecorator \Aurora\Modules\Core\Module */ \Aurora\Modules\Core\Module::Decorator();
+//						\Aurora\System\Api::skipCheckUserRole(true);
+//						$oUser = $oCoreDecorator->GetUserByPublicId($aArgs['Login']);
+//						\Aurora\System\Api::skipCheckUserRole(false);
 						if ($oUser instanceof \Aurora\Modules\Core\Classes\User)
 						{
 							$iUserId = $oUser->EntityId;
