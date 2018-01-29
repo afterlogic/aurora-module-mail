@@ -11,8 +11,8 @@
 		true,
 		"bool"
 	],
-	"AllowChangeEmailSettings": [
-		true,
+	"AllowDefaultAccountForUser": [
+		false,
 		"bool"
 	],
 	"AllowFetchers": [

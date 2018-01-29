@@ -118,7 +118,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiSuccess {array} Result.Result.Accounts="[]" List of accounts.
 	 * @apiSuccess {boolean} Result.Result.AllowAddAccounts=false Indicates if adding of new account is allowed.
 	 * @apiSuccess {boolean} Result.Result.AllowAutosaveInDrafts=false Indicates if autosave in Drafts folder on compose is allowed.
-	 * @apiSuccess {boolean} Result.Result.AllowChangeEmailSettings=false Indicates if changing of email settings is allowed.
+	 * @apiSuccess {boolean} Result.Result.AllowDefaultAccountForUser=false Indicates if default account is allowed.
 	 * @apiSuccess {boolean} Result.Result.AllowFetchers=false Indicates if fetchers are allowed.
 	 * @apiSuccess {boolean} Result.Result.AllowIdentities=false Indicates if identities are allowed.
 	 * @apiSuccess {boolean} Result.Result.AllowFilters=false Indicates if filters are allowed.
@@ -135,7 +135,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 *	Module: 'Mail',
 	 *	Method: 'GetSettings',
 	 *	Result: { Accounts: [], AllowAddAccounts: true, AllowAutosaveInDrafts: true,
-	 * AllowChangeEmailSettings: true, AllowFetchers: false, AllowIdentities: true,
+	 * AllowDefaultAccountForUser: true, AllowFetchers: false, AllowIdentities: true,
 	 * AllowFilters: false, AllowForward: false, AllowAutoresponder: false, AllowInsertImage: true,
 	 * AutoSaveIntervalSeconds: 60, ImageUploadSizeLimit: 0 }
 	 * }
@@ -160,7 +160,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			'Accounts' => array(),
 			'AllowAddAccounts' => $this->getConfig('AllowAddAccounts', false),
 			'AllowAutosaveInDrafts' => (bool)$this->getConfig('AllowAutosaveInDrafts', false),
-			'AllowChangeEmailSettings' => $this->getConfig('AllowChangeEmailSettings', false),
+			'AllowDefaultAccountForUser' => $this->getConfig('AllowDefaultAccountForUser', false),
 			'AllowFetchers' => $this->getConfig('AllowFetchers', false),
 			'AllowIdentities' => $this->getConfig('AllowIdentities', false),
 			'AllowFilters' => $this->getConfig('AllowFilters', false),
