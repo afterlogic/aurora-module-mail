@@ -474,6 +474,14 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
 		return $bResult;
 	}
+	
+	public function getFoldersNamespace($oAccount)
+	{
+		$oImapClient =& $this->_getImapClient($oAccount);
+
+		return $oImapClient->GetNamespace();
+	}
+	
 	/**
 	 * Obtains the list of IMAP folders.
 	 * 
