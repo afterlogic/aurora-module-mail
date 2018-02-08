@@ -20,7 +20,7 @@ class Server extends \Aurora\System\EAV\Entity
 {
 	protected $aStaticMap = array(
 		'TenantId'			=> array('int',  0, true),
-		'Name'				=> array('string', ''),
+		'Name'				=> array('string', '', true),
 		'IncomingServer'	=> array('string', ''),
 		'IncomingPort'		=> array('int',  143),
 		'IncomingUseSsl'	=> array('bool', false),
