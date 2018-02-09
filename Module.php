@@ -608,6 +608,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **IncomingLogin** *string* New loging for IMAP connection.<br>
 	 * &emsp; **IncomingPassword** *string* New password for IMAP connection.<br>
 	 * &emsp; **Server** *object* List of settings for IMAP and SMTP connections.<br>
+	 * &emsp; **UseThreading** *boolean* Indicates if account uses mail threading.<br>
+	 * &emsp; **SaveRepliesToCurrFolder** *boolean* Indicates if replies should be saved to current folder (not Sent Items).<br>
 	 * }
 	 * 
 	 * @apiParamExample {json} Request-Example:
@@ -615,7 +617,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 *	Module: 'Mail',
 	 *	Method: 'UpdateAccount',
 	 *	Parameters: '{ "Email": "test@email", "IncomingLogin": "test@email",
-	 *		"IncomingPassword": "pass_value", "Server": { "ServerId": 10 } }'
+	 *		"IncomingPassword": "pass_value", "Server": { "ServerId": 10 }, "UseThreading": true,
+	 *		"SaveRepliesToCurrFolder": false }'
 	 * }
 	 * 
 	 * @apiSuccess {object[]} Result Array of response objects.
@@ -649,11 +652,12 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param string $IncomingPassword New password for IMAP connection.
 	 * @param array $Server List of settings for IMAP and SMTP connections.
 	 * @param boolean $UseThreading Indicates if account uses mail threading.
+	 * @param boolean $SaveRepliesToCurrFolder Indicates if replies should be saved to current folder (not Sent Items)
 	 * @return boolean
 	 * @throws \Aurora\System\Exceptions\ApiException
 	 */
 	public function UpdateAccount($AccountID, $UseToAuthorize = null, $Email = null, $FriendlyName = null, $IncomingLogin = null, 
-			$IncomingPassword = null, $Server = null, $UseThreading = null)
+			$IncomingPassword = null, $Server = null, $UseThreading = null, $SaveRepliesToCurrFolder = null)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
@@ -726,6 +730,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 				if ($UseThreading !== null)
 				{
 					$oAccount->UseThreading = $UseThreading;
+				}
+				
+				if ($SaveRepliesToCurrFolder !== null)
+				{
+					$oAccount->SaveRepliesToCurrFolder = $SaveRepliesToCurrFolder;
 				}
 				
 				if ($this->oApiAccountsManager->updateAccount($oAccount))

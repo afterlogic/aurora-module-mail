@@ -33,6 +33,7 @@ class Account extends \Aurora\System\EAV\Entity
 		'ServerId'			=> array('int',  0),
 		'FoldersOrder'		=> array('text', ''),
 		'UseThreading'		=> array('bool', false),
+		'SaveRepliesToCurrFolder' => array('bool', false),
 	);
 
 	public function updateServer($iServerId)

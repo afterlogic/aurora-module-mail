@@ -59,6 +59,10 @@
 		25000,
 		"int"
 	],
+	"SaveRepliesToCurrFolder": [
+		false,
+		"bool"
+	],
     "SieveGeneralPassword": [
         "",
         "string"
