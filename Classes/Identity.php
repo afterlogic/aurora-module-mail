@@ -24,7 +24,7 @@ class Identity extends \Aurora\System\EAV\Entity
 		'IdAccount'		=> array('int', 0, true),
 		'Default'		=> array('bool', false),
 		'Email'			=> array('string', ''),
-		'FriendlyName'	=> array('string', ''),
+		'FriendlyName'	=> array('string', '', true),
 		'UseSignature'	=> array('bool', false),
 		'Signature'		=> array('text', ''),
 	);
