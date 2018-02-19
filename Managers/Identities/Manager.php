@@ -64,7 +64,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		
 		try
 		{
-			$oIdentity = $this->oEavManager->getEntity($iEntityId);
+			$oIdentity = $this->oEavManager->getEntity($iEntityId, $this->getModule()->getNamespace() . '\Classes\Identity');
 		}
 		catch (\Aurora\System\Exceptions\BaseException $oException)
 		{

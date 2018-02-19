@@ -122,7 +122,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		
 		try
 		{
-			$oServer = $this->oEavManager->getEntity($iServerId);
+			$oServer = $this->oEavManager->getEntity((int)$iServerId, $this->getModule()->getNamespace() . '\Classes\Server');
 		}
 		catch (\Aurora\System\Exceptions\BaseException $oException)
 		{
