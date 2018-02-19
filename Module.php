@@ -515,9 +515,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$IncomingPassword = '', $Server = null)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::Anonymous);
-		\Aurora\System\Api::skipCheckUserRole(true);
+		$bPrevState = \Aurora\System\Api::skipCheckUserRole(true);
 		$oAccount = $this->GetAccountByEmail($IncomingLogin);
-		\Aurora\System\Api::skipCheckUserRole(false);
+		\Aurora\System\Api::skipCheckUserRole($bPrevState);
 		
 		if (!$oAccount)
 		{
@@ -5506,7 +5506,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	
 	public function EntryMessageNewtab()
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::Anonymous);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 
 		$oApiIntegrator = new \Aurora\Modules\Core\Managers\Integrator();
 
