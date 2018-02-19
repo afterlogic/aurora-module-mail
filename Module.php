@@ -79,7 +79,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$this->subscribeEvent('Login', array($this, 'onLogin'));
 		$this->subscribeEvent('Core::AfterDeleteUser', array($this, 'onAfterDeleteUser'));
 		$this->subscribeEvent('Core::GetAccounts', array($this, 'onGetAccounts'));
-		
+
 		\MailSo\Config::$PreferStartTlsIfAutoDetect = !!$this->getConfig('PreferStarttls', true);
 	}
 	
@@ -514,7 +514,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function CreateAccount($UserId = 0, $FriendlyName = '', $Email = '', $IncomingLogin = '', 
 			$IncomingPassword = '', $Server = null)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::Anonymous);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		$bPrevState = \Aurora\System\Api::skipCheckUserRole(true);
 		$oAccount = $this->GetAccountByEmail($IncomingLogin);
 		\Aurora\System\Api::skipCheckUserRole($bPrevState);
@@ -5095,6 +5095,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 					if ($oUser instanceof \Aurora\Modules\Core\Classes\User)
 					{
 						$iUserId = $oUser->EntityId;
+						$bPrevState = \Aurora\System\Api::skipCheckUserRole(true);
 						$oAccount = $this->Decorator()->CreateAccount(
 							$iUserId, 
 							$sEmail, 
@@ -5103,6 +5104,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 							$aArgs['Password'], 
 							array('ServerId' => $oServer->EntityId)
 						);
+						\Aurora\System\Api::skipCheckUserRole($bPrevState);
 						if ($oAccount)
 						{
 							$oAccount->UseToAuthorize = true;
