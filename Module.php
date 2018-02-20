@@ -5124,7 +5124,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 						'token' => 'auth',
 						'sign-me' => $aArgs['SignMe'],
 						'id' => $oAccount->IdUser,
-						'account' => $oAccount->EntityId
+						'account' => $oAccount->EntityId,
+						'account_type' => $oAccount->getName()
 					);
 				}
 			}
