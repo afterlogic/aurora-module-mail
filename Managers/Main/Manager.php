@@ -114,10 +114,6 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 						);
 
 					}
-					finally
-					{
-						\MailSo\Config::$PreferStartTlsIfAutoDetect = $bPreferStartTlsIfLastState;
-					}
 				}
 			}
 
