@@ -92,7 +92,6 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 				$oServer = $oAccount->getServer();
 				if ($oServer instanceof \Aurora\Modules\Mail\Classes\Server)
 				{
-					$bPreferStartTlsIfLastState = !!\MailSo\Config::$PreferStartTlsIfAutoDetect;
 					try 
 					{
 						//disable STARTTLS for localhost
