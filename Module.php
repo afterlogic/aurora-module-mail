@@ -5511,7 +5511,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 
-		$oApiIntegrator = new \Aurora\Modules\Core\Managers\Integrator();
+		$oApiIntegrator = \Aurora\Modules\Core\Managers\Integrator::getInstance();
 
 		if ($oApiIntegrator)
 		{
