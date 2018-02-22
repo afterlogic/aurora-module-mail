@@ -92,8 +92,15 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 				$oServer = $oAccount->getServer();
 				if ($oServer instanceof \Aurora\Modules\Mail\Classes\Server)
 				{
+					$bPreferStartTlsIfLastState = !!\MailSo\Config::$PreferStartTlsIfAutoDetect;
 					try 
 					{
+						//disable STARTTLS for localhost
+						if ($this->GetModule()->getConfig('DisableStarttlsForLocalhost', false) &&
+							(strtolower($oServer->IncomingServer) === 'localhost' || strtolower($oServer->IncomingServer) === '127.0.0.1'))
+						{
+							\MailSo\Config::$PreferStartTlsIfAutoDetect = false;
+						}
 						$oResult->Connect($oServer->IncomingServer, $oServer->IncomingPort, $oServer->IncomingUseSsl
 								? \MailSo\Net\Enumerations\ConnectionSecurityType::SSL
 								: \MailSo\Net\Enumerations\ConnectionSecurityType::NONE, $bVerifySsl);
@@ -106,6 +113,10 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 							$oEx
 						);
 
+					}
+					finally
+					{
+						\MailSo\Config::$PreferStartTlsIfAutoDetect = $bPreferStartTlsIfLastState;
 					}
 				}
 			}
