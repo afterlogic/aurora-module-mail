@@ -122,5 +122,9 @@
 	"AutocreateMailAccountOnNewUserFirstLogin": [
 		false,
 		"bool"
-	]
+	],
+    "SieveUseStarttls": [
+        false,
+        "bool"
+    ]
 }
