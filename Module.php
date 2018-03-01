@@ -5098,8 +5098,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 						$bPrevState = \Aurora\System\Api::skipCheckUserRole(true);
 						$oAccount = $this->Decorator()->CreateAccount(
 							$iUserId, 
-							$sEmail, 
-							$sEmail, 
+							'',
+							$sEmail,
 							$aArgs['Login'],
 							$aArgs['Password'], 
 							array('ServerId' => $oServer->EntityId)
