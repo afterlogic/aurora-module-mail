@@ -4115,9 +4115,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 				}
 				else
 				{
-					if ($this->oApiFileCache->moveUploadedFile($sUUID, $sSavedName, $UploadData['tmp_name']))
+					if ($this->oApiFileCache->moveUploadedFile($sUUID, $sSavedName, $UploadData['tmp_name'], '', $this->GetName()))
 					{
-						$rData = $this->oApiFileCache->getFile($sUUID, $sSavedName);
+						$rData = $this->oApiFileCache->getFile($sUUID, $sSavedName, '', $this->GetName());
 					}
 				}
 				if ($rData)
@@ -4230,7 +4230,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 							$sMimeIndex = (string) isset($aValues['MimeIndex']) ? $aValues['MimeIndex'] : '';
 
 							$sTempName = md5($sAttachment);
-							if (!$this->oApiFileCache->isFileExists($sUUID, $sTempName))
+							if (!$this->oApiFileCache->isFileExists($sUUID, $sTempName, '', $this->GetName()))
 							{
 								$this->oApiMailManager->directMessageToStream($oAccount,
 									function($rResource, $sContentType, $sFileName, $sMimeIndex = '') use ($sUUID, &$mResult, $sTempName, $sAttachment, $self) {
@@ -4239,7 +4239,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 											$sContentType = (empty($sFileName)) ? 'text/plain' : \MailSo\Base\Utils::MimeContentType($sFileName);
 											$sFileName = \Aurora\System\Utils::clearFileName($sFileName, $sContentType, $sMimeIndex);
 
-											if ($self->oApiFileCache->putFile($sUUID, $sTempName, $rResource))
+											if ($self->oApiFileCache->putFile($sUUID, $sTempName, $rResource, '', $this->GetName()))
 											{
 												$mResult[$sTempName] = $sAttachment;
 											}
@@ -4341,7 +4341,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			{
 				$sMimeType = 'message/rfc822';
 				$sTempName = md5($MessageFolder.$MessageUid);
-				if (!$this->oApiFileCache->isFileExists($sUUID, $sTempName))
+				if (!$this->oApiFileCache->isFileExists($sUUID, $sTempName, '', $this->GetName()))
 				{
 					$this->oApiMailManager->directMessageToStream($oAccount,
 						function ($rResource, $sContentType, $sFileName) use ($sUUID, $sTempName, &$sMimeType, $self) {
@@ -4349,14 +4349,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 							{
 								$sMimeType = $sContentType;
 								$sFileName = \Aurora\System\Utils::clearFileName($sFileName, $sMimeType, '');
-								$self->oApiFileCache->putFile($sUUID, $sTempName, $rResource);
+								$self->oApiFileCache->putFile($sUUID, $sTempName, $rResource, '', $this->GetName());
 							}
 						}, $MessageFolder, $MessageUid);
 				}
 
-				if ($this->oApiFileCache->isFileExists($sUUID, $sTempName))
+				if ($this->oApiFileCache->isFileExists($sUUID, $sTempName, '', $this->GetName()))
 				{
-					$iSize = $this->oApiFileCache->fileSize($sUUID, $sTempName);
+					$iSize = $this->oApiFileCache->fileSize($sUUID, $sTempName, '', $this->GetName());
 					$mResult = \Aurora\System\Utils::GetClientFileResponse($oAccount->IdUser, $FileName, $sTempName, $iSize);
 				}
 			}
@@ -4447,15 +4447,15 @@ class Module extends \Aurora\System\Module\AbstractModule
 					$sSavedName = 'upload-post-' . md5($UploadData['name'] . $UploadData['tmp_name']);
 					if (is_resource($UploadData['tmp_name']))
 					{
-						$this->oApiFileCache->putFile($sUUID, $sSavedName, $UploadData['tmp_name']);
+						$this->oApiFileCache->putFile($sUUID, $sSavedName, $UploadData['tmp_name'], '', $this->GetName());
 					}
 					else
 					{
-						$this->oApiFileCache->moveUploadedFile($sUUID, $sSavedName, $UploadData['tmp_name']);
+						$this->oApiFileCache->moveUploadedFile($sUUID, $sSavedName, $UploadData['tmp_name'], '', $this->GetName());
 					}
-					if ($this->oApiFileCache->isFileExists($sUUID, $sSavedName))
+					if ($this->oApiFileCache->isFileExists($sUUID, $sSavedName, '', $this->GetName()))
 					{
-						$sSavedFullName = $this->oApiFileCache->generateFullFilePath($sUUID, $sSavedName);
+						$sSavedFullName = $this->oApiFileCache->generateFullFilePath($sUUID, $sSavedName, '', $this->GetName());
 						$this->oApiMailManager->appendMessageFromFile($oAccount, $sSavedFullName, $Folder);
 						$bResult = true;
 					} 
@@ -5360,10 +5360,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 					$bIsLinked = '1' === (string) $aData[3];
 					$sContentLocation = isset($aData[4]) ? (string) $aData[4] : '';
 
-					$rResource = $this->oApiFileCache->getFile($sUUID, $sTempName);
+					$rResource = $this->oApiFileCache->getFile($sUUID, $sTempName, '', $this->GetName());
 					if (\is_resource($rResource))
 					{
-						$iFileSize = $this->oApiFileCache->fileSize($sUUID, $sTempName);
+						$iFileSize = $this->oApiFileCache->fileSize($sUUID, $sTempName, '', $this->GetName());
 
 						$sCID = \trim(\trim($sCID), '<>');
 						$bIsFounded = 0 < \strlen($sCID) ? \in_array($sCID, $aFoundCids) : false;
