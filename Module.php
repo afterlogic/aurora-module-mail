@@ -4124,7 +4124,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 				{
 					$sUploadName = $UploadData['name'];
 					$iSize = $UploadData['size'];
-					$aResponse['Attachment'] = \Aurora\System\Utils::GetClientFileResponse($UserId, $sUploadName, $sSavedName, $iSize);
+					$aResponse['Attachment'] = \Aurora\System\Utils::GetClientFileResponse(
+						$this->GetName(), $UserId, $sUploadName, $sSavedName, $iSize
+					);
 				}
 				else
 				{
@@ -4357,7 +4359,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 				if ($this->oApiFileCache->isFileExists($sUUID, $sTempName, '', $this->GetName()))
 				{
 					$iSize = $this->oApiFileCache->fileSize($sUUID, $sTempName, '', $this->GetName());
-					$mResult = \Aurora\System\Utils::GetClientFileResponse($oAccount->IdUser, $FileName, $sTempName, $iSize);
+					$mResult = \Aurora\System\Utils::GetClientFileResponse(
+						$this->GetName(), $oAccount->IdUser, $FileName, $sTempName, $iSize
+					);
 				}
 			}
 			catch (\Exception $oException)
