@@ -29,7 +29,7 @@ class Server extends \Aurora\System\EAV\Entity
 		'OutgoingUseSsl'	=> array('bool', false),
 		'SmtpAuthType'		=> array('string', \Aurora\Modules\Mail\Enums\SmtpAuthType::NoAuthentication),
 		'SmtpLogin'			=> array('string', ''),
-		'SmtpPassword'		=> array('string', ''),
+		'SmtpPassword'		=> array('encrypted', ''),
 		'OwnerType'			=> array('string', \Aurora\Modules\Mail\Enums\ServerOwnerType::Account, true),
 		'Domains'	 		=> array('text', '', true),
 		'EnableSieve'		=> array('bool', false),
