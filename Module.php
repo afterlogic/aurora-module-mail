@@ -2332,6 +2332,96 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @return boolean
 	 * @throws \Aurora\System\Exceptions\ApiException
 	 */
+	public function CopyMessages($AccountID, $Folder, $ToFolder, $Uids)
+	{
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
+		
+		$aUids = \Aurora\System\Utils::ExplodeIntUids((string) $Uids);
+
+		if (0 === \strlen(\trim($Folder)) || 0 === \strlen(\trim($ToFolder)) || !\is_array($aUids) || 0 === \count($aUids))
+		{
+			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
+		}
+
+		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
+
+		try
+		{
+			$this->oApiMailManager->copyMessage($oAccount, $Folder, $ToFolder, $aUids);
+		}
+		catch (\MailSo\Imap\Exceptions\NegativeResponseException $oException)
+		{
+			$oResponse = /* @var $oResponse \MailSo\Imap\Response */ $oException->GetLastResponse();
+			throw new \Aurora\System\Exceptions\ApiException(Notifications::CanNotMoveMessageQuota, $oException,
+				$oResponse instanceof \MailSo\Imap\Response ? $oResponse->Tag.' '.$oResponse->StatusOrIndex.' '.$oResponse->HumanReadable : '');
+		}
+		catch (\Exception $oException)
+		{
+			throw new \Aurora\System\Exceptions\ApiException(Notifications::CanNotMoveMessage, $oException,
+				$oException->getMessage());
+		}
+
+		return true;
+	}	
+	
+	/**
+	 * @api {post} ?/Api/ MoveMessages
+	 * @apiName MoveMessages
+	 * @apiGroup Mail
+	 * @apiDescription Moves messages from one folder to another.
+	 * 
+	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
+	 * @apiHeaderExample {json} Header-Example:
+	 *	{
+	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
+	 *	}
+	 * 
+	 * @apiParam {string=Mail} Module Module name
+	 * @apiParam {string=MoveMessages} Method Method name
+	 * @apiParam {string} Parameters JSON.stringified object<br>
+	 * {<br>
+	 * &emsp; **AccountID** *int* Account identifier.<br>
+	 * &emsp; **Folder** *string* Full name of the folder messages will be moved from.<br>
+	 * &emsp; **ToFolder** *string* Full name of the folder messages will be moved to.<br>
+	 * &emsp; **Uids** *string* Uids of messages to move.<br>
+	 * }
+	 * 
+	 * @apiParamExample {json} Request-Example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'MoveMessages',
+	 *	Parameters: '{ "AccountID": 12, "Folder": "Inbox", "ToFolder": "Trash", "Uids": "1212,1213,1215" }'
+	 * }
+	 * 
+	 * @apiSuccess {object[]} Result Array of response objects.
+	 * @apiSuccess {string} Result.Module Module name.
+	 * @apiSuccess {string} Result.Method Method name.
+	 * @apiSuccess {boolean} Result.Result Indicates if messages were moved successfully.
+	 * @apiSuccess {int} [Result.ErrorCode] Error code
+	 * 
+	 * @apiSuccessExample {json} Success response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'MoveMessages',
+	 *	Result: true
+	 * 
+	 * @apiSuccessExample {json} Error response example:
+	 * {
+	 *	Module: 'Mail',
+	 *	Method: 'MoveMessages',
+	 *	Result: false,
+	 *	ErrorCode: 102
+	 * }
+	 */
+	/**
+	 * Moves messages from one folder to another.
+	 * @param int $AccountID Account identifier.
+	 * @param string $Folder Full name of the folder messages will be moved from.
+	 * @param string $ToFolder Full name of the folder which messages will be moved to.
+	 * @param string $Uids Uids of messages to move.
+	 * @return boolean
+	 * @throws \Aurora\System\Exceptions\ApiException
+	 */
 	public function MoveMessages($AccountID, $Folder, $ToFolder, $Uids)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
