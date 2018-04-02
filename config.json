@@ -24,15 +24,15 @@
 		"bool"
 	],
 	"AllowFilters": [
-		false,
+		true,
 		"bool"
 	],
 	"AllowForward": [
-		false,
+		true,
 		"bool"
 	],
 	"AllowAutoresponder": [
-		false,
+		true,
 		"bool"
 	],
 	"AllowInsertImage": [
