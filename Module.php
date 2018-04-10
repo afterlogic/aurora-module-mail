@@ -1159,7 +1159,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function UpdateServer($ServerId, $Name, $IncomingServer, $IncomingPort, $IncomingUseSsl,
 			$OutgoingServer, $OutgoingPort, $OutgoingUseSsl, $SmtpAuthType, $Domains, $EnableThreading, $EnableSieve, 
-			$SievePort, $SmtpLogin = '', $SmtpPassword = '', $TenantId = 0)
+			$SievePort, $SmtpLogin = '', $SmtpPassword = '', $UseFullEmailAddressAsLogin = '', $TenantId = 0)
 	{
 		$bResult = false;
 		
@@ -1190,6 +1190,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$oServer->EnableThreading = $EnableThreading;
 			$oServer->EnableSieve = $EnableSieve;
 			$oServer->SievePort = $SievePort;
+			$oServer->UseFullEmailAddressAsLogin = $UseFullEmailAddressAsLogin;
 			
 			$bResult = $this->oApiServersManager->updateServer($oServer);
 		}
@@ -5144,9 +5145,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 			}
 			if ($oServer)
 			{
+				$sMailLogin = !$oServer->UseFullEmailAddressAsLogin && preg_match('/(.+)@.+$/',  $aArgs['Login'], $matches) && $matches[1] ? $matches[1] : $aArgs['Login'];
+
 				$oAccount = \Aurora\System\EAV\Entity::createInstance($this->getNamespace() . '\Classes\Account', $this->GetName());
 				$oAccount->Email = $aArgs['Login'];
-				$oAccount->IncomingLogin = $aArgs['Login'];
+				$oAccount->IncomingLogin = $sMailLogin;
 				$oAccount->IncomingPassword = $aArgs['Password'];
 				$oAccount->ServerId = $oServer->EntityId;
 				$bNewAccount = true;
