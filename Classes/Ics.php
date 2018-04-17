@@ -3,23 +3,22 @@
  * This code is licensed under AGPLv3 license or AfterLogic Software License
  * if commercial version of the product was purchased.
  * For full statements of the licenses see LICENSE-AFTERLOGIC and LICENSE-AGPL3 files.
+ */
+
+namespace Aurora\Modules\Mail\Classes;
+
+/**
+ * Ics class is used for work with attachment that contains calendar event or calendar appointment.
  * 
  * @license https://www.gnu.org/licenses/agpl-3.0.html AGPL-3.0
  * @license https://afterlogic.com/products/common-licensing AfterLogic Software License
  * @copyright Copyright (c) 2018, Afterlogic Corp.
- */
-
-/**
- * Ics class is used for work with attachment that contains calendar event or calendar appointment.
  * 
  * @internal
  * 
  * @package Mail
  * @subpackage Classes
  */
-
-namespace Aurora\Modules\Mail\Classes;
-
 class Ics
 {
 	/**
