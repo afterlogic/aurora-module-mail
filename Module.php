@@ -53,6 +53,19 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function init() 
 	{
+		$this->aErrors = [
+			Enums\ErrorCodes::CannotConnectToMailServer				=> $this->i18N('ERROR_CONNECT_TO_MAIL_SERVER'),
+			Enums\ErrorCodes::CannotLoginCredentialsIncorrect		=> $this->i18N('ERROR_CREDENTIALS_INCORRECT'),
+			Enums\ErrorCodes::FolderAlreadyExists					=> $this->i18N('ERROR_FOLDER_EXISTS'),
+			Enums\ErrorCodes::FolderNameContainsDelimiter			=> $this->i18N('ERROR_FOLDER_NAME_CONTAINS_DELIMITER'),
+			Enums\ErrorCodes::CannotRenameNonExistenFolder			=> $this->i18N('ERROR_RENAME_NONEXISTEN_FOLDER'),
+			Enums\ErrorCodes::CannotGetMessage						=> $this->i18N('ERROR_GET_MESSAGE'),
+			Enums\ErrorCodes::CannotMoveMessage						=> $this->i18N('ERROR_MOVE_MESSAGE'),
+			Enums\ErrorCodes::CannotSendMessageInvalidRecipients	=> $this->i18N('ERROR_SEND_MESSAGE_INVALID_RECIPIENTS'),
+			Enums\ErrorCodes::CannotSendMessageToRecipients			=> $this->i18N('ERROR_SEND_MESSAGE_TO_RECIPIENTS'),
+			Enums\ErrorCodes::CannotSendMessageToExternalRecipients	=> $this->i18N('ERROR_SEND_MESSAGE_TO_EXTERNAL_RECIPIENTS'),
+		];
+		
 		$this->oApiAccountsManager = new Managers\Accounts\Manager($this);
 		$this->oApiServersManager = new Managers\Servers\Manager($this);
 		$this->oApiIdentitiesManager = new Managers\Identities\Manager($this);
@@ -517,13 +530,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		$bPrevState = \Aurora\System\Api::skipCheckUserRole(true);
-		$oAccount = $this->GetAccountByEmail($IncomingLogin);
+		$oAccount = $this->GetAccountByEmail($Email);
 		\Aurora\System\Api::skipCheckUserRole($bPrevState);
 		
 		if (!$oAccount)
 		{
-			$sDomains = explode('@', $Email)[1];
-
+			$sDomain = preg_match('/.+@(.+)$/',  $Email, $aMatches) && $aMatches[1] ? $aMatches[1] : '';
+			
 			if ($Email)
 			{
 				$bCustomServerCreated = false;
@@ -533,7 +546,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 					$iServerId = $this->oApiServersManager->createServer($Server['IncomingServer'], 
 						$Server['IncomingServer'], $Server['IncomingPort'], $Server['IncomingUseSsl'], 
 						$Server['OutgoingServer'], $Server['OutgoingPort'], $Server['OutgoingUseSsl'], 
-						$Server['SmtpAuthType'], $sDomains, $Server['EnableThreading']
+						$Server['SmtpAuthType'], $sDomain, $Server['EnableThreading']
 					);
 
 					$bCustomServerCreated = true;
@@ -541,7 +554,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 				
 				if ($Server === null)
 				{
-					$oServer = $this->oApiServersManager->getServerByDomain($sDomains);
+					$oServer = $this->oApiServersManager->getServerByDomain($sDomain);
 					if ($oServer)
 					{
 						$iServerId = $oServer->EntityId;
@@ -562,17 +575,19 @@ class Module extends \Aurora\System\Module\AbstractModule
 					$oAccount->UseThreading = $oServer->EnableThreading;
 				}
 
-				$oUser = null;
-				$oCoreDecorator = \Aurora\Modules\Core\Module::Decorator();
-				if ($oCoreDecorator)
+				$bAccoutResult = false;
+				$oResException = $this->oApiMailManager->validateAccountConnection($oAccount, false);
+				if ($oResException === null)
 				{
-					$oUser = $oCoreDecorator->GetUser($UserId);
-					if ($oUser instanceof \Aurora\Modules\Core\Classes\User && $oUser->PublicId === $Email && !$this->oApiAccountsManager->useToAuthorizeAccountExists($Email))
+					$oCoreDecorator = \Aurora\Modules\Core\Module::Decorator();
+					$oUser = $oCoreDecorator ? $oCoreDecorator->GetUser($UserId) : null;
+					if ($oUser instanceof \Aurora\Modules\Core\Classes\User && $oUser->PublicId === $Email && 
+							!$this->oApiAccountsManager->useToAuthorizeAccountExists($Email))
 					{
 						$oAccount->UseToAuthorize = true;
 					}
+					$bAccoutResult = $this->oApiAccountsManager->createAccount($oAccount);
 				}
-				$bAccoutResult = $this->oApiAccountsManager->createAccount($oAccount);
 
 				if ($bAccoutResult)
 				{
@@ -581,6 +596,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 				else if ($bCustomServerCreated)
 				{
 					$this->oApiServersManager->deleteServer($iServerId);
+				}
+				
+				if ($oResException !== null)
+				{
+					throw $oResException;
 				}
 			}
 		}
@@ -2070,7 +2090,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		if (!($oMessage instanceof \Aurora\Modules\Mail\Classes\Message))
 		{
-			throw new \Aurora\System\Exceptions\ApiException(Notifications::CanNotGetMessage);
+			throw new \Aurora\Modules\Mail\Exceptions\Exception(Enums\ErrorCodes::CannotGetMessage);
 		}
 
 		return $oMessage;
@@ -2354,12 +2374,12 @@ class Module extends \Aurora\System\Module\AbstractModule
 		catch (\MailSo\Imap\Exceptions\NegativeResponseException $oException)
 		{
 			$oResponse = /* @var $oResponse \MailSo\Imap\Response */ $oException->GetLastResponse();
-			throw new \Aurora\System\Exceptions\ApiException(Notifications::CanNotMoveMessageQuota, $oException,
+			throw new \Aurora\Modules\Mail\Exceptions\Exception(Enums\ErrorCodes::CannotMoveMessageQuota, $oException,
 				$oResponse instanceof \MailSo\Imap\Response ? $oResponse->Tag.' '.$oResponse->StatusOrIndex.' '.$oResponse->HumanReadable : '');
 		}
 		catch (\Exception $oException)
 		{
-			throw new \Aurora\System\Exceptions\ApiException(Notifications::CanNotMoveMessage, $oException,
+			throw new \Aurora\Modules\Mail\Exceptions\Exception(Enums\ErrorCodes::CannotMoveMessage, $oException,
 				$oException->getMessage());
 		}
 
@@ -2444,12 +2464,12 @@ class Module extends \Aurora\System\Module\AbstractModule
 		catch (\MailSo\Imap\Exceptions\NegativeResponseException $oException)
 		{
 			$oResponse = /* @var $oResponse \MailSo\Imap\Response */ $oException->GetLastResponse();
-			throw new \Aurora\System\Exceptions\ApiException(Notifications::CanNotMoveMessageQuota, $oException,
+			throw new \Aurora\Modules\Mail\Exceptions\Exception(Enums\ErrorCodes::CannotMoveMessageQuota, $oException,
 				$oResponse instanceof \MailSo\Imap\Response ? $oResponse->Tag.' '.$oResponse->StatusOrIndex.' '.$oResponse->HumanReadable : '');
 		}
 		catch (\Exception $oException)
 		{
-			throw new \Aurora\System\Exceptions\ApiException(Notifications::CanNotMoveMessage, $oException,
+			throw new \Aurora\Modules\Mail\Exceptions\Exception(Enums\ErrorCodes::CannotMoveMessage, $oException,
 				$oException->getMessage());
 		}
 
@@ -2607,9 +2627,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
 			$this->oApiMailManager->createFolder($oAccount, $FolderNameInUtf8, $Delimiter, $FolderParentFullNameRaw);
 		} 
-		catch (\MailSo\Mail\Exceptions\AlreadyExistsFolder $ex) 
+		catch (\MailSo\Mail\Exceptions\AlreadyExistsFolder $oException) 
 		{
-			throw new \Aurora\System\Exceptions\ApiException(Exceptions\Errs::FolderAlreadyExists);
+			throw new \Aurora\Modules\Mail\Exceptions\Exception(
+				Enums\ErrorCodes::FolderAlreadyExists, 
+				$oException,
+				$oException->getMessage()
+			);
 		}
 
 		$aFoldersOrderList = $this->oApiMailManager->getFoldersOrder($oAccount);
@@ -3361,8 +3385,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			}
 			catch (\Aurora\System\Exceptions\ManagerException $oException)
 			{
-				$iCode = Notifications::CanNotSaveMessage;
-				throw new \Aurora\System\Exceptions\ApiException($iCode, $oException);
+				throw new \Aurora\Modules\Mail\Exceptions\Exception(Enums\ErrorCodes::CannotSaveMessage, $oException, $oException->getMessage());
 			}
 		}
 
@@ -3502,39 +3525,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$Sensitivity, $SendReadingConfirmation, $oFetcher, false, $oIdentity);
 		if ($oMessage)
 		{
-			try
-			{
-				$mResult = $this->oApiMailManager->sendMessage($oAccount, $oMessage, $oFetcher, $SentFolder, $DraftFolder, $DraftUid);
-			}
-			catch (\Aurora\System\Exceptions\ManagerException $oException)
-			{
-				$iCode = Notifications::CanNotSendMessage;
-				switch ($oException->getCode())
-				{
-					case Exceptions\Errs::InvalidRecipients:
-						$iCode = Notifications::InvalidRecipients;
-						break;
-					case Exceptions\Errs::CannotSendMessage:
-						$iCode = Notifications::CanNotSendMessage;
-						break;
-					case Exceptions\Errs::CannotSaveMessageInSentItems:
-						$iCode = Notifications::CannotSaveMessageInSentItems;
-						break;
-					case Exceptions\Errs::MailboxUnavailable:
-						$oServer = $oAccount->getServer();
-						if ($oServer->SmtpAuthType === \Aurora\Modules\Mail\Enums\SmtpAuthType::UseUserCredentials)
-						{
-							$iCode = Notifications::UnableSendToRecipients;
-						}
-						else
-						{
-							$iCode = Notifications::ExternalRecipientsBlocked;
-						}
-						break;
-				}
-
-				throw new \Aurora\System\Exceptions\ApiException($iCode, $oException, $oException->GetPreviousMessage(), $oException->GetObjectParams());
-			}
+			$mResult = $this->oApiMailManager->sendMessage($oAccount, $oMessage, $oFetcher, $SentFolder, $DraftFolder, $DraftUid);
 
 			if ($mResult)
 			{
@@ -4350,7 +4341,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			}
 			catch (\Exception $oException)
 			{
-				throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::MailServerError, $oException);
+				throw new \Aurora\Modules\Mail\Exceptions\Exception(Enums\ErrorCodes::CannotConnectToMailServer, $oException, $oException->getMessage());
 			}
 		}
 
@@ -4458,7 +4449,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			}
 			catch (\Exception $oException)
 			{
-				throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::MailServerError, $oException);
+				throw new \Aurora\Modules\Mail\Exceptions\Exception(Enums\ErrorCodes::CannotConnectToMailServer, $oException, $oException->getMessage());
 			}
 		}
 

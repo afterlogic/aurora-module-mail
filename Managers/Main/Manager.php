@@ -105,14 +105,13 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 								? \MailSo\Net\Enumerations\ConnectionSecurityType::SSL
 								: \MailSo\Net\Enumerations\ConnectionSecurityType::NONE, $bVerifySsl);
 					}
-					catch (\Exception $oEx) 
+					catch (\Exception $oException) 
 					{
-						throw new \Aurora\System\Exceptions\Exception(
-							$oEx->getMessage(), 
-							\Aurora\Modules\Mail\Exceptions\Errs::AccountConnectToMailServerFailed, 
-							$oEx
+						throw new \Aurora\Modules\Mail\Exceptions\Exception(
+							\Aurora\Modules\Mail\Enums\ErrorCodes::CannotConnectToMailServer, 
+							$oException,
+							$oException->getMessage()
 						);
-
 					}
 				}
 			}
@@ -126,12 +125,12 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 				{
 					$oResult->Login($oAccount->IncomingLogin, $oAccount->IncomingPassword, '');
 				}
-				catch (\MailSo\Imap\Exceptions\LoginBadCredentialsException $oEx) 
+				catch (\MailSo\Imap\Exceptions\LoginBadCredentialsException $oException) 
 				{
-					throw new \Aurora\System\Exceptions\Exception(
-						$oEx->getMessage(), 
-						\Aurora\Modules\Mail\Exceptions\Errs::AccountLoginFailed, 
-						$oEx
+					throw new \Aurora\Modules\Mail\Exceptions\Exception(
+						\Aurora\Modules\Mail\Enums\ErrorCodes::CannotLoginCredentialsIncorrect,
+						$oException,
+						$oException->getMessage()
 					);
 				}
 			}
@@ -167,42 +166,31 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 * Checks if user of the account can successfully connect to mail server.
 	 * 
 	 * @param Aurora\Modules\Mail\Classes\Account $oAccount Account object.
+	 * @param boolean $bThrowException = true
 	 * 
 	 * @return void
 	 *
 	 * @throws \Aurora\System\Exceptions\ManagerException
 	 */
-	public function validateAccountConnection($oAccount)
+	public function validateAccountConnection($oAccount, $bThrowException = true)
 	{
+		$oResException = null;
+		
 		try
 		{
-			$oImapClient = null;
-			$oImapClient =& $this->_getImapClient($oAccount);
-		}
-		catch (\MailSo\Net\Exceptions\SocketCanNotConnectToHostException $oException)
-		{
-			throw new \Aurora\Modules\Mail\Exceptions\Exception(
-				\Aurora\Modules\Mail\Exceptions\Errs::AccountConnectToMailServerFailed, 
-				$oException,
-				$this->GetModule()->i18N('ACCOUNT_CONNECT_TO_MAIL_SERVER_FAILED')
-			);
-		}
-		catch (\MailSo\Imap\Exceptions\LoginBadCredentialsException $oException)
-		{
-			throw new \Aurora\Modules\Mail\Exceptions\Exception(
-				\Aurora\Modules\Mail\Exceptions\Errs::AccountAuthentication, 
-				$oException,
-				$this->GetModule()->i18N('ACCOUNT_AUTHENTICATION')
-			);
+			$this->_getImapClient($oAccount);
 		}
 		catch (\Exception $oException)
 		{
-			throw new \Aurora\Modules\Mail\Exceptions\Exception(
-				\Aurora\Modules\Mail\Exceptions\Errs::AccountLoginFailed, 
-				$oException,
-				$this->GetModule()->i18N('ACCOUNT_AUTHENTICATION')
-			);
+			$oResException = $oException;
 		}
+		
+		if ($bThrowException && $oResException !== null)
+		{
+			throw $oResException;
+		}
+		
+		return $oResException;
 	}
 
 	/**
@@ -943,11 +931,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
 		if (0 < strlen($sDelimiter) && false !== strpos($sNameToCreate, $sDelimiter))
 		{
-			throw new \Aurora\Modules\Mail\Exceptions\Exception(
-				\Aurora\Modules\Mail\Exceptions\Errs::FolderNameContainsDelimiter, 
-				null,
-				$this->GetModule()->i18N('FOLDER_NAME_CONTAINS_DELIMITER')
-			);
+			throw new \Aurora\Modules\Mail\Exceptions\Exception(\Aurora\Modules\Mail\Enums\ErrorCodes::FolderNameContainsDelimiter);
 		}
 
 		$this->createFolderByFullName(
@@ -1005,11 +989,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		$aFolders = $oImapClient->FolderList('', $sPrevFolderFullNameRaw);
 		if (!is_array($aFolders) || !isset($aFolders[0]))
 		{
-			throw new \Aurora\Modules\Mail\Exceptions\Exception(
-				\Aurora\Modules\Mail\Exceptions\Errs::CannotRenameNonExistenFolder, 
-				null,
-				$this->GetModule()->i18N('FOLDER_NAME_CONTAINS_DELIMITER')
-			);
+			throw new \Aurora\Modules\Mail\Exceptions\Exception(\Aurora\Modules\Mail\Enums\ErrorCodes::CannotRenameNonExistenFolder);
 		}
 
 		$sDelimiter = $aFolders[0]->Delimiter();
@@ -1031,11 +1011,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
 		if (0 < strlen($sDelimiter) && false !== strpos($sNewFolderFullNameRaw, $sDelimiter))
 		{
-			throw new \Aurora\Modules\Mail\Exceptions\Exception(
-				\Aurora\Modules\Mail\Exceptions\Errs::FolderNameContainsDelimiter, 
-				null,
-				$this->GetModule()->i18N('FOLDER_NAME_CONTAINS_DELIMITER')
-			);
+			throw new \Aurora\Modules\Mail\Exceptions\Exception(\Aurora\Modules\Mail\Enums\ErrorCodes::FolderNameContainsDelimiter);
 		}
 
 		$sNewFolderFullNameRaw = $sFolderParentFullNameRaw.$sNewFolderFullNameRaw;
@@ -1264,6 +1240,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			if ($oRcpt && 0 < $oRcpt->Count())
 			{
 				$sRcptEmail = '';
+				$oServer = null;
 				try
 				{
 					$oSettings =& \Aurora\System\Api::GetSettings();
@@ -1332,33 +1309,37 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 				catch (\MailSo\Net\Exceptions\ConnectionException $oException)
 				{
 					throw new \Aurora\Modules\Mail\Exceptions\Exception(
-						\Aurora\Modules\Mail\Exceptions\Errs::AccountConnectToMailServerFailed, 
+						\Aurora\Modules\Mail\Enums\ErrorCodes::CannotConnectToMailServer, 
 						$oException,
-						$this->GetModule()->i18N('ACCOUNT_CONNECT_TO_MAIL_SERVER_FAILED')
+						$oException->getMessage()
 					);
 				}
 				catch (\MailSo\Smtp\Exceptions\LoginException $oException)
 				{
 					throw new \Aurora\Modules\Mail\Exceptions\Exception(
-						\Aurora\Modules\Mail\Exceptions\Errs::AccountLoginFailed, 
+						\Aurora\Modules\Mail\Enums\ErrorCodes::CannotLoginCredentialsIncorrect, 
 						$oException,
-						$this->GetModule()->i18N('ACCOUNT_AUTHENTICATION')
+						$oException->getMessage()
 					);
 				}
 				catch (\MailSo\Smtp\Exceptions\NegativeResponseException $oException)
 				{
 					throw new \Aurora\Modules\Mail\Exceptions\Exception(
-						\Aurora\Modules\Mail\Exceptions\Errs::CannotSendMessage, 
+						\Aurora\Modules\Mail\Enums\ErrorCodes::CannotSendMessage, 
 						$oException,
-						$this->GetModule()->i18N('CANNOT_SEND_MESSAGE')
+						$oException->getMessage()
 					);
 				}
 				catch (\MailSo\Smtp\Exceptions\MailboxUnavailableException $oException)
 				{
+					$iErrorCode = ($oServer && $oServer->SmtpAuthType === \Aurora\Modules\Mail\Enums\SmtpAuthType::UseUserCredentials)
+						? \Aurora\Modules\Mail\Enums\ErrorCodes::CannotSendMessageToRecipients
+						: \Aurora\Modules\Mail\Enums\ErrorCodes::CannotSendMessageToExternalRecipients;
 					throw new \Aurora\Modules\Mail\Exceptions\Exception(
-						\Aurora\Modules\Mail\Exceptions\Errs::MailboxUnavailable, 
+						$iErrorCode,
 						$oException,
-						$this->GetModule()->i18N('MAILBOX_UNAVAILABLE', array('Mailbox' => $sRcptEmail))
+						$oException->getMessage(),
+						array('MAILBOX' => $sRcptEmail)
 					);
 				}
 
@@ -1399,9 +1380,9 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 					catch (\Exception $oException)
 					{
 						throw new \Aurora\Modules\Mail\Exceptions\Exception(
-							\Aurora\Modules\Mail\Exceptions\Errs::CannotSaveMessageInSentItems, 
+							\Aurora\Modules\Mail\Enums\ErrorCodes::CannotSaveMessageToSentItems, 
 							$oException,
-							$this->GetModule()->i18N('CANNOT_SEND_MESSAGE')
+							$oException->getMessage()
 						);
 					}
 
@@ -1424,11 +1405,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			}
 			else
 			{
-				throw new \Aurora\Modules\Mail\Exceptions\Exception(
-					\Aurora\Modules\Mail\Exceptions\Errs::InvalidRecipients, 
-					$oException,
-					$this->GetModule()->i18N('CANNOT_SEND_MESSAGE')
-				);
+				throw new \Aurora\Modules\Mail\Exceptions\Exception(\Aurora\Modules\Mail\Enums\ErrorCodes::CannotSendMessageInvalidRecipients);
 			}
 		}
 
