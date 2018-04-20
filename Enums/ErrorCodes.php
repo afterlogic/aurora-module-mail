@@ -25,7 +25,9 @@ class ErrorCodes
 	const CannotSendMessageToRecipients = 4011;
 	const CannotSendMessageToExternalRecipients = 4012;
 	const CannotSaveMessage = 4013;
-	const CannotSaveMessageToSentItems = 4014; // is used on client side
+	const CannotSaveMessageToSentItems = 4014;
+	const CannotUploadMessage = 4015;
+	const CannotUploadMessageFileNotEml = 4016;
 
 	/**
 	 * @var array
@@ -45,5 +47,7 @@ class ErrorCodes
 		'CannotSendMessageToExternalRecipients' => self::CannotSendMessageToExternalRecipients,
 		'CannotSaveMessage' => self::CannotSaveMessage,
 		'CannotSaveMessageToSentItems' => self::CannotSaveMessageToSentItems,
+		'CannotUploadMessage' => self::CannotUploadMessage,
+		'CannotUploadMessageFileNotEml' => self::CannotUploadMessageFileNotEml,
 	];
 }

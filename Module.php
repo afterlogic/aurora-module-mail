@@ -64,6 +64,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 			Enums\ErrorCodes::CannotSendMessageInvalidRecipients	=> $this->i18N('ERROR_SEND_MESSAGE_INVALID_RECIPIENTS'),
 			Enums\ErrorCodes::CannotSendMessageToRecipients			=> $this->i18N('ERROR_SEND_MESSAGE_TO_RECIPIENTS'),
 			Enums\ErrorCodes::CannotSendMessageToExternalRecipients	=> $this->i18N('ERROR_SEND_MESSAGE_TO_EXTERNAL_RECIPIENTS'),
+			Enums\ErrorCodes::CannotSaveMessageToSentItems			=> $this->i18N('ERROR_SEND_MESSAGE_NOT_SAVED'),
+			Enums\ErrorCodes::CannotUploadMessage					=> $this->i18N('ERROR_UPLOAD_MESSAGE'),
+			Enums\ErrorCodes::CannotUploadMessageFileNotEml			=> $this->i18N('ERROR_UPLOAD_MESSAGE_FILE_NOT_EML'),
 		];
 		
 		$this->oApiAccountsManager = new Managers\Accounts\Manager($this);
@@ -4543,23 +4546,30 @@ class Module extends \Aurora\System\Module\AbstractModule
 					if ($this->oApiFileCache->isFileExists($sUUID, $sSavedName))
 					{
 						$sSavedFullName = $this->oApiFileCache->generateFullFilePath($sUUID, $sSavedName);
-						$this->oApiMailManager->appendMessageFromFile($oAccount, $sSavedFullName, $Folder);
-						$bResult = true;
+						try
+						{
+							$this->oApiMailManager->appendMessageFromFile($oAccount, $sSavedFullName, $Folder);
+							$bResult = true;
+						}
+						catch (\Exception $oException)
+						{
+							throw new \Aurora\Modules\Mail\Exceptions\Exception(Enums\ErrorCodes::CannotUploadMessage, $oException, $oException->getMessage());
+						}
 					} 
 					else 
 					{
-						throw new \Aurora\Sysytem\Exceptions\ApiException(\Aurora\System\Notifications::UnknownError);
+						throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::UnknownError);
 					}
 				}
 				else
 				{
-					throw new \Aurora\Sysytem\Exceptions\ApiException(\Aurora\System\Notifications::IncorrectFileExtension);
+					throw new \Aurora\Modules\Mail\Exceptions\Exception(Enums\ErrorCodes::CannotUploadMessageFileNotEml);
 				}
 			}
 		}
 		else
 		{
-			throw new \Aurora\Sysytem\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
+			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
 		}
 
 		return $bResult;
