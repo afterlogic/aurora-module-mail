@@ -87,7 +87,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 		);
 
 		$this->AddEntries(array(
-				'autodiscover' => 'EntryAutodiscover',
 				'message-newtab' => 'EntryMessageNewtab',
 				'mail-attachment' => 'EntryDownloadAttachment'
 			)
@@ -96,6 +95,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$this->subscribeEvent('Login', array($this, 'onLogin'));
 		$this->subscribeEvent('Core::AfterDeleteUser', array($this, 'onAfterDeleteUser'));
 		$this->subscribeEvent('Core::GetAccounts', array($this, 'onGetAccounts'));
+		$this->subscribeEvent('Autodiscover::GetAutodiscover::after', array($this, 'onAfterGetAutodiscover'));
 
 		\MailSo\Config::$PreferStartTlsIfAutoDetect = !!$this->getConfig('PreferStarttls', true);
 	}
@@ -5514,51 +5514,39 @@ class Module extends \Aurora\System\Module\AbstractModule
 		return $oMessage;
 	}	
 	
-	public function EntryAutodiscover()
+	public function onAfterGetAutodiscover(&$aArgs, &$mResult)
 	{
-		$sInput = \file_get_contents('php://input');
+		$sIncomingServer = \trim($this->getConfig('ExternalHostNameOfLocalImap'));
+		$sOutgoingServer = \trim($this->getConfig('ExternalHostNameOfLocalSmtp'));
+		$sEmail = $aArgs['Email'];
 
-		\Aurora\System\Api::Log('#autodiscover:');
-		\Aurora\System\Api::LogObject($sInput);
-
-		$aMatches = array();
-		$aEmailAddress = array();
-		\preg_match("/\<AcceptableResponseSchema\>(.*?)\<\/AcceptableResponseSchema\>/i", $sInput, $aMatches);
-		\preg_match("/\<EMailAddress\>(.*?)\<\/EMailAddress\>/", $sInput, $aEmailAddress);
-		if (!empty($aMatches[1]) && !empty($aEmailAddress[1]))
+		if (0 < \strlen($sIncomingServer) && 0 < \strlen($sOutgoingServer))
 		{
-			$sIncomingServer = \trim($this->getConfig('ExternalHostNameOfLocalImap'));
-			$sOutgoingServer = \trim($this->getConfig('ExternalHostNameOfLocalSmtp'));
+			$iIncomingPort = 143;
+			$iOutgoingPort = 25;
 
-			if (0 < \strlen($sIncomingServer) && 0 < \strlen($sOutgoingServer))
+			$aMatch = array();
+			if (\preg_match('/:([\d]+)$/', $sIncomingServer, $aMatch) && !empty($aMatch[1]) && \is_numeric($aMatch[1]))
 			{
-				$iIncomingPort = 143;
-				$iOutgoingPort = 25;
+				$sIncomingServer = \preg_replace('/:[\d]+$/', $sIncomingServer, '');
+				$iIncomingPort = (int) $aMatch[1];
+			}
 
-				$aMatch = array();
-				if (\preg_match('/:([\d]+)$/', $sIncomingServer, $aMatch) && !empty($aMatch[1]) && \is_numeric($aMatch[1]))
-				{
-					$sIncomingServer = \preg_replace('/:[\d]+$/', $sIncomingServer, '');
-					$iIncomingPort = (int) $aMatch[1];
-				}
+			$aMatch = array();
+			if (\preg_match('/:([\d]+)$/', $sOutgoingServer, $aMatch) && !empty($aMatch[1]) && \is_numeric($aMatch[1]))
+			{
+				$sOutgoingServer = \preg_replace('/:[\d]+$/', $sOutgoingServer, '');
+				$iOutgoingPort = (int) $aMatch[1];
+			}
 
-				$aMatch = array();
-				if (\preg_match('/:([\d]+)$/', $sOutgoingServer, $aMatch) && !empty($aMatch[1]) && \is_numeric($aMatch[1]))
-				{
-					$sOutgoingServer = \preg_replace('/:[\d]+$/', $sOutgoingServer, '');
-					$iOutgoingPort = (int) $aMatch[1];
-				}
-
-				$sResult = \implode("\n", array(
-'<Autodiscover xmlns="http://schemas.microsoft.com/exchange/autodiscover/responseschema/2006">',
-'	<Response xmlns="'.$aMatches[1].'">',
+			$sResult = \implode("\n", array(
 '		<Account>',
 '			<AccountType>email</AccountType>',
 '			<Action>settings</Action>',
 '			<Protocol>',
 '				<Type>IMAP</Type>',
 '				<Server>'.$sIncomingServer.'</Server>',
-'				<LoginName>'.$aEmailAddress[1].'</LoginName>',
+'				<LoginName>'.$sEmail.'</LoginName>',
 '				<Port>'.$iIncomingPort.'</Port>',
 '				<SSL>'.(993 === $iIncomingPort ? 'on' : 'off').'</SSL>',
 '				<SPA>off</SPA>',
@@ -5567,43 +5555,16 @@ class Module extends \Aurora\System\Module\AbstractModule
 '			<Protocol>',
 '				<Type>SMTP</Type>',
 '				<Server>'.$sOutgoingServer.'</Server>',
-'				<LoginName>'.$aEmailAddress[1].'</LoginName>',
+'				<LoginName>'.$sEmail.'</LoginName>',
 '				<Port>'.$iOutgoingPort.'</Port>',
 '				<SSL>'.(465 === $iOutgoingPort ? 'on' : 'off').'</SSL>',
 '				<SPA>off</SPA>',
 '				<AuthRequired>on</AuthRequired>',
 '			</Protocol>',
-'		</Account>',
-'	</Response>',
-'</Autodiscover>'));
-			}
+'		</Account>'
+));
+			$mResult = $mResult . $sResult;
 		}
-
-		if (empty($sResult))
-		{
-			$usec = $sec = 0;
-			list($usec, $sec) = \explode(' ', \microtime());
-			$sResult = \implode("\n", array('<Autodiscover xmlns="http://schemas.microsoft.com/exchange/autodiscover/responseschema/2006">',
-(empty($aMatches[1]) ?
-'	<Response>' :
-'	<Response xmlns="'.$aMatches[1].'">'
-),
-'		<Error Time="'.\gmdate('H:i:s', $sec).\substr($usec, 0, \strlen($usec) - 2).'" Id="2477272013">',
-'			<ErrorCode>600</ErrorCode>',
-'			<Message>Invalid Request</Message>',
-'			<DebugData />',
-'		</Error>',
-'	</Response>',
-'</Autodiscover>'));
-		}
-
-		\header('Content-Type: text/xml');
-		$sResult = '<'.'?xml version="1.0" encoding="utf-8"?'.'>'."\n".$sResult;
-		
-		echo $sResult;
-
-		\Aurora\System\Api::Log('');
-		\Aurora\System\Api::Log($sResult);		
 	}
 	
 	public function EntryMessageNewtab()
