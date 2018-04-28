@@ -1076,12 +1076,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param int $SievePort
 	 * @param string $SmtpLogin (optional)
 	 * @param string $SmtpPassword (optional)
+	 * @param boolean $UseFullEmailAddressAsLogin (optional)
 	 * @param int $TenantId (optional) If tenant identifier is specified creates mail server belonged to specified tenant.
 	 * @return int|boolean
 	 */
 	public function CreateServer($Name, $IncomingServer, $IncomingPort, $IncomingUseSsl,
 			$OutgoingServer, $OutgoingPort, $OutgoingUseSsl, $SmtpAuthType, $Domains, $EnableThreading, $EnableSieve, 
-			$SievePort, $SmtpLogin = '', $SmtpPassword = '', $TenantId = 0)
+			$SievePort, $SmtpLogin = '', $SmtpPassword = '', $UseFullEmailAddressAsLogin = false, $TenantId = 0)
 	{
 		$sOwnerType = ($TenantId === 0) ? \Aurora\Modules\Mail\Enums\ServerOwnerType::SuperAdmin : \Aurora\Modules\Mail\Enums\ServerOwnerType::Tenant;
 		
@@ -1094,10 +1095,26 @@ class Module extends \Aurora\System\Module\AbstractModule
 			\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::TenantAdmin);
 		}
 		
-		return $this->oApiServersManager->createServer($Name, $IncomingServer, $IncomingPort,
-			$IncomingUseSsl, $OutgoingServer, $OutgoingPort, $OutgoingUseSsl, $SmtpAuthType, $Domains, 
-			$EnableThreading, $SmtpLogin, $SmtpPassword, $EnableSieve, $SievePort, $sOwnerType, $TenantId
-		);
+		$oServer = new \Aurora\Modules\Mail\Classes\Server($this->GetName());
+		$oServer->OwnerType = $sOwnerType;
+		$oServer->TenantId = $TenantId;
+		$oServer->Name = $Name;
+		$oServer->IncomingServer = $IncomingServer;
+		$oServer->IncomingPort = $IncomingPort;
+		$oServer->IncomingUseSsl = $IncomingUseSsl;
+		$oServer->OutgoingServer = $OutgoingServer;
+		$oServer->OutgoingPort = $OutgoingPort;
+		$oServer->OutgoingUseSsl = $OutgoingUseSsl;
+		$oServer->SmtpAuthType = $SmtpAuthType;
+		$oServer->SmtpLogin = $SmtpLogin;
+		$oServer->SmtpPassword = $SmtpPassword;
+		$oServer->Domains = $Domains;
+		$oServer->EnableThreading = $EnableThreading;
+		$oServer->EnableSieve = $EnableSieve;
+		$oServer->SievePort = $SievePort;
+		$oServer->UseFullEmailAddressAsLogin = $UseFullEmailAddressAsLogin;
+			
+		return $this->oApiServersManager->createServer($oServer);
 	}
 	
 	/**
@@ -5131,14 +5148,15 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$oServer = null;
 		$iUserId = 0;
 		
-		$oAccount = $this->oApiAccountsManager->getAccountUsedToAuthorize($aArgs['Login']);
+		$sEmail = $aArgs['Login'];
+		$sMailLogin = $aArgs['Login'];
+		$oAccount = $this->oApiAccountsManager->getAccountUsedToAuthorize($sEmail);
 
 		$bNewAccount = false;
 		$bAutocreateMailAccountOnNewUserFirstLogin = $this->getConfig('AutocreateMailAccountOnNewUserFirstLogin', false);
 		
 		if (($bAutocreateMailAccountOnNewUserFirstLogin) && !$oAccount)
 		{
-			$sEmail = $aArgs['Login'];
 			$sDomain = \MailSo\Base\Utils::GetDomainFromEmail($sEmail);
 			$oServer = $this->oApiServersManager->GetServerByDomain(strtolower($sDomain));
 			if (!$oServer)
@@ -5147,10 +5165,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 			}
 			if ($oServer)
 			{
-				$sMailLogin = !$oServer->UseFullEmailAddressAsLogin && preg_match('/(.+)@.+$/',  $aArgs['Login'], $matches) && $matches[1] ? $matches[1] : $aArgs['Login'];
+				$sMailLogin = !$oServer->UseFullEmailAddressAsLogin && preg_match('/(.+)@.+$/',  $sEmail, $matches) && $matches[1] ? $matches[1] : $sEmail;
 
 				$oAccount = \Aurora\System\EAV\Entity::createInstance($this->getNamespace() . '\Classes\Account', $this->GetName());
-				$oAccount->Email = $aArgs['Login'];
+				$oAccount->Email = $sEmail;
 				$oAccount->IncomingLogin = $sMailLogin;
 				$oAccount->IncomingPassword = $aArgs['Password'];
 				$oAccount->ServerId = $oServer->EntityId;
@@ -5199,7 +5217,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 							$iUserId, 
 							'',
 							$sEmail,
-							$aArgs['Login'],
+							$sMailLogin,
 							$aArgs['Password'], 
 							array('ServerId' => $oServer->EntityId)
 						);

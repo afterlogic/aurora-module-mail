@@ -30,49 +30,14 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	}
 
 	/**
-	 * 
-	 * @param string $sName
-	 * @param string $sIncomingServer
-	 * @param int $iIncomingPort
-	 * @param boolean $bIncomingUseSsl
-	 * @param string $sOutgoingServer
-	 * @param int $iOutgoingPort
-	 * @param boolean $bOutgoingUseSsl
-	 * @param string $sSmtpAuthType
-	 * @param string $sDomains
-	 * @param boolean $bEnableThreading
-	 * @param string $sSmtpLogin
-	 * @param string $sSmtpPassword
-	 * @param boolean $bEnableSieve
-	 * @param int $iSievePort
-	 * @param string $sOwnerType
-	 * @param int $iTenantId
+	 * @param instanceof \Aurora\Modules\Mail\Classes\Server
 	 * @return int|boolean
 	 * @throws \Aurora\System\Exceptions\ManagerException
 	 */
-	public function createServer($sName, $sIncomingServer, $iIncomingPort, $bIncomingUseSsl,
-			$sOutgoingServer, $iOutgoingPort, $bOutgoingUseSsl, $sSmtpAuthType, $sDomains, $bEnableThreading = true, $sSmtpLogin = 0, $sSmtpPassword = 0, 
-			$bEnableSieve = false, $iSievePort = 4190, $sOwnerType = \Aurora\Modules\Mail\Enums\ServerOwnerType::Account, $iTenantId = 0)
+	public function createServer(\Aurora\Modules\Mail\Classes\Server $oServer)
 	{
 		try
 		{
-			$oServer = new \Aurora\Modules\Mail\Classes\Server($this->oModule->GetName());
-			$oServer->OwnerType = $sOwnerType;
-			$oServer->TenantId = $iTenantId;
-			$oServer->Name = $sName;
-			$oServer->IncomingServer = $sIncomingServer;
-			$oServer->IncomingPort = $iIncomingPort;
-			$oServer->IncomingUseSsl = $bIncomingUseSsl;
-			$oServer->OutgoingServer = $sOutgoingServer;
-			$oServer->OutgoingPort = $iOutgoingPort;
-			$oServer->OutgoingUseSsl = $bOutgoingUseSsl;
-			$oServer->SmtpAuthType = $sSmtpAuthType;
-			$oServer->SmtpLogin = $sSmtpLogin;
-			$oServer->SmtpPassword = $sSmtpPassword;
-			$oServer->Domains = $sDomains;
-			$oServer->EnableThreading = $bEnableThreading;
-			$oServer->EnableSieve = $bEnableSieve;
-			$oServer->SievePort = $iSievePort;
 			if (!$this->oEavManager->saveEntity($oServer))
 			{
 				throw new \Aurora\System\Exceptions\ManagerException(\Aurora\System\Exceptions\Errs::UsersManager_UserCreateFailed);
