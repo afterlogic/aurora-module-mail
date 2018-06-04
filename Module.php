@@ -5154,8 +5154,16 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		$bNewAccount = false;
 		$bAutocreateMailAccountOnNewUserFirstLogin = $this->getConfig('AutocreateMailAccountOnNewUserFirstLogin', false);
+		if (!$bAutocreateMailAccountOnNewUserFirstLogin && !$oAccount)
+		{
+			$oUser = \Aurora\System\Api::GetModuleDecorator('Core')->GetUserByPublicId($sEmail);
+			if ($oUser instanceof \Aurora\Modules\Core\Classes\User)
+			{
+				$bAutocreateMailAccountOnNewUserFirstLogin = true;
+			}
+		}
 		
-		if (($bAutocreateMailAccountOnNewUserFirstLogin) && !$oAccount)
+		if ($bAutocreateMailAccountOnNewUserFirstLogin && !$oAccount)
 		{
 			$sDomain = \MailSo\Base\Utils::GetDomainFromEmail($sEmail);
 			$oServer = $this->oApiServersManager->GetServerByDomain(strtolower($sDomain));
