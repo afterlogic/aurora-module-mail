@@ -546,12 +546,18 @@ class Module extends \Aurora\System\Module\AbstractModule
 				$iServerId = $Server['ServerId'];
 				if ($Server !== null && $iServerId === 0)
 				{
-					$iServerId = $this->oApiServersManager->createServer($Server['IncomingServer'], 
-						$Server['IncomingServer'], $Server['IncomingPort'], $Server['IncomingUseSsl'], 
-						$Server['OutgoingServer'], $Server['OutgoingPort'], $Server['OutgoingUseSsl'], 
-						$Server['SmtpAuthType'], $sDomain, $Server['EnableThreading']
-					);
-
+					$oNewServer = new \Aurora\Modules\Mail\Classes\Server($this->GetName());
+					$oNewServer->Name = $Server['IncomingServer'];
+					$oNewServer->IncomingServer = $Server['IncomingServer'];
+					$oNewServer->IncomingPort = $Server['IncomingPort'];
+					$oNewServer->IncomingUseSsl = $Server['IncomingUseSsl'];
+					$oNewServer->OutgoingServer = $Server['OutgoingServer'];
+					$oNewServer->OutgoingPort = $Server['OutgoingPort'];
+					$oNewServer->OutgoingUseSsl = $Server['OutgoingUseSsl'];
+					$oNewServer->SmtpAuthType = $Server['SmtpAuthType'];
+					$oNewServer->Domains = $sDomain;
+					$oNewServer->EnableThreading = $Server['EnableThreading'];
+					$iServerId = $this->oApiServersManager->createServer($oNewServer);
 					$bCustomServerCreated = true;
 				}
 				
@@ -716,11 +722,18 @@ class Module extends \Aurora\System\Module\AbstractModule
 					if ($Server['ServerId'] === 0)
 					{
 						$sDomains = explode('@', $oAccount->Email)[1];
-						$iNewServerId = $this->oApiServersManager->createServer($Server['IncomingServer'],
-							$Server['IncomingServer'], $Server['IncomingPort'], $Server['IncomingUseSsl'], 
-							$Server['OutgoingServer'], $Server['OutgoingPort'], $Server['OutgoingUseSsl'], 
-							$Server['SmtpAuthType'], $sDomains, $Server['EnableThreading']
-						);
+						$oNewServer = new \Aurora\Modules\Mail\Classes\Server($this->GetName());
+						$oNewServer->Name = $Server['IncomingServer'];
+						$oNewServer->IncomingServer = $Server['IncomingServer'];
+						$oNewServer->IncomingPort = $Server['IncomingPort'];
+						$oNewServer->IncomingUseSsl = $Server['IncomingUseSsl'];
+						$oNewServer->OutgoingServer = $Server['OutgoingServer'];
+						$oNewServer->OutgoingPort = $Server['OutgoingPort'];
+						$oNewServer->OutgoingUseSsl = $Server['OutgoingUseSsl'];
+						$oNewServer->SmtpAuthType = $Server['SmtpAuthType'];
+						$oNewServer->Domains = $sDomains;
+						$oNewServer->EnableThreading = $Server['EnableThreading'];
+						$iNewServerId = $this->oApiServersManager->createServer($oNewServer);
 						$oAccount->updateServer($iNewServerId);
 					}
 					elseif ($oAccount->ServerId === $Server['ServerId'])
