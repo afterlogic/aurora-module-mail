@@ -3913,7 +3913,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		
 		if ($Default)
 		{
-			$this->oApiIdentitiesManager->resetDefaultIdentity($UserId);
+			$this->oApiIdentitiesManager->resetDefaultIdentity($UserId, $AccountID);
 		}
 		
 		if ($AccountPart)

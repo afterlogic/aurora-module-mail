@@ -218,14 +218,18 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	
 	/**
 	 * @param int $iUserId
+	 * @param int $iAccountId
 	 */
-	public function resetDefaultIdentity($iUserId)
+	public function resetDefaultIdentity($iUserId, $iAccountId)
 	{
 		$aIdentities = $this->getIdentities($iUserId, ['Default' => [true, '=']]);
 		foreach ($aIdentities as $oIdentity)
 		{
-			$oIdentity->Default = false;
-			$this->oEavManager->saveEntity($oIdentity);
+			if ($oIdentity->IdAccount === $iAccountId)
+			{
+				$oIdentity->Default = false;
+				$this->oEavManager->saveEntity($oIdentity);
+			}
 		}
 	}
 }
