@@ -92,7 +92,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			)
 		);
 		
-		$this->subscribeEvent('Login', array($this, 'onLogin'));
+		$this->subscribeEvent('Core::Login', array($this, 'onLogin'));
 		$this->subscribeEvent('Core::AfterDeleteUser', array($this, 'onAfterDeleteUser'));
 		$this->subscribeEvent('Core::GetAccounts', array($this, 'onGetAccounts'));
 		$this->subscribeEvent('Autodiscover::GetAutodiscover::after', array($this, 'onAfterGetAutodiscover'));
