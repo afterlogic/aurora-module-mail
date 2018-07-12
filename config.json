@@ -15,10 +15,6 @@
 		false,
 		"bool"
 	],
-	"AllowFetchers": [
-		false,
-		"bool"
-	],
 	"AllowIdentities": [
 		true,
 		"bool"

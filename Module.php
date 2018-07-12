@@ -136,7 +136,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiSuccess {boolean} Result.Result.AllowAddAccounts=false Indicates if adding of new account is allowed.
 	 * @apiSuccess {boolean} Result.Result.AllowAutosaveInDrafts=false Indicates if autosave in Drafts folder on compose is allowed.
 	 * @apiSuccess {boolean} Result.Result.AllowDefaultAccountForUser=false Indicates if default account is allowed.
-	 * @apiSuccess {boolean} Result.Result.AllowFetchers=false Indicates if fetchers are allowed.
 	 * @apiSuccess {boolean} Result.Result.AllowIdentities=false Indicates if identities are allowed.
 	 * @apiSuccess {boolean} Result.Result.AllowFilters=false Indicates if filters are allowed.
 	 * @apiSuccess {boolean} Result.Result.AllowForward=false Indicates if forward is allowed.
@@ -152,7 +151,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 *	Module: 'Mail',
 	 *	Method: 'GetSettings',
 	 *	Result: { Accounts: [], AllowAddAccounts: true, AllowAutosaveInDrafts: true,
-	 * AllowDefaultAccountForUser: true, AllowFetchers: false, AllowIdentities: true,
+	 * AllowDefaultAccountForUser: true, AllowIdentities: true,
 	 * AllowFilters: false, AllowForward: false, AllowAutoresponder: false, AllowInsertImage: true,
 	 * AutoSaveIntervalSeconds: 60, ImageUploadSizeLimit: 0 }
 	 * }
@@ -178,7 +177,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 			'AllowAddAccounts' => $this->getConfig('AllowAddAccounts', false),
 			'AllowAutosaveInDrafts' => (bool)$this->getConfig('AllowAutosaveInDrafts', false),
 			'AllowDefaultAccountForUser' => $this->getConfig('AllowDefaultAccountForUser', false),
-			'AllowFetchers' => $this->getConfig('AllowFetchers', false),
 			'AllowIdentities' => $this->getConfig('AllowIdentities', false),
 			'AllowFilters' => $this->getConfig('AllowFilters', false),
 			'AllowForward' => $this->getConfig('AllowForward', false),
@@ -3348,7 +3346,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	/**
 	 * Saves message to Drafts folder.
 	 * @param int $AccountID Account identifier.
-	 * @param string $FetcherID Fetcher identifier.
+	 * @param string $Fetcher Fetcher object is filled in by subscription. Webclient sends FetcherID parameter.
 	 * @param int $IdentityID Identity identifier.
 	 * @param array $DraftInfo Contains information about the original message which is replied or forwarded: message type (reply/forward), UID and folder.
 	 * @param string $DraftUid Uid of message to save in Drafts folder.
@@ -3368,7 +3366,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @return boolean
 	 * @throws \System\Exceptions\AuroraApiException
 	 */
-	public function SaveMessage($AccountID, $FetcherID = "", $IdentityID = 0, 
+	public function SaveMessage($AccountID, $Fetcher = null, $IdentityID = 0, 
 			$DraftInfo = [], $DraftUid = "", $To = "", $Cc = "", $Bcc = "", 
 			$Subject = "", $Text = "", $IsHtml = false, $Importance = \MailSo\Mime\Enumerations\MessagePriority::NORMAL, 
 			$SendReadingConfirmation = false, $Attachments = array(), $InReplyTo = "", 
@@ -3384,32 +3382,12 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
 		}
-
-		$oFetcher = null;
-		if (!empty($FetcherID) && \is_numeric($FetcherID) && 0 < (int) $FetcherID)
-		{
-			$iFetcherID = (int) $FetcherID;
-
-			$oApiFetchers = Managers\Fetchers\Manager('', $this);
-			$aFetchers = $oApiFetchers->getFetchers($oAccount);
-			if (\is_array($aFetchers) && 0 < \count($aFetchers))
-			{
-				foreach ($aFetchers as /* @var $oFetcherItem \Aurora\Modules\Mail\Classes\Fetcher */ $oFetcherItem)
-				{
-					if ($oFetcherItem && $iFetcherID === $oFetcherItem->IdFetcher && $oAccount->IdUser === $oFetcherItem->IdUser)
-					{
-						$oFetcher = $oFetcherItem;
-						break;
-					}
-				}
-			}
-		}
-
+		
 		$oIdentity = $IdentityID !== 0 ? $this->oApiIdentitiesManager->getIdentity($IdentityID) : null;
 
 		$oMessage = $this->buildMessage($oAccount, $To, $Cc, $Bcc, 
 			$Subject, $IsHtml, $Text, $Attachments, $DraftInfo, $InReplyTo, $References, $Importance,
-			$Sensitivity, $SendReadingConfirmation, $oFetcher, true, $oIdentity);
+			$Sensitivity, $SendReadingConfirmation, $Fetcher, true, $oIdentity);
 		if ($oMessage)
 		{
 			try
@@ -3498,7 +3476,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	/**
 	 * Sends message.
 	 * @param int $AccountID Account identifier.
-	 * @param string $FetcherID Fetcher identifier.
+	 * @param string $Fetcher Fetcher object is filled in by subscription. Webclient sends FetcherID parameter.
 	 * @param int $IdentityID Identity identifier.
 	 * @param array $DraftInfo Contains information about the original message which is replied or forwarded: message type (reply/forward), UID and folder.
 	 * @param string $DraftUid Uid of message to save in Drafts folder.
@@ -3521,7 +3499,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @return boolean
 	 * @throws \System\Exceptions\AuroraApiException
 	 */
-	public function SendMessage($AccountID, $FetcherID = "", $IdentityID = 0, 
+	public function SendMessage($AccountID, $Fetcher = null, $IdentityID = 0, 
 			$DraftInfo = [], $DraftUid = "", $To = "", $Cc = "", $Bcc = "", 
 			$Subject = "", $Text = "", $IsHtml = false, $Importance = \MailSo\Mime\Enumerations\MessagePriority::NORMAL, 
 			$SendReadingConfirmation = false, $Attachments = array(), $InReplyTo = "", 
@@ -3532,33 +3510,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 		
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 
-		$oFetcher = null;
-		if (!empty($FetcherID) && \is_numeric($FetcherID) && 0 < (int) $FetcherID)
-		{
-			$iFetcherID = (int) $FetcherID;
-
-			$aFetchers = $this->oApiFetchersManager->getFetchers($oAccount);
-			if (\is_array($aFetchers) && 0 < count($aFetchers))
-			{
-				foreach ($aFetchers as /* @var $oFetcherItem \Aurora\Modules\Mail\Classes\Fetcher */ $oFetcherItem)
-				{
-					if ($oFetcherItem && $iFetcherID === $oFetcherItem->IdFetcher && $oAccount->IdUser === $oFetcherItem->IdUser)
-					{
-						$oFetcher = $oFetcherItem;
-						break;
-					}
-				}
-			}
-		}
-
 		$oIdentity = $IdentityID !== 0 ? $this->oApiIdentitiesManager->getIdentity($IdentityID) : null;
 
 		$oMessage = $this->buildMessage($oAccount, $To, $Cc, $Bcc, 
 			$Subject, $IsHtml, $Text, $Attachments, $DraftInfo, $InReplyTo, $References, $Importance,
-			$Sensitivity, $SendReadingConfirmation, $oFetcher, false, $oIdentity);
+			$Sensitivity, $SendReadingConfirmation, $Fetcher, false, $oIdentity);
 		if ($oMessage)
 		{
-			$mResult = $this->oApiMailManager->sendMessage($oAccount, $oMessage, $oFetcher, $SentFolder, $DraftFolder, $DraftUid);
+			$mResult = $this->oApiMailManager->sendMessage($oAccount, $oMessage, $Fetcher, $SentFolder, $DraftFolder, $DraftUid);
 
 			if ($mResult)
 			{
