@@ -1119,7 +1119,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$oServer->SmtpAuthType = $SmtpAuthType;
 		$oServer->SmtpLogin = $SmtpLogin;
 		$oServer->SmtpPassword = $SmtpPassword;
-		$oServer->Domains = $Domains;
+		$oServer->Domains = $this->oApiServersManager->trimDomains($Domains);
 		$oServer->EnableThreading = $EnableThreading;
 		$oServer->EnableSieve = $EnableSieve;
 		$oServer->SievePort = $SievePort;
@@ -1238,7 +1238,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$oServer->SmtpAuthType = $SmtpAuthType;
 			$oServer->SmtpLogin = $SmtpLogin;
 			$oServer->SmtpPassword = $SmtpPassword;
-			$oServer->Domains = $Domains;
+			$oServer->Domains = $this->oApiServersManager->trimDomains($Domains);
 			$oServer->EnableThreading = $EnableThreading;
 			$oServer->EnableSieve = $EnableSieve;
 			$oServer->SievePort = $SievePort;

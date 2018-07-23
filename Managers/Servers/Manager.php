@@ -100,6 +100,12 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		return $oServer;
 	}
 	
+	public function trimDomains($sDomains)
+	{
+		$aDomains = array_filter(array_map("trim", explode("\n", $sDomains)));
+		return join("\n", $aDomains);
+	}
+	
 	/**
 	 * 
 	 * @param int $sDomain
@@ -122,7 +128,8 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			{
 				foreach ($aResult as $oTempServer)
 				{
-					$aDomains = explode("\n",  $oTempServer->Domains);
+					$sTrimmedDomains = $this->trimDomains($oTempServer->Domains);
+					$aDomains = explode("\n",  $sTrimmedDomains);
 					if (in_array($sDomain, $aDomains))
 					{
 						$oServer = $oTempServer;
