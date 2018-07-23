@@ -5473,6 +5473,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 							);
 						}
 					}
+					else
+					{
+						\Aurora\System\Api::Log('Error: there is no temp file for attachment ' . $sFileName);
+					}
 				}
 			}
 		}
