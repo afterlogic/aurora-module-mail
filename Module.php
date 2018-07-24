@@ -342,7 +342,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
-		return $this->oApiAccountsManager->getUserAccounts($UserId);
+		$oUser = \Aurora\System\Api::getAuthenticatedUser();
+		
+		if ($oUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin || $oUser->EntityId === $UserId)
+		{
+			return $this->oApiAccountsManager->getUserAccounts($UserId);
+		}
+		
+		return false;
 	}
 	
 	/**
