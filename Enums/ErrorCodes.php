@@ -28,6 +28,7 @@ class ErrorCodes
 	const CannotSaveMessageToSentItems = 4014;
 	const CannotUploadMessage = 4015;
 	const CannotUploadMessageFileNotEml = 4016;
+	const DomainIsNotAllowedForLoggingIn = 4017;
 
 	/**
 	 * @var array
@@ -49,5 +50,6 @@ class ErrorCodes
 		'CannotSaveMessageToSentItems' => self::CannotSaveMessageToSentItems,
 		'CannotUploadMessage' => self::CannotUploadMessage,
 		'CannotUploadMessageFileNotEml' => self::CannotUploadMessageFileNotEml,
+		'DomainIsNotAllowedForLoggingIn' => self::DomainIsNotAllowedForLoggingIn,
 	];
 }

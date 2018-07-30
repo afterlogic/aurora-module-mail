@@ -67,6 +67,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			Enums\ErrorCodes::CannotSaveMessageToSentItems			=> $this->i18N('ERROR_SEND_MESSAGE_NOT_SAVED'),
 			Enums\ErrorCodes::CannotUploadMessage					=> $this->i18N('ERROR_UPLOAD_MESSAGE'),
 			Enums\ErrorCodes::CannotUploadMessageFileNotEml			=> $this->i18N('ERROR_UPLOAD_MESSAGE_FILE_NOT_EML'),
+			Enums\ErrorCodes::DomainIsNotAllowedForLoggingIn		=> $this->i18N('DOMAIN_IS_NOT_ALLOWED_FOR_LOGGING_IN'),
 		];
 		
 		$this->oApiAccountsManager = new Managers\Accounts\Manager($this);
@@ -5150,6 +5151,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			{
 				$oServer = $this->oApiServersManager->GetServerByDomain('*');
 			}
+			
 			if ($oServer)
 			{
 				$sMailLogin = !$oServer->UseFullEmailAddressAsLogin && preg_match('/(.+)@.+$/',  $sEmail, $matches) && $matches[1] ? $matches[1] : $sEmail;
@@ -5160,6 +5162,16 @@ class Module extends \Aurora\System\Module\AbstractModule
 				$oAccount->IncomingPassword = $aArgs['Password'];
 				$oAccount->ServerId = $oServer->EntityId;
 				$bNewAccount = true;
+			}
+			else
+			{
+				throw new \Aurora\System\Exceptions\ApiException(
+					Enums\ErrorCodes::DomainIsNotAllowedForLoggingIn,
+					null,
+					'',
+					[],
+					$this
+				);
 			}
 		}
 		
