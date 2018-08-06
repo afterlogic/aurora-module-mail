@@ -34,7 +34,12 @@ class Server extends \Aurora\System\EAV\Entity
 		'EnableSieve'		=> array('bool', false),
 		'SievePort'			=> array('int',  4190),
 		'EnableThreading'	=> array('bool', true),
-		'UseFullEmailAddressAsLogin'	=> array('bool', true)
+		'UseFullEmailAddressAsLogin'	=> array('bool', true),
+		'SetExternalAccessServers'		=> array('bool', false),
+		'ExternalAccessImapServer'		=> array('string', ''),
+		'ExternalAccessImapPort'		=> array('int',  143),
+		'ExternalAccessSmtpServer'		=> array('string', ''),
+		'ExternalAccessSmtpPort'		=> array('int',  25)
 	);	
 
 	public function toResponseArray()

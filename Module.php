@@ -1219,7 +1219,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function UpdateServer($ServerId, $Name, $IncomingServer, $IncomingPort, $IncomingUseSsl,
 			$OutgoingServer, $OutgoingPort, $OutgoingUseSsl, $SmtpAuthType, $Domains, $EnableThreading, $EnableSieve, 
-			$SievePort, $SmtpLogin = '', $SmtpPassword = '', $UseFullEmailAddressAsLogin = '', $TenantId = 0)
+			$SievePort, $SmtpLogin = '', $SmtpPassword = '', $UseFullEmailAddressAsLogin = '', $TenantId = 0,
+			$SetExternalAccessServers = false, $ExternalAccessImapServer = '', $ExternalAccessImapPort = 143,
+			$ExternalAccessSmtpServer = '', $ExternalAccessSmtpPort = 25)
 	{
 		$bResult = false;
 		
@@ -1251,6 +1253,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$oServer->EnableSieve = $EnableSieve;
 			$oServer->SievePort = $SievePort;
 			$oServer->UseFullEmailAddressAsLogin = $UseFullEmailAddressAsLogin;
+			$oServer->SetExternalAccessServers = $SetExternalAccessServers;
+			if ($oServer->SetExternalAccessServers)
+			{
+				$oServer->ExternalAccessImapServer = $ExternalAccessImapServer;
+				$oServer->ExternalAccessImapPort = $ExternalAccessImapPort;
+				$oServer->ExternalAccessSmtpServer = $ExternalAccessSmtpServer;
+				$oServer->ExternalAccessSmtpPort = $ExternalAccessSmtpPort;
+			}
 			
 			$bResult = $this->oApiServersManager->updateServer($oServer);
 		}
