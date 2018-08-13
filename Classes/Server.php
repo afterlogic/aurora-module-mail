@@ -46,6 +46,12 @@ class Server extends \Aurora\System\EAV\Entity
 	{
 		$aResponse = parent::toResponseArray();
 		$aResponse['ServerId'] = $this->EntityId;
+		$aArgs = [];
+		\Aurora\System\Api::GetModule('Mail')->broadcastEvent(
+			'ServerToResponseArray',
+			$aArgs,
+			$aResponse
+		);
 		return $aResponse;
 	}
 }
