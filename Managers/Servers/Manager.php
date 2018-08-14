@@ -223,4 +223,28 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
 		return $bResult;
 	}
+
+	/**
+	 *
+	 * @param array $aFilters
+	 * @return boolean
+	 */
+	public function getServerByFilter($aFilters)
+	{
+		$oServer = false;
+
+		$aResult = $this->oEavManager->getEntities(
+			$this->getModule()->getNamespace() . '\Classes\Server',
+			array(),
+			0,
+			999,
+			$aFilters
+		);
+		if (count($aResult) > 0)
+		{
+			$oServer = $aResult[0];
+		}
+
+		return $oServer;
+	}
 }
