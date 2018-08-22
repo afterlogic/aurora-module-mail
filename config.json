@@ -126,5 +126,9 @@
     "DisableStarttlsForLocalhost": [
         true,
         "bool"
-    ]
+    ],
+	"XOriginatingIP": [
+		false,
+		"bool"
+	]
 }

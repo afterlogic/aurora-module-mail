@@ -3403,7 +3403,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		
 		$oIdentity = $IdentityID !== 0 ? $this->oApiIdentitiesManager->getIdentity($IdentityID) : null;
 
-		$oMessage = $this->buildMessage($oAccount, $To, $Cc, $Bcc, 
+		$oMessage = $this->Decorator()->BuildMessage($oAccount, $To, $Cc, $Bcc, 
 			$Subject, $IsHtml, $Text, $Attachments, $DraftInfo, $InReplyTo, $References, $Importance,
 			$Sensitivity, $SendReadingConfirmation, $Fetcher, true, $oIdentity);
 		if ($oMessage)
@@ -3530,7 +3530,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		$oIdentity = $IdentityID !== 0 ? $this->oApiIdentitiesManager->getIdentity($IdentityID) : null;
 
-		$oMessage = $this->buildMessage($oAccount, $To, $Cc, $Bcc, 
+		$oMessage = $this->Decorator()->BuildMessage($oAccount, $To, $Cc, $Bcc, 
 			$Subject, $IsHtml, $Text, $Attachments, $DraftInfo, $InReplyTo, $References, $Importance,
 			$Sensitivity, $SendReadingConfirmation, $Fetcher, false, $oIdentity);
 		if ($oMessage)
@@ -5368,7 +5368,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param \Aurora\Modules\Mail\Classes\Identity $oIdentity
 	 * @return \MailSo\Mime\Message
 	 */
-	private function buildMessage($oAccount, $sTo = '', $sCc = '', $sBcc = '', 
+	public function BuildMessage($oAccount, $sTo = '', $sCc = '', $sBcc = '', 
 			$sSubject = '', $bTextIsHtml = false, $sText = '', $aAttachments = null, 
 			$aDraftInfo = null, $sInReplyTo = '', $sReferences = '', $iImportance = '',
 			$iSensitivity = 0, $bSendReadingConfirmation = false,
@@ -5383,6 +5383,16 @@ class Module extends \Aurora\System\Module\AbstractModule
 		if (0 < \strlen($sXMailer))
 		{
 			$oMessage->SetXMailer($sXMailer);
+		}
+		
+		$bXOriginatingIP = 	$this->getConfig('XOriginatingIP', false);
+		if ($bXOriginatingIP)
+		{
+			$sIP = $this->oHttp->GetClientIp();
+			$oMessage->SetCustomHeader(
+				\MailSo\Mime\Enumerations\Header::X_ORIGINATING_IP,
+				$this->oHttp->IsLocalhost($sIP) ? '127.0.0.1' : $sIP
+			);			
 		}
 
 		if ($oIdentity)
