@@ -341,16 +341,32 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function GetAccounts($UserId)
 	{
+		$mResult = false;
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		$oUser = \Aurora\System\Api::getAuthenticatedUser();
 		
 		if ($oUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin || $oUser->EntityId === $UserId)
 		{
-			return $this->oApiAccountsManager->getUserAccounts($UserId);
+			$aAccounts = $this->oApiAccountsManager->getUserAccounts($UserId);
+			if (is_array($aAccounts))
+			{
+				$mResult = [];
+				foreach ($aAccounts as $oAccount)
+				{
+					if ($oAccount->IncomingLogin === $oUser->PublicId)
+					{
+						array_unshift($mResult, $oAccount);
+					}
+					else
+					{
+						$mResult[] = $oAccount;
+					}
+				}
+			}
 		}
 		
-		return false;
+		return $mResult;
 	}
 	
 	/**
