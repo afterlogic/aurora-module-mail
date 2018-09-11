@@ -123,7 +123,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
 				try 
 				{
-					$oResult->Login($oAccount->IncomingLogin, $oAccount->IncomingPassword, '');
+					$oResult->Login($oAccount->IncomingLogin, $oAccount->getPassword(), '');
 				}
 				catch (\MailSo\Imap\Exceptions\LoginBadCredentialsException $oException) 
 				{
@@ -1285,7 +1285,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 					}
 					else if ($oServer->SmtpAuthType === \Aurora\Modules\Mail\Enums\SmtpAuthType::UseUserCredentials)
 					{
-						$oSmtpClient->Login($oAccount->IncomingLogin, $oAccount->IncomingPassword);
+						$oSmtpClient->Login($oAccount->IncomingLogin, $oAccount->getPassword());
 					}
 					else if ($oServer->SmtpAuthType === \Aurora\Modules\Mail\Enums\SmtpAuthType::UseSpecifiedCredentials)
 					{

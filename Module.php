@@ -598,7 +598,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 				$oAccount->FriendlyName = $FriendlyName;
 				$oAccount->Email = $Email;
 				$oAccount->IncomingLogin = $IncomingLogin;
-				$oAccount->IncomingPassword = $IncomingPassword;
+				$oAccount->setPassword($IncomingPassword);
 				$oAccount->ServerId = $iServerId;
 				$oServer = $oAccount->getServer();
 				if ($oServer)
@@ -737,7 +737,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 				}
 				if (!empty($IncomingPassword))
 				{
-					$oAccount->IncomingPassword = $IncomingPassword;
+					$oAccount->setPassword($IncomingPassword);
 				}
 				if ($Server !== null)
 				{
@@ -4669,7 +4669,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 				$oUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin)
 			)
 			{
-				$oAccount->IncomingPassword = $NewPassword;
+				$oAccount->setPassword($NewPassword);
 				if ($this->oApiAccountsManager->updateAccount($oAccount))
 				{
 					$mResult = $oAccount;
@@ -5160,7 +5160,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$sEmail = $aArgs['Login'];
 		$sMailLogin = $aArgs['Login'];
 		$oAccount = $this->oApiAccountsManager->getAccountUsedToAuthorize($sEmail);
-
+		
 		$bNewAccount = false;
 		$bAutocreateMailAccountOnNewUserFirstLogin = $this->getConfig('AutocreateMailAccountOnNewUserFirstLogin', false);
 		if (!$bAutocreateMailAccountOnNewUserFirstLogin && !$oAccount)
@@ -5175,32 +5175,35 @@ class Module extends \Aurora\System\Module\AbstractModule
 		if ($bAutocreateMailAccountOnNewUserFirstLogin && !$oAccount)
 		{
 			$sDomain = \MailSo\Base\Utils::GetDomainFromEmail($sEmail);
-			$oServer = $this->oApiServersManager->GetServerByDomain(strtolower($sDomain));
-			if (!$oServer)
+			if (!empty(trim($sDomain)))
 			{
-				$oServer = $this->oApiServersManager->GetServerByDomain('*');
-			}
-			
-			if ($oServer)
-			{
-				$sMailLogin = !$oServer->UseFullEmailAddressAsLogin && preg_match('/(.+)@.+$/',  $sEmail, $matches) && $matches[1] ? $matches[1] : $sEmail;
+				$oServer = $this->oApiServersManager->GetServerByDomain(strtolower($sDomain));
+				if (!$oServer)
+				{
+					$oServer = $this->oApiServersManager->GetServerByDomain('*');
+				}
 
-				$oAccount = \Aurora\System\EAV\Entity::createInstance($this->getNamespace() . '\Classes\Account', $this->GetName());
-				$oAccount->Email = $sEmail;
-				$oAccount->IncomingLogin = $sMailLogin;
-				$oAccount->IncomingPassword = $aArgs['Password'];
-				$oAccount->ServerId = $oServer->EntityId;
-				$bNewAccount = true;
-			}
-			else
-			{
-				throw new \Aurora\System\Exceptions\ApiException(
-					Enums\ErrorCodes::DomainIsNotAllowedForLoggingIn,
-					null,
-					'',
-					[],
-					$this
-				);
+				if ($oServer)
+				{
+					$sMailLogin = !$oServer->UseFullEmailAddressAsLogin && preg_match('/(.+)@.+$/',  $sEmail, $matches) && $matches[1] ? $matches[1] : $sEmail;
+
+					$oAccount = \Aurora\System\EAV\Entity::createInstance($this->getNamespace() . '\Classes\Account', $this->GetName());
+					$oAccount->Email = $sEmail;
+					$oAccount->IncomingLogin = $sMailLogin;
+					$oAccount->setPassword($aArgs['Password']);
+					$oAccount->ServerId = $oServer->EntityId;
+					$bNewAccount = true;
+				}
+				else
+				{
+					throw new \Aurora\System\Exceptions\ApiException(
+						Enums\ErrorCodes::DomainIsNotAllowedForLoggingIn,
+						null,
+						'',
+						[],
+						$this
+					);
+				}
 			}
 		}
 		
@@ -5210,8 +5213,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 			{
 				if ($bAutocreateMailAccountOnNewUserFirstLogin || !$bNewAccount)
 				{
-					$bNeedToUpdatePassword = $aArgs['Password'] !== $oAccount->IncomingPassword;
-					$oAccount->IncomingPassword = $aArgs['Password'];
+					$bNeedToUpdatePassword = $aArgs['Password'] !== $oAccount->getPassword();
+					$oAccount->setPassword($aArgs['Password']);
 					
 					$this->oApiMailManager->validateAccountConnection($oAccount);
 					
@@ -5309,7 +5312,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 					);
 					if ($bWithPassword)
 					{
-						$aItem['Password'] = $oItem->IncomingPassword;
+						$aItem['Password'] = $oItem->getPassword();
 					}
 					$aResult[] = $aItem;
 				}

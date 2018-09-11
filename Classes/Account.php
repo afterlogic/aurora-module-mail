@@ -34,7 +34,18 @@ class Account extends \Aurora\System\EAV\Entity
 		'UseThreading'		=> array('bool', false),
 		'SaveRepliesToCurrFolder' => array('bool', false),
 	);
-
+	
+	
+	public function getPassword()
+	{
+		return substr($this->IncomingPassword, strlen($this->IncomingLogin) + 1);
+	}
+	
+	public function setPassword($sPassword)
+	{
+		$this->IncomingPassword = $this->IncomingLogin . ':' . $sPassword;
+	}
+			
 	public function updateServer($iServerId)
 	{
 		$this->oServer = null;
