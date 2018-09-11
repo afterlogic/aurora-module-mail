@@ -4664,7 +4664,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$oUser = \Aurora\System\Api::getAuthenticatedUser();
 			if ($oAccount instanceof \Aurora\Modules\Mail\Classes\Account &&
 				$oUser instanceof \Aurora\Modules\Core\Classes\User &&
-				$oAccount->IncomingPassword === $CurrentPassword &&
+				$oAccount->getPassword() === $CurrentPassword &&
 				(($oUser->Role === \Aurora\System\Enums\UserRole::NormalUser && $oUser->EntityId === $oAccount->IdUser) ||
 				$oUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin)
 			)
