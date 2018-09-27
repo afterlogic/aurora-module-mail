@@ -167,9 +167,9 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		}
 		else
 		{
-			$aFilters = ['OR' => [
+			$aFilters = ['$OR' => [
 				'OwnerType' => [\Aurora\Modules\Mail\Enums\ServerOwnerType::SuperAdmin, '='],
-				'AND' => [
+				'$AND' => [
 					'TenantId' => [$iTenantId, '='],
 					'OwnerType' => [\Aurora\Modules\Mail\Enums\ServerOwnerType::Tenant, '='],
 				],

@@ -1241,7 +1241,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 	{
 		$bResult = false;
 		
-		if ($TenantId === 0)
+		$oServer = $this->oApiServersManager->getServer($ServerId);
+
+		if ($oServer->OwnerType === \Aurora\Modules\Mail\Enums\ServerOwnerType::SuperAdmin)
 		{
 			\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::SuperAdmin);
 		}
@@ -1250,9 +1252,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::TenantAdmin);
 		}
 		
-		$oServer = $this->oApiServersManager->getServer($ServerId);
-
-		if ($oServer && $oServer->TenantId === $TenantId)
+		if ($oServer && ($oServer->OwnerType === \Aurora\Modules\Mail\Enums\ServerOwnerType::SuperAdmin || $oServer->OwnerType === \Aurora\Modules\Mail\Enums\ServerOwnerType::TenantAdmin && $oServer->TenantId === $TenantId))
 		{
 			$oServer->Name = $Name;
 			$oServer->IncomingServer = $IncomingServer;
