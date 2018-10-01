@@ -38,7 +38,19 @@ class Account extends \Aurora\System\EAV\Entity
 	
 	public function getPassword()
 	{
-		return substr($this->IncomingPassword, strlen($this->IncomingLogin) + 1);
+		$sPassword = '';
+		if (strpos($this->IncomingPassword, $this->IncomingLogin . ':') === false)
+		{
+			$sPassword = $this->IncomingPassword;
+			$this->setPassword($sPassword);
+			
+			\Aurora\System\Api::GetModule('Mail')->oApiAccountsManager->updateAccount($this);
+		}
+		else
+		{
+			$sPassword = substr($this->IncomingPassword, strlen($this->IncomingLogin) + 1);
+		}
+		return $sPassword;
 	}
 	
 	public function setPassword($sPassword)
