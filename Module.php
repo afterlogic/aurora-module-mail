@@ -1117,7 +1117,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function CreateServer($Name, $IncomingServer, $IncomingPort, $IncomingUseSsl,
 			$OutgoingServer, $OutgoingPort, $OutgoingUseSsl, $SmtpAuthType, $Domains, $EnableThreading, $EnableSieve, 
-			$SievePort, $SmtpLogin = '', $SmtpPassword = '', $UseFullEmailAddressAsLogin = false, $TenantId = 0)
+			$SievePort, $SmtpLogin = '', $SmtpPassword = '', $UseFullEmailAddressAsLogin = true, $TenantId = 0)
 	{
 		$sOwnerType = ($TenantId === 0) ? \Aurora\Modules\Mail\Enums\ServerOwnerType::SuperAdmin : \Aurora\Modules\Mail\Enums\ServerOwnerType::Tenant;
 		
@@ -1228,14 +1228,20 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param boolean $EnableThreading
 	 * @param boolean $EnableSieve
 	 * @param int $SievePort
-	 * @param boolean $SmtpLogin (optional)
-	 * @param boolean $SmtpPassword (optional)
+	 * @param string $SmtpLogin
+	 * @param string $SmtpPassword
+	 * @param boolean $UseFullEmailAddressAsLogin
 	 * @param int $TenantId If tenant identifier is specified updates mail server belonged to specified tenant.
+	 * @param boolean $SetExternalAccessServers
+	 * @param string $ExternalAccessImapServer
+	 * @param int $ExternalAccessImapPort
+	 * @param string $ExternalAccessSmtpServer
+	 * @param int $ExternalAccessSmtpPort
 	 * @return boolean
 	 */
 	public function UpdateServer($ServerId, $Name, $IncomingServer, $IncomingPort, $IncomingUseSsl,
 			$OutgoingServer, $OutgoingPort, $OutgoingUseSsl, $SmtpAuthType, $Domains, $EnableThreading, $EnableSieve, 
-			$SievePort, $SmtpLogin = '', $SmtpPassword = '', $UseFullEmailAddressAsLogin = '', $TenantId = 0,
+			$SievePort, $SmtpLogin = '', $SmtpPassword = '', $UseFullEmailAddressAsLogin = true, $TenantId = 0,
 			$SetExternalAccessServers = false, $ExternalAccessImapServer = '', $ExternalAccessImapPort = 143,
 			$ExternalAccessSmtpServer = '', $ExternalAccessSmtpPort = 25)
 	{
