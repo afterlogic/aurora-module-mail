@@ -279,13 +279,6 @@ class Attachment
 	
 	public function toResponseArray($aParameters = array())
 	{
-		$aViewedMimeTypes = [
-			'image/jpeg', 'image/png', 'image/gif',
-			'text/html', 'text/plain', 'text/css',
-			'text/rfc822-headers', 'message/delivery-status',
-			'application/x-httpd-php', 'application/javascript'
-		];
-		
 		$iAccountID = isset($aParameters['AccountID']) ? $aParameters['AccountID'] : null;
 		$mFoundedCIDs = isset($aParameters['FoundedCIDs']) && is_array($aParameters['FoundedCIDs'])
 			? $aParameters['FoundedCIDs'] : null;
@@ -344,13 +337,9 @@ class Attachment
 		));		 
 		$mResult['Hash'] = $sHash;
 
-		$mResult['Actions'] = [];
-		if (in_array($sMimeType, $aViewedMimeTypes))
-		{
-			$mResult['Actions']['view'] = [
-				'url' => '?mail-attachment/' . $sHash . '/view'
-			];
-		}
+		$mResult['Actions']['view'] = [
+			'url' => '?mail-attachment/' . $sHash . '/view'
+		];
 		$mResult['Actions']['download'] = [
 			'url' => '?mail-attachment/' . $sHash
 		];
