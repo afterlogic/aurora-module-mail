@@ -35,20 +35,29 @@ class Account extends \Aurora\System\EAV\Entity
 		'SaveRepliesToCurrFolder' => array('bool', false),
 	);
 	
-	
 	public function getPassword()
 	{
 		$sPassword = '';
-		if (strpos($this->IncomingPassword, $this->IncomingLogin . ':') === false)
+		if (!$this->IncomingPassword) // TODO: Legacy support
+		{
+			$sSalt = \Aurora\System\Api::$sSalt;
+			\Aurora\System\Api::$sSalt = md5($sSalt);
+			$sPassword = $this->IncomingPassword;
+			\Aurora\System\Api::$sSalt = $sSalt;
+		}
+		else
 		{
 			$sPassword = $this->IncomingPassword;
+		}
+		
+		if ($sPassword !== '' && strpos($sPassword, $this->IncomingLogin . ':') === false)
+		{
 			$this->setPassword($sPassword);
-			
 			\Aurora\System\Api::GetModule('Mail')->oApiAccountsManager->updateAccount($this);
 		}
 		else
 		{
-			$sPassword = substr($this->IncomingPassword, strlen($this->IncomingLogin) + 1);
+			$sPassword = substr($sPassword, strlen($this->IncomingLogin) + 1);
 		}
 		return $sPassword;
 	}
