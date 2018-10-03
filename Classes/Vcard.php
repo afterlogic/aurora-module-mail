@@ -8,7 +8,7 @@
 namespace Aurora\Modules\Mail\Classes;
 
 /**
- * Ics class is used for work with attachment that contains contact card.
+ * Vcard class is used for work with attachment that contains contact card.
  *
  * @license https://www.gnu.org/licenses/agpl-3.0.html AGPL-3.0
  * @license https://afterlogic.com/products/common-licensing AfterLogic Software License
