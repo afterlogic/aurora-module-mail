@@ -97,6 +97,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$this->subscribeEvent('Core::AfterDeleteUser', array($this, 'onAfterDeleteUser'));
 		$this->subscribeEvent('Core::GetAccounts', array($this, 'onGetAccounts'));
 		$this->subscribeEvent('Autodiscover::GetAutodiscover::after', array($this, 'onAfterGetAutodiscover'));
+		$this->subscribeEvent('Core::DeleteTenant::after', array($this, 'onAfterDeleteTenant'));
 
 		\MailSo\Config::$PreferStartTlsIfAutoDetect = !!$this->getConfig('PreferStarttls', true);
 	}
@@ -5581,7 +5582,20 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 
 		return $oMessage;
-	}	
+	}
+	
+	public function onAfterDeleteTenant(&$aArgs, &$mResult)
+	{
+		$TenantId = $aArgs['TenantId'];
+		$aServers = $this->Decorator()->GetServers($TenantId);
+		foreach ($aServers as $oServer)
+		{
+			if ($oServer->TenantId === $TenantId)
+			{
+				$this->Decorator()->DeleteServer($oServer->EntityId, $TenantId);
+			}
+		}
+	}
 	
 	public function onAfterGetAutodiscover(&$aArgs, &$mResult)
 	{
