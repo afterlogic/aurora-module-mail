@@ -558,7 +558,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$bPrevState = \Aurora\System\Api::skipCheckUserRole(true);
 		$oAccount = $this->GetAccountByEmail($Email);
 		\Aurora\System\Api::skipCheckUserRole($bPrevState);
-		
+		$bDoImapLoginOnAccountCreate = $this->getConfig('DoImapLoginOnAccountCreate', true);
 		if (!$oAccount)
 		{
 			$sDomain = preg_match('/.+@(.+)$/',  $Email, $aMatches) && $aMatches[1] ? $aMatches[1] : '';
@@ -608,13 +608,16 @@ class Module extends \Aurora\System\Module\AbstractModule
 				}
 
 				$bAccoutResult = false;
-				$oResException = $this->oApiMailManager->validateAccountConnection($oAccount, false);
+				if ($bDoImapLoginOnAccountCreate)
+				{
+					$oResException = $this->oApiMailManager->validateAccountConnection($oAccount, false);
+				}
 				if ($oResException === null)
 				{
 					$oCoreDecorator = \Aurora\Modules\Core\Module::Decorator();
 					$oUser = $oCoreDecorator ? $oCoreDecorator->GetUser($UserId) : null;
 					if ($oUser instanceof \Aurora\Modules\Core\Classes\User && $oUser->PublicId === $Email && 
-							!$this->oApiAccountsManager->useToAuthorizeAccountExists($Email))
+						!$this->oApiAccountsManager->useToAuthorizeAccountExists($Email))
 					{
 						$oAccount->UseToAuthorize = true;
 					}

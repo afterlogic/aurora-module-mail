@@ -130,5 +130,9 @@
 	"XOriginatingIP": [
 		false,
 		"bool"
+	],
+	"DoImapLoginOnAccountCreate": [
+		true,
+		"bool"
 	]
 }
