@@ -47,6 +47,10 @@
 		false,
 		"bool"
 	],
+	"IgnoreImapSubscription": [
+		false,
+		"bool"
+	],
 	"ImageUploadSizeLimit": [
 		0,
 		"int"

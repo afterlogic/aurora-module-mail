@@ -185,6 +185,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			'AllowAutoresponder' => $this->getConfig('AllowAutoresponder', false),
 			'AllowInsertImage' => $this->getConfig('AllowInsertImage', false),
 			'AutoSaveIntervalSeconds' => $this->getConfig('AutoSaveIntervalSeconds', 60),
+			'IgnoreImapSubscription' => $this->getConfig('IgnoreImapSubscription', false),
 			'ImageUploadSizeLimit' => $this->getConfig('ImageUploadSizeLimit', 0),
 			'SmtpAuthType' => (new \Aurora\Modules\Mail\Enums\SmtpAuthType)->getMap(),
 		);
@@ -2968,6 +2969,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function SubscribeFolder($AccountID, $Folder, $SetAction)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
+		
+		if ($this->getConfig('IgnoreImapSubscription', false))
+		{
+			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::AccessDenied);
+		}
 		
 		if (0 === \strlen(\trim($Folder)))
 		{
