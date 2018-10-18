@@ -344,26 +344,34 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function GetAccounts($UserId)
 	{
 		$mResult = false;
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
-		$oUser = \Aurora\System\Api::getAuthenticatedUser();
-		
-		if ($oUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin || $oUser->EntityId === $UserId)
+		$oAuthenticatedUser = \Aurora\System\Api::getAuthenticatedUser();
+		if ($oAuthenticatedUser && $oAuthenticatedUser->EntityId === $UserId)
 		{
-			$aAccounts = $this->oApiAccountsManager->getUserAccounts($UserId);
-			if (is_array($aAccounts))
+			// If $UserId is equal to identifier of authenticated user, it is a situation when normal user is logged in.
+			\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
+		}
+		else
+		{
+			// Otherwise it is a super administrator or some code that is executed after \Aurora\System\Api::skipCheckUserRole method was called.
+			// If it is a second case user identifier shouldn't be checked. It could be even an anonymous user.
+			// There is no $oAuthenticatedUser for anonymous user.
+			\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::SuperAdmin);
+		}
+		
+		$aAccounts = $this->oApiAccountsManager->getUserAccounts($UserId);
+		if (is_array($aAccounts))
+		{
+			$mResult = [];
+			foreach ($aAccounts as $oAccount)
 			{
-				$mResult = [];
-				foreach ($aAccounts as $oAccount)
+				if ($oAuthenticatedUser && $oAccount->IncomingLogin === $oAuthenticatedUser->PublicId)
 				{
-					if ($oAccount->IncomingLogin === $oUser->PublicId)
-					{
-						array_unshift($mResult, $oAccount);
-					}
-					else
-					{
-						$mResult[] = $oAccount;
-					}
+					array_unshift($mResult, $oAccount);
+				}
+				else
+				{
+					$mResult[] = $oAccount;
 				}
 			}
 		}
