@@ -23,6 +23,7 @@ class FolderType extends \Aurora\System\Enums\AbstractEnumeration
 	const Spam = 4;
 	const Trash = 5;
 	const Virus = 6;
+	const Template = 8;
 	const System = 9;
 	const Custom = 10;
 

@@ -185,6 +185,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			'AllowAutoresponder' => $this->getConfig('AllowAutoresponder', false),
 			'AllowInsertImage' => $this->getConfig('AllowInsertImage', false),
 			'AutoSaveIntervalSeconds' => $this->getConfig('AutoSaveIntervalSeconds', 60),
+			'AllowTemplateFolders' => $this->getConfig('AllowTemplateFolders', false),
 			'IgnoreImapSubscription' => $this->getConfig('IgnoreImapSubscription', false),
 			'ImageUploadSizeLimit' => $this->getConfig('ImageUploadSizeLimit', 0),
 			'SmtpAuthType' => (new \Aurora\Modules\Mail\Enums\SmtpAuthType)->getMap(),
@@ -3702,27 +3703,36 @@ class Module extends \Aurora\System\Module\AbstractModule
 		
 		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
 		
-		$aData = array();
-		if (0 < \strlen(\trim($Sent)))
-		{
-			$aData[$Sent] = \Aurora\Modules\Mail\Enums\FolderType::Sent;
-		}
-		if (0 < \strlen(\trim($Drafts)))
-		{
-			$aData[$Drafts] = \Aurora\Modules\Mail\Enums\FolderType::Drafts;
-		}
-		if (0 < \strlen(\trim($Trash)))
-		{
-			$aData[$Trash] = \Aurora\Modules\Mail\Enums\FolderType::Trash;
-		}
-		if (0 < \strlen(\trim($Spam)))
-		{
-			$aData[$Spam] = \Aurora\Modules\Mail\Enums\FolderType::Spam;
-		}
-
-		return $this->oApiMailManager->setSystemFolderNames($oAccount, $aData);
+		$aSystemNames = array();
+		$aSystemNames[\Aurora\Modules\Mail\Enums\FolderType::Sent] = \trim($Sent);
+		$aSystemNames[\Aurora\Modules\Mail\Enums\FolderType::Drafts] = \trim($Drafts);
+		$aSystemNames[\Aurora\Modules\Mail\Enums\FolderType::Trash] = \trim($Trash);
+		$aSystemNames[\Aurora\Modules\Mail\Enums\FolderType::Spam] = \trim($Spam);
+		
+		return $this->oApiMailManager->updateSystemFolderNames($oAccount, $aSystemNames);
 	}	
 	
+	/**
+	 * Marks (or unmarks) folder as template folder.
+	 * @param int $AccountID Account identifier.
+	 * @param string $FolderFullName Full name of folder that should be marked/unmarked as template.
+	 * @param boolean $SetTemplate Indicates if template should be set or unset.
+	 * @return boolean
+	 */
+	public function SetTemplateFolderType($AccountID, $FolderFullName, $SetTemplate)
+	{
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
+		
+		if ($this->getConfig('AllowTemplateFolders', false))
+		{
+			$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
+
+			return $this->oApiMailManager->setSystemFolder($oAccount, $FolderFullName, \Aurora\Modules\Mail\Enums\FolderType::Template, $SetTemplate);
+		}
+		
+		return false;
+	}
+
 	/**
 	 * @api {post} ?/Api/ SetEmailSafety
 	 * @apiName SetEmailSafety

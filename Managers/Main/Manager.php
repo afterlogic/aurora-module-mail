@@ -201,9 +201,9 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 *
 	 * @return bool
 	 */
-	public function setSystemFolderNames($oAccount, $aSystemNames)
+	public function updateSystemFolderNames($oAccount, $aSystemNames)
 	{
-		foreach ($aSystemNames as $sKey => $iTypeValue)
+		foreach ($aSystemNames as $iTypeValue => $sFolderFullName)
 		{
 			$aEntities = $this->oEavManager->getEntities(
 				$this->getModule()->getNamespace() . '\Classes\SystemFolder',
@@ -215,22 +215,65 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 					'Type' => $iTypeValue
 				)
 			);
-			$oSystemFolder = new \Aurora\Modules\Mail\Classes\SystemFolder($this->GetModule()->GetName());
-			
+			$oSystemFolder = null;
 			if (count($aEntities) > 0 && $aEntities[0] instanceof \Aurora\Modules\Mail\Classes\SystemFolder)
 			{
 				$oSystemFolder = $aEntities[0];
 			}
 			else 
 			{
+				$oSystemFolder = new \Aurora\Modules\Mail\Classes\SystemFolder($this->GetModule()->GetName());
+				$oSystemFolder->Type = $iTypeValue;
 				$oSystemFolder->IdAccount = $oAccount->EntityId;
 			}
-			$oSystemFolder->FolderFullName = $sKey;
-			$oSystemFolder->Type = $iTypeValue;
+			$oSystemFolder->FolderFullName = $sFolderFullName;
 			$this->oEavManager->saveEntity($oSystemFolder);
 		}
 		
 		return true;
+	}
+
+	public function setSystemFolder($oAccount, $sFolderFullName, $iTypeValue, $bSet)
+	{
+		$bResult = true;
+		
+		$aEntities = $this->oEavManager->getEntities(
+			$this->getModule()->getNamespace() . '\Classes\SystemFolder',
+			array(),
+			0,
+			1,
+			array(
+				'IdAccount' => $oAccount->EntityId,
+				'Type' => $iTypeValue,
+				'FolderFullName' => $sFolderFullName,
+			)
+		);
+		$oSystemFolder = null;
+		if (count($aEntities) > 0 && $aEntities[0] instanceof \Aurora\Modules\Mail\Classes\SystemFolder)
+		{
+			$oSystemFolder = $aEntities[0];
+		}
+
+		if ($bSet)
+		{
+			if ($oSystemFolder === null)
+			{
+				$oSystemFolder = new \Aurora\Modules\Mail\Classes\SystemFolder($this->GetModule()->GetName());
+				$oSystemFolder->Type = $iTypeValue;
+				$oSystemFolder->IdAccount = $oAccount->EntityId;
+				$oSystemFolder->FolderFullName = $sFolderFullName;
+				$bResult = $this->oEavManager->saveEntity($oSystemFolder);
+			}
+		}
+		else 
+		{
+			if ($oSystemFolder !== null)
+			{
+				$bResult = $this->oEavManager->deleteEntity($oSystemFolder->EntityId);					
+			}
+		}
+		
+		return $bResult;
 	}
 
 	/**
@@ -243,6 +286,18 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	public function getSystemFolderNames($oAccount)
 	{
 		$aFolders = array();
+		
+		$aEntities = $this->_getSystemFolderEntities($oAccount);
+		foreach ($aEntities as $oEntity)
+		{
+			$aFolders[$oEntity->FolderFullName] = $oEntity->Type;
+		}
+		
+		return $aFolders;
+	}
+
+	private function _getSystemFolderEntities($oAccount)
+	{
 		$aEntities = $this->oEavManager->getEntities(
 			$this->getModule()->getNamespace() . '\Classes\SystemFolder',
 			array(),
@@ -252,15 +307,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 				'IdAccount' => $oAccount->EntityId
 			)
 		);
-		if (count($aEntities) > 0)
-		{
-			foreach ($aEntities as $oEntity)
-			{
-				$aFolders[$oEntity->FolderFullName] = $oEntity->Type;
-			}
-		}
-		
-		return $aFolders;
+		return is_array($aEntities) ? $aEntities : [];
 	}
 
 	/**
@@ -288,147 +335,171 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	}
 
 	/**
-	 * Initializes system folders.
+	 * Obtains information about system folders from database.
+	 * Sets system type for existent folders, excludes information about them from $aFoldersMap.
+	 * Deletes information from database for nonexistent folders.
 	 * 
 	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount Account object.
 	 * @param \Aurora\Modules\Mail\Classes\FolderCollection $oFolderCollection Collection of folders.
-	 * @param bool $bCreateUnExistenSystemFilders Create non-existen system folders.
-	 *
-	 * @return bool
+	 * @param array $aFoldersMap Describes information about system folders that weren't initialized yet.
 	 */
-	private function _initSystemFolders($oAccount, &$oFolderCollection, $bCreateUnExistenSystemFilders)
+	private function _initSystemFoldersFromDb($oAccount, $oFolderCollection, &$aFoldersMap)
 	{
-		$bAddSystemFolder = false;
-		try
+		$aSystemFolderEntities = $this->_getSystemFolderEntities($oAccount);
+
+		foreach ($aSystemFolderEntities as $oSystemFolder)
 		{
-			$aFoldersMap = array(
-				\Aurora\Modules\Mail\Enums\FolderType::Inbox => array('INBOX', 'Inbox'),
-				\Aurora\Modules\Mail\Enums\FolderType::Drafts => array('Drafts', 'Draft'),
-				\Aurora\Modules\Mail\Enums\FolderType::Sent => array('Sent', 'Sent Items', 'Sent Mail'),
-				\Aurora\Modules\Mail\Enums\FolderType::Spam => array('Spam', 'Junk', 'Junk Mail', 'Junk E-mail', 'Bulk Mail'),
-				\Aurora\Modules\Mail\Enums\FolderType::Trash => array('Trash', 'Bin', 'Deleted', 'Deleted Items'),
-			);
-			
-			unset($aFoldersMap[\Aurora\Modules\Mail\Enums\FolderType::Inbox]);
-			
-			$aTypes = [
-				\Aurora\Modules\Mail\Enums\FolderType::Inbox, 
-				\Aurora\Modules\Mail\Enums\FolderType::Drafts, 
-				\Aurora\Modules\Mail\Enums\FolderType::Sent, 
-				\Aurora\Modules\Mail\Enums\FolderType::Spam, 
-				\Aurora\Modules\Mail\Enums\FolderType::Trash
-			];
-
-			$aUnExistenSystemNames = array();
-			$aSystemNames = $this->getSystemFolderNames($oAccount);
-
-			$oInbox = $oFolderCollection->getFolder('INBOX');
-			$oInbox->setType(\Aurora\Modules\Mail\Enums\FolderType::Inbox);
-
-			if (is_array($aSystemNames) && 0 < count($aSystemNames))
+			if ($oSystemFolder->FolderFullName === '')
 			{
-				unset($aSystemNames['INBOX']);
-				$aUnExistenSystemNames = $aSystemNames;
-
-				foreach ($aSystemNames as $sSystemFolderFullName => $iFolderType)
+				unset($aFoldersMap[$oSystemFolder->Type]);
+			}
+			else
+			{
+				$oFolder = $oFolderCollection->getFolder($oSystemFolder->FolderFullName, true);
+				if ($oFolder)
 				{
-					$iKey = array_search($iFolderType, $aTypes);
-					if (false !== $iKey)
+					if (isset($aFoldersMap[$oSystemFolder->Type]))
 					{
-						$oFolder = /* @var $oFolder \Aurora\Modules\Mail\Classes\Folder */ $oFolderCollection->getFolder($sSystemFolderFullName, true);
-						if ($oFolder)
+						if ($oSystemFolder->Type !== \Aurora\Modules\Mail\Enums\FolderType::Template)
 						{
-							unset($aTypes[$iKey]);
-							unset($aFoldersMap[$iKey]);
-							unset($aUnExistenSystemNames[$sSystemFolderFullName]);
-							
+							unset($aFoldersMap[$oSystemFolder->Type]);
+						}
+						$oFolder->setType($oSystemFolder->Type);
+					}
+				}
+				else
+				{
+					$this->oEavManager->deleteEntity($oSystemFolder->EntityId);
+				}
+			}
+		}
+	}
+	
+	/**
+	 * Obtains information about system folders from IMAP.
+	 * Sets system type for obtained folders, excludes information about them from $aFoldersMap.
+	 * 
+	 * @param \Aurora\Modules\Mail\Classes\FolderCollection $oFolderCollection Collection of folders.
+	 * @param array $aFoldersMap Describes information about system folders that weren't initialized yet.
+	 */
+	private function _initSystemFoldersFromImapFlags($oFolderCollection, &$aFoldersMap)
+	{
+		$oFolderCollection->foreachWithSubFolders(
+			function (/* @var $oFolder \Aurora\Modules\Mail\Classes\Folder */ $oFolder) use (&$aFoldersMap) {
+				$iXListType = $oFolder->getFolderXListType();
+				if (isset($aFoldersMap[$iXListType]) && \Aurora\Modules\Mail\Enums\FolderType::Custom === $oFolder->getType() && isset($aFoldersMap[$iXListType]))
+				{
+					unset($aFoldersMap[$iXListType]);
+					$oFolder->setType($iXListType);
+				}
+			}
+		);
+	}
+	
+	/**
+	 * Sets system type for existent folders from folders map, excludes information about them from $aFoldersMap.
+	 * 
+	 * @param \Aurora\Modules\Mail\Classes\FolderCollection $oFolderCollection Collection of folders.
+	 * @param array $aFoldersMap Describes information about system folders that weren't initialized yet.
+	 */
+	private function _initSystemFoldersFromFoldersMap($oFolderCollection, &$aFoldersMap)
+	{
+		$oFolderCollection->foreachOnlyRoot(
+			function (/* @var $oFolder \Aurora\Modules\Mail\Classes\Folder */ $oFolder) use (&$aFoldersMap) {
+				foreach ($aFoldersMap as $iFolderType => $aFoldersNames)
+				{
+					if (isset($aFoldersMap[$iFolderType]) && is_array($aFoldersNames) && (in_array($oFolder->getRawName(), $aFoldersNames) || in_array($oFolder->getName(), $aFoldersNames)))
+					{
+						unset($aFoldersMap[$iFolderType]);
+						if (\Aurora\Modules\Mail\Enums\FolderType::Custom === $oFolder->getType())
+						{
 							$oFolder->setType($iFolderType);
 						}
 					}
 				}
 			}
-			else
+		);
+	}
+	
+	/**
+	 * Creates system folders that weren't initialized earlier because they don't exist.
+	 * 
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount Account object.
+	 * @param \Aurora\Modules\Mail\Classes\FolderCollection $oFolderCollection Collection of folders.
+	 * @param array $aFoldersMap Describes information about system folders that weren't initialized yet.
+	 */
+	private function _createNonexistentSystemFolders($oAccount, $oFolderCollection, $aFoldersMap)
+	{
+		$bSystemFolderIsCreated = false;
+		
+		if (is_array($aFoldersMap))
+		{
+			$sNamespace = $oFolderCollection->getNamespace();
+			foreach ($aFoldersMap as $mFolderName)
 			{
-				// set system type from flags
-				$oFolderCollection->foreachWithSubFolders(function (/* @var $oFolder \Aurora\Modules\Mail\Classes\Folder */ $oFolder) use (&$aTypes, &$aFoldersMap) {
-						$iXListType = $oFolder->getFolderXListType();
-						$iKey = array_search($iXListType, $aTypes);
+				$sFolderFullName = is_array($mFolderName) &&
+					isset($mFolderName[0]) && is_string($mFolderName[0]) && 0 < strlen($mFolderName[0]) ?
+						$mFolderName[0] : (is_string($mFolderName) && 0 < strlen($mFolderName) ? $mFolderName : '');
 
-						if (false !== $iKey && \Aurora\Modules\Mail\Enums\FolderType::Custom === $oFolder->getType() && isset($aFoldersMap[$iXListType]))
-						{
-							unset($aTypes[$iKey]);
-							unset($aFoldersMap[$iXListType]);
-							
-							$oFolder->setType($iXListType);
-						}
-					}
-				);
-
-				if (is_array($aFoldersMap) && 0 < count($aFoldersMap))
+				if (0 < strlen($sFolderFullName))
 				{
-					$oFolderCollection->foreachOnlyRoot(
-						function (/* @var $oFolder \Aurora\Modules\Mail\Classes\Folder */ $oFolder) use (&$aFoldersMap) {
-							if (\Aurora\Modules\Mail\Enums\FolderType::Custom === $oFolder->getType())
-							{
-								foreach ($aFoldersMap as $iFolderType => $aFoldersNames)
-								{
-									$aList = array();
-									if (is_array($aFoldersNames))
-									{
-										$aList = $aFoldersNames;
-									}
-									else if (is_string($aFoldersNames))
-									{
-										$aList = array($aFoldersNames);
-									}
-
-									if (is_array($aList) && 0 < count($aList))
-									{
-										if (in_array($oFolder->getRawName(), $aList) || in_array($oFolder->getName(), $aList))
-										{
-											unset($aFoldersMap[$iFolderType]);
-
-											$oFolder->setType($iFolderType);
-										}
-									}
-								}
-							}
-						}
-					);
-				}
-
-				if (is_array($aFoldersMap) && 0 < count($aFoldersMap))
-				{
-					$sNamespace = $oFolderCollection->getNamespace();
-					foreach ($aFoldersMap as $iFolderType => $mFolderName)
-					{
-						$sFolderFullName = is_array($mFolderName) &&
-							isset($mFolderName[0]) && is_string($mFolderName[0]) && 0 < strlen($mFolderName[0]) ?
-								$mFolderName[0] : (is_string($mFolderName) && 0 < strlen($mFolderName) ? $mFolderName : '');
-
-						if (0 < strlen($sFolderFullName))
-						{
-							$aUnExistenSystemNames[$sNamespace.$sFolderFullName] = $iFolderType;
-						}
-					}
+					$this->createFolderByFullName($oAccount, $sNamespace.$sFolderFullName);
+					$bSystemFolderIsCreated = true;
 				}
 			}
+		}
+		
+		return $bSystemFolderIsCreated;
+	}
+	
+	/**
+	 * Initializes system folders.
+	 * 
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount Account object.
+	 * @param \Aurora\Modules\Mail\Classes\FolderCollection $oFolderCollection Collection of folders.
+	 * @param bool $bCreateNonexistentSystemFolders Create nonexistent system folders.
+	 *
+	 * @return bool
+	 */
+	private function _initSystemFolders($oAccount, &$oFolderCollection, $bCreateNonexistentSystemFolders)
+	{
+		$bSystemFolderIsCreated = false;
+		
+		try
+		{
+			$aFoldersMap = array(
+				\Aurora\Modules\Mail\Enums\FolderType::Drafts => array('Drafts', 'Draft'),
+				\Aurora\Modules\Mail\Enums\FolderType::Sent => array('Sent', 'Sent Items', 'Sent Mail'),
+				\Aurora\Modules\Mail\Enums\FolderType::Spam => array('Spam', 'Junk', 'Junk Mail', 'Junk E-mail', 'Bulk Mail'),
+				\Aurora\Modules\Mail\Enums\FolderType::Trash => array('Trash', 'Bin', 'Deleted', 'Deleted Items'),
+				// if array is empty, folder will not be set and/or created from folders map
+				\Aurora\Modules\Mail\Enums\FolderType::Template => array(),
+			);
 
-			if ($bCreateUnExistenSystemFilders && is_array($aUnExistenSystemNames) && 0 < count($aUnExistenSystemNames))
+			$oInbox = $oFolderCollection->getFolder('INBOX');
+			$oInbox->setType(\Aurora\Modules\Mail\Enums\FolderType::Inbox);
+			
+			// Tries to set system folders from database data.
+			$this->_initSystemFoldersFromDb($oAccount, $oFolderCollection, $aFoldersMap);
+			
+			// Tries to set system folders from imap flags for those folders that weren't set from database data.
+			$this->_initSystemFoldersFromImapFlags($oFolderCollection, $aFoldersMap);
+			
+			// Tries to set system folders from folders map for those folders that weren't set from database data or IMAP flags.
+			$this->_initSystemFoldersFromFoldersMap($oFolderCollection, $aFoldersMap);
+			
+			if ($bCreateNonexistentSystemFolders)
 			{
-				foreach ($aUnExistenSystemNames as $sFolderFullName => $iFolderType)
-				{
-					$this->createFolderByFullName($oAccount, $sFolderFullName);
-					$bAddSystemFolder = true;
-				}
+				$bSystemFolderIsCreated = $this->_createNonexistentSystemFolders($oAccount, $oFolderCollection, $aFoldersMap);
 			}
+
 		}
 		catch (\Exception $oException)
 		{
-			$bAddSystemFolder = false;
+			$bSystemFolderIsCreated = false;
 		}
 
-		return $bAddSystemFolder;
+		return $bSystemFolderIsCreated;
 	}
 	
 	public function isSafetySender($iIdUser, $sEmail)

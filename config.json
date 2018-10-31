@@ -43,6 +43,10 @@
 		60,
 		"int"
 	],
+	"AllowTemplateFolders": [
+		false,
+		"bool"
+	],
 	"DisplayInlineCss": [
 		false,
 		"bool"
