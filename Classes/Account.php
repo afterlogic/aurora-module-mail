@@ -15,7 +15,7 @@ namespace Aurora\Modules\Mail\Classes;
  * @package Users
  * @subpackage Classes
  */
-class Account extends \Aurora\System\EAV\Entity
+class Account extends \Aurora\System\Classes\AbstractAccount
 {
 	private $oServer = null;
 	
@@ -107,5 +107,10 @@ class Account extends \Aurora\System\EAV\Entity
 		$aResponse['CanBeUsedToAuthorize'] = $this->canBeUsedToAuthorize();
 		unset($aResponse['IncomingPassword']);
 		return $aResponse;
+	}
+
+	public function getLogin()
+	{
+		return $this->IncomingLogin;
 	}
 }
