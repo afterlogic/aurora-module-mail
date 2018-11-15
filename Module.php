@@ -4707,6 +4707,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 				if ($this->oApiAccountsManager->updateAccount($oAccount))
 				{
 					$mResult = $oAccount;
+					$mResult->RefreshToken = \Aurora\System\Api::UserSession()->UpdateTimestamp(\Aurora\System\Api::getAuthToken(), time());
 				}
 			}
 		}
@@ -5247,17 +5248,28 @@ class Module extends \Aurora\System\Module\AbstractModule
 			{
 				if ($bAutocreateMailAccountOnNewUserFirstLogin || !$bNewAccount)
 				{
-					$bNeedToUpdatePassword = $aArgs['Password'] !== $oAccount->getPassword();
-					$oAccount->setPassword($aArgs['Password']);
-					
-					$this->oApiMailManager->validateAccountConnection($oAccount);
-					
-					if ($bNeedToUpdatePassword) 
+					$sOldPassword = $oAccount->getPassword();
+					$sNewPassword = $aArgs['Password'];
+
+					if ($sNewPassword !== $sOldPassword)
 					{
-						$this->oApiAccountsManager->updateAccount($oAccount);
+						$oAccount->setPassword($sNewPassword);
+						$mResult = $this->oApiMailManager->validateAccountConnection($oAccount, false);
+						if (!($mResult instanceof \Exception))
+						{
+							$bResult = true;
+							\Aurora\System\Api::setUserId($oAccount->IdUser); // set user id to yhe Session
+							$this->Decorator()->ChangePassword($oAccount->EntityId, $sOldPassword, $sNewPassword);
+						}
+						else
+						{
+							$bResult = false;
+						}
 					}
-					
-					$bResult =  true;
+					else
+					{
+						$bResult = true;
+					}
 				}
 
 				if ($bAutocreateMailAccountOnNewUserFirstLogin && $bNewAccount)
