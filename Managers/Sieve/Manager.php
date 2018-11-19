@@ -516,9 +516,9 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 				$sHost = $oServer->IncomingServer;
 				$iPort = $oServer->SievePort;
 				$sPassword = 0 === strlen($sGeneralPassword) ? $oAccount->getPassword() : $sGeneralPassword;
-				
+				$bUseStarttls = $this->GetModule()->getConfig('SieveUseStarttls', false);
 				$bResult = $oSieve
-					->Connect($sHost, $iPort, \MailSo\Net\Enumerations\ConnectionSecurityType::NONE)
+					->Connect($sHost, $iPort, $bUseStarttls ? \MailSo\Net\Enumerations\ConnectionSecurityType::STARTTLS : \MailSo\Net\Enumerations\ConnectionSecurityType::NONE)
 					->Login($oAccount->IncomingLogin, $sPassword)
 				;
 			}
