@@ -77,15 +77,12 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$this->oApiFileCache = new \Aurora\System\Managers\Filecache();
 		$this->oApiSieveManager = new Managers\Sieve\Manager($this);
 		
-		$this->extendObject(
-			'Aurora\Modules\Core\Classes\User', 
-			array(
-				'AllowAutosaveInDrafts'	=> array(
-					'bool', 
-					(bool) $this->getConfig('AllowAutosaveInDrafts', false)
-				),
-			)
-		);
+		\Aurora\Modules\Core\Classes\User::extend(
+			self::GetName(),
+			[
+				'AllowAutosaveInDrafts'	=> ['bool', (bool) $this->getConfig('AllowAutosaveInDrafts', false)],
+			]
+		);		
 
 		$this->AddEntries(array(
 				'message-newtab' => 'EntryMessageNewtab',
@@ -202,9 +199,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 			}
 			$aSettings['Accounts'] = $aResponseAcc;
 			
-			if (isset($oUser->{$this->GetName().'::AllowAutosaveInDrafts'}))
+			if (isset($oUser->{self::GetName().'::AllowAutosaveInDrafts'}))
 			{
-				$aSettings['AllowAutosaveInDrafts'] = $oUser->{$this->GetName().'::AllowAutosaveInDrafts'};
+				$aSettings['AllowAutosaveInDrafts'] = $oUser->{self::GetName().'::AllowAutosaveInDrafts'};
 			}
 		}
 		
@@ -273,7 +270,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			if ($oUser->Role === \Aurora\System\Enums\UserRole::NormalUser)
 			{
 				$oCoreDecorator = \Aurora\Modules\Core\Module::Decorator();
-				$oUser->{$this->GetName().'::AllowAutosaveInDrafts'} = $AllowAutosaveInDrafts;
+				$oUser->{self::GetName().'::AllowAutosaveInDrafts'} = $AllowAutosaveInDrafts;
 				return $oCoreDecorator->UpdateUserObject($oUser);
 			}
 			if ($oUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin)
@@ -579,7 +576,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 				$iServerId = $Server['ServerId'];
 				if ($Server !== null && $iServerId === 0)
 				{
-					$oNewServer = new \Aurora\Modules\Mail\Classes\Server($this->GetName());
+					$oNewServer = new \Aurora\Modules\Mail\Classes\Server(self::GetName());
 					$oNewServer->Name = $Server['IncomingServer'];
 					$oNewServer->IncomingServer = $Server['IncomingServer'];
 					$oNewServer->IncomingPort = $Server['IncomingPort'];
@@ -603,7 +600,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 					}
 				}
 
-				$oAccount = new \Aurora\Modules\Mail\Classes\Account($this->GetName());
+				$oAccount = new \Aurora\Modules\Mail\Classes\Account(self::GetName());
 
 				$oAccount->IdUser = $UserId;
 				$oAccount->FriendlyName = $FriendlyName;
@@ -758,7 +755,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 					if ($Server['ServerId'] === 0)
 					{
 						$sDomains = explode('@', $oAccount->Email)[1];
-						$oNewServer = new \Aurora\Modules\Mail\Classes\Server($this->GetName());
+						$oNewServer = new \Aurora\Modules\Mail\Classes\Server(self::GetName());
 						$oNewServer->Name = $Server['IncomingServer'];
 						$oNewServer->IncomingServer = $Server['IncomingServer'];
 						$oNewServer->IncomingPort = $Server['IncomingPort'];
@@ -1144,7 +1141,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::TenantAdmin);
 		}
 		
-		$oServer = new \Aurora\Modules\Mail\Classes\Server($this->GetName());
+		$oServer = new \Aurora\Modules\Mail\Classes\Server(self::GetName());
 		$oServer->OwnerType = $sOwnerType;
 		$oServer->TenantId = $TenantId;
 		$oServer->Name = $Name;
@@ -3633,7 +3630,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			}
 		}
 
-		\Aurora\System\Api::LogEvent('message-send: ' . $oAccount->Email, $this->GetName());
+		\Aurora\System\Api::LogEvent('message-send: ' . $oAccount->Email, self::GetName());
 		return $mResult;
 	}
 	
@@ -5222,7 +5219,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 				{
 					$sMailLogin = !$oServer->UseFullEmailAddressAsLogin && preg_match('/(.+)@.+$/',  $sEmail, $matches) && $matches[1] ? $matches[1] : $sEmail;
 
-					$oAccount = \Aurora\System\EAV\Entity::createInstance($this->getNamespace() . '\Classes\Account', $this->GetName());
+					$oAccount = new Classes\Account(self::GetName());
 					$oAccount->Email = $sEmail;
 					$oAccount->IncomingLogin = $sMailLogin;
 					$oAccount->setPassword($aArgs['Password']);

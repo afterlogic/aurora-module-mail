@@ -89,7 +89,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		
 		try
 		{
-			$oServer = $this->oEavManager->getEntity((int)$iServerId, $this->getModule()->getNamespace() . '\Classes\Server');
+			$oServer = $this->oEavManager->getEntity((int)$iServerId, $this->getModule()::getNamespace() . '\Classes\Server');
 		}
 		catch (\Aurora\System\Exceptions\BaseException $oException)
 		{
@@ -118,7 +118,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		try
 		{
 			$aResult = $this->oEavManager->getEntities(
-				$this->getModule()->getNamespace() . '\Classes\Server',
+				$this->getModule()::getNamespace() . '\Classes\Server',
 				array(),
 				0,
 				999,
@@ -179,7 +179,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		try
 		{
 			$aResult = $this->oEavManager->getEntities(
-				$this->getModule()->getNamespace() . '\Classes\Server',
+				$this->getModule()::getNamespace() . '\Classes\Server',
 				array(),
 				$iOffset,
 				$iLimit,
@@ -234,7 +234,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		$oServer = false;
 
 		$aResult = $this->oEavManager->getEntities(
-			$this->getModule()->getNamespace() . '\Classes\Server',
+			$this->getModule()::getNamespace() . '\Classes\Server',
 			array(),
 			0,
 			999,
