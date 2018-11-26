@@ -46,7 +46,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		
 		if ($oModule instanceof \Aurora\System\Module\AbstractModule)
 		{
-			$this->oEavManager = new \Aurora\System\Managers\Eav();
+			$this->oEavManager = \Aurora\System\Managers\Eav::getInstance();
 		}
 	}
 
@@ -206,7 +206,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		foreach ($aSystemNames as $iTypeValue => $sFolderFullName)
 		{
 			$aEntities = $this->oEavManager->getEntities(
-				\Aurora\Modules\Mail\Module::getNamespace() . '\Classes\SystemFolder',
+				\Aurora\Modules\Mail\Classes\SystemFolder::class,
 				array(),
 				0,
 				1,
@@ -238,7 +238,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		$bResult = true;
 		
 		$aEntities = $this->oEavManager->getEntities(
-			\Aurora\Modules\Mail\Module::getNamespace() . '\Classes\SystemFolder',
+			\Aurora\Modules\Mail\Classes\SystemFolder::class,
 			array(),
 			0,
 			1,
@@ -299,7 +299,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	private function _getSystemFolderEntities($oAccount)
 	{
 		$aEntities = $this->oEavManager->getEntities(
-			\Aurora\Modules\Mail\Module::getNamespace() . '\Classes\SystemFolder',
+			\Aurora\Modules\Mail\Classes\SystemFolder::class,
 			array(),
 			0,
 			9,
@@ -322,7 +322,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		$iOffset = 0;
 		$iLimit = 0;
 		$aFilters = array('IdAccount' => array($iAccountId, '='));
-		$aSystemFolders = $this->oEavManager->getEntities(\Aurora\Modules\Mail\Module::getNamespace() . '\Classes\SystemFolder',  array(), $iOffset, $iLimit, $aFilters);
+		$aSystemFolders = $this->oEavManager->getEntities(\Aurora\Modules\Mail\Classes\SystemFolder::class,  array(), $iOffset, $iLimit, $aFilters);
 		if (is_array($aSystemFolders))
 		{
 			foreach ($aSystemFolders as $oSystemFolder)
@@ -506,7 +506,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	{
 		$bResult = false;
 		$aEntities = $this->oEavManager->getEntities(
-			\Aurora\Modules\Mail\Module::getNamespace() . '\Classes\Sender',
+			\Aurora\Modules\Mail\Classes\Sender::class,
 			array(),
 			0,
 			1,

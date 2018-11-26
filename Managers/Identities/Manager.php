@@ -26,7 +26,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	{
 		parent::__construct($oModule);
 		
-		$this->oEavManager = new \Aurora\System\Managers\Eav();
+		$this->oEavManager = \Aurora\System\Managers\Eav::getInstance();
 	}
 
 	/**
@@ -66,7 +66,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		
 		try
 		{
-			$oIdentity = $this->oEavManager->getEntity($iEntityId, \Aurora\Modules\Mail\Module::getNamespace() . '\Classes\Identity');
+			$oIdentity = $this->oEavManager->getEntity($iEntityId, \Aurora\Modules\Mail\Classes\Identity::class);
 		}
 		catch (\Aurora\System\Exceptions\BaseException $oException)
 		{
@@ -174,7 +174,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		try
 		{
 			$aResult = $this->oEavManager->getEntities(
-				\Aurora\Modules\Mail\Module::getNamespace() . '\Classes\Identity',
+				\Aurora\Modules\Mail\Classes\Identity::class,
 				array(),
 				$iOffset,
 				$iLimit,
@@ -204,7 +204,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		$iOffset = 0;
 		$iLimit = 0;
 		$aFilters = array('IdAccount' => array($iAccountId, '='));
-		$aIdentities = $this->oEavManager->getEntities(\Aurora\Modules\Mail\Module::getNamespace() . '\Classes\Identity', array(), $iOffset, $iLimit, $aFilters);
+		$aIdentities = $this->oEavManager->getEntities(\Aurora\Modules\Mail\Classes\Identity::class, array(), $iOffset, $iLimit, $aFilters);
 		if (is_array($aIdentities))
 		{
 			foreach ($aIdentities as $oIdentity)

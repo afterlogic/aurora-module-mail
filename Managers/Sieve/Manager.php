@@ -511,7 +511,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 				$oMailModule = \Aurora\System\Api::GetModule('Mail');
 				$sGeneralPassword = $oMailModule->getConfig('SieveGeneralPassword', '');
 				
-				$oServer = $oMailModule->oApiServersManager->getServer($oAccount->ServerId);
+				$oServer = $oMailModule->getServersManager()->getServer($oAccount->ServerId);
 				
 				$sHost = $oServer->IncomingServer;
 				$iPort = $oServer->SievePort;

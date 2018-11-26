@@ -19,32 +19,32 @@ class Module extends \Aurora\System\Module\AbstractModule
 	/* 
 	 * @var $oApiMailManager Managers\Main
 	 */	
-	public $oApiMailManager = null;
+	protected $oApiMailManager = null;
 
 	/* 
 	 * @var $oApiAccountsManager Managers\Accounts
 	 */	
-	public $oApiAccountsManager = null;
+	protected $oApiAccountsManager = null;
 
 	/* 
 	 * @var $oApiServersManager Managers\Servers
 	 */	
-	public $oApiServersManager = null;
+	protected $oApiServersManager = null;
 	
 	/* 
 	 * @var $oApiIdentitiesManager Managers\Identities
 	 */	
-	public $oApiIdentitiesManager = null;
+	protected $oApiIdentitiesManager = null;
 
 	/* 
 	 * @var $oApiSieveManager Managers\Sieve
 	 */	
-	public $oApiSieveManager = null;
+	protected $oApiSieveManager = null;
 	
 	/* 
-	 * @var $oApiFileCache \Aurora\System\Managers\Filecache 
+	 * @var $oApiFilecacheManager \Aurora\System\Managers\Filecache 
 	 */	
-	public $oApiFileCache = null;
+	protected $oApiFilecacheManager = null;
 	
 	/**
 	 * Initializes Mail Module.
@@ -70,13 +70,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 			Enums\ErrorCodes::DomainIsNotAllowedForLoggingIn		=> $this->i18N('DOMAIN_IS_NOT_ALLOWED_FOR_LOGGING_IN'),
 		];
 		
-		$this->oApiAccountsManager = new Managers\Accounts\Manager($this);
-		$this->oApiServersManager = new Managers\Servers\Manager($this);
-		$this->oApiIdentitiesManager = new Managers\Identities\Manager($this);
-		$this->oApiMailManager = new Managers\Main\Manager($this);
-		$this->oApiFileCache = new \Aurora\System\Managers\Filecache();
-		$this->oApiSieveManager = new Managers\Sieve\Manager($this);
-		
 		\Aurora\Modules\Core\Classes\User::extend(
 			self::GetName(),
 			[
@@ -98,7 +91,72 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		\MailSo\Config::$PreferStartTlsIfAutoDetect = !!$this->getConfig('PreferStarttls', true);
 	}
+
+	public function getAccountsManager()
+	{
+		if ($this->oApiAccountsManager === null)
+		{
+			$this->oApiAccountsManager = new Managers\Accounts\Manager($this);
+		}
+
+		return $this->oApiAccountsManager;
+	}
+
+	public function setAccountsManager($oManager)
+	{
+		$this->oApiAccountsManager = $oManager;
+	}
+
+	public function getServersManager()
+	{
+		if ($this->oApiServersManager === null)
+		{
+			$this->oApiServersManager = new Managers\Servers\Manager($this);
+		}
+
+		return $this->oApiServersManager;
+	}
 	
+	public function getIdentitiesManager()
+	{
+		if ($this->oApiIdentitiesManager === null)
+		{
+			$this->oApiIdentitiesManager = new Managers\Identities\Manager($this);
+		}
+
+		return $this->oApiIdentitiesManager;
+	}
+
+	public function getMailManager()
+	{
+		if ($this->oApiMailManager === null)
+		{
+			$this->oApiMailManager = new Managers\Main\Manager($this);
+		}
+
+		return $this->oApiMailManager;
+	}
+
+	public function getSieveManager()
+	{
+		if ($this->oApiSieveManager === null)
+		{
+			$this->oApiSieveManager = new Managers\Sieve\Manager($this);
+		}
+
+		return $this->oApiSieveManager;
+	}	
+
+	public function getFilecacheManager()
+	{
+		if ($this->oApiFilecacheManager === null)
+		{
+			$this->oApiFilecacheManager = new \Aurora\System\Managers\Filecache();
+		}
+
+		return $this->oApiFilecacheManager;
+	}
+
 	/***** public functions might be called with web API *****/
 	/**
 	 * @apiDefine Mail Mail Module
@@ -357,7 +415,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::SuperAdmin);
 		}
 		
-		$aAccounts = $this->oApiAccountsManager->getUserAccounts($UserId);
+		$aAccounts = $this->getAccountsManager()->getUserAccounts($UserId);
 		if (is_array($aAccounts))
 		{
 			$mResult = [];
@@ -453,7 +511,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$mResult = false;
 		
 		$oUser = \Aurora\System\Api::getAuthenticatedUser();
-		$oAccount = $this->oApiAccountsManager->getAccountById($AccountId);
+		$oAccount = $this->getAccountsManager()->getAccountById($AccountId);
 		
 		if ($oAccount && ($oAccount->IdUser === $oUser->EntityId || $oUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin))
 		{
@@ -470,7 +528,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$mResult = false;
 		
 		$oUser = \Aurora\System\Api::getAuthenticatedUser();
-		$oAccount = $this->oApiAccountsManager->getAccountByEmail($Email);
+		$oAccount = $this->getAccountsManager()->getAccountByEmail($Email);
 		
 		if ($oAccount && ($oAccount->IdUser === $oUser->EntityId || $oUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin))
 		{
@@ -587,13 +645,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 					$oNewServer->SmtpAuthType = $Server['SmtpAuthType'];
 					$oNewServer->Domains = $sDomain;
 					$oNewServer->EnableThreading = $Server['EnableThreading'];
-					$iServerId = $this->oApiServersManager->createServer($oNewServer);
+					$iServerId = $this->getServersManager()->createServer($oNewServer);
 					$bCustomServerCreated = true;
 				}
 				
 				if ($Server === null)
 				{
-					$oServer = $this->oApiServersManager->getServerByDomain($sDomain);
+					$oServer = $this->getServersManager()->getServerByDomain($sDomain);
 					if ($oServer)
 					{
 						$iServerId = $oServer->EntityId;
@@ -617,18 +675,18 @@ class Module extends \Aurora\System\Module\AbstractModule
 				$bAccoutResult = false;
 				if ($bDoImapLoginOnAccountCreate)
 				{
-					$oResException = $this->oApiMailManager->validateAccountConnection($oAccount, false);
+					$oResException = $this->getMailManager()->validateAccountConnection($oAccount, false);
 				}
 				if ($oResException === null)
 				{
 					$oCoreDecorator = \Aurora\Modules\Core\Module::Decorator();
 					$oUser = $oCoreDecorator ? $oCoreDecorator->GetUser($UserId) : null;
 					if ($oUser instanceof \Aurora\Modules\Core\Classes\User && $oUser->PublicId === $Email && 
-						!$this->oApiAccountsManager->useToAuthorizeAccountExists($Email))
+						!$this->getAccountsManager()->useToAuthorizeAccountExists($Email))
 					{
 						$oAccount->UseToAuthorize = true;
 					}
-					$bAccoutResult = $this->oApiAccountsManager->createAccount($oAccount);
+					$bAccoutResult = $this->getAccountsManager()->createAccount($oAccount);
 				}
 
 				if ($bAccoutResult)
@@ -637,7 +695,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 				}
 				else if ($bCustomServerCreated)
 				{
-					$this->oApiServersManager->deleteServer($iServerId);
+					$this->getServersManager()->deleteServer($iServerId);
 				}
 				
 				if ($oResException !== null)
@@ -726,7 +784,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		
 		if ($AccountID > 0)
 		{
-			$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
+			$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
 			
 			if ($oAccount)
 			{
@@ -734,7 +792,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 				{
 					$oAccount->Email = $Email;
 				}
-				if ($UseToAuthorize === false || $UseToAuthorize === true && !$this->oApiAccountsManager->useToAuthorizeAccountExists($oAccount->Email, $oAccount->EntityId))
+				if ($UseToAuthorize === false || $UseToAuthorize === true && !$this->getAccountsManager()->useToAuthorizeAccountExists($oAccount->Email, $oAccount->EntityId))
 				{
 					$oAccount->UseToAuthorize = $UseToAuthorize;
 				}
@@ -766,7 +824,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 						$oNewServer->SmtpAuthType = $Server['SmtpAuthType'];
 						$oNewServer->Domains = $sDomains;
 						$oNewServer->EnableThreading = $Server['EnableThreading'];
-						$iNewServerId = $this->oApiServersManager->createServer($oNewServer);
+						$iNewServerId = $this->getServersManager()->createServer($oNewServer);
 						$oAccount->updateServer($iNewServerId);
 					}
 					elseif ($oAccount->ServerId === $Server['ServerId'])
@@ -783,7 +841,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 							$oAccServer->OutgoingUseSsl = $Server['OutgoingUseSsl'];
 							$oAccServer->SmtpAuthType = $Server['SmtpAuthType'];
 							
-							$this->oApiServersManager->updateServer($oAccServer);		
+							$this->getServersManager()->updateServer($oAccServer);		
 						}
 					}
 					else
@@ -791,7 +849,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 						$oAccServer = $oAccount->getServer();
 						if ($oAccServer && $oAccServer->OwnerType === \Aurora\Modules\Mail\Enums\ServerOwnerType::Account)
 						{
-							$this->oApiServersManager->deleteServer($oAccServer->EntityId);
+							$this->getServersManager()->deleteServer($oAccServer->EntityId);
 						}
 						$oAccount->updateServer($Server['ServerId']);
 					}
@@ -807,7 +865,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 					$oAccount->SaveRepliesToCurrFolder = $SaveRepliesToCurrFolder;
 				}
 				
-				if ($this->oApiAccountsManager->updateAccount($oAccount))
+				if ($this->getAccountsManager()->updateAccount($oAccount))
 				{
 					return $oAccount;
 				}
@@ -882,21 +940,21 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		if ($AccountID > 0)
 		{
-			$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
+			$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
 			
 			if ($oAccount)
 			{
-				$this->oApiIdentitiesManager->deleteAccountIdentities($oAccount->EntityId);
-				$this->oApiMailManager->deleteSystemFolderNames($oAccount->EntityId);
+				$this->getIdentitiesManager()->deleteAccountIdentities($oAccount->EntityId);
+				$this->getMailManager()->deleteSystemFolderNames($oAccount->EntityId);
 				$bServerRemoved = true;
 				$oServer = $oAccount->getServer();
 				if ($oServer->OwnerType === \Aurora\Modules\Mail\Enums\ServerOwnerType::Account)
 				{
-					$bServerRemoved = $this->oApiServersManager->deleteServer($oServer->EntityId);
+					$bServerRemoved = $this->getServersManager()->deleteServer($oServer->EntityId);
 				}
 				if ($bServerRemoved)
 				{
-					$bResult = $this->oApiAccountsManager->deleteAccount($oAccount);
+					$bResult = $this->getAccountsManager()->deleteAccount($oAccount);
 				}
 			}
 			
@@ -966,7 +1024,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
-		return $this->oApiServersManager->getServerList($TenantId);
+		return $this->getServersManager()->getServerList($TenantId);
 	}
 	
 	/**
@@ -1043,7 +1101,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
-		return $this->oApiServersManager->getServer($ServerId);
+		return $this->getServersManager()->getServer($ServerId);
 	}
 	
 	/**
@@ -1154,13 +1212,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$oServer->SmtpAuthType = $SmtpAuthType;
 		$oServer->SmtpLogin = $SmtpLogin;
 		$oServer->SmtpPassword = $SmtpPassword;
-		$oServer->Domains = $this->oApiServersManager->trimDomains($Domains);
+		$oServer->Domains = $this->getServersManager()->trimDomains($Domains);
 		$oServer->EnableThreading = $EnableThreading;
 		$oServer->EnableSieve = $EnableSieve;
 		$oServer->SievePort = $SievePort;
 		$oServer->UseFullEmailAddressAsLogin = $UseFullEmailAddressAsLogin;
 			
-		return $this->oApiServersManager->createServer($oServer);
+		return $this->getServersManager()->createServer($oServer);
 	}
 	
 	/**
@@ -1258,7 +1316,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	{
 		$bResult = false;
 		
-		$oServer = $this->oApiServersManager->getServer($ServerId);
+		$oServer = $this->getServersManager()->getServer($ServerId);
 
 		if ($oServer->OwnerType === \Aurora\Modules\Mail\Enums\ServerOwnerType::SuperAdmin)
 		{
@@ -1281,7 +1339,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$oServer->SmtpAuthType = $SmtpAuthType;
 			$oServer->SmtpLogin = $SmtpLogin;
 			$oServer->SmtpPassword = $SmtpPassword;
-			$oServer->Domains = $this->oApiServersManager->trimDomains($Domains);
+			$oServer->Domains = $this->getServersManager()->trimDomains($Domains);
 			$oServer->EnableThreading = $EnableThreading;
 			$oServer->EnableSieve = $EnableSieve;
 			$oServer->SievePort = $SievePort;
@@ -1295,7 +1353,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 				$oServer->ExternalAccessSmtpPort = $ExternalAccessSmtpPort;
 			}
 			
-			$bResult = $this->oApiServersManager->updateServer($oServer);
+			$bResult = $this->getServersManager()->updateServer($oServer);
 		}
 		else
 		{
@@ -1370,7 +1428,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::TenantAdmin);
 		}
 		
-		return $this->oApiServersManager->deleteServer($ServerId, $TenantId);
+		return $this->getServersManager()->deleteServer($ServerId, $TenantId);
 	}
 	
 	/**
@@ -1454,8 +1512,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
-		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
-		$oFolderCollection = $this->oApiMailManager->getFolders($oAccount);
+		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
+		$oFolderCollection = $this->getMailManager()->getFolders($oAccount);
 		return array(
 			'Folders' => $oFolderCollection, 
 			'Namespace' => $oFolderCollection->GetNamespace()
@@ -1611,9 +1669,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
 		}
 
-		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
+		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
 
-		return $this->oApiMailManager->getMessageList(
+		return $this->getMailManager()->getMessageList(
 			$oAccount, $Folder, $iOffset, $iLimit, $sSearch, $UseThreading, $aFilters, $InboxUidnext);
 	}
 
@@ -1689,8 +1747,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		try
 		{
-			$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
-			$aResult = $this->oApiMailManager->getFolderListInformation($oAccount, $Folders);
+			$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
+			$aResult = $this->getMailManager()->getFolderListInformation($oAccount, $Folders);
 		}
 		catch (\MailSo\Net\Exceptions\ConnectionException $oException)
 		{
@@ -1766,8 +1824,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
-		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
-		return $this->oApiMailManager->getQuota($oAccount);
+		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
+		return $this->getMailManager()->getQuota($oAccount);
 	}
 
 	/**
@@ -2035,14 +2093,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
 		}
 
-		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
+		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
 
 		if (0 === \strlen($Folder) || !\is_numeric($iUid) || 0 >= (int) $iUid)
 		{
 			throw new \CApiInvalidArgumentException();
 		}
 
-		$oImapClient =& $this->oApiMailManager->_getImapClient($oAccount);
+		$oImapClient =& $this->getMailManager()->_getImapClient($oAccount);
 
 		$oImapClient->FolderExamine($Folder);
 
@@ -2147,7 +2205,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			{
 				$bAlwaysShowImagesInMessage = !!$this->getConfig('AlwaysShowImagesInMessage', false);
 				$oMessage->setSafety($bAlwaysShowImagesInMessage ? true : 
-						$this->oApiMailManager->isSafetySender($oAccount->IdUser, $sFromEmail));
+						$this->getMailManager()->isSafetySender($oAccount->IdUser, $sFromEmail));
 			}
 			
 			$aData = array();
@@ -2372,9 +2430,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
 		}
 
-		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
+		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
 
-		return $this->oApiMailManager->setMessageFlag($oAccount, $Folder, array(),
+		return $this->getMailManager()->setMessageFlag($oAccount, $Folder, array(),
 			\MailSo\Imap\Enumerations\MessageFlag::SEEN, \Aurora\Modules\Mail\Enums\MessageStoreAction::Add, true);
 	}
 
@@ -2447,11 +2505,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
 		}
 
-		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
+		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
 
 		try
 		{
-			$this->oApiMailManager->copyMessage($oAccount, $Folder, $ToFolder, $aUids);
+			$this->getMailManager()->copyMessage($oAccount, $Folder, $ToFolder, $aUids);
 		}
 		catch (\MailSo\Imap\Exceptions\NegativeResponseException $oException)
 		{
@@ -2537,11 +2595,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
 		}
 
-		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
+		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
 
 		try
 		{
-			$this->oApiMailManager->moveMessage($oAccount, $Folder, $ToFolder, $aUids);
+			$this->getMailManager()->moveMessage($oAccount, $Folder, $ToFolder, $aUids);
 		}
 		catch (\MailSo\Imap\Exceptions\NegativeResponseException $oException)
 		{
@@ -2626,9 +2684,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
 		}
 
-		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
+		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
 
-		$this->oApiMailManager->deleteMessage($oAccount, $Folder, $aUids);
+		$this->getMailManager()->deleteMessage($oAccount, $Folder, $aUids);
 
 		return true;
 	}
@@ -2703,11 +2761,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
 		}
 
-		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
+		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
 
 		try
 		{
-			$this->oApiMailManager->createFolder($oAccount, $FolderNameInUtf8, $Delimiter, $FolderParentFullNameRaw);
+			$this->getMailManager()->createFolder($oAccount, $FolderNameInUtf8, $Delimiter, $FolderParentFullNameRaw);
 		} 
 		catch (\MailSo\Mail\Exceptions\AlreadyExistsFolder $oException) 
 		{
@@ -2718,7 +2776,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			);
 		}
 
-		$aFoldersOrderList = $this->oApiMailManager->getFoldersOrder($oAccount);
+		$aFoldersOrderList = $this->getMailManager()->getFoldersOrder($oAccount);
 		if (\is_array($aFoldersOrderList) && 0 < \count($aFoldersOrderList))
 		{
 			$aFoldersOrderListNew = $aFoldersOrderList;
@@ -2757,7 +2815,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 				{
 					\Aurora\System\Api::Log('insert order index:'.$iUpperKey);
 					\array_splice($aFoldersOrderList, $iUpperKey + 1, 0, $sFolderFullNameRaw);
-					$this->oApiMailManager->updateFoldersOrder($oAccount, $aFoldersOrderList);
+					$this->getMailManager()->updateFoldersOrder($oAccount, $aFoldersOrderList);
 				}
 			}
 		}
@@ -2834,9 +2892,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
 		}
 
-		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
+		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
 
-		$mResult = $this->oApiMailManager->renameFolder($oAccount, $PrevFolderFullNameRaw, $NewFolderNameInUtf8);
+		$mResult = $this->getMailManager()->renameFolder($oAccount, $PrevFolderFullNameRaw, $NewFolderNameInUtf8);
 
 		return (0 < \strlen($mResult) ? array(
 			'FullName' => $mResult,
@@ -2908,9 +2966,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
 		}
 
-		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
+		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
 
-		$this->oApiMailManager->deleteFolder($oAccount, $Folder);
+		$this->getMailManager()->deleteFolder($oAccount, $Folder);
 
 		return true;
 	}	
@@ -2986,9 +3044,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
 		}
 
-		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
+		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
 
-		$this->oApiMailManager->subscribeFolder($oAccount, $Folder, $SetAction);
+		$this->getMailManager()->subscribeFolder($oAccount, $Folder, $SetAction);
 		
 		return true;
 	}	
@@ -3057,9 +3115,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
 		}
 
-		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
+		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
 
-		return $this->oApiMailManager->updateFoldersOrder($oAccount, $FolderList);
+		return $this->getMailManager()->updateFoldersOrder($oAccount, $FolderList);
 	}
 	
 	/**
@@ -3125,9 +3183,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
 		}
 
-		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
+		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
 
-		$this->oApiMailManager->clearFolder($oAccount, $Folder);
+		$this->getMailManager()->clearFolder($oAccount, $Folder);
 
 		return true;
 	}
@@ -3257,9 +3315,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
 		}
 
-		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
+		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
 
-		return $this->oApiMailManager->getMessageListByUids($oAccount, $Folder, $Uids);
+		return $this->getMailManager()->getMessageListByUids($oAccount, $Folder, $Uids);
 	}
 	
 	/**
@@ -3327,9 +3385,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
 		}
 
-		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
+		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
 
-		return $this->oApiMailManager->getMessagesFlags($oAccount, $Folder, $Uids);
+		return $this->getMailManager()->getMessagesFlags($oAccount, $Folder, $Uids);
 	}
 	
 	/**
@@ -3432,14 +3490,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 		
 		$mResult = false;
 
-		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
+		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
 
 		if (0 === \strlen($DraftFolder))
 		{
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
 		}
 		
-		$oIdentity = $IdentityID !== 0 ? $this->oApiIdentitiesManager->getIdentity($IdentityID) : null;
+		$oIdentity = $IdentityID !== 0 ? $this->getIdentitiesManager()->getIdentity($IdentityID) : null;
 
 		$oMessage = $this->Decorator()->BuildMessage($oAccount, $To, $Cc, $Bcc, 
 			$Subject, $IsHtml, $Text, $Attachments, $DraftInfo, $InReplyTo, $References, $Importance,
@@ -3448,7 +3506,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
 			try
 			{
-				$mResult = $this->oApiMailManager->saveMessage($oAccount, $oMessage, $DraftFolder, $DraftUid);
+				$mResult = $this->getMailManager()->saveMessage($oAccount, $oMessage, $DraftFolder, $DraftUid);
 			}
 			catch (\Aurora\System\Exceptions\ManagerException $oException)
 			{
@@ -3564,16 +3622,16 @@ class Module extends \Aurora\System\Module\AbstractModule
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
-		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
+		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
 
-		$oIdentity = $IdentityID !== 0 ? $this->oApiIdentitiesManager->getIdentity($IdentityID) : null;
+		$oIdentity = $IdentityID !== 0 ? $this->getIdentitiesManager()->getIdentity($IdentityID) : null;
 
 		$oMessage = $this->Decorator()->BuildMessage($oAccount, $To, $Cc, $Bcc, 
 			$Subject, $IsHtml, $Text, $Attachments, $DraftInfo, $InReplyTo, $References, $Importance,
 			$Sensitivity, $SendReadingConfirmation, $Fetcher, false, $oIdentity);
 		if ($oMessage)
 		{
-			$mResult = $this->oApiMailManager->sendMessage($oAccount, $oMessage, $Fetcher, $SentFolder, $DraftFolder, $DraftUid);
+			$mResult = $this->getMailManager()->sendMessage($oAccount, $oMessage, $Fetcher, $SentFolder, $DraftFolder, $DraftUid);
 
 			if ($mResult)
 			{
@@ -3603,13 +3661,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 					{
 						case 'reply':
 						case 'reply-all':
-							$this->oApiMailManager->setMessageFlag($oAccount,
+							$this->getMailManager()->setMessageFlag($oAccount,
 								$sDraftInfoFolder, array($sDraftInfoUid),
 								\MailSo\Imap\Enumerations\MessageFlag::ANSWERED,
 								\Aurora\Modules\Mail\Enums\MessageStoreAction::Add);
 							break;
 						case 'forward':
-							$this->oApiMailManager->setMessageFlag($oAccount,
+							$this->getMailManager()->setMessageFlag($oAccount,
 								$sDraftInfoFolder, array($sDraftInfoUid),
 								'$Forwarded',
 								\Aurora\Modules\Mail\Enums\MessageStoreAction::Add);
@@ -3623,7 +3681,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			{
 				try
 				{
-					$mResult = $this->oApiMailManager->setMessageFlag($oAccount, $ConfirmFolder, array($ConfirmUid), '$ReadConfirm', 
+					$mResult = $this->getMailManager()->setMessageFlag($oAccount, $ConfirmFolder, array($ConfirmUid), '$ReadConfirm', 
 						\Aurora\Modules\Mail\Enums\MessageStoreAction::Add, false, true);
 				}
 				catch (\Exception $oException) {}
@@ -3698,7 +3756,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
-		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
+		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
 		
 		$aSystemNames = array();
 		$aSystemNames[\Aurora\Modules\Mail\Enums\FolderType::Sent] = \trim($Sent);
@@ -3706,7 +3764,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$aSystemNames[\Aurora\Modules\Mail\Enums\FolderType::Trash] = \trim($Trash);
 		$aSystemNames[\Aurora\Modules\Mail\Enums\FolderType::Spam] = \trim($Spam);
 		
-		return $this->oApiMailManager->updateSystemFolderNames($oAccount, $aSystemNames);
+		return $this->getMailManager()->updateSystemFolderNames($oAccount, $aSystemNames);
 	}	
 	
 	/**
@@ -3722,9 +3780,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 		
 		if ($this->getConfig('AllowTemplateFolders', false))
 		{
-			$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
+			$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
 
-			return $this->oApiMailManager->setSystemFolder($oAccount, $FolderFullName, \Aurora\Modules\Mail\Enums\FolderType::Template, $SetTemplate);
+			return $this->getMailManager()->setSystemFolder($oAccount, $FolderFullName, \Aurora\Modules\Mail\Enums\FolderType::Template, $SetTemplate);
 		}
 		
 		return false;
@@ -3794,9 +3852,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
 		}
 
-		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
+		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
 
-		$this->oApiMailManager->setSafetySender($oAccount->IdUser, $Email);
+		$this->getMailManager()->setSafetySender($oAccount->IdUser, $Email);
 
 		return true;
 	}	
@@ -3863,7 +3921,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
-		return $this->oApiIdentitiesManager->createIdentity($UserId, $AccountID, $FriendlyName, $Email);
+		return $this->getIdentitiesManager()->createIdentity($UserId, $AccountID, $FriendlyName, $Email);
 	}
 	
 	/**
@@ -3937,7 +3995,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		
 		if ($Default)
 		{
-			$this->oApiIdentitiesManager->resetDefaultIdentity($UserId, $AccountID);
+			$this->getIdentitiesManager()->resetDefaultIdentity($UserId, $AccountID);
 		}
 		
 		if ($AccountPart)
@@ -3946,7 +4004,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 		else
 		{
-			return $this->oApiIdentitiesManager->updateIdentity($EntityId, $FriendlyName, $Email, $Default);
+			return $this->getIdentitiesManager()->updateIdentity($EntityId, $FriendlyName, $Email, $Default);
 		}
 	}
 	
@@ -4006,7 +4064,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
-		return $this->oApiIdentitiesManager->deleteIdentity($EntityId);
+		return $this->getIdentitiesManager()->deleteIdentity($EntityId);
 	}
 	
 	/**
@@ -4076,7 +4134,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
-		return $this->oApiIdentitiesManager->getIdentities($UserId);
+		return $this->getIdentitiesManager()->getIdentities($UserId);
 	}
 	
 	/**
@@ -4146,11 +4204,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
 			if ($this->getConfig('AllowIdentities', false) && $IdentityId !== null)
 			{
-				return $this->oApiIdentitiesManager->updateIdentitySignature($IdentityId, $UseSignature, $Signature);
+				return $this->getIdentitiesManager()->updateIdentitySignature($IdentityId, $UseSignature, $Signature);
 			}
 			else
 			{
-				$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
+				$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
 
 				if ($oAccount)
 				{
@@ -4163,7 +4221,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 						$oAccount->Signature = $Signature;
 					}
 
-					return $this->oApiAccountsManager->updateAccount($oAccount);
+					return $this->getAccountsManager()->updateAccount($oAccount);
 				}
 			}
 		}
@@ -4238,7 +4296,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
 		$sUUID = \Aurora\System\Api::getUserUUIDById($UserId);
-		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
+		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
 		
 		$sError = '';
 		$aResponse = array();
@@ -4255,9 +4313,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 				}
 				else
 				{
-					if ($this->oApiFileCache->moveUploadedFile($sUUID, $sSavedName, $UploadData['tmp_name']))
+					if ($this->getFilecacheManager()->moveUploadedFile($sUUID, $sSavedName, $UploadData['tmp_name']))
 					{
-						$rData = $this->oApiFileCache->getFile($sUUID, $sSavedName);
+						$rData = $this->getFilecacheManager()->getFile($sUUID, $sSavedName);
 					}
 				}
 				if ($rData)
@@ -4353,7 +4411,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
-		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
+		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
 		if ($oAccount instanceof \Aurora\Modules\Mail\Classes\Account)
 		{
 			$sUUID = \Aurora\System\Api::getUserUUIDById($oAccount->IdUser);
@@ -4372,16 +4430,16 @@ class Module extends \Aurora\System\Module\AbstractModule
 							$sMimeIndex = (string) isset($aValues['MimeIndex']) ? $aValues['MimeIndex'] : '';
 
 							$sTempName = md5($sAttachment);
-							if (!$this->oApiFileCache->isFileExists($sUUID, $sTempName))
+							if (!$this->getFilecacheManager()->isFileExists($sUUID, $sTempName))
 							{
-								$this->oApiMailManager->directMessageToStream($oAccount,
+								$this->getMailManager()->directMessageToStream($oAccount,
 									function($rResource, $sContentType, $sFileName, $sMimeIndex = '') use ($sUUID, &$mResult, $sTempName, $sAttachment, $self) {
 										if (is_resource($rResource))
 										{
 											$sContentType = (empty($sFileName)) ? 'text/plain' : \MailSo\Base\Utils::MimeContentType($sFileName);
 											$sFileName = \Aurora\System\Utils::clearFileName($sFileName, $sContentType, $sMimeIndex);
 
-											if ($self->oApiFileCache->putFile($sUUID, $sTempName, $rResource))
+											if ($self->getFilecacheManager()->putFile($sUUID, $sTempName, $rResource))
 											{
 												$mResult[$sTempName] = $sAttachment;
 											}
@@ -4475,7 +4533,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
-		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
+		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
 		if ($oAccount instanceof \Aurora\Modules\Mail\Classes\Account)
 		{
 			$sUUID = \Aurora\System\Api::getUserUUIDById($oAccount->IdUser);
@@ -4483,22 +4541,22 @@ class Module extends \Aurora\System\Module\AbstractModule
 			{
 				$sMimeType = 'message/rfc822';
 				$sTempName = md5($MessageFolder.$MessageUid);
-				if (!$this->oApiFileCache->isFileExists($sUUID, $sTempName))
+				if (!$this->getFilecacheManager()->isFileExists($sUUID, $sTempName))
 				{
-					$this->oApiMailManager->directMessageToStream($oAccount,
+					$this->getMailManager()->directMessageToStream($oAccount,
 						function ($rResource, $sContentType, $sFileName) use ($sUUID, $sTempName, &$sMimeType, $self) {
 							if (is_resource($rResource))
 							{
 								$sMimeType = $sContentType;
 								$sFileName = \Aurora\System\Utils::clearFileName($sFileName, $sMimeType, '');
-								$self->oApiFileCache->putFile($sUUID, $sTempName, $rResource);
+								$self->getFilecacheManager()->putFile($sUUID, $sTempName, $rResource);
 							}
 						}, $MessageFolder, $MessageUid);
 				}
 
-				if ($this->oApiFileCache->isFileExists($sUUID, $sTempName))
+				if ($this->getFilecacheManager()->isFileExists($sUUID, $sTempName))
 				{
-					$iSize = $this->oApiFileCache->fileSize($sUUID, $sTempName);
+					$iSize = $this->getFilecacheManager()->fileSize($sUUID, $sTempName);
 					$mResult = \Aurora\System\Utils::GetClientFileResponse(
 						null, $oAccount->IdUser, $FileName, $sTempName, $iSize
 					);
@@ -4576,7 +4634,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		
 		$bResult = false;
 
-		$oAccount = $this->oApiAccountsManager->getAccountById((int)$AccountID);
+		$oAccount = $this->getAccountsManager()->getAccountById((int)$AccountID);
 		
 		if ($oAccount)
 		{
@@ -4591,18 +4649,18 @@ class Module extends \Aurora\System\Module\AbstractModule
 					$sSavedName = 'upload-post-' . md5($UploadData['name'] . $UploadData['tmp_name']);
 					if (is_resource($UploadData['tmp_name']))
 					{
-						$this->oApiFileCache->putFile($sUUID, $sSavedName, $UploadData['tmp_name']);
+						$this->getFilecacheManager()->putFile($sUUID, $sSavedName, $UploadData['tmp_name']);
 					}
 					else
 					{
-						$this->oApiFileCache->moveUploadedFile($sUUID, $sSavedName, $UploadData['tmp_name']);
+						$this->getFilecacheManager()->moveUploadedFile($sUUID, $sSavedName, $UploadData['tmp_name']);
 					}
-					if ($this->oApiFileCache->isFileExists($sUUID, $sSavedName))
+					if ($this->getFilecacheManager()->isFileExists($sUUID, $sSavedName))
 					{
-						$sSavedFullName = $this->oApiFileCache->generateFullFilePath($sUUID, $sSavedName);
+						$sSavedFullName = $this->getFilecacheManager()->generateFullFilePath($sUUID, $sSavedName);
 						try
 						{
-							$this->oApiMailManager->appendMessageFromFile($oAccount, $sSavedFullName, $Folder);
+							$this->getMailManager()->appendMessageFromFile($oAccount, $sSavedFullName, $Folder);
 							$bResult = true;
 						}
 						catch (\Exception $oException)
@@ -4691,7 +4749,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		if ($AccountId > 0)
 		{
-			$oAccount = $this->oApiAccountsManager->getAccountById($AccountId);
+			$oAccount = $this->getAccountsManager()->getAccountById($AccountId);
 			$oUser = \Aurora\System\Api::getAuthenticatedUser();
 			if ($oAccount instanceof \Aurora\Modules\Mail\Classes\Account &&
 				$oUser instanceof \Aurora\Modules\Core\Classes\User &&
@@ -4701,7 +4759,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			)
 			{
 				$oAccount->setPassword($NewPassword);
-				if ($this->oApiAccountsManager->updateAccount($oAccount))
+				if ($this->getAccountsManager()->updateAccount($oAccount))
 				{
 					$mResult = $oAccount;
 					$mResult->RefreshToken = \Aurora\System\Api::UserSession()->UpdateTimestamp(\Aurora\System\Api::getAuthToken(), time());
@@ -4770,11 +4828,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 		
 		$mResult = false;
 		
-		$oAccount = $this->oApiAccountsManager->getAccountById((int) $AccountID);
+		$oAccount = $this->getAccountsManager()->getAccountById((int) $AccountID);
 		
 		if ($oAccount)
 		{
-			$mResult = $this->oApiSieveManager->getSieveFilters($oAccount);
+			$mResult = $this->getSieveManager()->getSieveFilters($oAccount);
 		}
 		
 		return $mResult;
@@ -4841,7 +4899,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		
 		$bResult = false;
 		
-		$oAccount = $this->oApiAccountsManager->getAccountById((int) $AccountID);
+		$oAccount = $this->getAccountsManager()->getAccountById((int) $AccountID);
 
 		if ($oAccount)
 		{
@@ -4851,7 +4909,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			{
 				foreach ($Filters as $aFilterData)
 				{
-					$oFilter = $this->oApiSieveManager->createFilterInstance($oAccount, $aFilterData);
+					$oFilter = $this->getSieveManager()->createFilterInstance($oAccount, $aFilterData);
 						
 					if ($oFilter)
 					{
@@ -4860,7 +4918,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 				}
 			}
 			
-			$bResult = $this->oApiSieveManager->updateSieveFilters($oAccount, $aFilters);
+			$bResult = $this->getSieveManager()->updateSieveFilters($oAccount, $aFilters);
 		}
 		
 		return $bResult;
@@ -4926,11 +4984,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 		
 		$mResult = false;
 		
-		$oAccount = $this->oApiAccountsManager->getAccountById((int) $AccountID);
+		$oAccount = $this->getAccountsManager()->getAccountById((int) $AccountID);
 		
 		if ($oAccount)
 		{
-			$mResult = $this->oApiSieveManager->getForward($oAccount);
+			$mResult = $this->getSieveManager()->getForward($oAccount);
 		}
 
 		return $mResult;
@@ -4998,11 +5056,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 		
 		$mResult = false;
 		
-		$oAccount = $this->oApiAccountsManager->getAccountById((int) $AccountID);
+		$oAccount = $this->getAccountsManager()->getAccountById((int) $AccountID);
 
 		if ($oAccount && $Email !== "")
 		{
-			$mResult = $this->oApiSieveManager->setForward($oAccount, $Email, $Enable);
+			$mResult = $this->getSieveManager()->setForward($oAccount, $Email, $Enable);
 		}
 		
 		return $mResult;
@@ -5069,11 +5127,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 		
 		$mResult = false;
 		
-		$oAccount = $this->oApiAccountsManager->getAccountById((int) $AccountID);
+		$oAccount = $this->getAccountsManager()->getAccountById((int) $AccountID);
 		
 		if ($oAccount)
 		{
-			$mResult = $this->oApiSieveManager->getAutoresponder($oAccount);
+			$mResult = $this->getSieveManager()->getAutoresponder($oAccount);
 		}
 
 		return $mResult;
@@ -5143,11 +5201,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 		
 		$mResult = false;
 		
-		$oAccount = $this->oApiAccountsManager->getAccountById((int) $AccountID);
+		$oAccount = $this->getAccountsManager()->getAccountById((int) $AccountID);
 
 		if ($oAccount && ($Subject !== "" || $Message !== ""))
 		{
-			$mResult = $this->oApiSieveManager->setAutoresponder($oAccount, $Subject, $Message, $Enable);
+			$mResult = $this->getSieveManager()->setAutoresponder($oAccount, $Subject, $Message, $Enable);
 		}
 		
 		return $mResult;
@@ -5164,7 +5222,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function onAfterDeleteUser($aArgs, &$iUserId)
 	{
-		$mResult = $this->oApiAccountsManager->getUserAccounts($iUserId);
+		$mResult = $this->getAccountsManager()->getUserAccounts($iUserId);
 		
 		if (\is_array($mResult))
 		{
@@ -5191,7 +5249,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		
 		$sEmail = $aArgs['Login'];
 		$sMailLogin = $aArgs['Login'];
-		$oAccount = $this->oApiAccountsManager->getAccountUsedToAuthorize($sEmail);
+		$oAccount = $this->getAccountsManager()->getAccountUsedToAuthorize($sEmail);
 		
 		$bNewAccount = false;
 		$bAutocreateMailAccountOnNewUserFirstLogin = $this->getConfig('AutocreateMailAccountOnNewUserFirstLogin', false);
@@ -5209,10 +5267,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$sDomain = \MailSo\Base\Utils::GetDomainFromEmail($sEmail);
 			if (!empty(trim($sDomain)))
 			{
-				$oServer = $this->oApiServersManager->GetServerByDomain(strtolower($sDomain));
+				$oServer = $this->getServersManager()->GetServerByDomain(strtolower($sDomain));
 				if (!$oServer)
 				{
-					$oServer = $this->oApiServersManager->GetServerByDomain('*');
+					$oServer = $this->getServersManager()->GetServerByDomain('*');
 				}
 
 				if ($oServer)
@@ -5251,7 +5309,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 					if ($sNewPassword !== $sOldPassword)
 					{
 						$oAccount->setPassword($sNewPassword);
-						$mResult = $this->oApiMailManager->validateAccountConnection($oAccount, false);
+						$mResult = $this->getMailManager()->validateAccountConnection($oAccount, false);
 						if (!($mResult instanceof \Exception))
 						{
 							$bResult = true;
@@ -5300,7 +5358,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 						{
 							$oAccount->UseToAuthorize = true;
 							$oAccount->UseThreading = $oServer->EnableThreading;
-							$bResult = $this->oApiAccountsManager->updateAccount($oAccount);
+							$bResult = $this->getAccountsManager()->updateAccount($oAccount);
 						}
 						else
 						{
@@ -5382,9 +5440,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
 		}
 
-		$oAccount = $this->oApiAccountsManager->getAccountById($AccountID);
+		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
 
-		return $this->oApiMailManager->setMessageFlag($oAccount, $sFolderFullNameRaw, $aUids, $sFlagName,
+		return $this->getMailManager()->setMessageFlag($oAccount, $sFolderFullNameRaw, $aUids, $sFlagName,
 			$bSetAction ? \Aurora\Modules\Mail\Enums\MessageStoreAction::Add : \Aurora\Modules\Mail\Enums\MessageStoreAction::Remove);
 	}
 	
@@ -5561,10 +5619,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 					$bIsLinked = '1' === (string) $aData[3];
 					$sContentLocation = isset($aData[4]) ? (string) $aData[4] : '';
 
-					$rResource = $this->oApiFileCache->getFile($sUUID, $sTempName);
+					$rResource = $this->getFilecacheManager()->getFile($sUUID, $sTempName);
 					if (\is_resource($rResource))
 					{
-						$iFileSize = $this->oApiFileCache->fileSize($sUUID, $sTempName);
+						$iFileSize = $this->getFilecacheManager()->fileSize($sUUID, $sTempName);
 
 						$sCID = \trim(\trim($sCID), '<>');
 						$bIsFounded = 0 < \strlen($sCID) ? \in_array($sCID, $aFoundCids) : false;
@@ -5766,7 +5824,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		if (isset($aValues['AccountID']))
 		{
-			$oAccount = $this->oApiAccountsManager->getAccountById((int) $aValues['AccountID']);
+			$oAccount = $this->getAccountsManager()->getAccountById((int) $aValues['AccountID']);
 			
 			if (!$oAccount || \Aurora\System\Api::getAuthenticatedUserId() !== $oAccount->IdUser)
 			{
@@ -5786,7 +5844,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			\Aurora\System\Managers\Response::verifyCacheByKey($sHash);
 		}
 		
-		return $this->oApiMailManager->directMessageToStream($oAccount,
+		return $this->getMailManager()->directMessageToStream($oAccount,
 			function($rResource, $sContentType, $sFileName, $sMimeIndex = '') use ($self, $sUUID, $sHash, $bCache, $sContentTypeIn, $sFileNameIn, $bThumbnail, $bDownload) {
 				if (\is_resource($rResource))
 				{

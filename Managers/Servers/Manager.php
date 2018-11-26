@@ -26,7 +26,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	{
 		parent::__construct($oModule);
 		
-		$this->oEavManager = new \Aurora\System\Managers\Eav();
+		$this->oEavManager = \Aurora\System\Managers\Eav::getInstance();
 	}
 
 	/**
@@ -89,7 +89,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		
 		try
 		{
-			$oServer = $this->oEavManager->getEntity((int)$iServerId, \Aurora\Modules\Mail\Module::getNamespace() . '\Classes\Server');
+			$oServer = $this->oEavManager->getEntity((int)$iServerId, \Aurora\Modules\Mail\Classes\Server::class);
 		}
 		catch (\Aurora\System\Exceptions\BaseException $oException)
 		{
@@ -118,7 +118,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		try
 		{
 			$aResult = $this->oEavManager->getEntities(
-				\Aurora\Modules\Mail\Module::getNamespace() . '\Classes\Server',
+				\Aurora\Modules\Mail\Classes\Server::class,
 				array(),
 				0,
 				999,
@@ -179,7 +179,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		try
 		{
 			$aResult = $this->oEavManager->getEntities(
-				\Aurora\Modules\Mail\Module::getNamespace() . '\Classes\Server',
+				\Aurora\Modules\Mail\Classes\Server::class,
 				array(),
 				$iOffset,
 				$iLimit,
@@ -234,7 +234,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		$oServer = false;
 
 		$aResult = $this->oEavManager->getEntities(
-			\Aurora\Modules\Mail\Module::getNamespace() . '\Classes\Server',
+			\Aurora\Modules\Mail\Classes\Server::class,
 			array(),
 			0,
 			999,

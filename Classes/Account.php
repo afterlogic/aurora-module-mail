@@ -53,7 +53,7 @@ class Account extends \Aurora\System\Classes\AbstractAccount
 		if ($sPassword !== '' && strpos($sPassword, $this->IncomingLogin . ':') === false)
 		{
 			$this->setPassword($sPassword);
-			\Aurora\System\Api::GetModule('Mail')->oApiAccountsManager->updateAccount($this);
+			\Aurora\System\Api::GetModule('Mail')->getAccountsManager()->updateAccount($this);
 		}
 		else
 		{
@@ -79,7 +79,7 @@ class Account extends \Aurora\System\Classes\AbstractAccount
 		$oMailModule = \Aurora\System\Api::GetModule('Mail');
 		if ($this->oServer === null && $this->ServerId !== 0)
 		{
-			$this->oServer = $oMailModule->oApiServersManager->getServer($this->ServerId);
+			$this->oServer = $oMailModule->getServersManager()->getServer($this->ServerId);
 		}
 		return $this->oServer;
 	}
@@ -87,7 +87,7 @@ class Account extends \Aurora\System\Classes\AbstractAccount
 	private function canBeUsedToAuthorize()
 	{
 		$oMailModule = \Aurora\System\Api::GetModule('Mail');
-		return !$oMailModule->oApiAccountsManager->useToAuthorizeAccountExists($this->Email, $this->EntityId);
+		return !$oMailModule->getAccountsManager()->useToAuthorizeAccountExists($this->Email, $this->EntityId);
 	}
 	
 	public function getDefaultTimeOffset()
