@@ -1327,7 +1327,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 			\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::TenantAdmin);
 		}
 		
-		if ($oServer && ($oServer->OwnerType === \Aurora\Modules\Mail\Enums\ServerOwnerType::SuperAdmin || $oServer->OwnerType === \Aurora\Modules\Mail\Enums\ServerOwnerType::TenantAdmin && $oServer->TenantId === $TenantId))
+		if ($oServer && ($oServer->OwnerType === \Aurora\Modules\Mail\Enums\ServerOwnerType::SuperAdmin || 
+				$oServer->OwnerType === \Aurora\Modules\Mail\Enums\ServerOwnerType::Tenant && $oServer->TenantId === $TenantId))
 		{
 			$oServer->Name = $Name;
 			$oServer->IncomingServer = $IncomingServer;
