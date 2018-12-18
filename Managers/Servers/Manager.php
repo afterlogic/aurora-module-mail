@@ -114,15 +114,29 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	public function getServerByDomain($sDomain)
 	{
 		$oServer = false;
-		
+
 		try
 		{
+			$iTenantId = \Aurora\Modules\Core\Module::Decorator()->GetTenantIdByName('Default');
+			$aFilters = [
+				'$AND' => [
+					'$OR' => [
+						'OwnerType' => [\Aurora\Modules\Mail\Enums\ServerOwnerType::SuperAdmin, '='],
+						'$AND' => [
+							'TenantId' => [$iTenantId, '='],
+							'OwnerType' => [\Aurora\Modules\Mail\Enums\ServerOwnerType::Tenant, '='],
+						],
+					],
+					'Domains' => ['%' . $sDomain . '%', 'LIKE']
+				]
+			];
+
 			$aResult = $this->oEavManager->getEntities(
 				\Aurora\Modules\Mail\Classes\Server::class,
 				array(),
 				0,
 				999,
-				['Domains' => ['%' . $sDomain . '%', 'LIKE']]
+				$aFilters
 			);		
 			if (count($aResult) > 0)
 			{
