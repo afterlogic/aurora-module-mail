@@ -241,6 +241,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			'AllowInsertImage' => $this->getConfig('AllowInsertImage', false),
 			'AutoSaveIntervalSeconds' => $this->getConfig('AutoSaveIntervalSeconds', 60),
 			'AllowTemplateFolders' => $this->getConfig('AllowTemplateFolders', false),
+			'AllowAlwaysRefreshFolders' => $this->getConfig('AllowAlwaysRefreshFolders', false),
 			'IgnoreImapSubscription' => $this->getConfig('IgnoreImapSubscription', false),
 			'ImageUploadSizeLimit' => $this->getConfig('ImageUploadSizeLimit', 0),
 			'SmtpAuthType' => (new \Aurora\Modules\Mail\Enums\SmtpAuthType)->getMap(),
