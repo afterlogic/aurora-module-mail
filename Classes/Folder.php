@@ -64,6 +64,11 @@ class Folder
 	protected $oSubFolders;
 
 	/**
+	 * @var bool
+	 */
+	public $bAlwaysRefresh;
+
+	/**
 	 * Fills in the required data first.
 	 * 
 	 * @param \MailSo\Imap\Folder $oImapFolder ImapFolder object.
@@ -93,6 +98,7 @@ class Folder
 
 			$this->bSubscribed = $bSubscribed;
 			$this->bExists = $bExists;
+			$this->bAlwaysRefresh = false;
 		}
 		else
 		{
@@ -352,7 +358,8 @@ class Folder
 			'IsSelectable' => $this->isSelectable(),
 			'Exists' => $this->exists(),
 			'Extended' => $aExtended,
-			'SubFolders' => \Aurora\System\Managers\Response::GetResponseObject($this->getSubFolders())
+			'SubFolders' => \Aurora\System\Managers\Response::GetResponseObject($this->getSubFolders()),
+			'AlwaysRefresh' => $this->bAlwaysRefresh
 		);		
 	}
 }

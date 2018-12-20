@@ -3768,6 +3768,24 @@ class Module extends \Aurora\System\Module\AbstractModule
 		
 		return $this->getMailManager()->updateSystemFolderNames($oAccount, $aSystemNames);
 	}	
+
+	/**
+	 * @api {post} ?/Api/ SetAlwaysRefreshFolder
+
+	/**
+	 * @param int $AccountID Account identifier.
+	 * @param string $FolderFullName folder full name.
+	 * @param bool $AlwaysRefresh
+	 * @return boolean
+	 */	
+	public function SetAlwaysRefreshFolder($AccountID, $FolderFullName, $AlwaysRefresh)
+	{
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
+		
+		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
+
+		return $this->getMailManager()->setAlwaysRefreshFolder($oAccount, $FolderFullName, $AlwaysRefresh);
+	}
 	
 	/**
 	 * Marks (or unmarks) folder as template folder.

@@ -193,6 +193,67 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		return $oResException;
 	}
 
+	public function setAlwaysRefreshFolder($oAccount, $sFolderFullName, $bRefresh)
+	{
+		$bResult = false;
+
+		$aEntities = $this->oEavManager->getEntities(
+			\Aurora\Modules\Mail\Classes\RefreshFolder::class,
+			array(),
+			0,
+			1,
+			array(
+				'IdAccount' => $oAccount->EntityId,
+				'FolderFullName' => $sFolderFullName
+			)
+		);
+		$oRefreshFolder = null;
+		if (count($aEntities) > 0 && $aEntities[0] instanceof \Aurora\Modules\Mail\Classes\RefreshFolder)
+		{
+			$oRefreshFolder = $aEntities[0];
+		}
+		else 
+		{
+			$oRefreshFolder = new \Aurora\Modules\Mail\Classes\RefreshFolder(\Aurora\Modules\Mail\Module::GetName());
+			$oRefreshFolder->FolderFullName = $sFolderFullName;
+			$oRefreshFolder->IdAccount = $oAccount->EntityId;
+		}
+		if ($oRefreshFolder->AlwaysRefresh !== $bRefresh)
+		{
+		    $oRefreshFolder->AlwaysRefresh = $bRefresh;
+			$bResult = !!$this->oEavManager->saveEntity($oRefreshFolder);
+		}
+		else
+		{
+			$bResult = true;
+		}
+
+		return $bResult;
+	}
+
+	public function getAlwaysRefreshFolders($oAccount)
+    {
+		$aFolders = [];
+		$aEntities = $this->oEavManager->getEntities(
+			\Aurora\Modules\Mail\Classes\RefreshFolder::class,
+			array(),
+			0,
+			0,
+			array(
+				'IdAccount' => $oAccount->EntityId
+			)
+		);
+		foreach ($aEntities as $oEntity)
+		{
+			if ($oEntity->AlwaysRefresh)
+			{
+				$aFolders[] = $oEntity->FolderFullName;
+			}
+		}
+
+        return $aFolders;
+	}
+
 	/**
 	 * Updates information on system folders use.
 	 * 
@@ -576,20 +637,29 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			}
 		}
 
-		$aMailFoldersHelper = null;
+		$aMailFolders = null;
 		if (is_array($aFolders))
 		{
-			$aMailFoldersHelper = array();
+			$aMailFolders = array();
+
+			$aRefreshFolders = $this->getAlwaysRefreshFolders($oAccount);
 
 			foreach ($aFolders as /* @var $oImapFolder \MailSo\Imap\Folder */ $oImapFolder)
 			{
-				$aMailFoldersHelper[] = \Aurora\Modules\Mail\Classes\Folder::createInstance($oImapFolder,
+				 $oMailFolder = \Aurora\Modules\Mail\Classes\Folder::createInstance($oImapFolder,
 					in_array($oImapFolder->FullNameRaw(), $aImapSubscribedFoldersHelper) || $oImapFolder->IsInbox()
 				);
+
+				if (in_array($oMailFolder->getFullName(), $aRefreshFolders))
+				{
+					$oMailFolder->bAlwaysRefresh = true;
+				}
+
+				$aMailFolders[] = $oMailFolder;
 			}
 		}
 
-		if (is_array($aMailFoldersHelper))
+		if (is_array($aMailFolders))
 		{
 			$oFolderCollection = \Aurora\Modules\Mail\Classes\FolderCollection::createInstance();
 
@@ -598,7 +668,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 				$oFolderCollection->setNamespace($oNamespace->GetPersonalNamespace());
 			}
 
-			$oFolderCollection->initialize($aMailFoldersHelper);
+			$oFolderCollection->initialize($aMailFolders);
 
 			if ($this->_initSystemFolders($oAccount, $oFolderCollection, $bCreateUnExistenSystemFolders) && $bCreateUnExistenSystemFolders)
 			{
