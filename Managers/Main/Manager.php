@@ -650,7 +650,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 					in_array($oImapFolder->FullNameRaw(), $aImapSubscribedFoldersHelper) || $oImapFolder->IsInbox()
 				);
 
-				if (in_array($oMailFolder->getFullName(), $aRefreshFolders))
+				if (in_array($oMailFolder->getRawFullName(), $aRefreshFolders))
 				{
 					$oMailFolder->bAlwaysRefresh = true;
 				}
