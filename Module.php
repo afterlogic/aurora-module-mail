@@ -84,7 +84,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		);
 		
 		$this->subscribeEvent('Login', array($this, 'onLogin'));
-		$this->subscribeEvent('Core::AfterDeleteUser', array($this, 'onAfterDeleteUser'));
+		$this->subscribeEvent('Core::DeleteUser::before', array($this, 'onBeforeDeleteUser'));
 		$this->subscribeEvent('Core::GetAccounts', array($this, 'onGetAccounts'));
 		$this->subscribeEvent('Autodiscover::GetAutodiscover::after', array($this, 'onAfterGetAutodiscover'));
 		$this->subscribeEvent('Core::DeleteTenant::after', array($this, 'onAfterDeleteTenant'));
@@ -5238,11 +5238,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * Called from subscribed event.
 	 * @ignore
 	 * @param array $aArgs
-	 * @param int $iUserId User identifier.
+	 * @param int $mResult User identifier.
 	 */
-	public function onAfterDeleteUser($aArgs, &$iUserId)
+	public function onBeforeDeleteUser($aArgs, &$mResult)
 	{
-		$mResult = $this->getAccountsManager()->getUserAccounts($iUserId);
+		$mResult = $this->getAccountsManager()->getUserAccounts($aArgs["UserId"]);
 		
 		if (\is_array($mResult))
 		{
