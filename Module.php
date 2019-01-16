@@ -674,6 +674,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 				}
 
 				$bAccoutResult = false;
+				$oResException = null;
 				if ($bDoImapLoginOnAccountCreate)
 				{
 					$oResException = $this->getMailManager()->validateAccountConnection($oAccount, false);
