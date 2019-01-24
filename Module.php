@@ -5799,9 +5799,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
-		if ($this->getConfig('CleanOutputBeforeDownload', false))
+		if ($this->getConfig('CleanupOutputBeforeDownload', false))
 		{
-			\Aurora\System\Api::Log('clean', \Aurora\System\Enums\LogLevel::Full, 'ss-');
 			@ob_clean(); // discard any data in the output buffer (if possible)
 		}
 		
