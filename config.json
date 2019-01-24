@@ -55,6 +55,10 @@
 		false,
 		"bool"
 	],
+	"CleanOutputBeforeDownload": [
+		false,
+		"bool"
+	],
 	"IgnoreImapSubscription": [
 		false,
 		"bool"
