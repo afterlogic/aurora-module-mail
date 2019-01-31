@@ -522,7 +522,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		return $mResult;
 	}
 	
-	public function GetAccountByEmail($Email)
+	public function GetAccountByEmail($Email, $UserId = 0)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
@@ -531,11 +531,15 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$oUser = \Aurora\System\Api::getAuthenticatedUser();
 		$oAccount = $this->getAccountsManager()->getAccountByEmail($Email);
 		
-		if ($oAccount && ($oAccount->IdUser === $oUser->EntityId || $oUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin))
+		if ($oAccount
+			&& ($oAccount->IdUser === $oUser->EntityId
+				|| ($oUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin && $UserId
+					&& $UserId === $oAccount->IdUser))
+		)
 		{
 			$mResult = $oAccount;
 		}
-				
+
 		return $mResult;
 	}	
 	
@@ -622,7 +626,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		$bPrevState = \Aurora\System\Api::skipCheckUserRole(true);
-		$oAccount = $this->GetAccountByEmail($Email);
+		$oAccount = $this->GetAccountByEmail($Email, $UserId);
 		\Aurora\System\Api::skipCheckUserRole($bPrevState);
 		$bDoImapLoginOnAccountCreate = $this->getConfig('DoImapLoginOnAccountCreate', true);
 		if (!$oAccount)

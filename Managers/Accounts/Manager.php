@@ -66,37 +66,31 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	public function getAccountByEmail($sEmail)
 	{
 		$oAccount = false;
-		try
-		{
-			if (is_string($sEmail))
-			{
-				$aResults = $this->oEavManager->getEntities(
-					'Aurora\Modules\Mail\Classes\Account',
-					array(),
-					0,
-					0,
-					array(
-						'Email' => $sEmail,
-						'IsDisabled' => false,
-						'UseToAuthorize' => [true, '=']
-					)
-				);
 
-				if (is_array($aResults) && isset($aResults[0]))
-				{
-					$oAccount = $aResults[0];
-				}
-			}
-			else
-			{
-				throw new \Aurora\System\Exceptions\BaseException(\Aurora\System\Exceptions\Errs::Validation_InvalidParameters);
-			}
-		}
-		catch (\Aurora\System\Exceptions\BaseException $oException)
+		if (is_string($sEmail))
 		{
-			$oAccount = false;
-			$this->setLastException($oException);
+			$aResults = $this->oEavManager->getEntities(
+				\Aurora\Modules\Mail\Classes\Account::class,
+				array(),
+				0,
+				0,
+				array(
+					'Email' => $sEmail,
+					'IsDisabled' => false,
+					'UseToAuthorize' => [true, '=']
+				)
+			);
+
+			if (is_array($aResults) && isset($aResults[0]))
+			{
+				$oAccount = $aResults[0];
+			}
 		}
+		else
+		{
+			throw new \Aurora\System\Exceptions\BaseException(\Aurora\System\Exceptions\Errs::Validation_InvalidParameters);
+		}
+
 		return $oAccount;
 	}
 
@@ -254,30 +248,25 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	public function isExists(\Aurora\Modules\Mail\Classes\Account $oAccount)
 	{
 		$bResult = false;
-		try
-		{
-			$aResults = $this->oEavManager->getEntities(
-				'Aurora\Modules\Mail\Classes\Account',
-				['Email'],
-				0,
-				0,
-				[
-					'$AND' => [
-						'Email' => [$oAccount->Email, '='],
-						'IdUser' => [$oAccount->IdUser, '=']
-					]
-				]
-			);
 
-			if ($aResults && count($aResults) > 0)
-			{
-				$bResult = true;
-			}
-		}
-		catch (\Aurora\System\Exceptions\BaseException $oException)
+		$aResults = $this->oEavManager->getEntities(
+			'Aurora\Modules\Mail\Classes\Account',
+			['Email'],
+			0,
+			0,
+			[
+				'$AND' => [
+					'Email' => [$oAccount->Email, '='],
+					'IdUser' => [$oAccount->IdUser, '=']
+				]
+			]
+		);
+
+		if ($aResults && count($aResults) > 0)
 		{
-			$this->setLastException($oException);
+			$bResult = true;
 		}
+
 		return $bResult;
 	}
 	
