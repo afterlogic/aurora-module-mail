@@ -678,13 +678,12 @@ class Message
 	 * @param \MailSo\Imap\FetchResponse $oFetchResponse FetchResponse object.
 	 * @param \MailSo\Imap\BodyStructure $oBodyStructure = null. BodyStructure object.
 	 * @param string $sRfc822SubMimeIndex = ''. Index at which a message is taken to parse. Index is used if the message is another message attachment.
-	 * @param array $aAscPartsIds = array(). List of message parts wich is .asc files. It is need for setting content in it's \Aurora\Modules\Mail\Classes\Attachment object.
 	 *
 	 * @return Message
 	 */
-	public static function createInstance($sRawFolderFullName, $oFetchResponse, $oBodyStructure = null, $sRfc822SubMimeIndex = '', $aAscPartsIds = array())
+	public static function createInstance($sRawFolderFullName, $oFetchResponse, $oBodyStructure = null, $sRfc822SubMimeIndex = '')
 	{
-		return self::createEmptyInstance()->initialize($sRawFolderFullName, $oFetchResponse, $oBodyStructure, $sRfc822SubMimeIndex, $aAscPartsIds);
+		return self::createEmptyInstance()->initialize($sRawFolderFullName, $oFetchResponse, $oBodyStructure, $sRfc822SubMimeIndex);
 	}
 
 	/**
@@ -694,11 +693,10 @@ class Message
 	 * @param \MailSo\Imap\FetchResponse $oFetchResponse FetchResponse object.
 	 * @param \MailSo\Imap\BodyStructure $oBodyStructure = null. BodyStructure object.
 	 * @param string $sRfc822SubMimeIndex = ''. Index at which a message is taken to parse. Index is used if the message is another message attachment.
-	 * @param array $aAscPartsIds = array(). List of message parts wich is .asc files. It is need for setting content in it's \Aurora\Modules\Mail\Classes\Attachment object.
 	 *
 	 * @return Message
 	 */
-	public function initialize($sRawFolderFullName, $oFetchResponse, $oBodyStructure = null, $sRfc822SubMimeIndex = '', $aAscPartsIds = array())
+	public function initialize($sRawFolderFullName, $oFetchResponse, $oBodyStructure = null, $sRfc822SubMimeIndex = '')
 	{
 		if (!$oBodyStructure)
 		{
@@ -1036,19 +1034,6 @@ class Message
 						\Aurora\Modules\Mail\Classes\Attachment::createInstance($this->sFolder, $this->iUid, $oAttachmentItem)
 					);
 				}
-				
-				$this->oAttachments->ForeachList(function ($oAttachment) use ($aAscPartsIds, $oFetchResponse) {
-
-					if ($oAttachment && in_array($oAttachment->getMimeIndex(), $aAscPartsIds))
-					{
-						$mContent = $oFetchResponse->GetFetchValue(\MailSo\Imap\Enumerations\FetchType::BODY.'['.$oAttachment->getMimeIndex().']');
-						if (is_string($mContent))
-						{
-							$oAttachment->setContent(
-								\MailSo\Base\Utils::DecodeEncodingValue($mContent, $oAttachment->getEncoding()));
-						}
-					}
-				});
 			}
 		}
 
