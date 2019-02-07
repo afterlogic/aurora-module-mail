@@ -2091,7 +2091,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
-		$iBodyTextLimit = 600000;
+		$iBodyTextLimit = 650000;
 		
 		$iUid = 0 < \strlen($Uid) && \is_numeric($Uid) ? (int) $Uid : 0;
 
