@@ -1166,7 +1166,7 @@ class Message
 			}
 
 			$oSettings =& \Aurora\System\Api::GetSettings();
-			if (0 < \strlen($sHtml) && $oSettings->GetConf('DisplayInlineCss', false))
+			if (0 < \strlen($sHtml) && $oSettings->GetValue('DisplayInlineCss', false))
 			{
 				$oCssToInlineStyles = new \TijsVerkoyen\CssToInlineStyles\CssToInlineStyles($sHtml);
 				$oCssToInlineStyles->setEncoding('utf-8');

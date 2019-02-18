@@ -68,9 +68,9 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			if (!isset($this->aImapClientCache[$sCacheKey]))
 			{
 				$oSettings =& \Aurora\System\Api::GetSettings();
-				$iConnectTimeOut = $oSettings->GetConf('SocketConnectTimeoutSeconds', 10);
-				$iSocketTimeOut = $oSettings->GetConf('SocketGetTimeoutSeconds', 20);
-				$bVerifySsl = !!$oSettings->GetConf('SocketVerifySsl', false);
+				$iConnectTimeOut = $oSettings->GetValue('SocketConnectTimeoutSeconds', 10);
+				$iSocketTimeOut = $oSettings->GetValue('SocketGetTimeoutSeconds', 20);
+				$bVerifySsl = !!$oSettings->GetValue('SocketVerifySsl', false);
 
 				if (0 < $iForceConnectTimeOut)
 				{
@@ -1382,9 +1382,9 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 				try
 				{
 					$oSettings =& \Aurora\System\Api::GetSettings();
-					$iConnectTimeOut = $oSettings->GetConf('SocketConnectTimeoutSeconds', 5);
-					$iSocketTimeOut = $oSettings->GetConf('SocketGetTimeoutSeconds', 5);
-					$bVerifySsl = !!$oSettings->GetConf('SocketVerifySsl', false);
+					$iConnectTimeOut = $oSettings->GetValue('SocketConnectTimeoutSeconds', 5);
+					$iSocketTimeOut = $oSettings->GetValue('SocketGetTimeoutSeconds', 5);
+					$bVerifySsl = !!$oSettings->GetValue('SocketVerifySsl', false);
 
 					$oSmtpClient = \MailSo\Smtp\SmtpClient::NewInstance();
 					$oSmtpClient->SetTimeOuts($iConnectTimeOut, $iSocketTimeOut);
