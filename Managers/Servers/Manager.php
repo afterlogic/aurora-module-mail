@@ -177,7 +177,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		$aFilters = [];
 		if ($iTenantId === 0)
 		{
-			$aFilters = ['OwnerType' => [\Aurora\Modules\Mail\Enums\ServerOwnerType::SuperAdmin, '=']];
+			$aFilters = ['OwnerType' => [\Aurora\Modules\Mail\Enums\ServerOwnerType::Account, '<>']];
 		}
 		else
 		{
