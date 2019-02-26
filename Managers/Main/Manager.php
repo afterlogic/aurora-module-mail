@@ -1377,7 +1377,6 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			$oRcpt = $oMessage->GetRcpt();
 			if ($oRcpt && 0 < $oRcpt->Count())
 			{
-				$sRcptEmail = '';
 				$oServer = null;
 				try
 				{
@@ -1476,8 +1475,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 					throw new \Aurora\Modules\Mail\Exceptions\Exception(
 						$iErrorCode,
 						$oException,
-						$oException->getMessage(),
-						array('MAILBOX' => $sRcptEmail)
+						$oException->getMessage()
 					);
 				}
 
