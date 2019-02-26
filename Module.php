@@ -5292,8 +5292,20 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$sDomain = \MailSo\Base\Utils::GetDomainFromEmail($sEmail);
 			if (!empty(trim($sDomain)))
 			{
-				$oServer = $this->getServersManager()->GetServerByDomain(strtolower($sDomain));
-				if (!$oServer)
+				$aSubArgs = ['Domain' => $sDomain];
+				$oServer = null;
+				$this->broadcastEvent(
+					'Mail::GetServerByDomain', 
+					$aSubArgs,
+					$oServer
+				);
+				
+				if (!($oServer instanceof \Aurora\Modules\Mail\Classes\Server))
+				{
+					$oServer = $this->getServersManager()->GetServerByDomain(strtolower($sDomain));
+				}
+				
+				if (!($oServer instanceof \Aurora\Modules\Mail\Classes\Server))
 				{
 					$oServer = $this->getServersManager()->GetServerByDomain('*');
 				}
