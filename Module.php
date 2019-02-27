@@ -5310,7 +5310,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 					$oServer = $this->getServersManager()->GetServerByDomain('*');
 				}
 
-				if ($oServer)
+				$oTenant = \Aurora\System\Api::getTenantByWebDomain();
+				if ($oServer && (!$oTenant || $oServer->OwnerType === \Aurora\Modules\Mail\Enums\ServerOwnerType::SuperAdmin || $oServer->TenantId === $oTenant->EntityId))
 				{
 					$sMailLogin = !$oServer->UseFullEmailAddressAsLogin && preg_match('/(.+)@.+$/',  $sEmail, $matches) && $matches[1] ? $matches[1] : $sEmail;
 
