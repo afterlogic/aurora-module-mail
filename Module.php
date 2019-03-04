@@ -5287,13 +5287,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 			}
 		}
 		
+		$oServer = null;
 		if ($bAutocreateMailAccountOnNewUserFirstLogin && !$oAccount)
 		{
 			$sDomain = \MailSo\Base\Utils::GetDomainFromEmail($sEmail);
 			if (!empty(trim($sDomain)))
 			{
 				$aSubArgs = ['Domain' => $sDomain];
-				$oServer = null;
 				$this->broadcastEvent(
 					'Mail::GetServerByDomain', 
 					$aSubArgs,
@@ -5302,12 +5302,12 @@ class Module extends \Aurora\System\Module\AbstractModule
 				
 				if (!($oServer instanceof \Aurora\Modules\Mail\Classes\Server))
 				{
-					$oServer = $this->getServersManager()->GetServerByDomain(strtolower($sDomain));
+					$oServer = $this->getServersManager()->getServerByDomain($sDomain);
 				}
 				
 				if (!($oServer instanceof \Aurora\Modules\Mail\Classes\Server))
 				{
-					$oServer = $this->getServersManager()->GetServerByDomain('*');
+					$oServer = $this->getServersManager()->getServerByDomain('*');
 				}
 
 				$oTenant = \Aurora\System\Api::getTenantByWebDomain();
@@ -5371,7 +5371,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 					$aSubArgs = array(
 						'UserName' => $sEmail,
 						'Email' => $sEmail,
-						'UserId' => $iUserId
+						'UserId' => $iUserId,
+						'TenantId' => $oServer->TenantId
 					);
 					$this->broadcastEvent(
 						'CreateAccount', 

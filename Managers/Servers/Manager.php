@@ -117,19 +117,37 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
 		try
 		{
-			$iTenantId = \Aurora\Modules\Core\Module::Decorator()->GetTenantIdByName('Default');
-			$aFilters = [
-				'$AND' => [
-					'$OR' => [
-						'OwnerType' => [\Aurora\Modules\Mail\Enums\ServerOwnerType::SuperAdmin, '='],
-						'$AND' => [
-							'TenantId' => [$iTenantId, '='],
-							'OwnerType' => [\Aurora\Modules\Mail\Enums\ServerOwnerType::Tenant, '='],
+			$oTenant = \Aurora\System\Api::getCurrentTenant();
+			if ($oTenant)
+			{
+				$aFilters = [
+					'$AND' => [
+						'$OR' => [
+							'OwnerType' => [\Aurora\Modules\Mail\Enums\ServerOwnerType::SuperAdmin, '='],
+							'$AND' => [
+								'TenantId' => [$oTenant->EntityId, '='],
+								'OwnerType' => [\Aurora\Modules\Mail\Enums\ServerOwnerType::Tenant, '='],
+							],
 						],
-					],
-					'Domains' => ['%' . $sDomain . '%', 'LIKE']
-				]
-			];
+						'Domains' => ['%' . $sDomain . '%', 'LIKE']
+					]
+				];
+			}
+			else
+			{
+				$aFilters = [
+					'$AND' => [
+						'1$OR' => [
+							'OwnerType' => [\Aurora\Modules\Mail\Enums\ServerOwnerType::SuperAdmin, '='],
+							'Domains' => ['%' . $sDomain . '%', 'LIKE']
+						],
+						'2$OR' => [
+							'OwnerType' => [\Aurora\Modules\Mail\Enums\ServerOwnerType::Tenant, '='],
+							'Domains' => ['%' . $sDomain . '%', 'LIKE']
+						],
+					]
+				];
+			}
 
 			$aResult = $this->oEavManager->getEntities(
 				\Aurora\Modules\Mail\Classes\Server::class,
