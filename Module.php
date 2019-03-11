@@ -5352,7 +5352,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 						{
 							$bResult = true;
 							\Aurora\System\Api::setUserId($oAccount->IdUser); // set user id to yhe Session
-							$this->Decorator()->ChangePassword($oAccount->EntityId, $sOldPassword, $sNewPassword);
+							$this->ChangePassword($oAccount->EntityId, $sOldPassword, $sNewPassword);
 						}
 						else
 						{
