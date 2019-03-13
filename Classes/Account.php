@@ -106,6 +106,14 @@ class Account extends \Aurora\System\Classes\AbstractAccount
 		}
 		$aResponse['CanBeUsedToAuthorize'] = $this->canBeUsedToAuthorize();
 		unset($aResponse['IncomingPassword']);
+		
+		$aArgs = ['Account' => $this];
+		\Aurora\System\Api::GetModule('Core')->broadcastEvent(
+			'Mail::Account::ToResponseArray',
+			$aArgs,
+			$aResponse
+		);
+		
 		return $aResponse;
 	}
 

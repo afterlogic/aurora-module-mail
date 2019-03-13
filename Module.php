@@ -4771,7 +4771,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function ChangePassword($AccountId, $CurrentPassword, $NewPassword)
 	{
 		$mResult = false;
-
+		
 		if ($AccountId > 0)
 		{
 			$oAccount = $this->getAccountsManager()->getAccountById($AccountId);
@@ -4783,11 +4783,29 @@ class Module extends \Aurora\System\Module\AbstractModule
 				$oUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin)
 			)
 			{
-				$oAccount->setPassword($NewPassword);
-				if ($this->getAccountsManager()->updateAccount($oAccount))
+				$aArgs = [
+					'Account' => $oAccount,
+					'CurrentPassword' => $CurrentPassword,
+					'NewPassword' => $NewPassword
+				];
+				$aResponse = [
+					'AccountPasswordChanged' => false
+				];
+				
+				\Aurora\System\Api::GetModule('Core')->broadcastEvent(
+					'Mail::ChangeAccountPassword',
+					$aArgs,
+					$aResponse
+				);
+				
+				if ($aResponse['AccountPasswordChanged'])
 				{
-					$mResult = $oAccount;
-					$mResult->RefreshToken = \Aurora\System\Api::UserSession()->UpdateTimestamp(\Aurora\System\Api::getAuthToken(), time());
+					$oAccount->setPassword($NewPassword);
+					if ($this->getAccountsManager()->updateAccount($oAccount))
+					{
+						$mResult = $oAccount;
+						$mResult->RefreshToken = \Aurora\System\Api::UserSession()->UpdateTimestamp(\Aurora\System\Api::getAuthToken(), time());
+					}
 				}
 			}
 		}
