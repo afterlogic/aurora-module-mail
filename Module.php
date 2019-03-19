@@ -954,7 +954,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 				$this->getMailManager()->deleteSystemFolderNames($oAccount->EntityId);
 				$bServerRemoved = true;
 				$oServer = $oAccount->getServer();
-				if ($oServer->OwnerType === \Aurora\Modules\Mail\Enums\ServerOwnerType::Account)
+				if ($oServer && $oServer->OwnerType === \Aurora\Modules\Mail\Enums\ServerOwnerType::Account)
 				{
 					$bServerRemoved = $this->getServersManager()->deleteServer($oServer->EntityId);
 				}
