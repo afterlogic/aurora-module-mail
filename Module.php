@@ -5333,7 +5333,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 				{
 					$sMailLogin = !$oServer->UseFullEmailAddressAsLogin && preg_match('/(.+)@.+$/',  $sEmail, $matches) && $matches[1] ? $matches[1] : $sEmail;
 
-					$oAccount = new Classes\Account(self::GetName());
+					$oAccount = new \Aurora\Modules\Mail\Classes\Account(self::GetName());
 					$oAccount->Email = $sEmail;
 					$oAccount->IncomingLogin = $sMailLogin;
 					$oAccount->setPassword($aArgs['Password']);
@@ -5362,15 +5362,15 @@ class Module extends \Aurora\System\Module\AbstractModule
 					$sOldPassword = $oAccount->getPassword();
 					$sNewPassword = $aArgs['Password'];
 
+					$oAccount->setPassword($sNewPassword);
+					$mResult = $this->getMailManager()->validateAccountConnection($oAccount, false);
 					if ($sNewPassword !== $sOldPassword)
 					{
-						$oAccount->setPassword($sNewPassword);
-						$mResult = $this->getMailManager()->validateAccountConnection($oAccount, false);
 						if (!($mResult instanceof \Exception))
 						{
 							$bResult = true;
-							\Aurora\System\Api::setUserId($oAccount->IdUser); // set user id to yhe Session
-							$this->ChangePassword($oAccount->EntityId, $sOldPassword, $sNewPassword);
+							// Update password in DB only if account passed connection validation
+							$this->getAccountsManager()->updateAccount($oAccount);
 						}
 						else
 						{
