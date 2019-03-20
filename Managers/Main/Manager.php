@@ -589,7 +589,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		$bResult = true;
 		if (!$this->isSafetySender($iIdUser, $sEmail))
 		{
-			$oEntity = new Classes\Sender(\Aurora\Modules\Mail\Module::GetName());
+			$oEntity = new \Aurora\Modules\Mail\Classes\Sender(\Aurora\Modules\Mail\Module::GetName());
 			
 			$oEntity->IdUser = $iIdUser;
 			$oEntity->Email = $sEmail;
