@@ -5363,27 +5363,16 @@ class Module extends \Aurora\System\Module\AbstractModule
 					$sNewPassword = $aArgs['Password'];
 
 					$oAccount->setPassword($sNewPassword);
-					$mResult = $this->getMailManager()->validateAccountConnection($oAccount, false);
-					if ($sNewPassword !== $sOldPassword)
+					$mValidResult = $this->getMailManager()->validateAccountConnection($oAccount, false);
+					$bResult = !($mValidResult instanceof \Exception);
+					if ($bResult && $sNewPassword !== $sOldPassword)
 					{
-						if (!($mResult instanceof \Exception))
-						{
-							$bResult = true;
-							// Update password in DB only if account passed connection validation
-							$this->getAccountsManager()->updateAccount($oAccount);
-						}
-						else
-						{
-							$bResult = false;
-						}
-					}
-					else
-					{
-						$bResult = true;
+						// Update password in DB only if account passed connection validation
+						$this->getAccountsManager()->updateAccount($oAccount);
 					}
 				}
 
-				if ($bAutocreateMailAccountOnNewUserFirstLogin && $bNewAccount)
+				if ($bResult && $bAutocreateMailAccountOnNewUserFirstLogin && $bNewAccount)
 				{
 					$oUser = null;
 					$aSubArgs = array(
