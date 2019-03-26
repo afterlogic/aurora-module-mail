@@ -1759,6 +1759,48 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		return is_array($aUids) && 1 === count($aUids) && is_numeric($aUids[0]) ? (int) $aUids[0] : null;
 	}
 
+	public function getMessagesInfo($oAccount, $sFolderName, $Search)
+	{
+		if (0 === strlen($sFolderName))
+		{
+			throw new \Aurora\System\Exceptions\InvalidArgumentException();
+		}
+
+		$oImapClient =& $this->_getImapClient($oAccount);
+		$oImapClient->FolderExamine($sFolderName);
+
+		$sFilter = 'ALL';
+		if ($Search !== null)
+		{
+			$sFilter = $this->_prepareImapSearchString($oImapClient, $Search);
+		}
+
+		$aUids = $oImapClient->MessageSimpleSearch($sFilter);
+
+		$mResult = array();
+		$aFetchResponse = $oImapClient->Fetch(array(
+			\MailSo\Imap\Enumerations\FetchType::INDEX,
+			\MailSo\Imap\Enumerations\FetchType::UID,
+			\MailSo\Imap\Enumerations\FetchType::FLAGS
+		), implode(',', $aUids), true);
+
+		if (is_array($aFetchResponse) && 0 < count($aFetchResponse))
+		{
+			$oFetchResponseItem = null;
+			foreach ($aFetchResponse as /* @var $oFetchResponseItem \MailSo\Imap\FetchResponse */ &$oFetchResponseItem)
+			{
+				$sUid = $oFetchResponseItem->GetFetchValue(\MailSo\Imap\Enumerations\FetchType::UID);
+				$aFlags = $oFetchResponseItem->GetFetchValue(\MailSo\Imap\Enumerations\FetchType::FLAGS);
+				if (is_array($aFlags))
+				{
+					$mResult[$sUid] = array_map('strtolower', $aFlags);
+				}
+			}
+		}
+
+		return $mResult;
+	}
+
 	/**
 	 * Retrieves quota information for the account.
 	 * 

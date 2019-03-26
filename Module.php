@@ -17,34 +17,34 @@ namespace Aurora\Modules\Mail;
 class Module extends \Aurora\System\Module\AbstractModule
 {
 	/* 
-	 * @var $oApiMailManager Managers\Main
+	 * @var $oMailManager Managers\Main
 	 */	
-	protected $oApiMailManager = null;
+	protected $oMailManager = null;
 
 	/* 
-	 * @var $oApiAccountsManager Managers\Accounts
+	 * @var $oAccountsManager Managers\Accounts
 	 */	
-	protected $oApiAccountsManager = null;
+	protected $oAccountsManager = null;
 
 	/* 
-	 * @var $oApiServersManager Managers\Servers
+	 * @var $oServersManager Managers\Servers
 	 */	
-	protected $oApiServersManager = null;
+	protected $oServersManager = null;
 	
 	/* 
-	 * @var $oApiIdentitiesManager Managers\Identities
+	 * @var $oIdentitiesManager Managers\Identities
 	 */	
-	protected $oApiIdentitiesManager = null;
+	protected $oIdentitiesManager = null;
 
 	/* 
-	 * @var $oApiSieveManager Managers\Sieve
+	 * @var $oSieveManager Managers\Sieve
 	 */	
-	protected $oApiSieveManager = null;
+	protected $oSieveManager = null;
 	
 	/* 
-	 * @var $oApiFilecacheManager \Aurora\System\Managers\Filecache 
+	 * @var $oFilecacheManager \Aurora\System\Managers\Filecache 
 	 */	
-	protected $oApiFilecacheManager = null;
+	protected $oFilecacheManager = null;
 	
 	/**
 	 * Initializes Mail Module.
@@ -92,69 +92,93 @@ class Module extends \Aurora\System\Module\AbstractModule
 		\MailSo\Config::$PreferStartTlsIfAutoDetect = !!$this->getConfig('PreferStarttls', true);
 	}
 
+	/**
+	 *
+	 * @return \Aurora\Modules\Mail\Managers\Accounts\Manager
+	 */
 	public function getAccountsManager()
 	{
-		if ($this->oApiAccountsManager === null)
+		if ($this->oAccountsManager === null)
 		{
-			$this->oApiAccountsManager = new Managers\Accounts\Manager($this);
+			$this->oAccountsManager = new Managers\Accounts\Manager($this);
 		}
 
-		return $this->oApiAccountsManager;
+		return $this->oAccountsManager;
 	}
 
 	public function setAccountsManager($oManager)
 	{
-		$this->oApiAccountsManager = $oManager;
+		$this->oAccountsManager = $oManager;
 	}
 
+	/**
+	 *
+	 * @return \Aurora\Modules\Mail\Managers\Servers\Manager
+	 */
 	public function getServersManager()
 	{
-		if ($this->oApiServersManager === null)
+		if ($this->oServersManager === null)
 		{
-			$this->oApiServersManager = new Managers\Servers\Manager($this);
+			$this->oServersManager = new Managers\Servers\Manager($this);
 		}
 
-		return $this->oApiServersManager;
+		return $this->oServersManager;
 	}
 	
+	/**
+	 *
+	 * @return \Aurora\Modules\Mail\Managers\Identities\Manager
+	 */
 	public function getIdentitiesManager()
 	{
-		if ($this->oApiIdentitiesManager === null)
+		if ($this->oIdentitiesManager === null)
 		{
-			$this->oApiIdentitiesManager = new Managers\Identities\Manager($this);
+			$this->oIdentitiesManager = new Managers\Identities\Manager($this);
 		}
 
-		return $this->oApiIdentitiesManager;
+		return $this->oIdentitiesManager;
 	}
 
+	/**
+	 *
+	 * @return \Aurora\Modules\Mail\Managers\Main\Manager
+	 */
 	public function getMailManager()
 	{
-		if ($this->oApiMailManager === null)
+		if ($this->oMailManager === null)
 		{
-			$this->oApiMailManager = new Managers\Main\Manager($this);
+			$this->oMailManager = new Managers\Main\Manager($this);
 		}
 
-		return $this->oApiMailManager;
+		return $this->oMailManager;
 	}
 
+	/**
+	 *
+	 * @return \Aurora\Modules\Mail\Managers\Sieve\Manager
+	 */
 	public function getSieveManager()
 	{
-		if ($this->oApiSieveManager === null)
+		if ($this->oSieveManager === null)
 		{
-			$this->oApiSieveManager = new Managers\Sieve\Manager($this);
+			$this->oSieveManager = new Managers\Sieve\Manager($this);
 		}
 
-		return $this->oApiSieveManager;
+		return $this->oSieveManager;
 	}	
 
+	/**
+	 *
+	 * @return \Aurora\System\Managers\Filecache
+	 */
 	public function getFilecacheManager()
 	{
-		if ($this->oApiFilecacheManager === null)
+		if ($this->oFilecacheManager === null)
 		{
-			$this->oApiFilecacheManager = new \Aurora\System\Managers\Filecache();
+			$this->oFilecacheManager = new \Aurora\System\Managers\Filecache();
 		}
 
-		return $this->oApiFilecacheManager;
+		return $this->oFilecacheManager;
 	}
 
 	/***** public functions might be called with web API *****/
@@ -1680,6 +1704,15 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		return $this->getMailManager()->getMessageList(
 			$oAccount, $Folder, $iOffset, $iLimit, $sSearch, $UseThreading, $aFilters, $InboxUidnext);
+	}
+
+	public function GetMessagesInfo($AccountID, $Folder, $Search = null)
+	{
+		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
+
+		return $this->getMailManager()->GetMessagesInfo(
+			$oAccount, $Folder, $Search
+		);
 	}
 
 	/**
