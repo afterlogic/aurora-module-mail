@@ -1793,7 +1793,10 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 				$aFlags = $oFetchResponseItem->GetFetchValue(\MailSo\Imap\Enumerations\FetchType::FLAGS);
 				if (is_array($aFlags))
 				{
-					$mResult[$sUid] = array_map('strtolower', $aFlags);
+					$mResult[] = [
+						'uid' => $sUid,
+						'flags' => array_map('strtolower', $aFlags)
+					];
 				}
 			}
 		}
