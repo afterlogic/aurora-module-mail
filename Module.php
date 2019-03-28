@@ -5437,6 +5437,12 @@ class Module extends \Aurora\System\Module\AbstractModule
 					$oServer = $this->getServersManager()->getServerByDomain('*');
 				}
 
+				if (!($oServer instanceof \Aurora\Modules\Mail\Classes\Server))
+				{
+					$oServer = $this->getServersManager()->getServerByDomain('');
+				}
+
+
 				$oTenant = \Aurora\System\Api::getTenantByWebDomain();
 				if ($oServer && (!$oTenant || $oServer->OwnerType === \Aurora\Modules\Mail\Enums\ServerOwnerType::SuperAdmin || $oServer->TenantId === $oTenant->EntityId))
 				{
