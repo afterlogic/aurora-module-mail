@@ -186,7 +186,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	
 	protected static function CheckAccount($oAccount)
 	{
-		if (!($oAccount instanceof \Aurora\Modules\Mail\Classes\Account && $oAccount->IdUser === \Aurora\System\Api::getAuthenticatedUserId()))
+		if (!($oAccount instanceof Classes\Account && $oAccount->IdUser === \Aurora\Api::getAuthenticatedUserId()))
 		{
 			throw new Exceptions\Exception(1, null, 'Access denied');
 		}
