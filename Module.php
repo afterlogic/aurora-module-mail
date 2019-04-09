@@ -192,6 +192,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 	}
 
+	protected static function CheckUserId($iUserId)
+	{
+		if ($iUserId !== \Aurora\Api::getAuthenticatedUserId())
+		{
+			throw new Exceptions\Exception(1, null, 'Access denied');
+		}
+	}
+
 	/***** public functions might be called with web API *****/
 	/**
 	 * @apiDefine Mail Mail Module
@@ -984,6 +992,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 		if ($AccountID > 0)
 		{
 			$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
+			
+			self::CheckAccount($oAccount);
 			
 			if ($oAccount)
 			{
@@ -1805,11 +1815,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 
 		$aResult = array();
-		$oAccount = null;
 
 		try
 		{
 			$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
+			
+			self::CheckAccount($oAccount);
+			
 			$aResult = $this->getMailManager()->getFolderListInformation($oAccount, $Folders);
 		}
 		catch (\MailSo\Net\Exceptions\ConnectionException $oException)
@@ -2014,6 +2026,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
 		}
+		
+//		self::CheckAccount($oAccount);
 
 		$aList = array();
 		foreach ($Uids as $iUid)
@@ -2365,6 +2379,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
+		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
+
+		self::CheckAccount($oAccount);
+		
 		return $this->setMessageFlag($AccountID, $Folder, $Uids, $SetAction, \MailSo\Imap\Enumerations\MessageFlag::SEEN);
 	}	
 	
@@ -2429,6 +2447,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function SetMessageFlagged($AccountID, $Folder, $Uids, $SetAction)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
+		
+		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
+
+		self::CheckAccount($oAccount);
 		
 		return $this->setMessageFlag($AccountID, $Folder, $Uids, $SetAction, \MailSo\Imap\Enumerations\MessageFlag::FLAGGED);
 	}
@@ -2575,6 +2597,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 
 		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
+		
+		self::CheckAccount($oAccount);
 
 		try
 		{
@@ -2756,6 +2780,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 
 		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
+		
+		self::CheckAccount($oAccount);
 
 		$this->getMailManager()->deleteMessage($oAccount, $Folder, $aUids);
 
@@ -2833,6 +2859,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 
 		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
+		
+		self::CheckAccount($oAccount);
 
 		try
 		{
@@ -3040,6 +3068,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 
 		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
+		
+		self::CheckAccount($oAccount);
 
 		$this->getMailManager()->deleteFolder($oAccount, $Folder);
 
@@ -3261,6 +3291,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 
 		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
+		
+		self::CheckAccount($oAccount);
 
 		$this->getMailManager()->clearFolder($oAccount, $Folder);
 
@@ -4033,6 +4065,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
+		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
+		
+		self::CheckAccount($oAccount);
+		
 		return $this->getIdentitiesManager()->createIdentity($UserId, $AccountID, $FriendlyName, $Email);
 	}
 	
@@ -4105,6 +4141,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
+		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
+
+		self::CheckAccount($oAccount);
+		
 		if ($Default)
 		{
 			$this->getIdentitiesManager()->resetDefaultIdentity($UserId, $AccountID);
@@ -4172,9 +4212,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param int $EntityId Identity identifier.
 	 * @return boolean
 	 */
-	public function DeleteIdentity($EntityId)
+	public function DeleteIdentity($AccountID, $EntityId)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
+		
+		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
+		
+		self::CheckAccount($oAccount);
 		
 		return $this->getIdentitiesManager()->deleteIdentity($EntityId);
 	}
@@ -4238,13 +4282,15 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * }
 	 */
 	/**
-	 * Obtaines all identities of specified user.
+	 * Obtains all identities of specified user.
 	 * @param int $UserId User identifier.
 	 * @return array|false
 	 */
 	public function GetIdentities($UserId)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
+		
+		self::CheckUserId($UserId);
 		
 		return $this->getIdentitiesManager()->getIdentities($UserId);
 	}
@@ -4874,6 +4920,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 		if ($AccountId > 0)
 		{
 			$oAccount = $this->getAccountsManager()->getAccountById($AccountId);
+			
+			self::CheckAccount($oAccount);
+			
 			$oUser = \Aurora\System\Api::getAuthenticatedUser();
 			if ($oAccount instanceof \Aurora\Modules\Mail\Classes\Account &&
 				$oUser instanceof \Aurora\Modules\Core\Classes\User &&
@@ -5279,6 +5328,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 		
 		$oAccount = $this->getAccountsManager()->getAccountById((int) $AccountID);
 		
+		self::CheckAccount($oAccount);
+		
 		if ($oAccount)
 		{
 			$mResult = $this->getSieveManager()->getAutoresponder($oAccount);
@@ -5658,6 +5709,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$iSensitivity = 0, $bSendReadingConfirmation = false,
 			$oFetcher = null, $bWithDraftInfo = true, $oIdentity = null)
 	{
+		self::CheckAccount($oAccount);
+		
 		$oMessage = \MailSo\Mime\Message::NewInstance();
 		$oMessage->RegenerateMessageId();
 		
@@ -5991,6 +6044,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 		if (isset($aValues['AccountID']))
 		{
 			$oAccount = $this->getAccountsManager()->getAccountById((int) $aValues['AccountID']);
+			
+			self::CheckAccount($oAccount);
 			
 			if (!$oAccount || \Aurora\System\Api::getAuthenticatedUserId() !== $oAccount->IdUser)
 			{
