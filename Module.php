@@ -393,7 +393,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiParam {string=GetAccounts} Method Method name
 	 * @apiParam {string} [Parameters] JSON.stringified object<br>
 	 * {<br>
-	 * &emsp; **UserId** *int* (optional) User identifier.<br>
+	 * &emsp; **UserId** *int* User identifier.<br>
 	 * }
 	 * 
 	 * @apiParamExample {json} Request-Example:
