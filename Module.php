@@ -1798,7 +1798,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
-	 * &emsp; **Folders** *array* List of folders' full names.<br>
+	 * &emsp; **Folders** *array* List of folders full names.<br>
+	 * &emsp; **UseListStatusIfPossible** *boolean* Indicates if LIST-STATUS command should be used if it's supported by IMAP server. If LIST-STATUS is used information about all folders will be obtained, and not only about the requested ones.
 	 * }
 	 * 
 	 * @apiParamExample {json} Request-Example:
@@ -1812,7 +1813,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
 	 * @apiSuccess {mixed} Result.Result Mail account properties in case of success, otherwise **false**.
-	 * @apiSuccess {object[]} Result.Result.Counts List of folders' data where key is folder full name and value is array like [message_count, unread_message_count, "next_message_uid", "hash_to_indicate_changes"]
+	 * @apiSuccess {object[]} Result.Result.Counts List of folders data where key is folder full name and value is array like [message_count, unread_message_count, "next_message_uid", "hash_to_indicate_changes"]
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
 	 * 
 	 * @apiSuccessExample {json} Success response example:
@@ -1832,14 +1833,15 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * }
 	 */
 	/**
-	 * Obtains relevant information abount total and unseen messages count in specified folders.
+	 * Obtains relevant information about total and unseen messages count in specified folders.
 	 * @param int $AccountID Account identifier.
-	 * @param array $Folders List of folders' full names.
+	 * @param array $Folders List of folders full names.
+	 * @param boolean $UseListStatusIfPossible Indicates if LIST-STATUS command should be used if it's supported by IMAP server.
 	 * @return array
 	 * @throws \Aurora\System\Exceptions\ApiException
 	 * @throws \MailSo\Net\Exceptions\ConnectionException
 	 */
-	public function GetRelevantFoldersInformation($AccountID, $Folders)
+	public function GetRelevantFoldersInformation($AccountID, $Folders, $UseListStatusIfPossible)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
@@ -1856,7 +1858,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			
 			self::checkAccess($oAccount);
 			
-			$aResult = $this->getMailManager()->getFolderListInformation($oAccount, $Folders);
+			$aResult = $this->getMailManager()->getFolderListInformation($oAccount, $Folders, $UseListStatusIfPossible);
 		}
 		catch (\MailSo\Net\Exceptions\ConnectionException $oException)
 		{

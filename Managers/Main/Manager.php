@@ -843,7 +843,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		}
 
 		return array($iStatusMessageCount, $iStatusMessageUnseenCount, $sStatusUidNext,
-			\Aurora\System\Utils::GenerateFolderHash($sFolderFullNameRaw, $iStatusMessageCount, $iStatusMessageUnseenCount, $sStatusUidNext));
+			\Aurora\Modules\Mail\Classes\Utils::GenerateFolderHash($sFolderFullNameRaw, $iStatusMessageCount, $iStatusMessageUnseenCount, $sStatusUidNext));
 	}
 
 	/**
@@ -977,10 +977,11 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 * 
 	 * @param Aurora\Modules\Mail\Classes\Account $oAccount Account object.
 	 * @param array $aFolderFullNamesRaw Array containing a list of folder names to obtain information for.
+	 * @param boolean $bUseListStatusIfPossible Indicates if LIST-STATUS command should be used if it's supported by IMAP server.
 	 *
 	 * @return array Array containing elements like those returned by **getFolderInformation** method. 
 	 */
-	public function getFolderListInformation($oAccount, $aFolderFullNamesRaw)
+	public function getFolderListInformation($oAccount, $aFolderFullNamesRaw, $bUseListStatusIfPossible)
 	{
 		if (!is_array($aFolderFullNamesRaw) || 0 === count($aFolderFullNamesRaw))
 		{
@@ -990,7 +991,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		$oImapClient =& $this->_getImapClient($oAccount);
 
 		$aResult = array();
-		if (2 < count($aFolderFullNamesRaw) && $oImapClient->IsSupported('LIST-STATUS'))
+		if ($bUseListStatusIfPossible && $oImapClient->IsSupported('LIST-STATUS'))
 		{
 			$aFolders = $oImapClient->FolderStatusList();
 
@@ -1008,7 +1009,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 								(int) $mStatus['MESSAGES'],
 								(int) $mStatus['UNSEEN'],
 								(string) $mStatus['UIDNEXT'],
-								\Aurora\System\Utils::GenerateFolderHash(
+								\Aurora\Modules\Mail\Classes\Utils::GenerateFolderHash(
 									$oFolder->getRawFullName(), $mStatus['MESSAGES'], $mStatus['UNSEEN'], $mStatus['UIDNEXT'])
 							);
 						}
@@ -3145,7 +3146,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			}
 		}
 
-		$oMessageCollection->FolderHash = \Aurora\System\Utils::GenerateFolderHash($sFolderFullNameRaw,
+		$oMessageCollection->FolderHash = \Aurora\Modules\Mail\Classes\Utils::GenerateFolderHash($sFolderFullNameRaw,
 			$oMessageCollection->MessageCount,
 			$oMessageCollection->MessageUnseenCount,
 			$oMessageCollection->UidNext);

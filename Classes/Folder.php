@@ -341,7 +341,7 @@ class Folder
 				'MessageCount' => (int) $mStatus['MESSAGES'],
 				'MessageUnseenCount' => (int) $mStatus['UNSEEN'],
 				'UidNext' => (string) $mStatus['UIDNEXT'],
-				'Hash' => \Aurora\System\Utils::GenerateFolderHash(
+				'Hash' => Utils::GenerateFolderHash(
 					$this->getRawFullName(), $mStatus['MESSAGES'], $mStatus['UNSEEN'], $mStatus['UIDNEXT']
 				)
 			);
