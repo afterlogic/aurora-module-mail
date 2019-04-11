@@ -3921,10 +3921,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		];
 		
 		return $this->getMailManager()->updateSystemFolderNames($oAccount, $aSystemNames);
-	}	
-
-	/**
-	 * @api {post} ?/Api/ SetAlwaysRefreshFolder
+	}
 
 	/**
 	 * @param int $AccountID Account identifier.
