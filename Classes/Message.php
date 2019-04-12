@@ -67,6 +67,8 @@ class Message
 	 * @var int
 	 */
 	protected $iTextSize;
+	
+	protected $bTruncated;
 
 	/**
 	 * Timestamp information of the message in UTC/GMT. 
@@ -681,9 +683,9 @@ class Message
 	 *
 	 * @return Message
 	 */
-	public static function createInstance($sRawFolderFullName, $oFetchResponse, $oBodyStructure = null, $sRfc822SubMimeIndex = '')
+	public static function createInstance($sRawFolderFullName, $oFetchResponse, $oBodyStructure = null, $sRfc822SubMimeIndex = '', $bTruncated = false)
 	{
-		return self::createEmptyInstance()->initialize($sRawFolderFullName, $oFetchResponse, $oBodyStructure, $sRfc822SubMimeIndex);
+		return self::createEmptyInstance()->initialize($sRawFolderFullName, $oFetchResponse, $oBodyStructure, $sRfc822SubMimeIndex, $bTruncated);
 	}
 
 	/**
@@ -696,7 +698,7 @@ class Message
 	 *
 	 * @return Message
 	 */
-	public function initialize($sRawFolderFullName, $oFetchResponse, $oBodyStructure = null, $sRfc822SubMimeIndex = '')
+	protected function initialize($sRawFolderFullName, $oFetchResponse, $oBodyStructure = null, $sRfc822SubMimeIndex = '', $bTruncated = false)
 	{
 		if (!$oBodyStructure)
 		{
@@ -704,14 +706,7 @@ class Message
 		}
 
 		$aTextParts = $oBodyStructure ? $oBodyStructure->SearchHtmlOrPlainParts() : array();
-/*
-		$aICalPart = $oBodyStructure ? $oBodyStructure->SearchByContentType('text/calendar') : null;
-		$oICalPart = is_array($aICalPart) && 0 < count($aICalPart) ? $aICalPart[0] : null;
-
-		$aVCardPart = $oBodyStructure ? $oBodyStructure->SearchByContentType('text/vcard') : null;
-		$aVCardPart = $aVCardPart ? $aVCardPart : ($oBodyStructure ? $oBodyStructure->SearchByContentType('text/x-vcard') : null);
-		$oVCardPart = is_array($aVCardPart) && 0 < count($aVCardPart) ? $aVCardPart[0] : null;
-*/
+		
 		$sUid = $oFetchResponse->GetFetchValue(\MailSo\Imap\Enumerations\FetchType::UID);
 		$sSize = $oFetchResponse->GetFetchValue(\MailSo\Imap\Enumerations\FetchType::RFC822_SIZE);
 		$sInternalDate = $oFetchResponse->GetFetchValue(\MailSo\Imap\Enumerations\FetchType::INTERNALDATE);
@@ -721,64 +716,12 @@ class Message
 		$this->iUid = is_numeric($sUid) ? (int) $sUid : 0;
 		$this->iSize = is_numeric($sSize) ? (int) $sSize : 0;
 		$this->iTextSize = 0;
+		$this->bTruncated = $bTruncated;
 		$this->aFlags = is_array($aFlags) ? $aFlags : array();
 		$this->aFlagsLowerCase = array_map('strtolower', $this->aFlags);
 
-		$this->iInternalTimeStampInUTC =
-			\MailSo\Base\DateTimeHelper::ParseInternalDateString($sInternalDate);
-/*
-		if ($oICalPart)
-		{
-			$sICal = $oFetchResponse->GetFetchValue(\MailSo\Imap\Enumerations\FetchType::BODY.'['.$oICalPart->PartID().']');
-			if (!empty($sICal))
-			{
-				$sICal = \MailSo\Base\Utils::DecodeEncodingValue($sICal, $oICalPart->MailEncodingName());
-				$sICal = \MailSo\Base\Utils::ConvertEncoding($sICal,
-					\MailSo\Base\Utils::NormalizeCharset($oICalPart->Charset(), true),
-					\MailSo\Base\Enumerations\Charset::UTF_8);
-
-				if (!empty($sICal) && false !== strpos($sICal, 'BEGIN:VCALENDAR'))
-				{
-					$sICal = preg_replace('/(.*)(BEGIN[:]VCALENDAR(.+)END[:]VCALENDAR)(.*)/ms', '$2', $sICal);
-				}
-				else
-				{
-					$sICal = '';
-				}
-				
-				if (!empty($sICal))
-				{
-					$this->addExtend('ICAL_RAW', $sICal);
-				}
-			}
-		}
-
-		if ($oVCardPart)
-		{
-			$sVCard = $oFetchResponse->GetFetchValue(\MailSo\Imap\Enumerations\FetchType::BODY.'['.$oVCardPart->PartID().']');
-			if (!empty($sVCard))
-			{
-				$sVCard = \MailSo\Base\Utils::DecodeEncodingValue($sVCard, $oVCardPart->MailEncodingName());
-				$sVCard = \MailSo\Base\Utils::ConvertEncoding($sVCard,
-					\MailSo\Base\Utils::NormalizeCharset($oVCardPart->Charset(), true),
-					\MailSo\Base\Enumerations\Charset::UTF_8);
-
-				if (!empty($sVCard) && false !== strpos($sVCard, 'BEGIN:VCARD'))
-				{
-					$sVCard = preg_replace('/(.*)(BEGIN\:VCARD(.+)END\:VCARD)(.*)/ms', '$2', $sVCard);
-				}
-				else
-				{
-					$sVCard = '';
-				}
-
-				if (!empty($sVCard))
-				{
-					$this->addExtend('VCARD_RAW', $sVCard);
-				}
-			}
-		}
-*/
+		$this->iInternalTimeStampInUTC = \MailSo\Base\DateTimeHelper::ParseInternalDateString($sInternalDate);
+		
 		$sCharset = $oBodyStructure ? $oBodyStructure->SearchCharset() : '';
 		$sCharset = \MailSo\Base\Utils::NormalizeCharset($sCharset);
 
@@ -809,38 +752,7 @@ class Message
 			$this->sMessageId = $oHeaders->ValueByName(\MailSo\Mime\Enumerations\Header::MESSAGE_ID);
 			$this->sContentType = $oHeaders->ValueByName(\MailSo\Mime\Enumerations\Header::CONTENT_TYPE);
 
-			$aReceived = $oHeaders->ValuesByName(\MailSo\Mime\Enumerations\Header::RECEIVED);
-			$sReceived = !empty($aReceived[0]) ? trim($aReceived[0]) : '';
-
-			$sDate = '';
-			if (!empty($sReceived))
-			{
-				$aParts = explode(';', $sReceived);
-				if (0 < count($aParts))
-				{
-					$aParts = array_reverse($aParts);
-					foreach ($aParts as $sReceiveLine)
-					{
-						$sReceiveLine = trim($sReceiveLine);
-						if (preg_match('/[\d]{4} [\d]{2}:[\d]{2}:[\d]{2} /', $sReceiveLine))
-						{
-							$sDate = $sReceiveLine;
-							break;
-						}
-					}
-				}
-			}
-
-			if (empty($sDate))
-			{
-				$sDate = $oHeaders->ValueByName(\MailSo\Mime\Enumerations\Header::DATE);
-			}
-
-			if (!empty($sDate))
-			{
-				$this->iReceivedOrDateTimeStampInUTC =
-					\MailSo\Base\DateTimeHelper::ParseRFC2822DateString($sDate);
-			}
+			$this->setReceivedOrDateTimeStampInUTC($oHeaders);
 
 			$this->oFrom = $oHeaders->GetAsEmailCollection(\MailSo\Mime\Enumerations\Header::FROM_, $bCharsetAutoDetect);
 			$this->oTo = $oHeaders->GetAsEmailCollection(\MailSo\Mime\Enumerations\Header::TO_, $bCharsetAutoDetect);
@@ -853,94 +765,10 @@ class Message
 			$this->sReferences = \preg_replace('/[\s]+/', ' ',
 				$oHeaders->ValueByName(\MailSo\Mime\Enumerations\Header::REFERENCES));
 
-			// Sensitivity
-			$this->iSensitivity = \MailSo\Mime\Enumerations\Sensitivity::NOTHING;
-			$sSensitivity = $oHeaders->ValueByName(\MailSo\Mime\Enumerations\Header::SENSITIVITY);
-			switch (strtolower($sSensitivity))
-			{
-				case 'personal':
-					$this->iSensitivity = \MailSo\Mime\Enumerations\Sensitivity::PERSONAL;
-					break;
-				case 'private':
-					$this->iSensitivity = \MailSo\Mime\Enumerations\Sensitivity::PRIVATE_;
-					break;
-				case 'company-confidential':
-					$this->iSensitivity = \MailSo\Mime\Enumerations\Sensitivity::CONFIDENTIAL;
-					break;
-			}
-
-			// Importance
-			$this->iImportance = \MailSo\Mime\Enumerations\MessagePriority::NORMAL;
-			$sPriority = $oHeaders->ValueByName(\MailSo\Mime\Enumerations\Header::X_MSMAIL_PRIORITY);
-			if (0 === strlen($sPriority))
-			{
-				$sPriority = $oHeaders->ValueByName(\MailSo\Mime\Enumerations\Header::IMPORTANCE);
-			}
-			if (0 === strlen($sPriority))
-			{
-				$sPriority = $oHeaders->ValueByName(\MailSo\Mime\Enumerations\Header::X_PRIORITY);
-			}
-			if (0 < strlen($sPriority))
-			{
-				switch (str_replace(' ', '', strtolower($sPriority)))
-				{
-					case 'high':
-					case '1(highest)':
-					case '2(high)':
-					case '1':
-					case '2':
-						$this->iImportance = \MailSo\Mime\Enumerations\MessagePriority::HIGH;
-						break;
-
-					case 'low':
-					case '4(low)':
-					case '5(lowest)':
-					case '4':
-					case '5':
-						$this->iImportance = \MailSo\Mime\Enumerations\MessagePriority::LOW;
-						break;
-				}
-			}
-
-			// ReadingConfirmation
-			$this->sReadingConfirmation = $oHeaders->ValueByName(\MailSo\Mime\Enumerations\Header::DISPOSITION_NOTIFICATION_TO);
-			if (0 === strlen($this->sReadingConfirmation))
-			{
-				$this->sReadingConfirmation = $oHeaders->ValueByName(\MailSo\Mime\Enumerations\Header::X_CONFIRM_READING_TO);
-			}
-
-			$this->sReadingConfirmation = trim($this->sReadingConfirmation);
-
-			$sDraftInfo = $oHeaders->ValueByName(\MailSo\Mime\Enumerations\Header::X_DRAFT_INFO);
-			if (0 < strlen($sDraftInfo))
-			{
-				$sType = '';
-				$sFolder = '';
-				$sUid = '';
-
-				\MailSo\Mime\ParameterCollection::NewInstance($sDraftInfo)
-					->ForeachList(function ($oParameter) use (&$sType, &$sFolder, &$sUid) {
-
-						switch (strtolower($oParameter->Name()))
-						{
-							case 'type':
-								$sType = $oParameter->Value();
-								break;
-							case 'uid':
-								$sUid = $oParameter->Value();
-								break;
-							case 'folder':
-								$sFolder = base64_decode($oParameter->Value());
-								break;
-						}
-					})
-				;
-
-				if (0 < strlen($sType) && 0 < strlen($sFolder) && 0 < strlen($sUid))
-				{
-					$this->aDraftInfo = array($sType, $sUid, $sFolder);
-				}
-			}
+			$this->setSensitivity($oHeaders);
+			$this->setImportance($oHeaders);
+			$this->setReadingConfirmation($oHeaders);
+			$this->setDraftInfo($oHeaders);
 		}
 
 		if (is_array($aTextParts) && 0 < count($aTextParts))
@@ -971,12 +799,6 @@ class Message
 
 				$sText = $oFetchResponse->GetFetchValue(\MailSo\Imap\Enumerations\FetchType::BODY.'['.$oPart->PartID().
 					('' !== $sRfc822SubMimeIndex && is_numeric($sRfc822SubMimeIndex) ? '.1' : '').']');
-
-//				if (null === $sText)
-//				{
-//					$sText = $oFetchResponse->GetFetchValue(\MailSo\Imap\Enumerations\FetchType::BODY.'['.$oPart->PartID().
-//						('' !== $sRfc822SubMimeIndex && is_numeric($sRfc822SubMimeIndex) ? '.1' : '').']<0>');
-//				}
 
 				if (is_string($sText) && 0 < strlen($sText))
 				{
@@ -1040,10 +862,143 @@ class Message
 		return $this;
 	}
 	
+	protected function setReceivedOrDateTimeStampInUTC($oHeaders)
+	{
+		$aReceived = $oHeaders->ValuesByName(\MailSo\Mime\Enumerations\Header::RECEIVED);
+		$sReceived = !empty($aReceived[0]) ? trim($aReceived[0]) : '';
+
+		$sDate = '';
+		if (!empty($sReceived))
+		{
+			$aParts = explode(';', $sReceived);
+			if (0 < count($aParts))
+			{
+				$aParts = array_reverse($aParts);
+				foreach ($aParts as $sReceiveLine)
+				{
+					$sReceiveLine = trim($sReceiveLine);
+					if (preg_match('/[\d]{4} [\d]{2}:[\d]{2}:[\d]{2} /', $sReceiveLine))
+					{
+						$sDate = $sReceiveLine;
+						break;
+					}
+				}
+			}
+		}
+
+		if (empty($sDate))
+		{
+			$sDate = $oHeaders->ValueByName(\MailSo\Mime\Enumerations\Header::DATE);
+		}
+
+		if (!empty($sDate))
+		{
+			$this->iReceivedOrDateTimeStampInUTC = \MailSo\Base\DateTimeHelper::ParseRFC2822DateString($sDate);
+		}
+	}
+	
+	protected function setSensitivity($oHeaders)
+	{
+		$this->iSensitivity = \MailSo\Mime\Enumerations\Sensitivity::NOTHING;
+		$sSensitivity = $oHeaders->ValueByName(\MailSo\Mime\Enumerations\Header::SENSITIVITY);
+		switch (strtolower($sSensitivity))
+		{
+			case 'personal':
+				$this->iSensitivity = \MailSo\Mime\Enumerations\Sensitivity::PERSONAL;
+				break;
+			case 'private':
+				$this->iSensitivity = \MailSo\Mime\Enumerations\Sensitivity::PRIVATE_;
+				break;
+			case 'company-confidential':
+				$this->iSensitivity = \MailSo\Mime\Enumerations\Sensitivity::CONFIDENTIAL;
+				break;
+		}
+	}
+	
+	protected function setImportance($oHeaders)
+	{
+		$this->iImportance = \MailSo\Mime\Enumerations\MessagePriority::NORMAL;
+		
+		$sImportanceHeader = $oHeaders->ValueByName(\MailSo\Mime\Enumerations\Header::X_MSMAIL_PRIORITY);
+		if (0 === strlen($sImportanceHeader))
+		{
+			$sImportanceHeader = $oHeaders->ValueByName(\MailSo\Mime\Enumerations\Header::IMPORTANCE);
+		}
+		if (0 === strlen($sImportanceHeader))
+		{
+			$sImportanceHeader = $oHeaders->ValueByName(\MailSo\Mime\Enumerations\Header::X_PRIORITY);
+		}
+		
+		if (0 < strlen($sImportanceHeader))
+		{
+			switch (str_replace(' ', '', strtolower($sImportanceHeader)))
+			{
+				case 'high':
+				case '1(highest)':
+				case '2(high)':
+				case '1':
+				case '2':
+					$this->iImportance = \MailSo\Mime\Enumerations\MessagePriority::HIGH;
+					break;
+				case 'low':
+				case '4(low)':
+				case '5(lowest)':
+				case '4':
+				case '5':
+					$this->iImportance = \MailSo\Mime\Enumerations\MessagePriority::LOW;
+					break;
+			}
+		}
+	}
+	
+	protected function setReadingConfirmation($oHeaders)
+	{
+		$this->sReadingConfirmation = $oHeaders->ValueByName(\MailSo\Mime\Enumerations\Header::DISPOSITION_NOTIFICATION_TO);
+		if (0 === strlen($this->sReadingConfirmation))
+		{
+			$this->sReadingConfirmation = $oHeaders->ValueByName(\MailSo\Mime\Enumerations\Header::X_CONFIRM_READING_TO);
+		}
+
+		$this->sReadingConfirmation = trim($this->sReadingConfirmation);
+	}
+	
+	protected function setDraftInfo($oHeaders)
+	{
+		$sDraftInfo = $oHeaders->ValueByName(\MailSo\Mime\Enumerations\Header::X_DRAFT_INFO);
+		if (0 < strlen($sDraftInfo))
+		{
+			$sType = '';
+			$sFolder = '';
+			$sUid = '';
+
+			\MailSo\Mime\ParameterCollection::NewInstance($sDraftInfo)
+				->ForeachList(function ($oParameter) use (&$sType, &$sFolder, &$sUid) {
+
+					switch (strtolower($oParameter->Name()))
+					{
+						case 'type':
+							$sType = $oParameter->Value();
+							break;
+						case 'uid':
+							$sUid = $oParameter->Value();
+							break;
+						case 'folder':
+							$sFolder = base64_decode($oParameter->Value());
+							break;
+					}
+				})
+			;
+
+			if (0 < strlen($sType) && 0 < strlen($sFolder) && 0 < strlen($sUid))
+			{
+				$this->aDraftInfo = array($sType, $sUid, $sFolder);
+			}
+		}
+	}
+	
 	public function toResponseArray($aParameters = array())
 	{
 		$oMailModule = \Aurora\System\Api::GetModule('Mail'); 
-		$iTrimmedLimit = $oMailModule->getConfig('MessageBodySizeLimit', 0);
 		$iAccountID = isset($aParameters['Parameters']['AccountID']) ?  $aParameters['Parameters']['AccountID'] : null;
 
 		$oAttachments = $this->getAttachments();
@@ -1059,6 +1014,7 @@ class Message
 			'MessageId' => $this->getMessageId(),
 			'Size' => $this->getSize(),
 			'TextSize' => $this->getTextSize(),
+			'Truncated' => $this->bTruncated,
 			'InternalTimeStampInUTC' => $iInternalTimeStampInUTC,
 			'ReceivedOrDateTimeStampInUTC' => $iReceivedOrDateTimeStampInUTC,
 			'TimeStampInUTC' =>	$oMailModule->getConfig('UseDateFromHeaders', false) && 0 < $iReceivedOrDateTimeStampInUTC ?
@@ -1081,13 +1037,6 @@ class Message
 			'Sensitivity' => $this->getSensitivity()
 		));
 
-		$mResult['TrimmedTextSize'] = $mResult['TextSize'];
-		if (0 < $iTrimmedLimit && $mResult['TrimmedTextSize'] > $iTrimmedLimit)
-		{
-			$mResult['TrimmedTextSize'] = $iTrimmedLimit;
-		}
-
-		$oMailModule = \Aurora\System\Api::GetModule('Mail'); 
 		$sLowerForwarded = $oMailModule ? strtolower($oMailModule->getConfig('ForwardedFlagName', '')) : '';
 		if (!empty($sLowerForwarded))
 		{
@@ -1105,7 +1054,6 @@ class Message
 
 		$mResult['Hash'] = $sHash;
 
-		$sMethod = \Aurora\System\Managers\Response::GetMethod();		
 		if (isset($aParameters['Method']) && ('GetMessage' === $aParameters['Method'] || 'GetMessagesBodies' === $aParameters['Method']))
 		{
 			$mResult['Headers'] = \MailSo\Base\Utils::Utf8Clear($this->getHeaders());
@@ -1152,19 +1100,6 @@ class Message
 				}
 			}
 
-			$iTextSizeLimit = 500000;
-			if ($iTextSizeLimit < \strlen($sHtml))
-			{
-				$iSpacePost = \strpos($sHtml, ' ', $iTextSizeLimit);
-				$sHtml = \substr($sHtml, 0, (false !== $iSpacePost && $iSpacePost > $iTextSizeLimit) ? $iSpacePost : $iTextSizeLimit);
-			}
-
-			if ($iTextSizeLimit < \strlen($sPlain))
-			{
-				$iSpacePost = \strpos($sPlain, ' ', $iTextSizeLimit);
-				$sPlain = \substr($sPlain, 0, (false !== $iSpacePost && $iSpacePost > $iTextSizeLimit) ? $iSpacePost : $iTextSizeLimit);
-			}
-
 			$oSettings =& \Aurora\System\Api::GetSettings();
 			if (0 < \strlen($sHtml) && $oSettings->GetValue('DisplayInlineCss', false))
 			{
@@ -1182,33 +1117,9 @@ class Message
 						$aContentLocationUrls, $aFoundedContentLocationUrls, false, true);
 			}
 
-			$mResult['Trimmed'] = false;
 			$mResult['Plain'] = 0 === strlen($sPlain) ? '' : \MailSo\Base\HtmlUtils::ConvertPlainToHtml($sPlain);
 			$mResult['PlainRaw'] = \trim($sPlain);
 			$mResult['Rtl'] = 0 < \strlen($mResult['Plain']) ? \MailSo\Base\Utils::IsRTL($mResult['Plain']) : false;
-
-			if (0 < $iTrimmedLimit && 'Messages' === $sMethod)
-			{
-				if ($iTrimmedLimit < strlen($mResult['Plain']))
-				{
-					$iPos = strpos($mResult['Plain'], ' ', $iTrimmedLimit);
-					if (false !== $iPos && $iTrimmedLimit <= $iPos)
-					{
-						$mResult['Plain'] = substr($mResult['Plain'], 0, $iPos);
-						$mResult['Trimmed'] = true;
-					}
-				}
-
-				if ($iTrimmedLimit < strlen($mResult['Html']))
-				{
-					$iPos = strpos($mResult['Html'], ' <', $iTrimmedLimit);
-					if (false !== $iPos && $iTrimmedLimit <= $iPos)
-					{
-						$mResult['Html'] = substr($mResult['Html'], 0, $iPos).'<!-- cutted -->';
-						$mResult['Trimmed'] = true;
-					}
-				}
-			}
 
 			$mResult['Extend'] = array();
 			if (is_array($this->aExtend))

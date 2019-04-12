@@ -1675,7 +1675,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiSuccess {int} Result.Result.Collection.Importance Importance value of the message, from 1 (highest) to 5 (lowest).
 	 * @apiSuccess {array} Result.Result.Collection.DraftInfo Contains information about the original message which is replied or forwarded: message type (reply/forward), UID and folder.
 	 * @apiSuccess {int} Result.Result.Collection.Sensitivity If Sensitivity header was set for the message, its value will be returned: 1 for "Confidential", 2 for "Private", 3 for "Personal". 
-	 * @apiSuccess {int} Result.Result.Collection.TrimmedTextSize Size of text if it is trimmed.
 	 * @apiSuccess {string} Result.Result.Collection.DownloadAsEmlUrl Url for download message as .eml file.
 	 * @apiSuccess {string} Result.Result.Collection.Hash Message hash.
 	 * @apiSuccess {array} Result.Result.Collection.Threads List of uids of messages that are belonged to one thread.
@@ -1706,7 +1705,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 *			"Cc": null, "Bcc": null, "ReplyTo": null, "IsSeen": true, "IsFlagged": false,
 	 *			"IsAnswered": false, "IsForwarded": false, "HasAttachments": true,
 	 *			"HasVcardAttachment": false, "HasIcalAttachment": false, "Importance": 3,
-	 *			"DraftInfo": null, "Sensitivity": 0, "TrimmedTextSize": 117,
+	 *			"DraftInfo": null, "Sensitivity": 0,
 	 *			"DownloadAsEmlUrl": "url_value", "Hash": "hash_value", "Threads": [] },
 	 *		...
 	 *	],
@@ -1997,7 +1996,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiSuccess {int} Result.Result.Importance Importance value of the message, from 1 (highest) to 5 (lowest).
 	 * @apiSuccess {array} Result.Result.DraftInfo Contains information about the original message which is replied or forwarded: message type (reply/forward), UID and folder.
 	 * @apiSuccess {int} Result.Result.Sensitivity If Sensitivity header was set for the message, its value will be returned: 1 for "Confidential", 2 for "Private", 3 for "Personal". 
-	 * @apiSuccess {int} Result.Result.TrimmedTextSize Size of text if it is trimmed.
 	 * @apiSuccess {string} Result.Result.DownloadAsEmlUrl Url for download message as .eml file.
 	 * @apiSuccess {string} Result.Result.Hash Message hash.
 	 * @apiSuccess {string} Result.Result.Headers Block of headers of the message.
@@ -2005,7 +2003,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiSuccess {string} Result.Result.References Content of References header block of the message. 
 	 * @apiSuccess {string} Result.Result.ReadingConfirmationAddressee Email address reading confirmation is to be sent to.
 	 * @apiSuccess {string} Result.Result.Html HTML body of the message.
-	 * @apiSuccess {boolean} Result.Result.Trimmed Indicates if message body is trimmed.
+	 * @apiSuccess {boolean} Result.Result.Truncated Indicates if message body is truncated.
 	 * @apiSuccess {string} Result.Result.Plain Message plaintext body prepared for display.
 	 * @apiSuccess {string} Result.Result.PlainRaw Message plaintext body as is.
 	 * @apiSuccess {boolean} Result.Result.Rtl Indicates if message body contains symbols from one of rtl languages.
@@ -2029,9 +2027,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * "Email":"test@afterlogic.com" } ] }, "Cc": null, "Bcc": null, "ReplyTo": null, "IsSeen": true,
 	 * "IsFlagged": false, "IsAnswered": false, "IsForwarded": false, "HasAttachments": false,
 	 * "HasVcardAttachment": false, "HasIcalAttachment": false, "Importance": 3, "DraftInfo": null,
-	 * "Sensitivity": 0, "TrimmedTextSize": 243, "DownloadAsEmlUrl": "url_value", "Hash": "hash_value",
+	 * "Sensitivity": 0, "DownloadAsEmlUrl": "url_value", "Hash": "hash_value",
 	 * "Headers": "headers_value", "InReplyTo": "", "References": "", "ReadingConfirmationAddressee": "",
-	 * "Html": "html_text_of_message", "Trimmed": false, "Plain": "", "PlainRaw": "", "Rtl": false,
+	 * "Html": "html_text_of_message", "Truncated": false, "Plain": "", "PlainRaw": "", "Rtl": false,
 	 * "Extend": [], "Safety": false, "HasExternals": false, "FoundedCIDs": [],
 	 * "FoundedContentLocationUrls": [], "Attachments": null },
 	 *		...
@@ -2054,7 +2052,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @return array
 	 * @throws \Aurora\System\Exceptions\ApiException
 	 */
-	public function GetMessagesBodies($AccountID, $Folder, $Uids)
+	public function GetMessagesBodies($AccountID, $Folder, $Uids, $MessageBodyTruncationThreshold = null)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
@@ -2070,7 +2068,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
 			if (\is_numeric($iUid))
 			{
-				$oMessage = $this->GetMessage($AccountID, $Folder, (string) $iUid);
+				$oMessage = $this->GetMessage($AccountID, $Folder, (string) $iUid, '', $MessageBodyTruncationThreshold);
 				if ($oMessage instanceof \Aurora\Modules\Mail\Classes\Message)
 				{
 					$aList[] = $oMessage;
@@ -2140,7 +2138,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiSuccess {int} Result.Result.Importance Importance value of the message, from 1 (highest) to 5 (lowest).
 	 * @apiSuccess {array} Result.Result.DraftInfo Contains information about the original message which is replied or forwarded: message type (reply/forward), UID and folder.
 	 * @apiSuccess {int} Result.Result.Sensitivity If Sensitivity header was set for the message, its value will be returned: 1 for "Confidential", 2 for "Private", 3 for "Personal". 
-	 * @apiSuccess {int} Result.Result.TrimmedTextSize Size of text if it is trimmed.
 	 * @apiSuccess {string} Result.Result.DownloadAsEmlUrl Url for download message as .eml file.
 	 * @apiSuccess {string} Result.Result.Hash Message hash.
 	 * @apiSuccess {string} Result.Result.Headers Block of headers of the message.
@@ -2148,7 +2145,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiSuccess {string} Result.Result.References Content of References header block of the message. 
 	 * @apiSuccess {string} Result.Result.ReadingConfirmationAddressee Email address reading confirmation is to be sent to.
 	 * @apiSuccess {string} Result.Result.Html HTML body of the message.
-	 * @apiSuccess {boolean} Result.Result.Trimmed Indicates if message body is trimmed.
+	 * @apiSuccess {boolean} Result.Result.Truncated Indicates if message body is truncated.
 	 * @apiSuccess {string} Result.Result.Plain Message plaintext body prepared for display.
 	 * @apiSuccess {string} Result.Result.PlainRaw Message plaintext body as is.
 	 * @apiSuccess {boolean} Result.Result.Rtl Indicates if message body contains symbols from one of rtl languages.
@@ -2171,9 +2168,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * "Email":"test@afterlogic.com" } ] }, "Cc": null, "Bcc": null, "ReplyTo": null, "IsSeen": true,
 	 * "IsFlagged": false, "IsAnswered": false, "IsForwarded": false, "HasAttachments": false,
 	 * "HasVcardAttachment": false, "HasIcalAttachment": false, "Importance": 3, "DraftInfo": null,
-	 * "Sensitivity": 0, "TrimmedTextSize": 243, "DownloadAsEmlUrl": "url_value", "Hash": "hash_value",
+	 * "Sensitivity": 0, "DownloadAsEmlUrl": "url_value", "Hash": "hash_value",
 	 * "Headers": "headers_value", "InReplyTo": "", "References": "", "ReadingConfirmationAddressee": "", 
-	 * "Html": "html_text_of_message", "Trimmed": false, "Plain": "", "PlainRaw": "", "Rtl": false, "Extend": [],
+	 * "Html": "html_text_of_message", "Truncated": false, "Plain": "", "PlainRaw": "", "Rtl": false, "Extend": [],
 	 * "Safety": false, "HasExternals": false, "FoundedCIDs": [], "FoundedContentLocationUrls": [], "Attachments": null }
 	 * }
 	 * 
@@ -2195,11 +2192,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @throws \Aurora\System\Exceptions\ApiException
 	 * @throws CApiInvalidArgumentException
 	 */
-	public function GetMessage($AccountID, $Folder, $Uid, $Rfc822MimeIndex = '')
+	public function GetMessage($AccountID, $Folder, $Uid, $Rfc822MimeIndex = '', $MessageBodyTruncationThreshold = null)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
-		$iBodyTextLimit = 650000;
 		
 		$iUid = 0 < \strlen($Uid) && \is_numeric($Uid) ? (int) $Uid : 0;
 
@@ -2251,6 +2246,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			);
 		}
 
+		$bTruncated = false;
 		$aFetchItems = array(
 			\MailSo\Imap\Enumerations\FetchType::INDEX,
 			\MailSo\Imap\Enumerations\FetchType::UID,
@@ -2267,9 +2263,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 			if (0 < \strlen($Rfc822MimeIndex) && \is_numeric($Rfc822MimeIndex))
 			{
 				$sLine = \MailSo\Imap\Enumerations\FetchType::BODY_PEEK.'['.$aTextMimeIndexes[0][0].'.1]';
-				if (\is_numeric($iBodyTextLimit) && 0 < $iBodyTextLimit && $iBodyTextLimit < $aTextMimeIndexes[0][1])
+				if (\is_numeric($MessageBodyTruncationThreshold) && 0 < $MessageBodyTruncationThreshold && $MessageBodyTruncationThreshold < $aTextMimeIndexes[0][1])
 				{
-					$sLine .= '<0.'.((int) $iBodyTextLimit).'>';
+					$sLine .= '<0.'.((int) $MessageBodyTruncationThreshold).'>';
+					$bTruncated = true;
 				}
 
 				$aFetchItems[] = $sLine;
@@ -2279,9 +2276,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 				foreach ($aTextMimeIndexes as $aTextMimeIndex)
 				{
 					$sLine = \MailSo\Imap\Enumerations\FetchType::BODY_PEEK.'['.$aTextMimeIndex[0].']';
-					if (\is_numeric($iBodyTextLimit) && 0 < $iBodyTextLimit && $iBodyTextLimit < $aTextMimeIndex[1])
+					if (\is_numeric($MessageBodyTruncationThreshold) && 0 < $MessageBodyTruncationThreshold && $MessageBodyTruncationThreshold < $aTextMimeIndex[1])
 					{
-						$sLine .= '<0.'.((int) $iBodyTextLimit).'>';
+						$sLine .= '<0.'.((int) $MessageBodyTruncationThreshold).'>';
+						$bTruncated = true;
 					}
 					
 					$aFetchItems[] = $sLine;
@@ -2302,7 +2300,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$aFetchResponse = $oImapClient->Fetch($aFetchItems, $iUid, true);
 		if (0 < \count($aFetchResponse))
 		{
-			$oMessage = \Aurora\Modules\Mail\Classes\Message::createInstance($Folder, $aFetchResponse[0], $oBodyStructure, $Rfc822MimeIndex);
+			$oMessage = \Aurora\Modules\Mail\Classes\Message::createInstance($Folder, $aFetchResponse[0], $oBodyStructure, $Rfc822MimeIndex, $bTruncated);
 		}
 
 		if ($oMessage)
@@ -3393,7 +3391,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiSuccess {int} Result.Result.Collection.Importance Importance value of the message, from 1 (highest) to 5 (lowest).
 	 * @apiSuccess {array} Result.Result.Collection.DraftInfo Contains information about the original message which is replied or forwarded: message type (reply/forward), UID and folder.
 	 * @apiSuccess {int} Result.Result.Collection.Sensitivity If Sensitivity header was set for the message, its value will be returned: 1 for "Confidential", 2 for "Private", 3 for "Personal". 
-	 * @apiSuccess {int} Result.Result.Collection.TrimmedTextSize Size of text if it is trimmed.
 	 * @apiSuccess {string} Result.Result.Collection.DownloadAsEmlUrl Url for download message as .eml file.
 	 * @apiSuccess {string} Result.Result.Collection.Hash Message hash.
 	 * @apiSuccess {array} Result.Result.Collection.Threads List of uids of messages that are belonged to one thread.
@@ -3426,7 +3423,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * "ReplyTo": { "@Count": 1, "@Collection": [ { "DisplayName": "AfterLogic", "Email":"test@email" } ] }, 
 	 * "IsSeen": true, "IsFlagged": false, "IsAnswered": false, "IsForwarded": false,
 	 * "HasAttachments": false, "HasVcardAttachment": false, "HasIcalAttachment": false, "Importance": 3,
-	 * "DraftInfo": null, "Sensitivity": 0, "TrimmedTextSize": 321, "DownloadAsEmlUrl": "url_value",
+	 * "DraftInfo": null, "Sensitivity": 0, "DownloadAsEmlUrl": "url_value",
 	 * "Hash": "hash_value", "Threads": [] },
 	 *			... ],
 	 *		"Uids": [1689,1667,1666,1651,1649,1648,1647,1646,1639,1638],

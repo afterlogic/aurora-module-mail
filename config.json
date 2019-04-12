@@ -67,10 +67,6 @@
 		0,
 		"int"
 	],
-	"MessageBodySizeLimit": [
-		25000,
-		"int"
-	],
 	"SaveRepliesToCurrFolder": [
 		false,
 		"bool"
