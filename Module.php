@@ -323,6 +323,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			'AutoSaveIntervalSeconds' => $this->getConfig('AutoSaveIntervalSeconds', 60),
 			'AllowTemplateFolders' => $this->getConfig('AllowTemplateFolders', false),
 			'AllowAlwaysRefreshFolders' => $this->getConfig('AllowAlwaysRefreshFolders', false),
+			'AutocreateMailAccountOnNewUserFirstLogin' => $this->getConfig('AutocreateMailAccountOnNewUserFirstLogin', false),
 			'IgnoreImapSubscription' => $this->getConfig('IgnoreImapSubscription', false),
 			'ImageUploadSizeLimit' => $this->getConfig('ImageUploadSizeLimit', 0),
 			'SmtpAuthType' => (new \Aurora\Modules\Mail\Enums\SmtpAuthType)->getMap(),
@@ -352,7 +353,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @api {post} ?/Api/ UpdateSettings
 	 * @apiName UpdateSettings
 	 * @apiGroup Mail
-	 * @apiDescription Updates module's per user settings.
+	 * @apiDescription Updates module global or per user settings.
 	 * 
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
@@ -364,6 +365,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiParam {string=UpdateSettings} Method Method name
 	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
+	 * &emsp; **AutocreateMailAccountOnNewUserFirstLogin** *boolean* Allows auto-provisioning of new users.<br>
+	 * &emsp; **AllowAddAccounts** *boolean* Allows users to add external mailboxes.<br>
 	 * &emsp; **AllowAutosaveInDrafts** *boolean* Indicates if message should be saved automatically while compose.<br>
 	 * }
 	 * 
@@ -396,11 +399,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * }
 	 */
 	/**
-	 * Updates module's per user settings.
+	 * Updates module global or per user settings.
+	 * @param boolean $AutocreateMailAccountOnNewUserFirstLogin Allows auto-provisioning of new users.
+	 * @param boolean $AllowAddAccounts Allows users to add external mailboxes.
 	 * @param boolean $AllowAutosaveInDrafts Indicates if message should be saved automatically while compose.
 	 * @return boolean
 	 */
-	public function UpdateSettings($AllowAutosaveInDrafts)
+	public function UpdateSettings($AutocreateMailAccountOnNewUserFirstLogin = null, $AllowAddAccounts = null, $AllowAutosaveInDrafts = null)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
@@ -409,13 +414,23 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
 			if ($oUser->Role === \Aurora\System\Enums\UserRole::NormalUser)
 			{
+				if ($AllowAutosaveInDrafts !== null)
+				{
+					$oUser->{self::GetName().'::AllowAutosaveInDrafts'} = $AllowAutosaveInDrafts;
+				}
 				$oCoreDecorator = \Aurora\Modules\Core\Module::Decorator();
-				$oUser->{self::GetName().'::AllowAutosaveInDrafts'} = $AllowAutosaveInDrafts;
 				return $oCoreDecorator->UpdateUserObject($oUser);
 			}
 			if ($oUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin)
 			{
-				$this->setConfig('AllowAutosaveInDrafts', $AllowAutosaveInDrafts);
+				if ($AutocreateMailAccountOnNewUserFirstLogin !== null)
+				{
+					$this->setConfig('AutocreateMailAccountOnNewUserFirstLogin', $AutocreateMailAccountOnNewUserFirstLogin);
+				}
+				if ($AllowAddAccounts !== null)
+				{
+					$this->setConfig('AllowAddAccounts', $AllowAddAccounts);
+				}
 				return $this->saveModuleConfig();
 			}
 		}

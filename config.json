@@ -111,10 +111,6 @@
         "$Forwarded",
         "string"
     ],
-    "AllowNewUsersRegister": [
-        false,
-        "bool"
-    ],
 	"PreferStarttls": [
         true,
         "bool"
