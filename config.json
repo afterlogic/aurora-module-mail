@@ -104,7 +104,7 @@
 		"bool"
 	],
     "XMailerValue": [
-        "AfterLogic webmail client",
+        "Afterlogic webmail client",
         "string"
     ],
     "ForwardedFlagName": [

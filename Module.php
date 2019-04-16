@@ -1,6 +1,6 @@
 <?php
 /**
- * This code is licensed under AGPLv3 license or AfterLogic Software License
+ * This code is licensed under AGPLv3 license or Afterlogic Software License
  * if commercial version of the product was purchased.
  * For full statements of the licenses see LICENSE-AFTERLOGIC and LICENSE-AGPL3 files.
  */
@@ -12,7 +12,7 @@ use Aurora\Modules\Mail\Exceptions\Exception;
 
 /**
  * @license https://www.gnu.org/licenses/agpl-3.0.html AGPL-3.0
- * @license https://afterlogic.com/products/common-licensing AfterLogic Software License
+ * @license https://afterlogic.com/products/common-licensing Afterlogic Software License
  * @copyright Copyright (c) 2019, Afterlogic Corp.
  *
  * @package Modules
@@ -3435,7 +3435,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * "From": {"@Count": 1, "@Collection": [ { "DisplayName": "","Email": "test@email" } ] }, 
 	 * "To": {"@Count": 1, "@Collection": [ { "DisplayName": "", "Email": "test2@email" } ] },
 	 * "Cc": null, "Bcc": null,
-	 * "ReplyTo": { "@Count": 1, "@Collection": [ { "DisplayName": "AfterLogic", "Email":"test@email" } ] }, 
+	 * "ReplyTo": { "@Count": 1, "@Collection": [ { "DisplayName": "Afterlogic", "Email":"test@email" } ] }, 
 	 * "IsSeen": true, "IsFlagged": false, "IsAnswered": false, "IsForwarded": false,
 	 * "HasAttachments": false, "HasVcardAttachment": false, "HasIcalAttachment": false, "Importance": 3,
 	 * "DraftInfo": null, "Sensitivity": 0, "DownloadAsEmlUrl": "url_value",
