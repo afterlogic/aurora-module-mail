@@ -1500,8 +1500,12 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 						{
 							$rAppendMessageStream = \MailSo\Base\ResourceRegistry::CreateMemoryResource();
 
+							if (is_resource($rMessageStream))
+							{
+								rewind($rMessageStream);
+							}
 							$iAppendMessageStreamSize = \MailSo\Base\Utils::MultipleStreamWriter(
-								$oMessage->ToStream(), array($rAppendMessageStream), 8192, true, true, true);
+								$rMessageStream, array($rAppendMessageStream), 8192, true, true, true);
 
 							$oImapClient->MessageAppendStream(
 								$sSentFolder, $rAppendMessageStream, $iAppendMessageStreamSize, array(
