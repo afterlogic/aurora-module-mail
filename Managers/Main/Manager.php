@@ -1859,7 +1859,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			}
 		}
 
-		return $mResult;
+		return array_values($mResult);
 	}
 
 	/**
