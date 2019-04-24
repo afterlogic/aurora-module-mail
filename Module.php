@@ -1782,7 +1782,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$oAccount, $Folder, $iOffset, $iLimit, $sSearch, $UseThreading, $aFilters, $InboxUidnext);
 	}
 
-	public function GetMessagesInfo($AccountID, $Folder, $Search = null)
+	public function GetMessagesInfo($AccountID, $Folder, $Search = null, $UseThreading = false)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 
@@ -1791,7 +1791,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		self::checkAccess($oAccount);
 		
 		return $this->getMailManager()->GetMessagesInfo(
-			$oAccount, $Folder, $Search
+			$oAccount, $Folder, $Search, $UseThreading
 		);
 	}
 

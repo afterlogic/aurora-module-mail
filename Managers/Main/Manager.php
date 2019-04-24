@@ -1764,7 +1764,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		return is_array($aUids) && 1 === count($aUids) && is_numeric($aUids[0]) ? (int) $aUids[0] : null;
 	}
 
-	public function getMessagesInfo($oAccount, $sFolderName, $Search)
+	public function getMessagesInfo($oAccount, $sFolderName, $Search, $bUseThreading = false)
 	{
 		if (0 === strlen($sFolderName))
 		{
@@ -1783,6 +1783,37 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		$aUids = $oImapClient->MessageSimpleSearch($sFilter);
 
 		$mResult = array();
+		
+		$iMessageCount = 0;
+		$aThreads = array();
+		$oServer = $oAccount->getServer();
+		$bUseThreadingIfSupported = $oServer->EnableThreading && $oAccount->UseThreading;
+		if ($bUseThreadingIfSupported)
+		{
+			$bUseThreadingIfSupported = $bUseThreading;
+		}
+		if ($bUseThreadingIfSupported)
+		{
+			$bUseThreadingIfSupported = $oImapClient->IsSupported('THREAD=REFS') || $oImapClient->IsSupported('THREAD=REFERENCES') || $oImapClient->IsSupported('THREAD=ORDEREDSUBJECT');
+		}
+		if ($bUseThreadingIfSupported/* && 1 < $iMessageCount*/)
+		{
+			$bIndexAsUid = true;
+			$aThreadUids = array();
+			try
+			{
+				$aThreadUids = $oImapClient->MessageSimpleThread();
+			}
+			catch (\MailSo\Imap\Exceptions\RuntimeException $oException)
+			{
+				$aThreadUids = array();
+			}
+
+			$aThreads = $this->_compileThreadList($aThreadUids);
+			$aIndexOrUids = array_keys($aThreads);
+			$iMessageCount = count($aIndexOrUids);
+		}
+
 		$aFetchResponse = $oImapClient->Fetch(array(
 			\MailSo\Imap\Enumerations\FetchType::INDEX,
 			\MailSo\Imap\Enumerations\FetchType::UID,
@@ -1796,12 +1827,34 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			{
 				$sUid = $oFetchResponseItem->GetFetchValue(\MailSo\Imap\Enumerations\FetchType::UID);
 				$aFlags = $oFetchResponseItem->GetFetchValue(\MailSo\Imap\Enumerations\FetchType::FLAGS);
+				$iMessageCount++;
 				if (is_array($aFlags))
 				{
-					$mResult[] = [
+					$mResult[$sUid] = [
 						'uid' => $sUid,
 						'flags' => array_map('strtolower', $aFlags)
 					];
+				}
+			}
+		}
+		
+		if ($bUseThreadingIfSupported && 0 < count($aThreads))
+		{
+			foreach ($mResult as $sKey => $aItem)
+			{
+				$iUid = $aItem['uid'];
+				if (isset($aThreads[$iUid]) && is_array($aThreads[$iUid]))
+				{
+					foreach($aThreads[$iUid] as $iThreadUid)
+					{
+						$aThreadFlags = $mResult[$iThreadUid]['flags'];
+						unset($mResult[$iThreadUid]);
+						$mResult[$sKey]['thread'][] = [
+							'uid' => $iThreadUid,
+							'flags' => $aThreadFlags
+						];
+	
+					}
 				}
 			}
 		}
