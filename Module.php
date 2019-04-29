@@ -6043,8 +6043,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 		
 		$this->getRaw(
-			(string) \Aurora\System\Application::GetPathItemByIndex(1, ''),
-			(string) \Aurora\System\Application::GetPathItemByIndex(2, '')
+			(string) \Aurora\System\Router::getItemByIndex(1, ''),
+			(string) \Aurora\System\Router::getItemByIndex(2, '')
 		);		
 	}	
 	
