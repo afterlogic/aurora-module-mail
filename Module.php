@@ -330,7 +330,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		);
 		
 		$oUser = \Aurora\System\Api::getAuthenticatedUser();
-		if ($oUser && $oUser->Role === \Aurora\System\Enums\UserRole::NormalUser)
+		if ($oUser && $oUser->isNormalOrTenant())
 		{
 			$aAcc = $this->GetAccounts($oUser->EntityId);
 			$aResponseAcc = [];
@@ -412,7 +412,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$oUser = \Aurora\System\Api::getAuthenticatedUser();
 		if ($oUser)
 		{
-			if ($oUser->Role === \Aurora\System\Enums\UserRole::NormalUser)
+			if ($oUser->isNormalOrTenant())
 			{
 				if ($AllowAutosaveInDrafts !== null)
 				{
@@ -4972,7 +4972,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			if ($oAccount instanceof \Aurora\Modules\Mail\Classes\Account &&
 				$oUser instanceof \Aurora\Modules\Core\Classes\User &&
 				$oAccount->getPassword() === $CurrentPassword &&
-				(($oUser->Role === \Aurora\System\Enums\UserRole::NormalUser && $oUser->EntityId === $oAccount->IdUser) ||
+				(($oUser->isNormalOrTenant() && $oUser->EntityId === $oAccount->IdUser) ||
 				$oUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin)
 			)
 			{
