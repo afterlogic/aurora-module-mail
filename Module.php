@@ -614,19 +614,38 @@ class Module extends \Aurora\System\Module\AbstractModule
 	
 	public function GetAccountByEmail($Email, $UserId = 0)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
+		$oAuthenticatedUser = \Aurora\System\Api::getAuthenticatedUser();
 		
-		$mResult = false;
+		$oUser = null;
+		if ($UserId === 0 && $oAuthenticatedUser->isNormalOrTenant())
+		{
+			$oUser = $oAuthenticatedUser;
+			$UserId = $oAuthenticatedUser->EntityId;
+		}
+		else
+		{
+			$oUser = \Aurora\Modules\Core\Module::Decorator()->GetUser($UserId);
+		}
 		
-		$oUser = \Aurora\System\Api::getAuthenticatedUser();
 		$oAccount = $this->getAccountsManager()->getAccountByEmail($Email);
 		
 		// Method has its specific access check so checkAccess method isn't used.
-		if ($oAccount
-			&& ($oAccount->IdUser === $oUser->EntityId
-				|| ($oUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin && $UserId
-					&& $UserId === $oAccount->IdUser))
-		)
+		if ($oAccount instanceof \Aurora\Modules\Mail\Classes\Account && $oAccount->IdUser === $oAuthenticatedUser->EntityId)
+		{
+			\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
+		}
+		else if ( $oUser instanceof \Aurora\Modules\Core\Classes\User && $oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::TenantAdmin && $oUser->IdTenant === $oAuthenticatedUser->IdTenant)
+		{
+			\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::TenantAdmin);
+		}
+		else
+		{
+			\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::SuperAdmin);
+		}
+		
+		$mResult = false;
+		
+		if ($oAccount instanceof \Aurora\Modules\Mail\Classes\Account && $UserId === $oAccount->IdUser)
 		{
 			$mResult = $oAccount;
 		}
