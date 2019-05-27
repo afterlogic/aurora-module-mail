@@ -1201,6 +1201,15 @@ class Module extends \Aurora\System\Module\AbstractModule
 						$iQuota = (is_array($aQuota) && isset($aQuota[1])) ? $aQuota[1] / 1024 : 0;
 						$this->updateAllocatedTenantSpace($oUser->IdTenant, 0, $iQuota);
 					}
+					
+					$aArgs = [
+						'Account' => $oAccount,
+						'User' => $oUser
+					];
+					$this->broadcastEvent(
+						'BeforeDeleteAccount', 
+						$aArgs
+					);
 					$bResult = $this->getAccountsManager()->deleteAccount($oAccount);
 				}
 			}
