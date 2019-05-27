@@ -568,7 +568,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		$bResult = false;
 		$aEntities = $this->oEavManager->getEntities(
 			\Aurora\Modules\Mail\Classes\Sender::class,
-			array(),
+			array('Email'),
 			0,
 			1,
 			array(
