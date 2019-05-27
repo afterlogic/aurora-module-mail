@@ -142,5 +142,9 @@
 	"DoImapLoginOnAccountCreate": [
 		true,
 		"bool"
-	]
+	],
+    "GlobalTenantQuota": [
+        100,
+        "int"
+    ]
 }

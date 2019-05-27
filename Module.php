@@ -7,9 +7,6 @@
 
 namespace Aurora\Modules\Mail;
 
-use Aurora\Modules\Mail\Exceptions\Exception;
-
-
 /**
  * @license https://www.gnu.org/licenses/agpl-3.0.html AGPL-3.0
  * @license https://afterlogic.com/products/common-licensing Afterlogic Software License
@@ -71,6 +68,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			Enums\ErrorCodes::CannotUploadMessage					=> $this->i18N('ERROR_UPLOAD_MESSAGE'),
 			Enums\ErrorCodes::CannotUploadMessageFileNotEml			=> $this->i18N('ERROR_UPLOAD_MESSAGE_FILE_NOT_EML'),
 			Enums\ErrorCodes::DomainIsNotAllowedForLoggingIn		=> $this->i18N('DOMAIN_IS_NOT_ALLOWED_FOR_LOGGING_IN'),
+			Enums\ErrorCodes::CannotUpdateUserQuota					=> $this->i18N('ERROR_UPDATE_USER_QUOTA'),
 		];
 		
 		\Aurora\Modules\Core\Classes\User::extend(
@@ -79,6 +77,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 				'AllowAutosaveInDrafts'	=> ['bool', (bool) $this->getConfig('AllowAutosaveInDrafts', false)],
 			]
 		);		
+		\Aurora\Modules\Core\Classes\Tenant::extend(
+			self::GetName(),
+			[
+				'AllowGlobalQuota' => ['bool', false],
+				'GlobalQuotaMb' => ['int', 0],
+				'AllocatedSpaceMb' => ['int', 0],
+			]
+		);
 
 		$this->AddEntries(array(
 				'message-newtab' => 'EntryMessageNewtab',
@@ -344,6 +350,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 			{
 				$aSettings['AllowAutosaveInDrafts'] = $oUser->{self::GetName().'::AllowAutosaveInDrafts'};
 			}
+			if (isset($oUser->{self::GetName().'::AllowGlobalQuota'}))
+			{
+				$aSettings['AllowGlobalQuota'] = $oUser->{self::GetName().'::AllowGlobalQuota'};
+			}
 		}
 		
 		return $aSettings;
@@ -432,6 +442,107 @@ class Module extends \Aurora\System\Module\AbstractModule
 					$this->setConfig('AllowAddAccounts', $AllowAddAccounts);
 				}
 				return $this->saveModuleConfig();
+			}
+		}
+		
+		return false;
+	}
+	
+	public function GetEntityQuota($Type, $UserId = null, $TenantId = null)
+	{
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::TenantAdmin);
+		$oAuthenticatedUser = \Aurora\System\Api::getAuthenticatedUser();
+		
+		if ($Type === 'User' && is_int($UserId) && $UserId > 0)
+		{
+			$oUser = \Aurora\Modules\Core\Module::Decorator()->GetUser($UserId);
+			if ($oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin || 
+					$oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::TenantAdmin && $oAuthenticatedUser->IdTenant === $oUser->IdTenant)
+			{
+				$oAccount = \Aurora\Modules\Mail\Module::Decorator()->GetAccountByEmail($oUser->PublicId, $oUser->EntityId);
+				$aQuota = $this->getMailManager()->getQuota($oAccount);
+				$iQuota = (is_array($aQuota) && isset($aQuota[1])) ? $aQuota[1] / 1024 : 0;
+				return [
+					'UserQuotaMb' => $iQuota,
+				];
+			}
+		}
+		
+		if ($Type === 'Tenant' && is_int($TenantId) && $TenantId > 0)
+		{
+			$oTenant = \Aurora\System\Api::getTenantById($TenantId);
+			if ($oTenant && ($oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin || 
+					$oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::TenantAdmin && $oAuthenticatedUser->IdTenant === $TenantId))
+			{
+				return [
+					'AllowGlobalQuota' => $oTenant->{self::GetName() . '::AllowGlobalQuota'},
+					'GlobalQuotaMb' => $oTenant->{self::GetName() . '::GlobalQuotaMb'},
+					'AllocatedSpaceMb' => $oTenant->{self::GetName() . '::AllocatedSpaceMb'},
+				];
+			}
+		}
+		
+		return [];
+	}
+	
+	protected function updateAllocatedTenantSpace($iTenantId, $iNewUserQuota, $iPrevUserQuota)
+	{
+		$oTenant = \Aurora\System\Api::getTenantById($iTenantId);
+		$iAllocatedSpaceMb = $oTenant->{self::GetName() . '::AllocatedSpaceMb'};
+		$iAllocatedSpaceMb += $iNewUserQuota - $iPrevUserQuota;
+		if ($iAllocatedSpaceMb < 0)
+		{
+			$iAllocatedSpaceMb = 0;
+		}
+		$oTenant->{self::GetName() . '::AllocatedSpaceMb'} = $iAllocatedSpaceMb;
+		\Aurora\Modules\Core\Module::Decorator()->getTenantsManager()->updateTenant($oTenant);
+	}
+	
+	public function UpdateEntityQuota($Type, $UserId, $TenantId, $QuotaMb)
+	{
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::TenantAdmin);
+		$oAuthenticatedUser = \Aurora\System\Api::getAuthenticatedUser();
+		
+		if ($Type === 'User' && is_int($UserId) && $UserId > 0)
+		{
+			$oUser = \Aurora\Modules\Core\Module::Decorator()->GetUser($UserId);
+			if ($oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin || 
+					$oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::TenantAdmin && $oAuthenticatedUser->IdTenant === $oUser->IdTenant)
+			{
+				$aPrevUserQuota = $this->Decorator()->GetEntityQuota('User', $UserId, $oUser->IdTenant);
+				$aTenantQuota = $this->Decorator()->GetEntityQuota('Tenant', $UserId, $oUser->IdTenant);
+				$iNewAllocatedSpaceMb = $aTenantQuota['AllocatedSpaceMb'] - $aPrevUserQuota['UserQuotaMb'] + $QuotaMb;
+				if ($aTenantQuota['AllowGlobalQuota'] && $aTenantQuota['GlobalQuotaMb'] < $iNewAllocatedSpaceMb)
+				{
+					throw new \Aurora\Modules\Mail\Exceptions\Exception(Enums\ErrorCodes::CannotUpdateUserQuota);
+				}
+				$aArgs = [
+					'TenantId' => $TenantId,
+					'Email' => $oUser->PublicId,
+					'QuotaMb' => $QuotaMb
+				];
+				$mResult = false;
+				$this->broadcastEvent(
+					'UpdateQuota',
+					$aArgs,
+					$mResult
+				);
+				if ($mResult !== false)
+				{
+					$this->updateAllocatedTenantSpace($TenantId, $QuotaMb, $aPrevUserQuota['UserQuotaMb']);
+				}
+				return $mResult;
+			}
+		}
+		
+		if ($Type === 'Tenant' && is_int($TenantId) && $TenantId > 0)
+		{
+			$oTenant = \Aurora\System\Api::getTenantById($TenantId);
+			if ($oTenant && ($oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin || 
+					$oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::TenantAdmin && $oAuthenticatedUser->IdTenant === $TenantId))
+			{
+				$oTenant->{self::GetName() . '::GlobalQuotaMb'} = $QuotaMb;
+				return \Aurora\Modules\Core\Module::Decorator()->getTenantsManager()->updateTenant($oTenant);
 			}
 		}
 		
@@ -794,10 +905,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 				{
 					$oResException = $this->getMailManager()->validateAccountConnection($oAccount, false);
 				}
+				
+				$oCoreDecorator = \Aurora\Modules\Core\Module::Decorator();
+				$oUser = $oCoreDecorator ? $oCoreDecorator->GetUser($UserId) : null;
 				if ($oResException === null)
 				{
-					$oCoreDecorator = \Aurora\Modules\Core\Module::Decorator();
-					$oUser = $oCoreDecorator ? $oCoreDecorator->GetUser($UserId) : null;
 					if ($oUser instanceof \Aurora\Modules\Core\Classes\User && $oUser->PublicId === $Email && 
 						!$this->getAccountsManager()->useToAuthorizeAccountExists($Email))
 					{
@@ -808,6 +920,12 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 				if ($bAccoutResult)
 				{
+					if ($oAccount->Email === $oUser->PublicId)
+					{
+						$aQuota = $this->getMailManager()->getQuota($oAccount);
+						$iQuota = (is_array($aQuota) && isset($aQuota[1])) ? $aQuota[1] / 1024 : 0;
+						$this->updateAllocatedTenantSpace($oUser->IdTenant, $iQuota, 0);
+					}
 					return $oAccount;
 				}
 				else if ($bCustomServerCreated)
@@ -1075,6 +1193,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 				}
 				if ($bServerRemoved)
 				{
+					$oCoreDecorator = \Aurora\Modules\Core\Module::Decorator();
+					$oUser = $oCoreDecorator ? $oCoreDecorator->GetUser($oAccount->IdUser) : null;
+					if ($oAccount->Email === $oUser->PublicId)
+					{
+						$aQuota = $this->getMailManager()->getQuota($oAccount);
+						$iQuota = (is_array($aQuota) && isset($aQuota[1])) ? $aQuota[1] / 1024 : 0;
+						$this->updateAllocatedTenantSpace($oUser->IdTenant, 0, $iQuota);
+					}
 					$bResult = $this->getAccountsManager()->deleteAccount($oAccount);
 				}
 			}

@@ -31,6 +31,7 @@ class ErrorCodes
 	const CannotUploadMessage = 4015;
 	const CannotUploadMessageFileNotEml = 4016;
 	const DomainIsNotAllowedForLoggingIn = 4017;
+	const CannotUpdateUserQuota = 4018;
 
 	/**
 	 * @var array
@@ -53,5 +54,6 @@ class ErrorCodes
 		'CannotUploadMessage' => self::CannotUploadMessage,
 		'CannotUploadMessageFileNotEml' => self::CannotUploadMessageFileNotEml,
 		'DomainIsNotAllowedForLoggingIn' => self::DomainIsNotAllowedForLoggingIn,
+		'CannotUpdateUserQuota' => self::CannotUpdateUserQuota,
 	];
 }
