@@ -11,6 +11,10 @@
 		true,
 		"bool"
 	],
+    "AllowChangeMailQuotaOnMailServer": [
+        false,
+        "int"
+	],
 	"AllowDefaultAccountForUser": [
 		false,
 		"bool"
@@ -143,8 +147,8 @@
 		true,
 		"bool"
 	],
-    "GlobalTenantQuota": [
-        100,
+    "AllowChangeMailQuotaOnMailServer": [
+        false,
         "int"
     ]
 }
