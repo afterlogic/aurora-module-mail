@@ -13,7 +13,7 @@
 	],
     "AllowChangeMailQuotaOnMailServer": [
         false,
-        "int"
+        "bool"
 	],
 	"AllowDefaultAccountForUser": [
 		false,
@@ -146,9 +146,5 @@
 	"DoImapLoginOnAccountCreate": [
 		true,
 		"bool"
-	],
-    "AllowChangeMailQuotaOnMailServer": [
-        false,
-        "int"
     ]
 }
