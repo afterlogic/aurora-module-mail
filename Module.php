@@ -471,7 +471,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 		if ($Type === 'Tenant' && is_int($TenantId) && $TenantId > 0)
 		{
 			$oTenant = \Aurora\System\Api::getTenantById($TenantId);
-			if ($oTenant && ($oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin || 
+			if ($oTenant instanceof \Aurora\Modules\Core\Classes\Tenant && $oAuthenticatedUser instanceof \Aurora\Modules\Core\Classes\User && 
+					($oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin || 
 					$oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::TenantAdmin && $oAuthenticatedUser->IdTenant === $TenantId))
 			{
 				return [
@@ -746,11 +747,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$oAccount = $this->getAccountsManager()->getAccountByEmail($Email);
 		
 		// Method has its specific access check so checkAccess method isn't used.
-		if ($oAccount instanceof \Aurora\Modules\Mail\Classes\Account && $oAccount->IdUser === $oAuthenticatedUser->EntityId)
+		if ($oAuthenticatedUser instanceof \Aurora\Modules\Core\Classes\User && $oAccount instanceof \Aurora\Modules\Mail\Classes\Account && $oAccount->IdUser === $oAuthenticatedUser->EntityId)
 		{
 			\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		}
-		else if ( $oUser instanceof \Aurora\Modules\Core\Classes\User && $oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::TenantAdmin && $oUser->IdTenant === $oAuthenticatedUser->IdTenant)
+		else if ($oAuthenticatedUser instanceof \Aurora\Modules\Core\Classes\User && $oUser instanceof \Aurora\Modules\Core\Classes\User && $oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::TenantAdmin && $oUser->IdTenant === $oAuthenticatedUser->IdTenant)
 		{
 			\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::TenantAdmin);
 		}
@@ -917,12 +918,15 @@ class Module extends \Aurora\System\Module\AbstractModule
 				if ($oResException === null)
 				{
 					$aTenantQuota = $this->Decorator()->GetEntitySpaceLimits('Tenant', $UserId, $oUser->IdTenant);
-					$aQuota = $this->getMailManager()->getQuota($oAccount);
-					$iQuota = (is_array($aQuota) && isset($aQuota[1])) ? $aQuota[1] / 1024 : 0;
-					$iNewAllocatedSpaceMb = $aTenantQuota['AllocatedSpaceMb'] + $iQuota;
-					if ($aTenantQuota['TenantSpaceLimitMb'] > 0 && $aTenantQuota['TenantSpaceLimitMb'] < $iNewAllocatedSpaceMb)
+					if (isset($aTenantQuota['AllocatedSpaceMb']) && isset($aTenantQuota['TenantSpaceLimitMb']))
 					{
-						$oResException = new \Aurora\Modules\Mail\Exceptions\Exception(Enums\ErrorCodes::TenantQuotaExceeded, null, $this->i18N('ERROR_TENANT_QUOTA_EXCEEDED'));
+						$aQuota = $this->getMailManager()->getQuota($oAccount);
+						$iQuota = (is_array($aQuota) && isset($aQuota[1])) ? $aQuota[1] / 1024 : 0;
+						$iNewAllocatedSpaceMb = $aTenantQuota['AllocatedSpaceMb'] + $iQuota;
+						if ($aTenantQuota['TenantSpaceLimitMb'] > 0 && $aTenantQuota['TenantSpaceLimitMb'] < $iNewAllocatedSpaceMb)
+						{
+							$oResException = new \Aurora\Modules\Mail\Exceptions\Exception(Enums\ErrorCodes::TenantQuotaExceeded, null, $this->i18N('ERROR_TENANT_QUOTA_EXCEEDED'));
+						}
 					}
 				}
 				
