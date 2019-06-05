@@ -734,7 +734,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$oAuthenticatedUser = \Aurora\System\Api::getAuthenticatedUser();
 		
 		$oUser = null;
-		if ($UserId === 0 && $oAuthenticatedUser->isNormalOrTenant())
+		if ($UserId === 0 && $oAuthenticatedUser && $oAuthenticatedUser->isNormalOrTenant())
 		{
 			$oUser = $oAuthenticatedUser;
 			$UserId = $oAuthenticatedUser->EntityId;
