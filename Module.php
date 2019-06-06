@@ -335,6 +335,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			'IgnoreImapSubscription' => $this->getConfig('IgnoreImapSubscription', false),
 			'ImageUploadSizeLimit' => $this->getConfig('ImageUploadSizeLimit', 0),
 			'SmtpAuthType' => (new \Aurora\Modules\Mail\Enums\SmtpAuthType)->getMap(),
+			'MessagesSortBy' => $this->getConfig('MessagesSortBy', [])
 		);
 		
 		$oUser = \Aurora\System\Api::getAuthenticatedUser();
@@ -1927,7 +1928,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @return array
 	 * @throws \Aurora\System\Exceptions\ApiException
 	 */
-	public function GetMessages($AccountID, $Folder, $Offset = 0, $Limit = 20, $Search = '', $Filters = '', $UseThreading = false, $InboxUidnext = '')
+	public function GetMessages($AccountID, $Folder, $Offset = 0, $Limit = 20, $Search = '', $Filters = '', $UseThreading = false, $InboxUidnext = '', $SortBy = '', $SortOrder = \Aurora\System\Enums\SortOrder::DESC)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
@@ -1954,8 +1955,18 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		self::checkAccess($oAccount);
 
+		$aMessagesSortBy = $this->getConfig('MessagesSortBy', false);
+		if ($aMessagesSortBy === false || isset($aMessagesSortBy['Allow']) && (bool) $aMessagesSortBy['Allow'] === false)
+		{
+			$SortBy = ''; 
+			$SortOrder = \Aurora\System\Enums\SortOrder::DESC;
+		}
+
+		$sSortBy = \strtoupper($SortBy);
+		$sSortOrder = $SortOrder === \Aurora\System\Enums\SortOrder::DESC ? 'REVERSE' : '';
+
 		return $this->getMailManager()->getMessageList(
-			$oAccount, $Folder, $iOffset, $iLimit, $sSearch, $UseThreading, $aFilters, $InboxUidnext);
+			$oAccount, $Folder, $iOffset, $iLimit, $sSearch, $UseThreading, $aFilters, $InboxUidnext, $sSortBy, $sSortOrder);
 	}
 
 	public function GetMessagesInfo($AccountID, $Folder, $Search = null, $UseThreading = false)

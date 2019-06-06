@@ -146,5 +146,27 @@
 	"DoImapLoginOnAccountCreate": [
 		true,
 		"bool"
-    ]
+    ],
+	"MessagesSortBy": [
+		{
+			"Allow": false,
+			"List": [
+				{
+					"SortBy": "arrival",
+					"LangConst": "LABEL_SORT_BY_DATE"
+				},
+				{
+					"SortBy": "from",
+					"LangConst": "LABEL_SORT_BY_FROM"
+				},
+				{
+					"SortBy": "to",
+					"LangConst": "LABEL_SORT_BY_TO"
+				}
+			],
+			"DefaultSortBy": "arrival",
+			"DefaultSortOrder": "desc"
+		},
+		"array"
+	]
 }

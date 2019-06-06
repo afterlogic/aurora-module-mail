@@ -2796,7 +2796,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 * @throws \Aurora\System\Exceptions\InvalidArgumentException
 	 */
 	public function getMessageList($oAccount, $sFolderFullNameRaw, $iOffset = 0, $iLimit = 20,
-		$sSearch = '', $bUseThreading = false, $aFilters = array(), $sInboxUidnext = '')
+		$sSearch = '', $bUseThreading = false, $aFilters = array(), $sInboxUidnext = '', $sSortBy = 'ARRIVAL', $sSortOrder = 'REVERSE')
 	{
 		if (0 === strlen($sFolderFullNameRaw) || 0 > $iOffset || 0 >= $iLimit || 999 < $iLimit)
 		{
@@ -2842,8 +2842,8 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			$bIndexAsUid = false;
 			$aIndexOrUids = array();
 
-			$bUseSortIfSupported = $this->GetModule()->getConfig('UseSortImapForDateMode', false);
-			if ($bUseSortIfSupported)
+			$aMessagesSortBy = $this->GetModule()->getConfig('MessagesSortBy', false);
+			if ($aMessagesSortBy !== false && is_array($aMessagesSortBy) && isset($aMessagesSortBy['Allow']) && (bool) $aMessagesSortBy['Allow'] !== false)
 			{
 				$bUseSortIfSupported = $oImapClient->IsSupported('SORT');
 			}
@@ -2931,7 +2931,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
 					if ($bUseSortIfSupported)
 					{
-						$aIndexOrUids = $oImapClient->MessageSimpleSort(array('REVERSE ARRIVAL'), $sSearchCriterias, $bIndexAsUid);
+						$aIndexOrUids = $oImapClient->MessageSimpleSort(array($sSortOrder . ' ' . $sSortBy), $sSearchCriterias, $bIndexAsUid);
 					}
 					else
 					{
@@ -2986,7 +2986,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 					if ($bUseSortIfSupported)
 					{
 						$aThreads = $this->_resortThreadList($aThreads,
-							$oImapClient->MessageSimpleSort(array('REVERSE ARRIVAL'), 'ALL', true));
+							$oImapClient->MessageSimpleSort(array($sSortOrder . ' ' . $sSortBy), 'ALL', true));
 					}
 					else
 					{
@@ -2999,7 +2999,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 				else if ($bUseSortIfSupported && 1 < $iMessageCount)
 				{
 					$bIndexAsUid = true;
-					$aIndexOrUids = $oImapClient->MessageSimpleSort(array('REVERSE ARRIVAL'), 'ALL', $bIndexAsUid);
+					$aIndexOrUids = $oImapClient->MessageSimpleSort(array($sSortOrder . ' ' . $sSortBy), 'ALL', $bIndexAsUid);
 				}
 				else
 				{
