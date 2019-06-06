@@ -2842,6 +2842,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			$bIndexAsUid = false;
 			$aIndexOrUids = array();
 
+			$bUseSortIfSupported = false;
 			$aMessagesSortBy = $this->GetModule()->getConfig('MessagesSortBy', false);
 			if ($aMessagesSortBy !== false && is_array($aMessagesSortBy) && isset($aMessagesSortBy['Allow']) && (bool) $aMessagesSortBy['Allow'] !== false)
 			{
