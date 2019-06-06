@@ -58,75 +58,66 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	}
 	
 	/**
-	 * 
-	 * @param int $iAccountId
+	 * Obtains an account with the specified email and for the specified user.
+	 * @param string $sEmail Email of the account.
+	 * @param int $iUserId Identifier of the user which owns the account.
 	 * @return boolean|Aurora\Modules\Mail\Classes\Account
 	 * @throws \Aurora\System\Exceptions\BaseException
 	 */
-	public function getAccountByEmail($sEmail)
+	public function getAccountByEmail($sEmail, $iUserId)
 	{
-		$oAccount = false;
+		$mAccount = false;
 
-		if (is_string($sEmail))
-		{
-			$aResults = $this->oEavManager->getEntities(
-				\Aurora\Modules\Mail\Classes\Account::class,
-				array(),
-				0,
-				0,
-				array(
-					'Email' => $sEmail,
-					'IsDisabled' => false,
-					'UseToAuthorize' => [true, '=']
-				)
-			);
+		$aFilters = [
+			'Email' => $sEmail,
+			'IsDisabled' => false,
+			'IdUser' => $iUserId,
+		];
 
-			if (is_array($aResults) && isset($aResults[0]))
-			{
-				$oAccount = $aResults[0];
-			}
-		}
-		else
+		$aResults = $this->oEavManager->getEntities(
+			\Aurora\Modules\Mail\Classes\Account::class,
+			[],
+			0,
+			0,
+			$aFilters
+		);
+
+		if (is_array($aResults) && isset($aResults[0]))
 		{
-			throw new \Aurora\System\Exceptions\BaseException(\Aurora\System\Exceptions\Errs::Validation_InvalidParameters);
+			$mAccount = $aResults[0];
 		}
 
-		return $oAccount;
+		return $mAccount;
 	}
 
 	/**
-	 * 
-	 * @param string $sEmail
+	 * Obtains an account with specified email. The account must be allowed to authenticate its user.
+	 * @param string $sEmail Email of the account.
 	 * @return Aurora\Modules\Mail\Classes\Account|boolean
 	 */
 	public function getAccountUsedToAuthorize($sEmail)
 	{
-		$oAccount = false;
-		try
+		$mAccount = false;
+		
+		$aFilters = [
+			'Email' => $sEmail,
+			'IsDisabled' => false,
+			'UseToAuthorize' => true
+		];
+		$aResults = $this->oEavManager->getEntities(
+			\Aurora\Modules\Mail\Classes\Account::class,
+			[],
+			0,
+			0,
+			$aFilters
+		);
+
+		if (is_array($aResults) && isset($aResults[0]))
 		{
-			$aResults = $this->oEavManager->getEntities(
-				 'Aurora\Modules\Mail\Classes\Account',
-				array(),
-				0,
-				0,
-				array(
-					'Email' => $sEmail,
-					'IsDisabled' => false,
-					'UseToAuthorize' => [true, '=']
-				)
-			);
-			
-			if (is_array($aResults) && isset($aResults[0]))
-			{
-				$oAccount = $aResults[0];
-			}
-		}
-		catch (\Aurora\System\Exceptions\BaseException $oException)
-		{
-			$this->setLastException($oException);
+			$mAccount = $aResults[0];
 		}
 		
-		return $oAccount;
+		return $mAccount;
 	}
 	
 	/**
