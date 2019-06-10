@@ -2263,15 +2263,29 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
 		}
-		
+
+		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
+		$oImapClient =& $this->getMailManager()->_getImapClient($oAccount);
+		$oImapClient->FolderExamine($Folder);
+
+		$aBodystructuresFetchResponse = $oImapClient->Fetch(array(
+			\MailSo\Imap\Enumerations\FetchType::BODYSTRUCTURE), \implode(',', $Uids), true);
+		$aBodystructures = [];
+		foreach ($aBodystructuresFetchResponse as $oBodystructureFetchResponse)
+		{
+			$aBodystructures[(int) $oBodystructureFetchResponse->GetFetchValue('UID')] = $oBodystructureFetchResponse;
+		}
+		unset($aBodystructuresFetchResponse);
+
 		// access will be checked in GetMessage method
-		
+
 		$aList = array();
 		foreach ($Uids as $iUid)
 		{
 			if (\is_numeric($iUid))
 			{
-				$oMessage = $this->GetMessage($AccountID, $Folder, (string) $iUid, '', $MessageBodyTruncationThreshold);
+				$oBody = isset($aBodystructures[$iUid]) ? $aBodystructures[$iUid] : null;
+				$oMessage = $this->GetMessage($AccountID, $Folder, (string) $iUid, '', $MessageBodyTruncationThreshold, $oBody);
 				if ($oMessage instanceof \Aurora\Modules\Mail\Classes\Message)
 				{
 					$aList[] = $oMessage;
@@ -2395,7 +2409,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @throws \Aurora\System\Exceptions\ApiException
 	 * @throws CApiInvalidArgumentException
 	 */
-	public function GetMessage($AccountID, $Folder, $Uid, $Rfc822MimeIndex = '', $MessageBodyTruncationThreshold = null)
+	public function GetMessage($AccountID, $Folder, $Uid, $Rfc822MimeIndex = '', $MessageBodyTruncationThreshold = null, $oBody = null)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
@@ -2423,11 +2437,17 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		$aTextMimeIndexes = array();
 
-		$aFetchResponse = $oImapClient->Fetch(array(
-			\MailSo\Imap\Enumerations\FetchType::BODYSTRUCTURE), $iUid, true);
+		if (!isset($oBody))
+		{
+			$aFetchResponse = $oImapClient->Fetch(array(
+				\MailSo\Imap\Enumerations\FetchType::BODYSTRUCTURE), $iUid, true);
+			$oBodyStructure = (0 < \count($aFetchResponse)) ? $aFetchResponse[0]->GetFetchBodyStructure($Rfc822MimeIndex) : null;
+		}
+		else
+		{
+			$oBodyStructure = $oBody->GetFetchBodyStructure($Rfc822MimeIndex);
+		}
 
-		$oBodyStructure = (0 < \count($aFetchResponse)) ? $aFetchResponse[0]->GetFetchBodyStructure($Rfc822MimeIndex) : null;
-		
 		$aCustomParts = array();
 		if ($oBodyStructure)
 		{
