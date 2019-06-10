@@ -168,5 +168,9 @@
 			"DefaultSortOrder": "desc"
 		},
 		"array"
-	]
+	],
+	"CreateHtmlLinksFromTextLinksInDOM": [
+		false,
+		"bool"
+    ]
 }

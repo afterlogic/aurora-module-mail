@@ -996,7 +996,6 @@ class Message
 	
 	public function toResponseArray($aParameters = array())
 	{
-		$oMailModule = \Aurora\System\Api::GetModule('Mail'); 
 		$iAccountID = isset($aParameters['Parameters']['AccountID']) ?  $aParameters['Parameters']['AccountID'] : null;
 
 		$oAttachments = $this->getAttachments();
@@ -1015,7 +1014,7 @@ class Message
 			'Truncated' => $this->bTruncated,
 			'InternalTimeStampInUTC' => $iInternalTimeStampInUTC,
 			'ReceivedOrDateTimeStampInUTC' => $iReceivedOrDateTimeStampInUTC,
-			'TimeStampInUTC' =>	$oMailModule->getConfig('UseDateFromHeaders', false) && 0 < $iReceivedOrDateTimeStampInUTC ?
+			'TimeStampInUTC' =>	\Aurora\Modules\Mail\Module::getInstance()->getConfig('UseDateFromHeaders', false) && 0 < $iReceivedOrDateTimeStampInUTC ?
 				$iReceivedOrDateTimeStampInUTC : $iInternalTimeStampInUTC,
 			'From' => \Aurora\System\Managers\Response::GetResponseObject($this->getFrom()),
 			'To' => \Aurora\System\Managers\Response::GetResponseObject($this->getTo()),
@@ -1035,7 +1034,7 @@ class Message
 			'Sensitivity' => $this->getSensitivity()
 		));
 
-		$sLowerForwarded = $oMailModule ? strtolower($oMailModule->getConfig('ForwardedFlagName', '')) : '';
+		$sLowerForwarded = strtolower(\Aurora\Modules\Mail\Module::getInstance()->getConfig('ForwardedFlagName', ''));
 		if (!empty($sLowerForwarded))
 		{
 			$mResult['IsForwarded'] = in_array($sLowerForwarded, $aFlags);
@@ -1099,6 +1098,7 @@ class Message
 			}
 
 			$oSettings =& \Aurora\System\Api::GetSettings();
+			$bCreateHtmlLinksFromTextLinksInDOM = \Aurora\Modules\Mail\Module::getInstance()->getConfig('CreateHtmlLinksFromTextLinksInDOM', false);
 			if (0 < \strlen($sHtml) && $oSettings->GetValue('DisplayInlineCss', false))
 			{
 				$oCssToInlineStyles = new \TijsVerkoyen\CssToInlineStyles\CssToInlineStyles($sHtml);
@@ -1106,13 +1106,13 @@ class Message
 				$oCssToInlineStyles->setUseInlineStylesBlock(true);
 
 				$mResult['Html'] = \MailSo\Base\HtmlUtils::ClearHtml($oCssToInlineStyles->convert(), $bHasExternals, $aFoundedCIDs,
-					$aContentLocationUrls, $aFoundedContentLocationUrls, false, true);
+					$aContentLocationUrls, $aFoundedContentLocationUrls, false, $bCreateHtmlLinksFromTextLinksInDOM);
 			}
 			else
 			{
 				$mResult['Html'] = 0 === strlen($sHtml) ? '' :
 					\MailSo\Base\HtmlUtils::ClearHtml($sHtml, $bHasExternals, $aFoundedCIDs,
-						$aContentLocationUrls, $aFoundedContentLocationUrls, false, true);
+						$aContentLocationUrls, $aFoundedContentLocationUrls, false, $bCreateHtmlLinksFromTextLinksInDOM);
 			}
 
 			$mResult['Plain'] = 0 === strlen($sPlain) ? '' : \MailSo\Base\HtmlUtils::ConvertPlainToHtml($sPlain);
