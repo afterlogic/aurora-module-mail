@@ -5690,6 +5690,40 @@ class Module extends \Aurora\System\Module\AbstractModule
 	}
 	
 	/**
+	 * Obtains a server object for the specified domain.
+	 * @param string $sDomain
+	 * @return \Aurora\Modules\Mail\Classes\Server|null
+	 */
+	public function GetMailServerByDomain($sDomain)
+	{
+		$oServer = null;
+		
+		$aSubArgs = ['Domain' => $sDomain];
+		$this->broadcastEvent(
+			'Mail::GetServerByDomain', 
+			$aSubArgs,
+			$oServer
+		);
+
+		if (!($oServer instanceof \Aurora\Modules\Mail\Classes\Server))
+		{
+			$oServer = $this->getServersManager()->getServerByDomain($sDomain);
+		}
+
+		if (!($oServer instanceof \Aurora\Modules\Mail\Classes\Server))
+		{
+			$oServer = $this->getServersManager()->getServerByDomain('*');
+		}
+
+		if (!($oServer instanceof \Aurora\Modules\Mail\Classes\Server))
+		{
+			$oServer = $this->getServersManager()->getServerByDomain('');
+		}
+		
+		return $oServer;
+	}
+	
+	/**
 	 * Attempts to authorize user via mail account with specified credentials.
 	 * Called from subscribed event.
 	 * @ignore
@@ -5700,7 +5734,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function onLogin($aArgs, &$mResult)
 	{
 		$bResult = false;
-		$oServer = null;
 		$iUserId = 0;
 		
 		$sEmail = $aArgs['Login'];
@@ -5724,28 +5757,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$sDomain = \MailSo\Base\Utils::GetDomainFromEmail($sEmail);
 			if (!empty(trim($sDomain)))
 			{
-				$aSubArgs = ['Domain' => $sDomain];
-				$this->broadcastEvent(
-					'Mail::GetServerByDomain', 
-					$aSubArgs,
-					$oServer
-				);
-				
-				if (!($oServer instanceof \Aurora\Modules\Mail\Classes\Server))
-				{
-					$oServer = $this->getServersManager()->getServerByDomain($sDomain);
-				}
-				
-				if (!($oServer instanceof \Aurora\Modules\Mail\Classes\Server))
-				{
-					$oServer = $this->getServersManager()->getServerByDomain('*');
-				}
-
-				if (!($oServer instanceof \Aurora\Modules\Mail\Classes\Server))
-				{
-					$oServer = $this->getServersManager()->getServerByDomain('');
-				}
-
+				$oServer = $this->Decorator()->GetMailServerByDomain($sDomain);
 
 				$oTenant = \Aurora\System\Api::getTenantByWebDomain();
 				if ($oServer && (!$oTenant || $oServer->OwnerType === \Aurora\Modules\Mail\Enums\ServerOwnerType::SuperAdmin || $oServer->TenantId === $oTenant->EntityId))
