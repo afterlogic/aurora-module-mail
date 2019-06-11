@@ -103,10 +103,6 @@
 		false,
 		"bool"
 	],
-	"UseSortImapForDateMode": [
-		false,
-		"bool"
-	],
     "XMailerValue": [
         "Afterlogic webmail client",
         "string"
