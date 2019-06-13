@@ -99,11 +99,24 @@ class Account extends \Aurora\System\Classes\AbstractAccount
 	{
 		$aResponse = parent::toResponseArray();
 		$aResponse['AccountID'] = $this->EntityId;
+		$aResponse['AllowFilters'] = false;
+		$aResponse['AllowForward'] = false;
+		$aResponse['AllowAutoresponder'] = false;
+		
 		$oServer = $this->getServer();
 		if ($oServer instanceof \Aurora\System\EAV\Entity)
 		{
 			$aResponse['Server'] = $oServer->toResponseArray();
+			
+			$oMailModule = \Aurora\System\Api::GetModule('Mail');
+			if ($oServer->EnableSieve && $oMailModule)
+			{
+				$aResponse['AllowFilters'] = $oMailModule->getConfig('AllowFilters', '');
+				$aResponse['AllowForward'] = $oMailModule->getConfig('AllowForward', '');
+				$aResponse['AllowAutoresponder'] = $oMailModule->getConfig('AllowAutoresponder', '');
+			}
 		}
+		
 		$aResponse['CanBeUsedToAuthorize'] = $this->canBeUsedToAuthorize();
 		unset($aResponse['IncomingPassword']);
 		

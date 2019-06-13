@@ -282,9 +282,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiSuccess {boolean} Result.Result.AllowAutosaveInDrafts=false Indicates if autosave in Drafts folder on compose is allowed.
 	 * @apiSuccess {boolean} Result.Result.AllowDefaultAccountForUser=false Indicates if default account is allowed.
 	 * @apiSuccess {boolean} Result.Result.AllowIdentities=false Indicates if identities are allowed.
-	 * @apiSuccess {boolean} Result.Result.AllowFilters=false Indicates if filters are allowed.
-	 * @apiSuccess {boolean} Result.Result.AllowForward=false Indicates if forward is allowed.
-	 * @apiSuccess {boolean} Result.Result.AllowAutoresponder=false Indicates if autoresponder is allowed.
 	 * @apiSuccess {boolean} Result.Result.AllowInsertImage=false Indicates if insert of images in composed message body is allowed.
 	 * @apiSuccess {int} Result.Result.AutoSaveIntervalSeconds=60 Interval for autosave of message on compose in seconds.
 	 * @apiSuccess {int} Result.Result.ImageUploadSizeLimit=0 Max size of upload image in message text in bytes.
@@ -296,8 +293,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 *	Module: 'Mail',
 	 *	Method: 'GetSettings',
 	 *	Result: { Accounts: [], AllowAddAccounts: true, AllowAutosaveInDrafts: true,
-	 * AllowDefaultAccountForUser: true, AllowIdentities: true,
-	 * AllowFilters: false, AllowForward: false, AllowAutoresponder: false, AllowInsertImage: true,
+	 * AllowDefaultAccountForUser: true, AllowIdentities: true, AllowInsertImage: true,
 	 * AutoSaveIntervalSeconds: 60, ImageUploadSizeLimit: 0 }
 	 * }
 	 * 
@@ -324,9 +320,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 			'AllowChangeMailQuotaOnMailServer' => $this->getConfig('AllowChangeMailQuotaOnMailServer', false),
 			'AllowDefaultAccountForUser' => $this->getConfig('AllowDefaultAccountForUser', false),
 			'AllowIdentities' => $this->getConfig('AllowIdentities', false),
-			'AllowFilters' => $this->getConfig('AllowFilters', false),
-			'AllowForward' => $this->getConfig('AllowForward', false),
-			'AllowAutoresponder' => $this->getConfig('AllowAutoresponder', false),
 			'AllowInsertImage' => $this->getConfig('AllowInsertImage', false),
 			'AutoSaveIntervalSeconds' => $this->getConfig('AutoSaveIntervalSeconds', 60),
 			'AllowTemplateFolders' => $this->getConfig('AllowTemplateFolders', false),
@@ -603,7 +596,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * "ServerId": 10, "Server": { "EntityId": 10, "UUID": "uuid_value", "TenantId": 0, "Name": "Mail server", 
 	 * "IncomingServer": "mail.email", "IncomingPort": 143, "IncomingUseSsl": false, "OutgoingServer": "mail.email", 
 	 * "OutgoingPort": 25, "OutgoingUseSsl": false, "SmtpAuthType": "0", "OwnerType": "superadmin", 
-	 * "Domains": "", "ServerId": 10 }, "CanBeUsedToAuthorize": true, "UseThreading": true } ]
+	 * "Domains": "", "ServerId": 10 }, "CanBeUsedToAuthorize": true, "UseThreading": true,
+	 * "AllowAutoresponder": false, "AllowAutoresponder": false, "AllowAutoresponder": false } ]
 	 * }
 	 * 
 	 * @apiSuccessExample {json} Error response example:
