@@ -1957,7 +1957,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$SortOrder = \Aurora\System\Enums\SortOrder::DESC;
 		}
 
-		if (empty($sSortBy))
+		if (empty($SortBy))
 		{
 			$SortOrder = '';
 		}
