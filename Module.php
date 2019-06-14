@@ -1957,6 +1957,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$SortOrder = \Aurora\System\Enums\SortOrder::DESC;
 		}
 
+		if (empty($sSortBy))
+		{
+			$SortOrder = '';
+		}
+
 		$sSortBy = \strtoupper($SortBy);
 		$sSortOrder = $SortOrder === \Aurora\System\Enums\SortOrder::DESC ? 'REVERSE' : '';
 
