@@ -2844,7 +2844,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
 			$bUseSortIfSupported = false;
 			$aMessagesSortBy = $this->GetModule()->getConfig('MessagesSortBy', false);
-			if ($aMessagesSortBy !== false && is_array($aMessagesSortBy) && isset($aMessagesSortBy['Allow']) && (bool) $aMessagesSortBy['Allow'] !== false)
+			if ($aMessagesSortBy !== false && is_array($aMessagesSortBy) && isset($aMessagesSortBy['Allow']) && (bool) $aMessagesSortBy['Allow'] !== false && !empty($sSortBy))
 			{
 				$bUseSortIfSupported = $oImapClient->IsSupported('SORT');
 			}
