@@ -513,7 +513,12 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 				
 				$oServer = $oMailModule->getServersManager()->getServer($oAccount->ServerId);
 				
-				$sHost = $oServer->IncomingServer;
+				$sHost = $oMailModule->getConfig('OverriddenSieveHost', '');
+				if (empty($sSieveHost))
+				{
+					$sHost = $oServer->IncomingServer;
+				}
+
 				$iPort = $oServer->SievePort;
 				$sPassword = 0 === strlen($sGeneralPassword) ? $oAccount->getPassword() : $sGeneralPassword;
 				$bUseStarttls = $this->GetModule()->getConfig('SieveUseStarttls', false);

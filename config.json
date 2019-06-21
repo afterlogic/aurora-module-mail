@@ -87,8 +87,8 @@
         "utf-8",
         "string"
     ],
-    "SieveHost": [
-        "127.0.0.1",
+    "OverriddenSieveHost": [
+        "",
         "string"
     ],
 	"SievePort": [
