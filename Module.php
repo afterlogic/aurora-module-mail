@@ -2069,6 +2069,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
 			throw $oException;
 		}
+		catch (\Aurora\Modules\Mail\Exceptions\Exception $oException)
+		{
+			throw $oException;
+		}
 		catch (\Exception $oException)
 		{
 			\Aurora\System\Api::Log((string) $oException);
