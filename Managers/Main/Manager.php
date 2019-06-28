@@ -1774,13 +1774,16 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		$oImapClient =& $this->_getImapClient($oAccount);
 		$oImapClient->FolderExamine($sFolderName);
 
-		$sFilter = 'ALL';
-		if ($Search !== null)
+		$sIndexRange = '1:*';
+		$bIndexAsUid = false;
+
+		if (!empty($Search))
 		{
 			$sFilter = $this->_prepareImapSearchString($oImapClient, $Search);
+			$aUids = $oImapClient->MessageSimpleSearch($sFilter);
+			$sIndexRange = implode(',', $aUids);
+			$bIndexAsUid = true;
 		}
-
-		$aUids = $oImapClient->MessageSimpleSearch($sFilter);
 
 		$mResult = array();
 		
@@ -1798,7 +1801,6 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		}
 		if ($bUseThreadingIfSupported/* && 1 < $iMessageCount*/)
 		{
-			$bIndexAsUid = true;
 			$aThreadUids = array();
 			try
 			{
@@ -1818,7 +1820,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			\MailSo\Imap\Enumerations\FetchType::INDEX,
 			\MailSo\Imap\Enumerations\FetchType::UID,
 			\MailSo\Imap\Enumerations\FetchType::FLAGS
-		), implode(',', $aUids), true);
+		), $sIndexRange, $bIndexAsUid);
 
 		if (is_array($aFetchResponse) && 0 < count($aFetchResponse))
 		{
