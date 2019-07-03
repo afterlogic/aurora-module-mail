@@ -5182,11 +5182,15 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$oUser = \Aurora\System\Api::getAuthenticatedUser();
 			if ($oAccount instanceof \Aurora\Modules\Mail\Classes\Account &&
 				$oUser instanceof \Aurora\Modules\Core\Classes\User &&
-				$oAccount->getPassword() === $CurrentPassword &&
 				(($oUser->isNormalOrTenant() && $oUser->EntityId === $oAccount->IdUser) ||
 				$oUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin)
 			)
 			{
+				if ($oAccount->getPassword() !== $CurrentPassword)
+				{
+					throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Exceptions\Errs::UserManager_AccountOldPasswordNotCorrect);
+				}
+				
 				$aArgs = [
 					'Account' => $oAccount,
 					'CurrentPassword' => $CurrentPassword,
