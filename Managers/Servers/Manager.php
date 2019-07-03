@@ -279,4 +279,24 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
 		return $oServer;
 	}
+
+	/**
+	 *
+	 * @param array $aFilters
+	 * @return boolean
+	 */
+	public function getServerListByFilter($aFilters)
+	{
+		$aResult = [];
+
+		$aResult = $this->oEavManager->getEntities(
+			\Aurora\Modules\Mail\Classes\Server::class,
+			[],
+			0,
+			0,
+			$aFilters
+		);
+
+		return $aResult;
+	}
 }
