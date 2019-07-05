@@ -959,7 +959,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 		return false;
 	}
-	
+
 	/**
 	 * @api {post} ?/Api/ UpdateAccount
 	 * @apiName UpdateAccount
@@ -5726,7 +5726,12 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
 			$oServer = $this->getServersManager()->getServerByDomain('');
 		}
-		
+
+		if ($oServer instanceof \Aurora\Modules\Mail\Classes\Server && !empty($oServer->SmtpPassword))
+		{
+			$oServer->SmtpPassword = '******';
+		}
+
 		return $oServer;
 	}
 	
