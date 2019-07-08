@@ -46,6 +46,12 @@ class Server extends \Aurora\System\EAV\Entity
 	{
 		$aResponse = parent::toResponseArray();
 		$aResponse['ServerId'] = $this->EntityId;
+		if ($aResponse['SmtpPassword'] !== '')
+		{
+			// Use dummy password not to show it on client side.
+			// UpdateServer method will not update it if this value would be passed from client.
+			$aResponse['SmtpPassword'] = '*****';
+		}
 		$aArgs = [];
 		\Aurora\System\Api::GetModule('Mail')->broadcastEvent(
 			'ServerToResponseArray',

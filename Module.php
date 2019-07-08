@@ -1613,7 +1613,12 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$oServer->OutgoingUseSsl = $OutgoingUseSsl;
 			$oServer->SmtpAuthType = $SmtpAuthType;
 			$oServer->SmtpLogin = $SmtpLogin;
-			$oServer->SmtpPassword = $SmtpPassword;
+			// Dummy password could be passed to client side by toResponseArray method.
+			// Password will not be updated it if this value were received from client.
+			if ($SmtpPassword !== '*****')
+			{
+				$oServer->SmtpPassword = $SmtpPassword;
+			}
 			$oServer->Domains = $this->getServersManager()->trimDomains($Domains);
 			$oServer->EnableThreading = $EnableThreading;
 			$oServer->EnableSieve = $EnableSieve;
