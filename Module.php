@@ -5771,7 +5771,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$sDomain = \MailSo\Base\Utils::GetDomainFromEmail($sEmail);
 			if (!empty(trim($sDomain)))
 			{
-				$oServer = $this->Decorator()->GetMailServerByDomain($sDomain, /*AllowWildcardDomain*/true);
+				$aGetMailServerResult = $this->Decorator()->GetMailServerByDomain($sDomain, /*AllowWildcardDomain*/true);
+				if (!empty($aGetMailServerResult) && isset($aGetMailServerResult['Server']) && $aGetMailServerResult['Server'] instanceof \Aurora\Modules\Mail\Classes\Server)
+				{
+					$oServer = $aGetMailServerResult['Server'];
+				}
 
 				$oTenant = \Aurora\System\Api::getTenantByWebDomain();
 				if ($oServer && (!$oTenant || $oServer->OwnerType === \Aurora\Modules\Mail\Enums\ServerOwnerType::SuperAdmin || $oServer->TenantId === $oTenant->EntityId))
