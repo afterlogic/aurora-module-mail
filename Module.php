@@ -5703,41 +5703,38 @@ class Module extends \Aurora\System\Module\AbstractModule
 	
 	/**
 	 * Obtains a server object for the specified domain.
-	 * @param string $sDomain
-	 * @return \Aurora\Modules\Mail\Classes\Server|null
+	 * @param string $Domain
+	 * @param bool $AllowWildcardDomain the parameter indicates whether the wildcard server should be returned if no servers found
+	 * @return array
 	 */
-	public function GetMailServerByDomain($sDomain)
+	public function GetMailServerByDomain($Domain, $AllowWildcardDomain = false)
 	{
-		$oServer = null;
-		
-		$aSubArgs = ['Domain' => $sDomain];
-		$this->broadcastEvent(
-			'Mail::GetServerByDomain', 
-			$aSubArgs,
-			$oServer
-		);
+		$aResult = [];
+		$bFoundWithWildcard = false;
 
-		if (!($oServer instanceof \Aurora\Modules\Mail\Classes\Server))
-		{
-			$oServer = $this->getServersManager()->getServerByDomain($sDomain);
-		}
+		$oServer = $this->getServersManager()->getServerByDomain($Domain);
 
-		if (!($oServer instanceof \Aurora\Modules\Mail\Classes\Server))
+		if (!($oServer instanceof \Aurora\Modules\Mail\Classes\Server) && $AllowWildcardDomain)
 		{
 			$oServer = $this->getServersManager()->getServerByDomain('*');
+			$bFoundWithWildcard = true;
 		}
 
-		if (!($oServer instanceof \Aurora\Modules\Mail\Classes\Server))
+		if (!($oServer instanceof \Aurora\Modules\Mail\Classes\Server) && $AllowWildcardDomain)
 		{
 			$oServer = $this->getServersManager()->getServerByDomain('');
+			$bFoundWithWildcard = true;
 		}
 
-		if ($oServer instanceof \Aurora\Modules\Mail\Classes\Server && !empty($oServer->SmtpPassword))
+		if ($oServer instanceof \Aurora\Modules\Mail\Classes\Server)
 		{
-			$oServer->SmtpPassword = '******';
+			$aResult = [
+				'Server'			=> $oServer,
+				'FoundWithWildcard'	=> $bFoundWithWildcard
+			];
 		}
 
-		return $oServer;
+		return $aResult;
 	}
 	
 	/**
@@ -5774,7 +5771,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$sDomain = \MailSo\Base\Utils::GetDomainFromEmail($sEmail);
 			if (!empty(trim($sDomain)))
 			{
-				$oServer = $this->Decorator()->GetMailServerByDomain($sDomain);
+				$oServer = $this->Decorator()->GetMailServerByDomain($sDomain, /*AllowWildcardDomain*/true);
 
 				$oTenant = \Aurora\System\Api::getTenantByWebDomain();
 				if ($oServer && (!$oTenant || $oServer->OwnerType === \Aurora\Modules\Mail\Enums\ServerOwnerType::SuperAdmin || $oServer->TenantId === $oTenant->EntityId))
