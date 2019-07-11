@@ -938,7 +938,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 				if ($bAccoutResult)
 				{
-					if ($oAccount->Email === $oUser->PublicId)
+					if ($oAccount->Email === $oUser->PublicId && $bDoImapLoginOnAccountCreate)
 					{
 						$aQuota = $this->getMailManager()->getQuota($oAccount);
 						$iQuota = (is_array($aQuota) && isset($aQuota[1])) ? $aQuota[1] / 1024 : 0;
