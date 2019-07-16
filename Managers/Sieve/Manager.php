@@ -514,7 +514,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 				$oServer = $oMailModule->getServersManager()->getServer($oAccount->ServerId);
 				
 				$sHost = $oMailModule->getConfig('OverriddenSieveHost', '');
-				if (empty($sSieveHost))
+				if (empty($sHost))
 				{
 					$sHost = $oServer->IncomingServer;
 				}
