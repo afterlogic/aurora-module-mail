@@ -1708,6 +1708,24 @@ class Module extends \Aurora\System\Module\AbstractModule
 			\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::TenantAdmin);
 		}
 		
+		$mPrimaryAccounts = $this->getAccountsManager()->getAccounts(['ServerId' => $ServerId, 'UseToAuthorize' => true]);
+		if (is_array($mPrimaryAccounts))
+		{
+			foreach ($mPrimaryAccounts as $oAccount)
+			{
+				\Aurora\Modules\Core\Module::Decorator()->DeleteUser($oAccount->IdUser);
+			}
+		}
+		
+		$mSecondaryAccounts = $this->getAccountsManager()->getAccounts(['ServerId' => $ServerId, 'UseToAuthorize' => false]);
+		if (is_array($mSecondaryAccounts))
+		{
+			foreach ($mSecondaryAccounts as $oAccount)
+			{
+				$this->Decorator()->DeleteAccount($oAccount->EntityId);
+			}
+		}
+		
 		return $this->getServersManager()->deleteServer($ServerId, $TenantId);
 	}
 	

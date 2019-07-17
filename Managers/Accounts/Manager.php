@@ -190,6 +190,22 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	}
 	
 	/**
+	 * Obtains mail accounts with specified parameters.
+	 * @param Array $aFilters
+	 * @return Array|false
+	 */
+	public function getAccounts($aFilters)
+	{
+		return $this->oEavManager->getEntities(
+			'Aurora\Modules\Mail\Classes\Account',
+			array(),
+			0,
+			0,
+			$aFilters
+		);
+	}
+	
+	/**
 	 * @param int $iUserId
 	 *
 	 * @return Array | false
