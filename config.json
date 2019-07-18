@@ -168,5 +168,9 @@
 	"CreateHtmlLinksFromTextLinksInDOM": [
 		false,
 		"bool"
-    ]
+    ],
+	"SieveCheckScript": [
+		false,
+		"bool"
+	]
 }

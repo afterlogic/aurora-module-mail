@@ -50,6 +50,11 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	protected $sGeneralPassword;
 
 	/**
+	 * @var bool
+	 */
+	protected $bSieveCheckScript;
+
+	/**
 	 * @param \Aurora\System\Module\AbstractModule $oModule
 	 */
 	public function __construct(\Aurora\System\Module\AbstractModule $oModule)
@@ -60,6 +65,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		$this->sGeneralPassword = '';
 		$this->sSieveFileName = $oModule->getConfig('SieveFileName', 'sieve');
 		$this->sSieveFolderCharset = $oModule->getConfig('SieveFiltersFolderCharset', 'utf-8');
+		$this->bSieveCheckScript = $oModule->getConfig('SieveCheckScript', false);
 		$this->bSectionsParsed = false;
 		$this->aSectionsData = array();
 		$this->aSectionsOrders = array(
@@ -587,7 +593,10 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			
 			if ($oSieve)
 			{
-				$oSieve->CheckScript($sText);
+				if ($this->bSieveCheckScript)
+				{
+					$oSieve->CheckScript($sText);
+				}
 				
 				$oSieve->PutScript($this->sSieveFileName, $sText);
 				$oSieve->SetActiveScript($this->sSieveFileName);
