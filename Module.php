@@ -447,7 +447,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		
 		if ($Type === 'User' && is_int($UserId) && $UserId > 0)
 		{
-			$oUser = \Aurora\Modules\Core\Module::Decorator()->GetUser($UserId);
+			$oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserUnchecked($UserId);
 			if ($oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin || 
 					$oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::TenantAdmin && $oAuthenticatedUser->IdTenant === $oUser->IdTenant)
 			{
@@ -504,13 +504,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 		
 		if ($oAuthenticatedUser instanceof \Aurora\Modules\Core\Classes\User && $Type === 'User' && is_int($UserId) && $UserId > 0)
 		{
-			$oUser = \Aurora\Modules\Core\Module::Decorator()->GetUser($UserId);
+			$oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserUnchecked($UserId);
 			if ($oUser instanceof \Aurora\Modules\Core\Classes\User
 					&& ($oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin
 					|| $oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::TenantAdmin && $oAuthenticatedUser->IdTenant === $oUser->IdTenant))
 			{
-				$aPrevUserQuota = $this->Decorator()->GetEntitySpaceLimits('User', $UserId, $oUser->IdTenant);
-				$aTenantQuota = $this->Decorator()->GetEntitySpaceLimits('Tenant', $UserId, $oUser->IdTenant);
+				$aPrevUserQuota = self::Decorator()->GetEntitySpaceLimits('User', $UserId, $oUser->IdTenant);
+				$aTenantQuota = self::Decorator()->GetEntitySpaceLimits('Tenant', $UserId, $oUser->IdTenant);
 				$mResult = false;
 				if (is_array($aTenantQuota) && isset($aTenantQuota['AllocatedSpaceMb']) && is_array($aPrevUserQuota) &&  isset($aPrevUserQuota['UserSpaceLimitMb']))
 				{
@@ -540,7 +540,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		
 		if ($Type === 'Tenant' && is_int($TenantId) && $TenantId > 0)
 		{
-			$oTenant = \Aurora\Modules\Core\Module::Decorator()->GetTenantById($TenantId);
+			$oTenant = \Aurora\Modules\Core\Module::Decorator()->GetTenantUnchecked($TenantId);
 			if ($oTenant && ($oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin || 
 					$oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::TenantAdmin && $oAuthenticatedUser->IdTenant === $TenantId))
 			{
@@ -734,7 +734,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function GetAccountByEmail($Email, $UserId = 0)
 	{
 		$oAuthenticatedUser = \Aurora\System\Api::getAuthenticatedUser();
-		$oUser = $UserId !== 0 ? \Aurora\Modules\Core\Module::Decorator()->GetUser($UserId) : null;
+		$oUser = $UserId !== 0 ? \Aurora\Modules\Core\Module::Decorator()->GetUserUnchecked($UserId) : null;
 		
 		// Method has its specific access check so checkAccess method isn't used.
 		if ($oAuthenticatedUser instanceof \Aurora\Modules\Core\Classes\User && $oUser instanceof \Aurora\Modules\Core\Classes\User)
@@ -908,12 +908,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 					$oResException = $this->getMailManager()->validateAccountConnection($oAccount, false);
 				}
 				
-				$oCoreDecorator = \Aurora\Modules\Core\Module::Decorator();
-				$oUser = $oCoreDecorator ? $oCoreDecorator->GetUser($UserId) : null;
+				$oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserUnchecked($UserId);
 				
 				if ($oResException === null && $oUser->PublicId === $oAccount->Email)
 				{
-					$aTenantQuota = $this->Decorator()->GetEntitySpaceLimits('Tenant', $UserId, $oUser->IdTenant);
+					$aTenantQuota = self::Decorator()->GetEntitySpaceLimits('Tenant', $UserId, $oUser->IdTenant);
 					if (is_array($aTenantQuota) && isset($aTenantQuota['AllocatedSpaceMb']) && isset($aTenantQuota['TenantSpaceLimitMb']))
 					{
 						$aQuota = $this->getMailManager()->getQuota($oAccount);
@@ -1211,9 +1210,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 				}
 				if ($bServerRemoved)
 				{
-					$oCoreDecorator = \Aurora\Modules\Core\Module::Decorator();
-					$oUser = $oCoreDecorator ? $oCoreDecorator->GetUser($oAccount->IdUser) : null;
-					if ($oAccount->Email === $oUser->PublicId)
+					$oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserUnchecked($oAccount->IdUser);
+					if ($oUser && $oAccount->Email === $oUser->PublicId)
 					{
 						$aQuota = $this->getMailManager()->getQuota($oAccount);
 						$iQuota = (is_array($aQuota) && isset($aQuota[1])) ? $aQuota[1] / 1024 : 0;
@@ -1722,7 +1720,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
 			foreach ($mSecondaryAccounts as $oAccount)
 			{
-				$this->Decorator()->DeleteAccount($oAccount->EntityId);
+				self::Decorator()->DeleteAccount($oAccount->EntityId);
 			}
 		}
 		
@@ -3896,7 +3894,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		
 		$oIdentity = $IdentityID !== 0 ? $this->getIdentitiesManager()->getIdentity($IdentityID) : null;
 
-		$oMessage = $this->Decorator()->BuildMessage($oAccount, $To, $Cc, $Bcc, 
+		$oMessage = self::Decorator()->BuildMessage($oAccount, $To, $Cc, $Bcc, 
 			$Subject, $IsHtml, $Text, $Attachments, $DraftInfo, $InReplyTo, $References, $Importance,
 			$Sensitivity, $SendReadingConfirmation, $Fetcher, true, $oIdentity);
 		if ($oMessage)
@@ -4025,7 +4023,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		$oIdentity = $IdentityID !== 0 ? $this->getIdentitiesManager()->getIdentity($IdentityID) : null;
 
-		$oMessage = $this->Decorator()->BuildMessage($oAccount, $To, $Cc, $Bcc, 
+		$oMessage = self::Decorator()->BuildMessage($oAccount, $To, $Cc, $Bcc, 
 			$Subject, $IsHtml, $Text, $Attachments, $DraftInfo, $InReplyTo, $References, $Importance,
 			$Sensitivity, $SendReadingConfirmation, $Fetcher, false, $oIdentity);
 		if ($oMessage)
@@ -5714,7 +5712,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
 			foreach($mResult as $oItem)
 			{
-				$this->Decorator()->DeleteAccount($oItem->EntityId);
+				self::Decorator()->DeleteAccount($oItem->EntityId);
 			}
 		}
 	}
@@ -5789,7 +5787,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$sDomain = \MailSo\Base\Utils::GetDomainFromEmail($sEmail);
 			if (!empty(trim($sDomain)))
 			{
-				$aGetMailServerResult = $this->Decorator()->GetMailServerByDomain($sDomain, /*AllowWildcardDomain*/true);
+				$aGetMailServerResult = self::Decorator()->GetMailServerByDomain($sDomain, /*AllowWildcardDomain*/true);
 				if (!empty($aGetMailServerResult) && isset($aGetMailServerResult['Server']) && $aGetMailServerResult['Server'] instanceof \Aurora\Modules\Mail\Classes\Server)
 				{
 					$oServer = $aGetMailServerResult['Server'];
@@ -5858,7 +5856,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 					{
 						$iUserId = $oUser->EntityId;
 						$bPrevState = \Aurora\System\Api::skipCheckUserRole(true);
-						$oAccount = $this->Decorator()->CreateAccount(
+						$oAccount = self::Decorator()->CreateAccount(
 							$iUserId, 
 							'',
 							$sEmail,
@@ -6196,12 +6194,12 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function onAfterDeleteTenant(&$aArgs, &$mResult)
 	{
 		$TenantId = $aArgs['TenantId'];
-		$aServers = $this->Decorator()->GetServers($TenantId);
+		$aServers = self::Decorator()->GetServers($TenantId);
 		foreach ($aServers as $oServer)
 		{
 			if ($oServer->TenantId === $TenantId)
 			{
-				$this->Decorator()->DeleteServer($oServer->EntityId, $TenantId);
+				self::Decorator()->DeleteServer($oServer->EntityId, $TenantId);
 			}
 		}
 	}
