@@ -320,6 +320,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			'AllowChangeMailQuotaOnMailServer' => $this->getConfig('AllowChangeMailQuotaOnMailServer', false),
 			'AllowDefaultAccountForUser' => $this->getConfig('AllowDefaultAccountForUser', false),
 			'AllowIdentities' => $this->getConfig('AllowIdentities', false),
+			'OnlyUserEmailsInIdentities' => $this->getConfig('OnlyUserEmailsInIdentities', false),
 			'AllowInsertImage' => $this->getConfig('AllowInsertImage', false),
 			'AutoSaveIntervalSeconds' => $this->getConfig('AutoSaveIntervalSeconds', 60),
 			'AllowTemplateFolders' => $this->getConfig('AllowTemplateFolders', false),

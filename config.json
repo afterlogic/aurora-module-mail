@@ -23,6 +23,10 @@
 		true,
 		"bool"
 	],
+	"OnlyUserEmailsInIdentities": [
+		false,
+		"bool"
+	],
 	"AllowFilters": [
 		true,
 		"bool"
