@@ -98,6 +98,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$this->subscribeEvent('Core::GetAccounts', array($this, 'onGetAccounts'));
 		$this->subscribeEvent('Autodiscover::GetAutodiscover::after', array($this, 'onAfterGetAutodiscover'));
 		$this->subscribeEvent('Core::DeleteTenant::after', array($this, 'onAfterDeleteTenant'));
+		$this->subscribeEvent('Core::GetDigestHash', array($this, 'onGetDigestHash'));
+		$this->subscribeEvent('Core::GetAccountUsedToAuthorize', array($this, 'onGetAccountUsedToAuthorize'));
 
 		\MailSo\Config::$PreferStartTlsIfAutoDetect = !!$this->getConfig('PreferStarttls', true);
 	}
@@ -5881,13 +5883,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 				
 				if ($bResult)
 				{
-					$mResult = array(
-						'token' => 'auth',
-						'sign-me' => $aArgs['SignMe'],
-						'id' => $oAccount->IdUser,
-						'account' => $oAccount->EntityId,
-						'account_type' => $oAccount->getName()
-					);
+					$mResult = \Aurora\System\UserSession::getTokenData($oAccount, $aArgs['SignMe']);
 				}
 			}
 			catch (\Aurora\System\Exceptions\ApiException $oException)
@@ -6396,5 +6392,26 @@ class Module extends \Aurora\System\Module\AbstractModule
 				}
 			}, $sFolder, $iUid, $sMimeIndex);
 	}	
+
+	public function onGetDigestHash($aArgs, &$mResult)
+	{
+		$oAccount = $this->getAccountsManager()->getAccountUsedToAuthorize($aArgs['Login']);
+		if (is_a($oAccount, $aArgs['Type']))
+		{
+			$mResult = \md5($aArgs['Login'] . ':' . $aArgs['Realm'] . ':' . $oAccount->GetPassword());
+			return true;
+		}
+	}
+
+	public function onGetAccountUsedToAuthorize($aArgs, &$mResult)
+	{
+		$oAccount = $this->getAccountsManager()->getAccountUsedToAuthorize($aArgs['Login']);
+		if ($oAccount)
+		{
+			$mResult = $oAccount;
+			return true;
+		}
+	}
+
 	/***** private functions *****/
 }
