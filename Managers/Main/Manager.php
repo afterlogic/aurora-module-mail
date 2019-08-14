@@ -1764,7 +1764,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		return is_array($aUids) && 1 === count($aUids) && is_numeric($aUids[0]) ? (int) $aUids[0] : null;
 	}
 
-	public function getMessagesInfo($oAccount, $sFolderName, $Search, $bUseThreading = false)
+	public function getMessagesInfo($oAccount, $sFolderName, $Search, $bUseThreading = false,  $sSortBy = 'ARRIVAL', $sSortOrder = 'REVERSE')
 	{
 		if (0 === strlen($sFolderName))
 		{
@@ -1780,18 +1780,25 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
 		if ($oCurrentFolderInformation->Exists > 0)
 		{
-			$sIndexRange = '1:*';
-			$bIndexAsUid = false;
-
-			if (!empty($Search))
+			$bUseSortIfSupported = false;
+			$aMessagesSortBy = $this->GetModule()->getConfig('MessagesSortBy', false);
+			if ($aMessagesSortBy !== false && is_array($aMessagesSortBy) && isset($aMessagesSortBy['Allow']) && (bool) $aMessagesSortBy['Allow'] !== false && !empty($sSortBy))
 			{
-				$sFilter = $this->_prepareImapSearchString($oImapClient, $Search);
-				$aUids = $oImapClient->MessageSimpleSearch($sFilter);
-				$sIndexRange = implode(',', $aUids);
-				$bIndexAsUid = true;
+				$bUseSortIfSupported = $oImapClient->IsSupported('SORT');
 			}
 
-			
+			$sFilter = $this->_prepareImapSearchString($oImapClient, $Search);
+			if ($bUseSortIfSupported)
+			{
+				$aUids = $oImapClient->MessageSimpleSort(array($sSortOrder . ' ' . $sSortBy), $sFilter);
+			}
+			else
+			{
+				$aUids = $oImapClient->MessageSimpleSearch($sFilter);
+			}
+
+			$bIndexAsUid = true;
+
 			$iMessageCount = 0;
 			$aThreads = array();
 			$oServer = $oAccount->getServer();
@@ -1821,26 +1828,36 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 				$iMessageCount = count($aIndexOrUids);
 			}
 
-			$aFetchResponse = $oImapClient->Fetch(array(
-				\MailSo\Imap\Enumerations\FetchType::INDEX,
-				\MailSo\Imap\Enumerations\FetchType::UID,
-				\MailSo\Imap\Enumerations\FetchType::FLAGS
-			), $sIndexRange, $bIndexAsUid);
+			$aIndexOrUidsChunk = array_chunk(
+				$aUids, 
+				$this->GetModule()->getConfig('MessagesInfoChunkSize', 1000)
+			);
 
-			if (is_array($aFetchResponse) && 0 < count($aFetchResponse))
+			$mResult = array_flip($aUids);
+
+			foreach ($aIndexOrUidsChunk as $aIndexOrUids)
 			{
-				$oFetchResponseItem = null;
-				foreach ($aFetchResponse as /* @var $oFetchResponseItem \MailSo\Imap\FetchResponse */ &$oFetchResponseItem)
+				$aFetchResponse = $oImapClient->Fetch([
+					\MailSo\Imap\Enumerations\FetchType::INDEX,
+					\MailSo\Imap\Enumerations\FetchType::UID,
+					\MailSo\Imap\Enumerations\FetchType::FLAGS
+				], implode(',', $aIndexOrUids), $bIndexAsUid);
+
+				if (is_array($aFetchResponse) && 0 < count($aFetchResponse))
 				{
-					$sUid = $oFetchResponseItem->GetFetchValue(\MailSo\Imap\Enumerations\FetchType::UID);
-					$aFlags = $oFetchResponseItem->GetFetchValue(\MailSo\Imap\Enumerations\FetchType::FLAGS);
-					$iMessageCount++;
-					if (is_array($aFlags))
+					$oFetchResponseItem = null;
+					foreach ($aFetchResponse as /* @var $oFetchResponseItem \MailSo\Imap\FetchResponse */ &$oFetchResponseItem)
 					{
-						$mResult[$sUid] = [
-							'uid' => $sUid,
-							'flags' => array_map('strtolower', $aFlags)
-						];
+						$sUid = $oFetchResponseItem->GetFetchValue(\MailSo\Imap\Enumerations\FetchType::UID);
+						$aFlags = $oFetchResponseItem->GetFetchValue(\MailSo\Imap\Enumerations\FetchType::FLAGS);
+						$iMessageCount++;
+						if (is_array($aFlags))
+						{
+							$mResult[$sUid] = [
+								'uid' => (int) $sUid,
+								'flags' => array_map('strtolower', $aFlags)
+							];
+						}
 					}
 				}
 			}
@@ -1854,13 +1871,16 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 					{
 						foreach($aThreads[$iUid] as $iThreadUid)
 						{
-							$aThreadFlags = $mResult[$iThreadUid]['flags'];
-							unset($mResult[$iThreadUid]);
+							$aThreadFlags = [];
+							if (isset($mResult[$iThreadUid]))
+							{
+								$aThreadFlags = $mResult[$iThreadUid]['flags'];
+								unset($mResult[$iThreadUid]);
+							}
 							$mResult[$sKey]['thread'][] = [
 								'uid' => $iThreadUid,
 								'flags' => $aThreadFlags
 							];
-		
 						}
 					}
 				}

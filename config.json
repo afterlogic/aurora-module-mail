@@ -176,5 +176,9 @@
 	"SieveCheckScript": [
 		false,
 		"bool"
+	],
+	"MessagesInfoChunkSize": [
+		1000,
+		"int"
 	]
 }

@@ -1993,7 +1993,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$oAccount, $Folder, $iOffset, $iLimit, $sSearch, $UseThreading, $aFilters, $InboxUidnext, $sSortBy, $sSortOrder);
 	}
 
-	public function GetMessagesInfo($AccountID, $Folder, $Search = null, $UseThreading = false)
+	public function GetMessagesInfo($AccountID, $Folder, $Search = null, $UseThreading = false, $SortBy = '', $SortOrder = \Aurora\System\Enums\SortOrder::DESC)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 
@@ -2001,8 +2001,23 @@ class Module extends \Aurora\System\Module\AbstractModule
 		
 		self::checkAccess($oAccount);
 		
+		$aMessagesSortBy = $this->getConfig('MessagesSortBy', false);
+		if ($aMessagesSortBy === false || isset($aMessagesSortBy['Allow']) && (bool) $aMessagesSortBy['Allow'] === false)
+		{
+			$SortBy = ''; 
+			$SortOrder = \Aurora\System\Enums\SortOrder::DESC;
+		}
+
+		if (empty($SortBy))
+		{
+			$SortOrder = '';
+		}
+
+		$SortBy = \strtoupper($SortBy);
+		$SortOrder = $SortOrder === \Aurora\System\Enums\SortOrder::DESC ? 'REVERSE' : '';
+
 		return $this->getMailManager()->GetMessagesInfo(
-			$oAccount, $Folder, $Search, $UseThreading
+			$oAccount, $Folder, $Search, $UseThreading, $SortBy, $SortOrder
 		);
 	}
 
