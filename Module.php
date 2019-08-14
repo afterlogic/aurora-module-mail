@@ -462,7 +462,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 					$iQuota = (is_array($aQuota) && isset($aQuota[1])) ? $aQuota[1] / 1024 : 0;
 					return [
 						'UserSpaceLimitMb' => $iQuota,
-						'AllowChangeUserSpaceLimit' => $oTenant->{self::GetName() . '::AllowChangeUserSpaceLimit'},
+						'AllowChangeUserSpaceLimit' => is_bool($oTenant->{self::GetName() . '::AllowChangeUserSpaceLimit'}) ? $oTenant->{self::GetName() . '::AllowChangeUserSpaceLimit'} : true,
 					];
 				}
 			}
@@ -476,10 +476,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 					$oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::TenantAdmin && $oAuthenticatedUser->IdTenant === $TenantId))
 			{
 				return [
-					'TenantSpaceLimitMb' => $oTenant->{self::GetName() . '::TenantSpaceLimitMb'},
-					'UserSpaceLimitMb' => $oTenant->{self::GetName() . '::UserSpaceLimitMb'},
-					'AllowChangeUserSpaceLimit' => $oTenant->{self::GetName() . '::AllowChangeUserSpaceLimit'},
-					'AllocatedSpaceMb' => $oTenant->{self::GetName() . '::AllocatedSpaceMb'},
+					'TenantSpaceLimitMb' => is_int($oTenant->{self::GetName() . '::TenantSpaceLimitMb'}) ? $oTenant->{self::GetName() . '::TenantSpaceLimitMb'} : 0,
+					'UserSpaceLimitMb' => is_int($oTenant->{self::GetName() . '::UserSpaceLimitMb'}) ? $oTenant->{self::GetName() . '::UserSpaceLimitMb'} : 0,
+					'AllowChangeUserSpaceLimit' => is_bool($oTenant->{self::GetName() . '::AllowChangeUserSpaceLimit'}) ? $oTenant->{self::GetName() . '::AllowChangeUserSpaceLimit'} : true,
+					'AllocatedSpaceMb' => is_int($oTenant->{self::GetName() . '::AllocatedSpaceMb'}) ? $oTenant->{self::GetName() . '::AllocatedSpaceMb'} : 0,
 				];
 			}
 		}
