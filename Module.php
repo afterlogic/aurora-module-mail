@@ -75,6 +75,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			self::GetName(),
 			[
 				'AllowAutosaveInDrafts'	=> ['bool', (bool) $this->getConfig('AllowAutosaveInDrafts', false)],
+				'UserSpaceLimitMb'	=> ['int', 0],
 			]
 		);		
 		\Aurora\Modules\Core\Classes\Tenant::extend(
@@ -455,16 +456,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 					$oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::TenantAdmin && $oAuthenticatedUser->IdTenant === $oUser->IdTenant)
 			{
 				$oTenant = \Aurora\System\Api::getTenantById($oUser->IdTenant);
-				$oAccount = \Aurora\Modules\Mail\Module::Decorator()->GetAccountByEmail($oUser->PublicId, $oUser->EntityId);
-				if ($oAccount instanceof \Aurora\Modules\Mail\Classes\Account)
-				{
-					$aQuota = $this->getMailManager()->getQuota($oAccount);
-					$iQuota = (is_array($aQuota) && isset($aQuota[1])) ? $aQuota[1] / 1024 : 0;
-					return [
-						'UserSpaceLimitMb' => $iQuota,
-						'AllowChangeUserSpaceLimit' => is_bool($oTenant->{self::GetName() . '::AllowChangeUserSpaceLimit'}) ? $oTenant->{self::GetName() . '::AllowChangeUserSpaceLimit'} : true,
-					];
-				}
+				return [
+					'UserSpaceLimitMb' => $oUser->{self::GetName() . '::UserSpaceLimitMb'},
+					'AllowChangeUserSpaceLimit' => $oTenant->{self::GetName() . '::AllowChangeUserSpaceLimit'},
+				];
 			}
 		}
 		
@@ -476,10 +471,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 					$oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::TenantAdmin && $oAuthenticatedUser->IdTenant === $TenantId))
 			{
 				return [
-					'TenantSpaceLimitMb' => is_int($oTenant->{self::GetName() . '::TenantSpaceLimitMb'}) ? $oTenant->{self::GetName() . '::TenantSpaceLimitMb'} : 0,
-					'UserSpaceLimitMb' => is_int($oTenant->{self::GetName() . '::UserSpaceLimitMb'}) ? $oTenant->{self::GetName() . '::UserSpaceLimitMb'} : 0,
-					'AllowChangeUserSpaceLimit' => is_bool($oTenant->{self::GetName() . '::AllowChangeUserSpaceLimit'}) ? $oTenant->{self::GetName() . '::AllowChangeUserSpaceLimit'} : true,
-					'AllocatedSpaceMb' => is_int($oTenant->{self::GetName() . '::AllocatedSpaceMb'}) ? $oTenant->{self::GetName() . '::AllocatedSpaceMb'} : 0,
+					'TenantSpaceLimitMb' => $oTenant->{self::GetName() . '::TenantSpaceLimitMb'},
+					'UserSpaceLimitMb' => $oTenant->{self::GetName() . '::UserSpaceLimitMb'},
+					'AllowChangeUserSpaceLimit' => $oTenant->{self::GetName() . '::AllowChangeUserSpaceLimit'},
+					'AllocatedSpaceMb' => $oTenant->{self::GetName() . '::AllocatedSpaceMb'},
 				];
 			}
 		}
@@ -536,6 +531,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 				if ($mResult !== false)
 				{
 					$this->updateAllocatedTenantSpace($TenantId, $UserSpaceLimitMb, $aPrevUserQuota['UserSpaceLimitMb']);
+					$oUser->{self::GetName() . '::UserSpaceLimitMb'} = $UserSpaceLimitMb;
+					$oUser->saveAttribute(self::GetName() . '::UserSpaceLimitMb');
 				}
 				return $mResult;
 			}
@@ -912,8 +909,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 				}
 				
 				$oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserUnchecked($UserId);
+				$aQuota = [];
+				$iQuota = 0;
 				
-				if ($oResException === null && $oUser->PublicId === $oAccount->Email)
+				if ($oResException === null && $oUser instanceof \Aurora\Modules\Core\Classes\User && $oUser->PublicId === $oAccount->Email)
 				{
 					$aTenantQuota = self::Decorator()->GetEntitySpaceLimits('Tenant', $UserId, $oUser->IdTenant);
 					if (is_array($aTenantQuota) && isset($aTenantQuota['AllocatedSpaceMb']) && isset($aTenantQuota['TenantSpaceLimitMb']))
@@ -942,9 +941,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 				{
 					if ($oAccount->Email === $oUser->PublicId && $bDoImapLoginOnAccountCreate)
 					{
-						$aQuota = $this->getMailManager()->getQuota($oAccount);
-						$iQuota = (is_array($aQuota) && isset($aQuota[1])) ? $aQuota[1] / 1024 : 0;
+						if (empty($aQuota))
+						{
+							$aQuota = $this->getMailManager()->getQuota($oAccount);
+							$iQuota = (is_array($aQuota) && isset($aQuota[1])) ? $aQuota[1] / 1024 : 0;
+						}
 						$this->updateAllocatedTenantSpace($oUser->IdTenant, $iQuota, 0);
+						$oUser->{self::GetName() . '::UserSpaceLimitMb'} = $iQuota;
+						$oUser->saveAttribute(self::GetName() . '::UserSpaceLimitMb');
 					}
 					return $oAccount;
 				}
@@ -1214,10 +1218,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 				if ($bServerRemoved)
 				{
 					$oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserUnchecked($oAccount->IdUser);
-					if ($oUser && $oAccount->Email === $oUser->PublicId)
+					if ($oUser instanceof \Aurora\Modules\Core\Classes\User && $oAccount->Email === $oUser->PublicId)
 					{
-						$aQuota = $this->getMailManager()->getQuota($oAccount);
-						$iQuota = (is_array($aQuota) && isset($aQuota[1])) ? $aQuota[1] / 1024 : 0;
+						$iQuota = $oUser->{self::GetName() . '::UserSpaceLimitMb'};
 						$this->updateAllocatedTenantSpace($oUser->IdTenant, 0, $iQuota);
 					}
 					
@@ -2196,7 +2199,18 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		self::checkAccess($oAccount);
 
-		return $this->getMailManager()->getQuota($oAccount);
+		$aQuota = $this->getMailManager()->getQuota($oAccount);
+		$iQuota = (is_array($aQuota) && isset($aQuota[1])) ? $aQuota[1] / 1024 : 0;
+		$oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserUnchecked($oAccount->IdUser);
+		$iUserSpaceLimitMb = ($oUser instanceof \Aurora\Modules\Core\Classes\User) ? $oUser->{self::GetName() . '::UserSpaceLimitMb'} : 0;
+		if ($iQuota !== $iUserSpaceLimitMb)
+		{
+			$this->updateAllocatedTenantSpace($oUser->IdTenant, $iQuota, $iUserSpaceLimitMb);
+			$oUser->{self::GetName() . '::UserSpaceLimitMb'} = $iQuota;
+			$oUser->saveAttribute(self::GetName() . '::UserSpaceLimitMb');
+		}
+		
+		return $aQuota; // Can be changed by subscribers
 	}
 
 	/**
