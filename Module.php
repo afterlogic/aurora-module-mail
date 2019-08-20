@@ -1821,6 +1821,40 @@ class Module extends \Aurora\System\Module\AbstractModule
 			'Namespace' => $oFolderCollection->GetNamespace()
 		);
 	}
+
+	protected function getSortInfo($SortBy, $SortOrder)
+	{
+		$aMessagesSortBy = $this->getConfig('MessagesSortBy', false);
+
+		if ($SortOrder === null && $aMessagesSortBy !== false && isset($aMessagesSortBy['Allow']) && (bool) $aMessagesSortBy['Allow'] === true)
+		{
+			$oSortOrder = new \Aurora\System\Enums\SortOrder();
+			$aSortOrderMap = $oSortOrder->getMap();
+			$SortOrder = isset($aMessagesSortBy['SortOrder']) ? $aSortOrderMap[\strtoupper($aMessagesSortBy['SortOrder'])] : '';
+		}
+
+		if ($SortBy === null)
+		{
+			if  ($aMessagesSortBy !== false && isset($aMessagesSortBy['Allow']) && (bool) $aMessagesSortBy['Allow'] === true)
+			{
+				$SortBy = isset($aMessagesSortBy['DefaultSortBy']) ? $aMessagesSortBy['DefaultSortBy'] : '';
+			}
+		}
+		else
+		{
+			if ($aMessagesSortBy === false || isset($aMessagesSortBy['Allow']) && (bool) $aMessagesSortBy['Allow'] === false)
+			{
+				$SortBy = ''; 
+			}
+		}
+
+		if (empty($SortBy))
+		{
+			$SortOrder = \Aurora\System\Enums\SortOrder::ASC;
+		}
+
+		return [$SortBy, $SortOrder];
+	}
 	
 	/**
 	 * @api {post} ?/Api/ GetMessages
@@ -1947,7 +1981,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @return array
 	 * @throws \Aurora\System\Exceptions\ApiException
 	 */
-	public function GetMessages($AccountID, $Folder, $Offset = 0, $Limit = 20, $Search = '', $Filters = '', $UseThreading = false, $InboxUidnext = '', $SortBy = '', $SortOrder = \Aurora\System\Enums\SortOrder::DESC)
+	public function GetMessages($AccountID, $Folder, $Offset = 0, $Limit = 20, $Search = '', $Filters = '', $UseThreading = false, $InboxUidnext = '', $SortBy = null, $SortOrder = null)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
@@ -1974,26 +2008,16 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		self::checkAccess($oAccount);
 
-		$aMessagesSortBy = $this->getConfig('MessagesSortBy', false);
-		if ($aMessagesSortBy === false || isset($aMessagesSortBy['Allow']) && (bool) $aMessagesSortBy['Allow'] === false)
-		{
-			$SortBy = ''; 
-			$SortOrder = \Aurora\System\Enums\SortOrder::DESC;
-		}
+		$aSortInfo = $this->getSortInfo($SortBy, $SortOrder);
 
-		if (empty($SortBy))
-		{
-			$SortOrder = '';
-		}
-
-		$sSortBy = \strtoupper($SortBy);
-		$sSortOrder = $SortOrder === \Aurora\System\Enums\SortOrder::DESC ? 'REVERSE' : '';
+		$sSortBy = \strtoupper($aSortInfo[0]);
+		$sSortOrder = $aSortInfo[1] === \Aurora\System\Enums\SortOrder::DESC ? 'REVERSE' : '';
 
 		return $this->getMailManager()->getMessageList(
 			$oAccount, $Folder, $iOffset, $iLimit, $sSearch, $UseThreading, $aFilters, $InboxUidnext, $sSortBy, $sSortOrder);
 	}
 
-	public function GetMessagesInfo($AccountID, $Folder, $Search = null, $UseThreading = false, $SortBy = '', $SortOrder = \Aurora\System\Enums\SortOrder::DESC)
+	public function GetMessagesInfo($AccountID, $Folder, $Search = null, $UseThreading = false, $SortBy = null, $SortOrder = null)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 
@@ -2001,23 +2025,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 		
 		self::checkAccess($oAccount);
 		
-		$aMessagesSortBy = $this->getConfig('MessagesSortBy', false);
-		if ($aMessagesSortBy === false || isset($aMessagesSortBy['Allow']) && (bool) $aMessagesSortBy['Allow'] === false)
-		{
-			$SortBy = ''; 
-			$SortOrder = \Aurora\System\Enums\SortOrder::DESC;
-		}
+		$aSortInfo = $this->getSortInfo($SortBy, $SortOrder);
 
-		if (empty($SortBy))
-		{
-			$SortOrder = '';
-		}
-
-		$SortBy = \strtoupper($SortBy);
-		$SortOrder = $SortOrder === \Aurora\System\Enums\SortOrder::DESC ? 'REVERSE' : '';
+		$sSortBy = \strtoupper($aSortInfo[0]);
+		$sSortOrder = $aSortInfo[1] === \Aurora\System\Enums\SortOrder::DESC ? 'REVERSE' : '';
 
 		return $this->getMailManager()->GetMessagesInfo(
-			$oAccount, $Folder, $Search, $UseThreading, $SortBy, $SortOrder
+			$oAccount, $Folder, $Search, $UseThreading, $sSortBy, $sSortOrder
 		);
 	}
 
