@@ -214,9 +214,27 @@ class Module extends \Aurora\System\Module\AbstractModule
 		switch ($iUserRole)
 		{
 			case (\Aurora\System\Enums\UserRole::SuperAdmin):
-			case (\Aurora\System\Enums\UserRole::TenantAdmin):
-				// everything is allowed for SuperAdmin and TenantAdmin users
+				// everything is allowed for SuperAdmin
 				$bAccessDenied = false;
+				break;
+			case (\Aurora\System\Enums\UserRole::TenantAdmin):
+				// everything is allowed for TenantAdmin
+				$oUser = null;
+				if ($oAccount !== null)
+				{
+					$oUser = \Aurora\Modules\Core\Module::getInstance()->GetUser($oAccount->IdUser);
+				}
+				if ($iUserId !== null)
+				{
+					$oUser = \Aurora\Modules\Core\Module::getInstance()->GetUser($iUserId);
+				}
+				if ($oUser instanceof \Aurora\Modules\Core\Classes\User)
+				{
+					if ($oAuthenticatedUser->IdTenant === $oUser->IdTenant)
+					{
+						$bAccessDenied = false;
+					}
+				}
 				break;
 			case (\Aurora\System\Enums\UserRole::NormalUser):
 				// User identifier shoud be checked
