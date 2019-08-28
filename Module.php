@@ -5288,7 +5288,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 		if (!$mResult)
 		{
-			\Aurora\System\Api::LogEvent('password-change-failed: ' . $oAccount? $oAccount->Email : 'Accoint ID ' . $AccountId, self::GetName());
+			\Aurora\System\Api::LogEvent('password-change-failed: ' . $oAccount? $oAccount->Email : 'Account ID ' . $AccountId, self::GetName());
 		}
 
 		return $mResult;
