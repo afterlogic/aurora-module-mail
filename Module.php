@@ -5255,6 +5255,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			{
 				if ($oAccount->getPassword() !== $CurrentPassword)
 				{
+					\Aurora\System\Api::LogEvent('password-change-failed: ' . $oAccount->Email, self::GetName());
 					throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Exceptions\Errs::UserManager_AccountOldPasswordNotCorrect);
 				}
 				
@@ -5280,9 +5281,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 					{
 						$mResult = $oAccount;
 						$mResult->RefreshToken = \Aurora\System\Api::UserSession()->UpdateTimestamp(\Aurora\System\Api::getAuthToken(), time());
+						\Aurora\System\Api::LogEvent('password-change-success: ' . $oAccount->Email, self::GetName());
 					}
 				}
 			}
+		}
+		if (!$mResult)
+		{
+			\Aurora\System\Api::LogEvent('password-change-failed: ' . $oAccount? $oAccount->Email : 'Accoint ID ' . $AccountId, self::GetName());
 		}
 
 		return $mResult;
