@@ -1152,7 +1152,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 		else
 		{
-			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::UserNotAllowed);
+			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
 		}
 
 		return false;
@@ -1258,7 +1258,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 		else
 		{
-			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::UserNotAllowed);
+			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
 		}
 	}
 	
@@ -4728,7 +4728,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 		else
 		{
-			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::UserNotAllowed);
+			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
 		}
 
 		return false;
