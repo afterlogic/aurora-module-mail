@@ -1347,7 +1347,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * Sends message out.
 	 * 
-	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount Account object.
+	 * @param \Aurora\Modules\Mail\Classes\Account $oAccount Account object.
 	 * @param \MailSo\Mime\Message $oMessage Message to be sent out.
 	 * @param \Aurora\Modules\Mail\Classes\Fetcher $oFetcher = null. Fetcher object which may override sending settings.
 	 * @param string $sSentFolder = ''. Name of Sent folder.
@@ -1500,12 +1500,12 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 						{
 							$rAppendMessageStream = \MailSo\Base\ResourceRegistry::CreateMemoryResource();
 
-							if (is_resource($rMessageStream))
-							{
-								rewind($rMessageStream);
-							}
+							// if (is_resource($rMessageStream))
+							// {
+							// 	rewind($rMessageStream);
+							// }
 							$iAppendMessageStreamSize = \MailSo\Base\Utils::MultipleStreamWriter(
-								$rMessageStream, array($rAppendMessageStream), 8192, true, true, true);
+								$oMessage->ToStream()/*$rMessageStream*/, array($rAppendMessageStream), 8192, true, true, true);
 
 							$oImapClient->MessageAppendStream(
 								$sSentFolder, $rAppendMessageStream, $iAppendMessageStreamSize, array(
