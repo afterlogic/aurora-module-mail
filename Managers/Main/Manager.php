@@ -1899,9 +1899,15 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 */
 	public function getQuota($oAccount)
 	{
+		$iMAX_32_INT = 2147483647;
 		$oImapClient =& $this->_getImapClient($oAccount);
-		
-		return $oImapClient->Quota();
+		$aQuota = $oImapClient->Quota();
+		if (is_array($aQuota) && isset($aQuota[1]) && ($aQuota[1] / 1024 > $iMAX_32_INT))
+		{
+			$aQuota[1] = 0;
+		}
+
+		return $aQuota;
 	}
 
 	/**
