@@ -90,7 +90,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		$this->AddEntries(array(
 				'message-newtab' => 'EntryMessageNewtab',
-				'mail-attachment' => 'EntryDownloadAttachment'
+				'mail-attachment' => 'EntryDownloadAttachment',
+				'mail-attachments-cookieless' => 'EntryDownloadAttachmentCookieless'
 			)
 		);
 		
@@ -6364,7 +6365,20 @@ class Module extends \Aurora\System\Module\AbstractModule
 			(string) \Aurora\System\Router::getItemByIndex(1, ''),
 			(string) \Aurora\System\Router::getItemByIndex(2, '')
 		);		
-	}	
+	}
+	
+	public function EntryDownloadAttachmentCookieless()
+	{
+		$sAuthToken = $_GET['AuthToken'];
+		
+		$re = '/^[a-zA-Z0-9_-]+$/';
+		$bSafeToken = preg_match($re, $sAuthToken);
+		
+		if ($sAuthToken !== '' && !!$bSafeToken) {
+			\Aurora\System\Api::authorise($sAuthToken);
+			$this->EntryDownloadAttachment();
+		}
+	}
 	
 	/**
 	 * @param string $sHash
