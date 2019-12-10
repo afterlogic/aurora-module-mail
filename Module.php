@@ -936,7 +936,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 					$aTenantQuota = self::Decorator()->GetEntitySpaceLimits('Tenant', $UserId, $oUser->IdTenant);
 					if (is_array($aTenantQuota) && isset($aTenantQuota['AllocatedSpaceMb']) && isset($aTenantQuota['TenantSpaceLimitMb']))
 					{
-						$aQuota = $this->getMailManager()->getQuota($oAccount);
+						if ($bDoImapLoginOnAccountCreate)
+						{
+							$aQuota = $this->getMailManager()->getQuota($oAccount);
+						}
+						else
+						{
+							$aQuota[1] = 0;
+						}
 						$iQuota = (is_array($aQuota) && isset($aQuota[1])) ? $aQuota[1] / 1024 : 0;
 						$iNewAllocatedSpaceMb = $aTenantQuota['AllocatedSpaceMb'] + $iQuota;
 						if ($aTenantQuota['TenantSpaceLimitMb'] > 0 && $aTenantQuota['TenantSpaceLimitMb'] < $iNewAllocatedSpaceMb)
