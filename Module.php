@@ -4077,6 +4077,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param string $DraftFolder Full name of Drafts folder.
 	 * @param string $ConfirmFolder Full name of folder that contains a message that should be marked as confirmed read.
 	 * @param string $ConfirmUid Uid of message that should be marked as confirmed read.
+	 * @param array $CustomHeaders list of custom headers
 	 * @return boolean
 	 * @throws \System\Exceptions\AuroraApiException
 	 */
@@ -4085,7 +4086,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$Subject = "", $Text = "", $IsHtml = false, $Importance = \MailSo\Mime\Enumerations\MessagePriority::NORMAL, 
 			$SendReadingConfirmation = false, $Attachments = array(), $InReplyTo = "", 
 			$References = "", $Sensitivity = \MailSo\Mime\Enumerations\Sensitivity::NOTHING, $SentFolder = "",
-			$DraftFolder = "", $ConfirmFolder = "", $ConfirmUid = "")
+			$DraftFolder = "", $ConfirmFolder = "", $ConfirmUid = "",
+			$CustomHeaders = [])
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		
@@ -4097,7 +4099,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		$oMessage = self::Decorator()->BuildMessage($oAccount, $To, $Cc, $Bcc, 
 			$Subject, $IsHtml, $Text, $Attachments, $DraftInfo, $InReplyTo, $References, $Importance,
-			$Sensitivity, $SendReadingConfirmation, $Fetcher, false, $oIdentity);
+			$Sensitivity, $SendReadingConfirmation, $Fetcher, false, $oIdentity, $CustomHeaders);
 		if ($oMessage)
 		{
 			$mResult = $this->getMailManager()->sendMessage($oAccount, $oMessage, $Fetcher, $SentFolder, $DraftFolder, $DraftUid);
@@ -6072,16 +6074,17 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param \Aurora\Modules\Mail\Classes\Fetcher $oFetcher
 	 * @param boolean $bWithDraftInfo
 	 * @param \Aurora\Modules\Mail\Classes\Identity $oIdentity
+	 * @param array $aCustomHeaders
 	 * @return \MailSo\Mime\Message
 	 */
 	public function BuildMessage($oAccount, $sTo = '', $sCc = '', $sBcc = '', 
 			$sSubject = '', $bTextIsHtml = false, $sText = '', $aAttachments = null, 
 			$aDraftInfo = null, $sInReplyTo = '', $sReferences = '', $iImportance = '',
 			$iSensitivity = 0, $bSendReadingConfirmation = false,
-			$oFetcher = null, $bWithDraftInfo = true, $oIdentity = null)
+			$oFetcher = null, $bWithDraftInfo = true, $oIdentity = null, $aCustomHeaders = [])
 	{
 		self::checkAccess($oAccount);
-		
+
 		$oMessage = \MailSo\Mime\Message::NewInstance();
 		$oMessage->RegenerateMessageId();
 		
@@ -6169,6 +6172,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 		)))
 		{
 			$oMessage->SetSensitivity((int) $iSensitivity);
+		}
+
+		if (is_array($aCustomHeaders))
+		{
+			foreach($aCustomHeaders as $sHeaderName => $sHeaderValue)
+			{
+				$oMessage->SetCustomHeader($sHeaderName, $sHeaderValue);
+			}
 		}
 
 		if ($bSendReadingConfirmation)
