@@ -315,12 +315,12 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			{
 				if  ('' === trim($oFilter->Filter))
 				{
-					continue 2;
+					continue;
 				}
 
 				if  (\Aurora\Modules\Mail\Enums\FilterAction::MoveToFolder === $oFilter->Action && '' === trim($oFilter->FolderFullName))
 				{
-					continue 2;
+					continue;
 				}
 
 				$aFields = array();

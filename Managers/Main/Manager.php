@@ -2265,7 +2265,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 				{
 					if ('' === \trim($sRawValue))
 					{
-						continue 2;
+						continue;
 					}
 
 					$sValue = $this->_escapeSearchString($oImapClient, $sRawValue);
