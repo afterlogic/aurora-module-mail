@@ -6512,5 +6512,24 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 	}
 
+	public function GetServerDomains($ServerId, $TenantId)
+	{
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
+		$aResult = [];
+
+		$oServer = $this->getServersManager()->getServer($ServerId);
+		if ($oServer instanceof Classes\Server)
+		{
+			$aResult = explode("\n",  $oServer->Domains);
+			$iWildcard = array_search('*', $aResult);
+			if ($iWildcard !== false)
+			{
+				unset($aResult[$iWildcard]);
+			}
+		}
+
+		return $aResult;
+	}
+
 	/***** private functions *****/
 }
