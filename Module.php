@@ -3872,7 +3872,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
-	 * &emsp; **FetcherID** *string* Fetcher identifier.<br>
+	 * &emsp; **FetcherID** *int* Fetcher identifier.<br>
+	 * &emsp; **AliasID** *int* Alias identifier.<br>
 	 * &emsp; **IdentityID** *int* Identity identifier.<br>
 	 * &emsp; **DraftInfo** *array* Contains information about the original message which is replied or forwarded: message type (reply/forward), UID and folder.<br>
 	 * &emsp; **DraftUid** *string* Uid of message to save in Drafts folder.<br>
@@ -3895,7 +3896,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'SaveMessage',
-	 *	Parameters: '{ "AccountID": 12, "FetcherID": "", "IdentityID": 14, "DraftInfo": [], "DraftUid": "",
+	 *	Parameters: '{ "AccountID": 12, "FetcherID": 0, "AliasID": 0, "IdentityID": 14, "DraftInfo": [], "DraftUid": "",
 	 * "To": "test@email", "Cc": "", "Bcc": "", "Subject": "", "Text": "text_value", "IsHtml": true,
 	 * "Importance": 3, "SendReadingConfirmation": false, "Attachments": [], "InReplyTo": "", "References": "",
 	 * "Sensitivity": 0, "DraftFolder": "Drafts" }'
@@ -3925,7 +3926,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 	/**
 	 * Saves message to Drafts folder.
 	 * @param int $AccountID Account identifier.
-	 * @param string $Fetcher Fetcher object is filled in by subscription. Webclient sends FetcherID parameter.
+	 * @param int $Fetcher Fetcher object is filled in by subscription. Webclient sends FetcherID parameter.
+	 * @param int $Alias Alias object is filled in by subscription. Webclient sends AliasID parameter.
 	 * @param int $IdentityID Identity identifier.
 	 * @param array $DraftInfo Contains information about the original message which is replied or forwarded: message type (reply/forward), UID and folder.
 	 * @param string $DraftUid Uid of message to save in Drafts folder.
@@ -3945,7 +3947,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @return boolean
 	 * @throws \System\Exceptions\AuroraApiException
 	 */
-	public function SaveMessage($AccountID, $Fetcher = null, $IdentityID = 0, 
+	public function SaveMessage($AccountID, $Fetcher = null, $Alias = null, $IdentityID = 0, 
 			$DraftInfo = [], $DraftUid = "", $To = "", $Cc = "", $Bcc = "", 
 			$Subject = "", $Text = "", $IsHtml = false, $Importance = \MailSo\Mime\Enumerations\MessagePriority::NORMAL, 
 			$SendReadingConfirmation = false, $Attachments = array(), $InReplyTo = "", 
@@ -3968,7 +3970,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		$oMessage = self::Decorator()->BuildMessage($oAccount, $To, $Cc, $Bcc, 
 			$Subject, $IsHtml, $Text, $Attachments, $DraftInfo, $InReplyTo, $References, $Importance,
-			$Sensitivity, $SendReadingConfirmation, $Fetcher, true, $oIdentity);
+			$Sensitivity, $SendReadingConfirmation, $Fetcher, $Alias, true, $oIdentity);
 		if ($oMessage)
 		{
 			try
@@ -4001,7 +4003,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
-	 * &emsp; **FetcherID** *string* Fetcher identifier.<br>
+	 * &emsp; **FetcherID** *int* Fetcher identifier.<br>
+	 * &emsp; **AliasID** *int* Alias identifier.<br>
 	 * &emsp; **IdentityID** *int* Identity identifier.<br>
 	 * &emsp; **DraftInfo** *array* Contains information about the original message which is replied or forwarded: message type (reply/forward), UID and folder.<br>
 	 * &emsp; **DraftUid** *string* Uid of message to save in Drafts folder.<br>
@@ -4027,7 +4030,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'SendMessage',
-	 *	Parameters: '{ "AccountID": 12, "FetcherID": "", "IdentityID": 14, "DraftInfo": [], "DraftUid": "",
+	 *	Parameters: '{ "AccountID": 12, "FetcherID": 0, "AliasID": 0, "IdentityID": 14, "DraftInfo": [], "DraftUid": "",
 	 * "To": "test@email", "Cc": "", "Bcc": "", "Subject": "", "Text": "text_value", "IsHtml": true,
 	 * "Importance": 3, "SendReadingConfirmation": false, "Attachments": [], "InReplyTo": "", "References": "",
 	 * "Sensitivity": 0, "SentFolder": "Sent", "DraftFolder": "Drafts", "ConfirmFolder": "", "ConfirmUid": "" }'
@@ -4057,7 +4060,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 	/**
 	 * Sends message.
 	 * @param int $AccountID Account identifier.
-	 * @param string $Fetcher Fetcher object is filled in by subscription. Webclient sends FetcherID parameter.
+	 * @param int $Fetcher Fetcher object is filled in by subscription. Webclient sends FetcherID parameter.
+	 * @param int $Alias Alias object is filled in by subscription. Webclient sends AliasID parameter.
 	 * @param int $IdentityID Identity identifier.
 	 * @param array $DraftInfo Contains information about the original message which is replied or forwarded: message type (reply/forward), UID and folder.
 	 * @param string $DraftUid Uid of message to save in Drafts folder.
@@ -4081,7 +4085,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @return boolean
 	 * @throws \System\Exceptions\AuroraApiException
 	 */
-	public function SendMessage($AccountID, $Fetcher = null, $IdentityID = 0, 
+	public function SendMessage($AccountID, $Fetcher = null, $Alias = null, $IdentityID = 0, 
 			$DraftInfo = [], $DraftUid = "", $To = "", $Cc = "", $Bcc = "", 
 			$Subject = "", $Text = "", $IsHtml = false, $Importance = \MailSo\Mime\Enumerations\MessagePriority::NORMAL, 
 			$SendReadingConfirmation = false, $Attachments = array(), $InReplyTo = "", 
@@ -4099,7 +4103,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		$oMessage = self::Decorator()->BuildMessage($oAccount, $To, $Cc, $Bcc, 
 			$Subject, $IsHtml, $Text, $Attachments, $DraftInfo, $InReplyTo, $References, $Importance,
-			$Sensitivity, $SendReadingConfirmation, $Fetcher, false, $oIdentity, $CustomHeaders);
+			$Sensitivity, $SendReadingConfirmation, $Fetcher, $Alias, false, $oIdentity, $CustomHeaders);
 		if ($oMessage)
 		{
 			$mResult = $this->getMailManager()->sendMessage($oAccount, $oMessage, $Fetcher, $SentFolder, $DraftFolder, $DraftUid);
@@ -6071,7 +6075,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param int $iImportance Importance of the message - LOW = 5, NORMAL = 3, HIGH = 1.
 	 * @param int $iSensitivity Sensitivity header for the message, its value will be returned: 1 for "Confidential", 2 for "Private", 3 for "Personal". 
 	 * @param boolean $bSendReadingConfirmation Indicates if it is necessary to include header that says
-	 * @param \Aurora\Modules\Mail\Classes\Fetcher $oFetcher
+	 * @param object $oFetcher
+	 * @param object $oAlias
 	 * @param boolean $bWithDraftInfo
 	 * @param \Aurora\Modules\Mail\Classes\Identity $oIdentity
 	 * @param array $aCustomHeaders
@@ -6081,7 +6086,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$sSubject = '', $bTextIsHtml = false, $sText = '', $aAttachments = null, 
 			$aDraftInfo = null, $sInReplyTo = '', $sReferences = '', $iImportance = '',
 			$iSensitivity = 0, $bSendReadingConfirmation = false,
-			$oFetcher = null, $bWithDraftInfo = true, $oIdentity = null, $aCustomHeaders = [])
+			$oFetcher = null, $oAlias = null, $bWithDraftInfo = true, $oIdentity = null, $aCustomHeaders = [])
 	{
 		self::checkAccess($oAccount);
 
@@ -6109,6 +6114,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 		if ($oIdentity)
 		{
 			$oFrom = \MailSo\Mime\Email::NewInstance($oIdentity->Email, $oIdentity->FriendlyName);
+		}
+		else if ($oAlias)
+		{
+			$oFrom = \MailSo\Mime\Email::NewInstance($oAlias->Email, $oAlias->FriendlyName);
 		}
 		else
 		{
