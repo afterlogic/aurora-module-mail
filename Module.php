@@ -1326,7 +1326,22 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function GetServers($TenantId = 0)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
+		$oAuthenticatedUser = \Aurora\System\Api::getAuthenticatedUser();
+		if ($oAuthenticatedUser instanceof \Aurora\Modules\Core\Classes\User && $oAuthenticatedUser->isNormalOrTenant())
+		{
+			if ($TenantId === 0)
+			{
+				$TenantId = $oAuthenticatedUser->IdTenant;
+			}
+			else if ($TenantId !== $oAuthenticatedUser->IdTenant)
+			{
+				throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::AccessDenied);
+			}
+		}
+		else
+		{
+			\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::SuperAdmin);
+		}
 		
 		return $this->getServersManager()->getServerList($TenantId);
 	}
@@ -1403,9 +1418,21 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function GetServer($ServerId)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
+		$oServer = $this->getServersManager()->getServer($ServerId);
+		$oAuthenticatedUser = \Aurora\System\Api::getAuthenticatedUser();
+		if ($oAuthenticatedUser instanceof \Aurora\Modules\Core\Classes\User && $oAuthenticatedUser->isNormalOrTenant())
+		{
+			if ($oServer->TenantId !== $oAuthenticatedUser->IdTenant)
+			{
+				throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::AccessDenied);
+			}
+		}
+		else
+		{
+			\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::SuperAdmin);
+		}
 		
-		return $this->getServersManager()->getServer($ServerId);
+		return $oServer;
 	}
 	
 	/**
@@ -1492,16 +1519,20 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$OutgoingServer, $OutgoingPort, $OutgoingUseSsl, $SmtpAuthType, $Domains, $EnableThreading, $EnableSieve, 
 			$SievePort, $SmtpLogin = '', $SmtpPassword = '', $UseFullEmailAddressAsLogin = true, $TenantId = 0)
 	{
-		$sOwnerType = ($TenantId === 0) ? \Aurora\Modules\Mail\Enums\ServerOwnerType::SuperAdmin : \Aurora\Modules\Mail\Enums\ServerOwnerType::Tenant;
-		
-		if ($TenantId === 0)
+		$oAuthenticatedUser = \Aurora\System\Api::getAuthenticatedUser();
+		if ($oAuthenticatedUser instanceof \Aurora\Modules\Core\Classes\User && $oAuthenticatedUser->Role === \Aurora\Modules\Mail\Enums\ServerOwnerType::Tenant)
 		{
-			\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::SuperAdmin);
+			if ($TenantId !== $oAuthenticatedUser->IdTenant)
+			{
+				throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::AccessDenied);
+			}
 		}
 		else
 		{
-			\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::TenantAdmin);
+			\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::SuperAdmin);
 		}
+		
+		$sOwnerType = ($TenantId === 0) ? \Aurora\Modules\Mail\Enums\ServerOwnerType::SuperAdmin : \Aurora\Modules\Mail\Enums\ServerOwnerType::Tenant;
 		
 		$oServer = new \Aurora\Modules\Mail\Classes\Server(self::GetName());
 		$oServer->OwnerType = $sOwnerType;
@@ -1729,13 +1760,17 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function DeleteServer($ServerId, $TenantId = 0)
 	{
-		if ($TenantId === 0)
+		$oAuthenticatedUser = \Aurora\System\Api::getAuthenticatedUser();
+		if ($oAuthenticatedUser instanceof \Aurora\Modules\Core\Classes\User && $oAuthenticatedUser->Role === \Aurora\Modules\Mail\Enums\ServerOwnerType::Tenant)
 		{
-			\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::SuperAdmin);
+			if ($TenantId !== $oAuthenticatedUser->IdTenant)
+			{
+				throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::AccessDenied);
+			}
 		}
 		else
 		{
-			\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::TenantAdmin);
+			\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::SuperAdmin);
 		}
 		
 		$mPrimaryAccounts = $this->getAccountsManager()->getAccounts(['ServerId' => $ServerId, 'UseToAuthorize' => true]);
