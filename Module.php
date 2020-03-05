@@ -201,7 +201,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param int $iUserId User identifier should be checked if it's identifier of authenticated user. If it's null check is not needed.
 	 * @throws \Aurora\System\Exceptions\ApiException
 	 */
-	protected static function checkAccess($oAccount = null, $iUserId = null)
+	public static function checkAccess($oAccount = null, $iUserId = null)
 	{
 		if (\Aurora\System\Api::accessCheckIsSkipped())
 		{
