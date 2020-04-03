@@ -6575,5 +6575,36 @@ class Module extends \Aurora\System\Module\AbstractModule
 		return $aResult;
 	}
 
+	public function IsEmailAllowedForCreation($Email)
+	{
+		//Method available only for admin or tenant-admin
+		$oAuthenticatedUser = \Aurora\System\Api::getAuthenticatedUser();
+		if (
+			$oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin
+			|| $oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::TenantAdmin
+		)
+		{
+			$oUser = \Aurora\System\Api::GetModuleDecorator('Core')->GetUserByPublicId($Email);
+			if ($oUser instanceof \Aurora\Modules\Core\Classes\User)
+			{
+				return false;
+			}
+			$aAccounts = $this->getAccountsManager()->getAccounts([
+				'Email' => $Email,
+				'IsDisabled' => false
+			]);
+			if(is_array($aAccounts) && count($aAccounts) > 0)
+			{
+				return false;
+			}
+
+			return true;
+		}
+		else
+		{
+			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::AccessDenied);
+		}
+	}
+
 	/***** private functions *****/
 }
