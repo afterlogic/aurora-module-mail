@@ -139,9 +139,9 @@
         true,
         "bool"
     ],
-	"XOriginatingIP": [
-		false,
-		"bool"
+	"XOriginatingIPHeaderName": [
+		"X-Original-IP",
+		"string"
 	],
 	"DoImapLoginOnAccountCreate": [
 		true,

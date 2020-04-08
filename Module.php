@@ -16,42 +16,42 @@ namespace Aurora\Modules\Mail;
  */
 class Module extends \Aurora\System\Module\AbstractModule
 {
-	/* 
+	/*
 	 * @var $oMailManager Managers\Main
-	 */	
+	 */
 	protected $oMailManager = null;
 
-	/* 
+	/*
 	 * @var $oAccountsManager Managers\Accounts
-	 */	
+	 */
 	protected $oAccountsManager = null;
 
-	/* 
+	/*
 	 * @var $oServersManager Managers\Servers
-	 */	
+	 */
 	protected $oServersManager = null;
-	
-	/* 
+
+	/*
 	 * @var $oIdentitiesManager Managers\Identities
-	 */	
+	 */
 	protected $oIdentitiesManager = null;
 
-	/* 
+	/*
 	 * @var $oSieveManager Managers\Sieve
-	 */	
+	 */
 	protected $oSieveManager = null;
-	
-	/* 
-	 * @var $oFilecacheManager \Aurora\System\Managers\Filecache 
-	 */	
+
+	/*
+	 * @var $oFilecacheManager \Aurora\System\Managers\Filecache
+	 */
 	protected $oFilecacheManager = null;
-	
+
 	/**
 	 * Initializes Mail Module.
-	 * 
+	 *
 	 * @ignore
 	 */
-	public function init() 
+	public function init()
 	{
 		$this->aErrors = [
 			Enums\ErrorCodes::CannotConnectToMailServer				=> $this->i18N('ERROR_CONNECT_TO_MAIL_SERVER'),
@@ -70,14 +70,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 			Enums\ErrorCodes::DomainIsNotAllowedForLoggingIn		=> $this->i18N('DOMAIN_IS_NOT_ALLOWED_FOR_LOGGING_IN'),
 			Enums\ErrorCodes::TenantQuotaExceeded					=> $this->i18N('ERROR_TENANT_QUOTA_EXCEEDED'),
 		];
-		
+
 		\Aurora\Modules\Core\Classes\User::extend(
 			self::GetName(),
 			[
 				'AllowAutosaveInDrafts'	=> ['bool', (bool) $this->getConfig('AllowAutosaveInDrafts', false)],
 				'UserSpaceLimitMb'	=> ['int', 0],
 			]
-		);		
+		);
 		\Aurora\Modules\Core\Classes\Tenant::extend(
 			self::GetName(),
 			[
@@ -94,7 +94,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 				'mail-attachments-cookieless' => 'EntryDownloadAttachmentCookieless'
 			)
 		);
-		
+
 		$this->subscribeEvent('Login', array($this, 'onLogin'));
 		$this->subscribeEvent('Core::DeleteUser::before', array($this, 'onBeforeDeleteUser'));
 		$this->subscribeEvent('Core::GetAccounts', array($this, 'onGetAccounts'));
@@ -138,7 +138,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		return $this->oServersManager;
 	}
-	
+
 	/**
 	 *
 	 * @return \Aurora\Modules\Mail\Managers\Identities\Manager
@@ -179,7 +179,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 
 		return $this->oSieveManager;
-	}	
+	}
 
 	/**
 	 *
@@ -194,7 +194,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		return $this->oFilecacheManager;
 	}
-	
+
 	/**
 	 * Checks if actions are allowed for authenticated user.
 	 * @param \Aurora\Modules\Mail\Classes\Account $oAccount Account should be checked if it belongs to authenticated user. If it's null check is not needed.
@@ -208,7 +208,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			// if access check should be skipped don't check at all
 			return;
 		}
-		
+
 		$bAccessDenied = true;
 		$oAuthenticatedUser = \Aurora\System\Api::getAuthenticatedUser();
 		$iUserRole = $oAuthenticatedUser instanceof \Aurora\Modules\Core\Classes\User ? $oAuthenticatedUser->Role : \Aurora\System\Enums\UserRole::Anonymous;
@@ -246,7 +246,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 						$bAccessDenied = false;
 					}
 				}
-				
+
 				// Account shoud be checked
 				if ($oAccount !== null)
 				{
@@ -272,33 +272,33 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiDefine Mail Mail Module
 	 * Main Mail module. It provides PHP and Web APIs for managing mail accounts, folders and messages.
 	 */
-	
+
 	/**
 	 * @api {post} ?/Api/ GetSettings
 	 * @apiName GetSettings
 	 * @apiGroup Mail
 	 * @apiDescription Obtains list of module settings for authenticated user.
-	 * 
+	 *
 	 * @apiHeader {string} [Authorization] "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=GetSettings} Method Method name
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetSettings'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
 	 * @apiSuccess {mixed} Result.Result List of module settings in case of success, otherwise **false**.
-	 * 
+	 *
 	 * @apiSuccess {array} Result.Result.Accounts="[]" List of accounts.
 	 * @apiSuccess {boolean} Result.Result.AllowAddAccounts=false Indicates if adding of new account is allowed.
 	 * @apiSuccess {boolean} Result.Result.AllowAutosaveInDrafts=false Indicates if autosave in Drafts folder on compose is allowed.
@@ -307,9 +307,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiSuccess {boolean} Result.Result.AllowInsertImage=false Indicates if insert of images in composed message body is allowed.
 	 * @apiSuccess {int} Result.Result.AutoSaveIntervalSeconds=60 Interval for autosave of message on compose in seconds.
 	 * @apiSuccess {int} Result.Result.ImageUploadSizeLimit=0 Max size of upload image in message text in bytes.
-	 * 
+	 *
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
@@ -318,7 +318,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * AllowDefaultAccountForUser: true, AllowIdentities: true, AllowInsertImage: true,
 	 * AutoSaveIntervalSeconds: 60, ImageUploadSizeLimit: 0 }
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -334,7 +334,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function GetSettings()
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::Anonymous);
-		
+
 		$aSettings = array(
 			'Accounts' => array(),
 			'AllowAddAccounts' => $this->getConfig('AllowAddAccounts', false),
@@ -353,7 +353,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			'SmtpAuthType' => (new \Aurora\Modules\Mail\Enums\SmtpAuthType)->getMap(),
 			'MessagesSortBy' => $this->getConfig('MessagesSortBy', [])
 		);
-		
+
 		$oUser = \Aurora\System\Api::getAuthenticatedUser();
 		if ($oUser && $oUser->isNormalOrTenant())
 		{
@@ -364,28 +364,28 @@ class Module extends \Aurora\System\Module\AbstractModule
 				$aResponseAcc[] = $oAccount->toResponseArray();
 			}
 			$aSettings['Accounts'] = $aResponseAcc;
-			
+
 			if (isset($oUser->{self::GetName().'::AllowAutosaveInDrafts'}))
 			{
 				$aSettings['AllowAutosaveInDrafts'] = $oUser->{self::GetName().'::AllowAutosaveInDrafts'};
 			}
 		}
-		
+
 		return $aSettings;
 	}
-	
+
 	/**
 	 * @api {post} ?/Api/ UpdateSettings
 	 * @apiName UpdateSettings
 	 * @apiGroup Mail
 	 * @apiDescription Updates module global or per user settings.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Files} Module Module name
 	 * @apiParam {string=UpdateSettings} Method Method name
 	 * @apiParam {string} Parameters JSON.stringified object<br>
@@ -394,27 +394,27 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **AllowAddAccounts** *boolean* Allows users to add external mailboxes.<br>
 	 * &emsp; **AllowAutosaveInDrafts** *boolean* Indicates if message should be saved automatically while compose.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'UpdateSettings',
 	 *	Parameters: '{ AllowAutosaveInDrafts: false }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name
 	 * @apiSuccess {string} Result.Method Method name
 	 * @apiSuccess {boolean} Result.Result Indicates if settings were updated successfully.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'UpdateSettings',
 	 *	Result: true
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Files',
@@ -433,7 +433,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function UpdateSettings($AutocreateMailAccountOnNewUserFirstLogin = null, $AllowAddAccounts = null, $AllowAutosaveInDrafts = null)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		$oUser = \Aurora\System\Api::getAuthenticatedUser();
 		if ($oUser)
 		{
@@ -459,19 +459,19 @@ class Module extends \Aurora\System\Module\AbstractModule
 				return $this->saveModuleConfig();
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 	public function GetEntitySpaceLimits($Type, $UserId = null, $TenantId = null)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::TenantAdmin);
 		$oAuthenticatedUser = \Aurora\System\Api::getAuthenticatedUser();
-		
+
 		if ($Type === 'User' && is_int($UserId) && $UserId > 0)
 		{
 			$oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserUnchecked($UserId);
-			if ($oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin || 
+			if ($oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin ||
 					$oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::TenantAdmin && $oAuthenticatedUser->IdTenant === $oUser->IdTenant)
 			{
 				$oTenant = \Aurora\System\Api::getTenantById($oUser->IdTenant);
@@ -481,12 +481,12 @@ class Module extends \Aurora\System\Module\AbstractModule
 				];
 			}
 		}
-		
+
 		if ($Type === 'Tenant' && is_int($TenantId) && $TenantId > 0)
 		{
 			$oTenant = \Aurora\System\Api::getTenantById($TenantId);
-			if ($oTenant instanceof \Aurora\Modules\Core\Classes\Tenant && $oAuthenticatedUser instanceof \Aurora\Modules\Core\Classes\User && 
-					($oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin || 
+			if ($oTenant instanceof \Aurora\Modules\Core\Classes\Tenant && $oAuthenticatedUser instanceof \Aurora\Modules\Core\Classes\User &&
+					($oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin ||
 					$oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::TenantAdmin && $oAuthenticatedUser->IdTenant === $TenantId))
 			{
 				return [
@@ -497,10 +497,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 				];
 			}
 		}
-		
+
 		return [];
 	}
-	
+
 	protected function updateAllocatedTenantSpace($iTenantId, $iNewUserQuota, $iPrevUserQuota)
 	{
 		$oTenant = \Aurora\System\Api::getTenantById($iTenantId);
@@ -513,12 +513,12 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$oTenant->{self::GetName() . '::AllocatedSpaceMb'} = $iAllocatedSpaceMb;
 		\Aurora\Modules\Core\Module::Decorator()->getTenantsManager()->updateTenant($oTenant);
 	}
-	
+
 	public function UpdateEntitySpaceLimits($Type, $UserId, $TenantId, $TenantSpaceLimitMb, $UserSpaceLimitMb = null)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::TenantAdmin);
 		$oAuthenticatedUser = \Aurora\System\Api::getAuthenticatedUser();
-		
+
 		if ($oAuthenticatedUser instanceof \Aurora\Modules\Core\Classes\User && $Type === 'User' && is_int($UserId) && $UserId > 0)
 		{
 			$oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserUnchecked($UserId);
@@ -556,11 +556,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 				return $mResult;
 			}
 		}
-		
+
 		if ($Type === 'Tenant' && is_int($TenantId) && $TenantId > 0)
 		{
 			$oTenant = \Aurora\Modules\Core\Module::Decorator()->GetTenantUnchecked($TenantId);
-			if ($oTenant && ($oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin || 
+			if ($oTenant && ($oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin ||
 					$oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::TenantAdmin && $oAuthenticatedUser->IdTenant === $TenantId))
 			{
 				$oTenant->{self::GetName() . '::TenantSpaceLimitMb'} = $TenantSpaceLimitMb;
@@ -571,54 +571,54 @@ class Module extends \Aurora\System\Module\AbstractModule
 				return $oTenant->save();
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 	/**
 	 * @api {post} ?/Api/ GetAccounts
 	 * @apiName GetAccounts
 	 * @apiGroup Mail
 	 * @apiDescription Obtains list of mail accounts for user.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=GetAccounts} Method Method name
 	 * @apiParam {string} [Parameters] JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **UserId** *int* User identifier.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetAccounts'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
 	 * @apiSuccess {mixed} Result.Result List of mail accounts in case of success, otherwise **false**. Description of account properties are placed in GetAccount method description.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetAccounts',
-	 *	Result: [ { "AccountID": 12, "UUID": "uuid_value", "UseToAuthorize": true, "Email": "test@email", 
-	 * "FriendlyName": "", "IncomingLogin": "test@email", "UseSignature": false, "Signature": "", 
-	 * "ServerId": 10, "Server": { "EntityId": 10, "UUID": "uuid_value", "TenantId": 0, "Name": "Mail server", 
-	 * "IncomingServer": "mail.email", "IncomingPort": 143, "IncomingUseSsl": false, "OutgoingServer": "mail.email", 
-	 * "OutgoingPort": 25, "OutgoingUseSsl": false, "SmtpAuthType": "0", "OwnerType": "superadmin", 
+	 *	Result: [ { "AccountID": 12, "UUID": "uuid_value", "UseToAuthorize": true, "Email": "test@email",
+	 * "FriendlyName": "", "IncomingLogin": "test@email", "UseSignature": false, "Signature": "",
+	 * "ServerId": 10, "Server": { "EntityId": 10, "UUID": "uuid_value", "TenantId": 0, "Name": "Mail server",
+	 * "IncomingServer": "mail.email", "IncomingPort": 143, "IncomingUseSsl": false, "OutgoingServer": "mail.email",
+	 * "OutgoingPort": 25, "OutgoingUseSsl": false, "SmtpAuthType": "0", "OwnerType": "superadmin",
 	 * "Domains": "", "ServerId": 10 }, "CanBeUsedToAuthorize": true, "UseThreading": true,
 	 * "AllowAutoresponder": false, "AllowAutoresponder": false, "AllowAutoresponder": false } ]
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -635,7 +635,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function GetAccounts($UserId)
 	{
 		$mResult = false;
-		
+
 		$oAuthenticatedUser = \Aurora\System\Api::getAuthenticatedUser();
 		if ($oAuthenticatedUser && $oAuthenticatedUser->EntityId === $UserId)
 		{
@@ -649,7 +649,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			// There is no $oAuthenticatedUser for anonymous user.
 			\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::SuperAdmin);
 		}
-		
+
 		$aAccounts = $this->getAccountsManager()->getUserAccounts($UserId);
 		if (is_array($aAccounts))
 		{
@@ -666,36 +666,36 @@ class Module extends \Aurora\System\Module\AbstractModule
 				}
 			}
 		}
-		
+
 		return $mResult;
 	}
-	
+
 	/**
 	 * @api {post} ?/Api/ GetAccount
 	 * @apiName GetAccount
 	 * @apiGroup Mail
 	 * @apiDescription Obtains mail account with specified identifier.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=GetAccount} Method Method name
 	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **AccountId** *int* Identifier of mail account to obtain.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetAccount',
 	 *	Parameters: '{ "AccountId": 12 }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
@@ -713,19 +713,19 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiSuccess {boolean} Result.Result.CanBeUsedToAuthorize Indicates if account can be used for authentication. It is forbidden to use account for authentication if another user has account with the same credentials and it is allowed to authenticate.
 	 * @apiSuccess {boolean} Result.Result.UseThreading Indicates if account uses mail threading.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetAccount',
-	 *	Result: { "AccountID": 12, "UUID": "uuid_value", "UseToAuthorize": true, "Email": "test@email", 
-	 * "FriendlyName": "", "IncomingLogin": "test@email", "UseSignature": false, "Signature": "", 
-	 * "ServerId": 10, "Server": { "EntityId": 10, "UUID": "uuid_value", "TenantId": 0, "Name": "Mail server", 
-	 * "IncomingServer": "mail.email", "IncomingPort": 143, "IncomingUseSsl": false, "OutgoingServer": "mail.email", 
-	 * "OutgoingPort": 25, "OutgoingUseSsl": false, "SmtpAuthType": "0", "OwnerType": "superadmin", 
+	 *	Result: { "AccountID": 12, "UUID": "uuid_value", "UseToAuthorize": true, "Email": "test@email",
+	 * "FriendlyName": "", "IncomingLogin": "test@email", "UseSignature": false, "Signature": "",
+	 * "ServerId": 10, "Server": { "EntityId": 10, "UUID": "uuid_value", "TenantId": 0, "Name": "Mail server",
+	 * "IncomingServer": "mail.email", "IncomingPort": 143, "IncomingUseSsl": false, "OutgoingServer": "mail.email",
+	 * "OutgoingPort": 25, "OutgoingUseSsl": false, "SmtpAuthType": "0", "OwnerType": "superadmin",
 	 * "Domains": "", "ServerId": 10 }, "CanBeUsedToAuthorize": true, "UseThreading": true }
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -742,19 +742,19 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function GetAccount($AccountId)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		$oAccount = $this->getAccountsManager()->getAccountById($AccountId);
-		
+
 		self::checkAccess($oAccount);
-		
+
 		return $oAccount;
 	}
-	
+
 	public function GetAccountByEmail($Email, $UserId = 0)
 	{
 		$oAuthenticatedUser = \Aurora\System\Api::getAuthenticatedUser();
 		$oUser = $UserId !== 0 ? \Aurora\Modules\Core\Module::Decorator()->GetUserUnchecked($UserId) : null;
-		
+
 		// Method has its specific access check so checkAccess method isn't used.
 		if ($oAuthenticatedUser instanceof \Aurora\Modules\Core\Classes\User && $oUser instanceof \Aurora\Modules\Core\Classes\User)
 		{
@@ -771,7 +771,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
 			\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::SuperAdmin);
 		}
-		
+
 		$mResult = false;
 		$oAccount = $this->getAccountsManager()->getAccountByEmail($Email, $UserId);
 		if ($oAccount instanceof \Aurora\Modules\Mail\Classes\Account && $UserId === $oAccount->IdUser)
@@ -780,20 +780,20 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 
 		return $mResult;
-	}	
-	
+	}
+
 	/**
 	 * @api {post} ?/Api/ CreateAccount
 	 * @apiName CreateAccount
 	 * @apiGroup Mail
 	 * @apiDescription Creates mail account.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=CreateAccount} Method Method name
 	 * @apiParam {string} Parameters JSON.stringified object<br>
@@ -805,7 +805,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **IncomingPassword** *string* Password for IMAP connection.<br>
 	 * &emsp; **Server** *object* List of settings for IMAP and SMTP connections.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
@@ -813,7 +813,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 *	Parameters: '{ "Email": "test@email", "IncomingLogin": "test@email", "IncomingPassword": "pass_value",
 	 *				"Server": { "ServerId": 10 } }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
@@ -830,7 +830,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiSuccess {object} Result.Result.Server Server properties that are used for connection to IMAP and SMTP servers.
 	 * @apiSuccess {boolean} Result.Result.CanBeUsedToAuthorize Indicates if account can be used for authentication. It is forbidden to use account for authentication if another user has account with the same credentials and it is allowed to authenticate.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
@@ -841,7 +841,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * "IncomingPort": 143, "IncomingUseSsl": false, "OutgoingServer": "mail.server", "OutgoingPort": 25,
 	 * "OutgoingUseSsl": false, "SmtpAuthType": "0", "Domains": "" }, "CanBeUsedToAuthorize": true }
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -860,13 +860,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param array $Server List of settings for IMAP and SMTP connections.
 	 * @return \Aurora\Modules\Mail\Classes\Account|boolean
 	 */
-	public function CreateAccount($UserId = 0, $FriendlyName = '', $Email = '', $IncomingLogin = '', 
+	public function CreateAccount($UserId = 0, $FriendlyName = '', $Email = '', $IncomingLogin = '',
 			$IncomingPassword = '', $Server = null)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		self::checkAccess(null, $UserId);
-		
+
 		$oAccount = $this->GetAccountByEmail($Email, $UserId);
 		if ($oAccount instanceof \Aurora\Modules\Mail\Classes\Account)
 		{
@@ -895,7 +895,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 					$iServerId = $this->getServersManager()->createServer($oNewServer);
 					$bCustomServerCreated = true;
 				}
-				
+
 				if ($Server === null)
 				{
 					$oServer = $this->getServersManager()->getServerByDomain($sDomain);
@@ -926,11 +926,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 				{
 					$oResException = $this->getMailManager()->validateAccountConnection($oAccount, false);
 				}
-				
+
 				$oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserUnchecked($UserId);
 				$aQuota = [];
 				$iQuota = 0;
-				
+
 				if ($oResException === null && $oUser instanceof \Aurora\Modules\Core\Classes\User && $oUser->PublicId === $oAccount->Email)
 				{
 					$aTenantQuota = self::Decorator()->GetEntitySpaceLimits('Tenant', $UserId, $oUser->IdTenant);
@@ -952,10 +952,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 						}
 					}
 				}
-				
+
 				if ($oResException === null)
 				{
-					if ($oUser instanceof \Aurora\Modules\Core\Classes\User && $oUser->PublicId === $Email && 
+					if ($oUser instanceof \Aurora\Modules\Core\Classes\User && $oUser->PublicId === $Email &&
 						!$this->getAccountsManager()->useToAuthorizeAccountExists($Email))
 					{
 						$oAccount->UseToAuthorize = true;
@@ -982,7 +982,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 				{
 					$this->getServersManager()->deleteServer($iServerId);
 				}
-				
+
 				if ($oResException !== null)
 				{
 					throw $oResException;
@@ -997,13 +997,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiName UpdateAccount
 	 * @apiGroup Mail
 	 * @apiDescription Updates mail account.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=UpdateAccount} Method Method name
 	 * @apiParam {string} Parameters JSON.stringified object<br>
@@ -1017,7 +1017,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **UseThreading** *boolean* Indicates if account uses mail threading.<br>
 	 * &emsp; **SaveRepliesToCurrFolder** *boolean* Indicates if replies should be saved to current folder (not Sent Items).<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
@@ -1026,20 +1026,20 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 *		"IncomingPassword": "pass_value", "Server": { "ServerId": 10 }, "UseThreading": true,
 	 *		"SaveRepliesToCurrFolder": false }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
 	 * @apiSuccess {boolean} Result.Result Indicates if account was updated successfully.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'UpdateAccount',
 	 *	Result: true
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -1062,15 +1062,15 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @return boolean
 	 * @throws \Aurora\System\Exceptions\ApiException
 	 */
-	public function UpdateAccount($AccountID, $UseToAuthorize = null, $Email = null, $FriendlyName = null, $IncomingLogin = null, 
+	public function UpdateAccount($AccountID, $UseToAuthorize = null, $Email = null, $FriendlyName = null, $IncomingLogin = null,
 			$IncomingPassword = null, $Server = null, $UseThreading = null, $SaveRepliesToCurrFolder = null)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		if ($AccountID > 0)
 		{
 			$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
-			
+
 			self::checkAccess($oAccount);
 
 			if ($oAccount)
@@ -1127,8 +1127,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 							$oAccServer->OutgoingPort = $Server['OutgoingPort'];
 							$oAccServer->OutgoingUseSsl = $Server['OutgoingUseSsl'];
 							$oAccServer->SmtpAuthType = $Server['SmtpAuthType'];
-							
-							$this->getServersManager()->updateServer($oAccServer);		
+
+							$this->getServersManager()->updateServer($oAccServer);
 						}
 					}
 					else
@@ -1141,17 +1141,17 @@ class Module extends \Aurora\System\Module\AbstractModule
 						$oAccount->updateServer($Server['ServerId']);
 					}
 				}
-				
+
 				if ($UseThreading !== null)
 				{
 					$oAccount->UseThreading = $UseThreading;
 				}
-				
+
 				if ($SaveRepliesToCurrFolder !== null)
 				{
 					$oAccount->SaveRepliesToCurrFolder = $SaveRepliesToCurrFolder;
 				}
-				
+
 				if ($this->getAccountsManager()->updateAccount($oAccount))
 				{
 					return $oAccount;
@@ -1165,46 +1165,46 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		return false;
 	}
-	
+
 	/**
 	 * @api {post} ?/Api/ DeleteAccount
 	 * @apiName DeleteAccount
 	 * @apiGroup Mail
 	 * @apiDescription Deletes mail account.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=DeleteAccount} Method Method name
 	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Identifier of account to delete.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'DeleteAccount',
 	 *	Parameters: '{ "AccountID": 12 }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
 	 * @apiSuccess {boolean} Result.Result Indicates if account was deleted successfully.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'DeleteAccount',
 	 *	Result: true
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -1222,15 +1222,15 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function DeleteAccount($AccountID)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		$bResult = false;
 
 		if ($AccountID > 0)
 		{
 			$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
-			
+
 			self::checkAccess($oAccount);
-			
+
 			if ($oAccount)
 			{
 				$this->getIdentitiesManager()->deleteAccountIdentities($oAccount->EntityId);
@@ -1249,19 +1249,19 @@ class Module extends \Aurora\System\Module\AbstractModule
 						$iQuota = $oUser->{self::GetName() . '::UserSpaceLimitMb'};
 						$this->updateAllocatedTenantSpace($oUser->IdTenant, 0, $iQuota);
 					}
-					
+
 					$aArgs = [
 						'Account' => $oAccount,
 						'User' => $oUser
 					];
 					$this->broadcastEvent(
-						'BeforeDeleteAccount', 
+						'BeforeDeleteAccount',
 						$aArgs
 					);
 					$bResult = $this->getAccountsManager()->deleteAccount($oAccount);
 				}
 			}
-			
+
 			return $bResult;
 		}
 		else
@@ -1269,48 +1269,48 @@ class Module extends \Aurora\System\Module\AbstractModule
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
 		}
 	}
-	
+
 	/**
 	 * @api {post} ?/Api/ GetServers
 	 * @apiName GetServers
 	 * @apiGroup Mail
 	 * @apiDescription Obtains list of servers which contains settings for IMAP and SMTP connections.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=GetServers} Method Method name
 	 * @apiParam {string} [Parameters] JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **TenantId** *int* (optional) Identifier of tenant which contains servers to return. If TenantId is 0 returns server which are belonged to SuperAdmin, not Tenant.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetServers'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
 	 * @apiSuccess {mixed} Result.Result List of mail servers in case of success, otherwise **false**. Description of server properties are placed in GetServer method description.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetServers',
-	 *	Result: [ { "EntityId": 10, "UUID": "uuid_value", "TenantId": 0, "Name": "Mail server", 
-	 * "IncomingServer": "mail.email", "IncomingPort": 143, "IncomingUseSsl": false, "OutgoingServer": "mail.email", 
-	 * "OutgoingPort": 25, "OutgoingUseSsl": false, "SmtpAuthType": "0", "OwnerType": "superadmin", 
+	 *	Result: [ { "EntityId": 10, "UUID": "uuid_value", "TenantId": 0, "Name": "Mail server",
+	 * "IncomingServer": "mail.email", "IncomingPort": 143, "IncomingUseSsl": false, "OutgoingServer": "mail.email",
+	 * "OutgoingPort": 25, "OutgoingUseSsl": false, "SmtpAuthType": "0", "OwnerType": "superadmin",
 	 * "Domains": "", "ServerId": 10 } ]
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -1342,36 +1342,36 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
 			\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::SuperAdmin);
 		}
-		
+
 		return $this->getServersManager()->getServerList($TenantId);
 	}
-	
+
 	/**
 	 * @api {post} ?/Api/ GetServer
 	 * @apiName GetServer
 	 * @apiGroup Mail
 	 * @apiDescription Obtains server with specified server identifier.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=GetServer} Method Method name
 	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **ServerId** *int* Server identifier.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetServer',
 	 *	Parameters: '{ "ServerId": 10 }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
@@ -1392,17 +1392,17 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiSuccess {string} Result.Result.OwnerType Owner type: 'superadmin' - server was created by SuperAdmin user, 'tenant' - server was created by TenantAdmin user, 'account' - server was created when account was created and any existent server was chosen.
 	 * @apiSuccess {string} Result.Result.Domains List of server domain separated by comma.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetServer',
-	 *	Result: { "ServerId": 10, "UUID": "uuid_value", "TenantId": 0, "Name": "Mail server", 
-	 * "IncomingServer": "mail.email", "IncomingPort": 143, "IncomingUseSsl": false, "OutgoingServer": "mail.email", 
-	 * "OutgoingPort": 25, "OutgoingUseSsl": false, "SmtpAuthType": "0", "OwnerType": "superadmin", 
+	 *	Result: { "ServerId": 10, "UUID": "uuid_value", "TenantId": 0, "Name": "Mail server",
+	 * "IncomingServer": "mail.email", "IncomingPort": 143, "IncomingUseSsl": false, "OutgoingServer": "mail.email",
+	 * "OutgoingPort": 25, "OutgoingUseSsl": false, "SmtpAuthType": "0", "OwnerType": "superadmin",
 	 * "Domains": "" }
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -1431,22 +1431,22 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
 			\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::SuperAdmin);
 		}
-		
+
 		return $oServer;
 	}
-	
+
 	/**
 	 * @api {post} ?/Api/ CreateServer
 	 * @apiName CreateServer
 	 * @apiGroup Mail
 	 * @apiDescription Creates mail server.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=CreateServer} Method Method name
 	 * @apiParam {string} Parameters JSON.stringified object<br>
@@ -1464,7 +1464,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **Domains** *string* List of domains separated by comma.<br>
 	 * &emsp; **TenantId** *int* (optional) If tenant identifier is specified creates mail server belonged to specified tenant.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
@@ -1473,20 +1473,20 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 *			"IncomingUseSsl": false, "OutgoingServer": "mail.server", "OutgoingPort": 25,
 	 *			"OutgoingUseSsl": false, "SmtpAuthType": "0", "Domains": "" }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
 	 * @apiSuccess {mixed} Result.Result Identifier of created server in case of success, otherwise **false**.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'CreateServer',
 	 *	Result: 10
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -1516,7 +1516,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @return int|boolean
 	 */
 	public function CreateServer($Name, $IncomingServer, $IncomingPort, $IncomingUseSsl,
-			$OutgoingServer, $OutgoingPort, $OutgoingUseSsl, $SmtpAuthType, $Domains, $EnableThreading, $EnableSieve, 
+			$OutgoingServer, $OutgoingPort, $OutgoingUseSsl, $SmtpAuthType, $Domains, $EnableThreading, $EnableSieve,
 			$SievePort, $SmtpLogin = '', $SmtpPassword = '', $UseFullEmailAddressAsLogin = true, $TenantId = 0)
 	{
 		$oAuthenticatedUser = \Aurora\System\Api::getAuthenticatedUser();
@@ -1531,9 +1531,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
 			\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::SuperAdmin);
 		}
-		
+
 		$sOwnerType = ($TenantId === 0) ? \Aurora\Modules\Mail\Enums\ServerOwnerType::SuperAdmin : \Aurora\Modules\Mail\Enums\ServerOwnerType::Tenant;
-		
+
 		$oServer = new \Aurora\Modules\Mail\Classes\Server(self::GetName());
 		$oServer->OwnerType = $sOwnerType;
 		$oServer->TenantId = $TenantId;
@@ -1552,22 +1552,22 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$oServer->EnableSieve = $EnableSieve;
 		$oServer->SievePort = $SievePort;
 		$oServer->UseFullEmailAddressAsLogin = $UseFullEmailAddressAsLogin;
-			
+
 		return $this->getServersManager()->createServer($oServer);
 	}
-	
+
 	/**
 	 * @api {post} ?/Api/ UpdateServer
 	 * @apiName UpdateServer
 	 * @apiGroup Mail
 	 * @apiDescription Updates mail server with specified identifier.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=UpdateServer} Method Method name
 	 * @apiParam {string} Parameters JSON.stringified object<br>
@@ -1586,7 +1586,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **Domains** *string* New list of domains separated by comma.<br>
 	 * &emsp; **TenantId** *int* If tenant identifier is specified creates mail server belonged to specified tenant.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
@@ -1595,20 +1595,20 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * "IncomingUseSsl": false, "OutgoingServer": "mail.server", "OutgoingPort": 25, "OutgoingUseSsl": false,
 	 * "SmtpAuthType": "0", "Domains": "" }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
 	 * @apiSuccess {boolean} Result.Result Indicates if server was updated successfully.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'UpdateServer',
 	 *	Result: true
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -1644,13 +1644,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @return boolean
 	 */
 	public function UpdateServer($ServerId, $Name, $IncomingServer, $IncomingPort, $IncomingUseSsl,
-			$OutgoingServer, $OutgoingPort, $OutgoingUseSsl, $SmtpAuthType, $Domains, $EnableThreading, $EnableSieve, 
+			$OutgoingServer, $OutgoingPort, $OutgoingUseSsl, $SmtpAuthType, $Domains, $EnableThreading, $EnableSieve,
 			$SievePort, $SmtpLogin = '', $SmtpPassword = '', $UseFullEmailAddressAsLogin = true, $TenantId = 0,
 			$SetExternalAccessServers = false, $ExternalAccessImapServer = '', $ExternalAccessImapPort = 143,
 			$ExternalAccessSmtpServer = '', $ExternalAccessSmtpPort = 25)
 	{
 		$bResult = false;
-		
+
 		$oServer = $this->getServersManager()->getServer($ServerId);
 
 		if ($oServer->OwnerType === \Aurora\Modules\Mail\Enums\ServerOwnerType::SuperAdmin)
@@ -1661,8 +1661,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
 			\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::TenantAdmin);
 		}
-		
-		if ($oServer && ($oServer->OwnerType === \Aurora\Modules\Mail\Enums\ServerOwnerType::SuperAdmin || 
+
+		if ($oServer && ($oServer->OwnerType === \Aurora\Modules\Mail\Enums\ServerOwnerType::SuperAdmin ||
 				$oServer->OwnerType === \Aurora\Modules\Mail\Enums\ServerOwnerType::Tenant && $oServer->TenantId === $TenantId))
 		{
 			$oServer->Name = $Name;
@@ -1693,29 +1693,29 @@ class Module extends \Aurora\System\Module\AbstractModule
 				$oServer->ExternalAccessSmtpServer = $ExternalAccessSmtpServer;
 				$oServer->ExternalAccessSmtpPort = $ExternalAccessSmtpPort;
 			}
-			
+
 			$bResult = $this->getServersManager()->updateServer($oServer);
 		}
 		else
 		{
 			$bResult = false;
 		}
-		
+
 		return $bResult;
 	}
-	
+
 	/**
 	 * @api {post} ?/Api/ DeleteServer
 	 * @apiName DeleteServer
 	 * @apiGroup Mail
 	 * @apiDescription Deletes mail server.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=DeleteServer} Method Method name
 	 * @apiParam {string} Parameters JSON.stringified object<br>
@@ -1723,27 +1723,27 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **ServerId** *int* Identifier of server to delete.<br>
 	 * &emsp; **TenantId** *int* (optional) Identifier of tenant that contains mail server.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'DeleteServer',
 	 *	Parameters: '{ "ServerId": 10 }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
 	 * @apiSuccess {boolean} Result.Result Indicates if server was deleted successfully.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'DeleteServer',
 	 *	Result: true
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -1772,7 +1772,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
 			\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::SuperAdmin);
 		}
-		
+
 		$mPrimaryAccounts = $this->getAccountsManager()->getAccounts(['ServerId' => $ServerId, 'UseToAuthorize' => true]);
 		if (is_array($mPrimaryAccounts))
 		{
@@ -1781,7 +1781,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 				\Aurora\Modules\Core\Module::Decorator()->DeleteUser($oAccount->IdUser);
 			}
 		}
-		
+
 		$mSecondaryAccounts = $this->getAccountsManager()->getAccounts(['ServerId' => $ServerId, 'UseToAuthorize' => false]);
 		if (is_array($mSecondaryAccounts))
 		{
@@ -1790,36 +1790,36 @@ class Module extends \Aurora\System\Module\AbstractModule
 				self::Decorator()->DeleteAccount($oAccount->EntityId);
 			}
 		}
-		
+
 		return $this->getServersManager()->deleteServer($ServerId, $TenantId);
 	}
-	
+
 	/**
 	 * @api {post} ?/Api/ GetFolders
 	 * @apiName GetFolders
 	 * @apiGroup Mail
 	 * @apiDescription Obtains list of folders for specified account.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=GetFolders} Method Method name
 	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **AccountId** *int* Identifier of mail account that contains folders to obtain.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetFolders',
 	 *	Parameters: '{ "AccountId": 12 }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
@@ -1840,7 +1840,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiSuccess {object[]} Result.Result.Folders.Collection.SubFolders List of sub folders.
 	 * @apiSuccess {string} Result.Result.Namespace
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
@@ -1857,7 +1857,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 *			...
 	 *		]}, "Namespace": "" } }
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -1874,14 +1874,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function GetFolders($AccountID)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
 
 		self::checkAccess($oAccount);
 
 		$oFolderCollection = $this->getMailManager()->getFolders($oAccount);
 		return array(
-			'Folders' => $oFolderCollection, 
+			'Folders' => $oFolderCollection,
 			'Namespace' => $oFolderCollection->GetNamespace()
 		);
 	}
@@ -1908,7 +1908,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
 			if ($aMessagesSortBy === false || isset($aMessagesSortBy['Allow']) && (bool) $aMessagesSortBy['Allow'] === false)
 			{
-				$SortBy = ''; 
+				$SortBy = '';
 			}
 		}
 
@@ -1919,19 +1919,19 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		return [$SortBy, $SortOrder];
 	}
-	
+
 	/**
 	 * @api {post} ?/Api/ GetMessages
 	 * @apiName GetMessages
 	 * @apiGroup Mail
 	 * @apiDescription Obtains message list for specified account and folder.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=GetMessages} Method Method name
 	 * @apiParam {string} Parameters JSON.stringified object<br>
@@ -1945,7 +1945,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **UseThreading** *int* Indicates if it is necessary to return messages in threads.<br>
 	 * &emsp; **InboxUidnext** *string* (optional) UIDNEXT Inbox last value that is known on client side.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
@@ -1953,7 +1953,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 *	Parameters: '{ "AccountID": 12, "Folder": "Inbox", "Offset": 0, "Limit": 20, "Search": "",
 	 *		"Filters": "", "UseThreading": true }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
@@ -1983,7 +1983,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiSuccess {boolean} Result.Result.Collection.HasIcalAttachment Indicates if message has attachment with ICAL.
 	 * @apiSuccess {int} Result.Result.Collection.Importance Importance value of the message, from 1 (highest) to 5 (lowest).
 	 * @apiSuccess {array} Result.Result.Collection.DraftInfo Contains information about the original message which is replied or forwarded: message type (reply/forward), UID and folder.
-	 * @apiSuccess {int} Result.Result.Collection.Sensitivity If Sensitivity header was set for the message, its value will be returned: 1 for "Confidential", 2 for "Private", 3 for "Personal". 
+	 * @apiSuccess {int} Result.Result.Collection.Sensitivity If Sensitivity header was set for the message, its value will be returned: 1 for "Confidential", 2 for "Private", 3 for "Personal".
 	 * @apiSuccess {string} Result.Result.Collection.DownloadAsEmlUrl Url for download message as .eml file.
 	 * @apiSuccess {string} Result.Result.Collection.Hash Message hash.
 	 * @apiSuccess {array} Result.Result.Collection.Threads List of uids of messages that are belonged to one thread.
@@ -2000,7 +2000,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiSuccess {string} Result.Result.Filters List of conditions to obtain messages.
 	 * @apiSuccess {array} Result.Result.New List of short information about new messages.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
@@ -2023,7 +2023,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 *	"MessageResultCount": 602, "FolderName": "INBOX", "Offset": 0, "Limit": 30, "Search": "",
 	 *	"Filters": "", "New": [] }
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -2048,9 +2048,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function GetMessages($AccountID, $Folder, $Offset = 0, $Limit = 20, $Search = '', $Filters = '', $UseThreading = false, $InboxUidnext = '', $SortBy = null, $SortOrder = null)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		$sSearch = \trim((string) $Search);
-		
+
 		$aFilters = array();
 		$sFilters = \strtolower(\trim((string) $Filters));
 		if (0 < \strlen($sFilters))
@@ -2086,9 +2086,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 
 		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
-		
+
 		self::checkAccess($oAccount);
-		
+
 		$aSortInfo = $this->getSortInfo($SortBy, $SortOrder);
 
 		$sSortBy = \strtoupper($aSortInfo[0]);
@@ -2104,13 +2104,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiName GetRelevantFoldersInformation
 	 * @apiGroup Mail
 	 * @apiDescription Obtains relevant information about total and unseen messages count in specified folders.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=GetRelevantFoldersInformation} Method Method name
 	 * @apiParam {string} Parameters JSON.stringified object<br>
@@ -2119,29 +2119,29 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **Folders** *array* List of folders full names.<br>
 	 * &emsp; **UseListStatusIfPossible** *boolean* Indicates if LIST-STATUS command should be used if it's supported by IMAP server. If LIST-STATUS is used information about all folders will be obtained, and not only about the requested ones.
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetRelevantFoldersInformation',
 	 *	Parameters: '{ "AccountID": 12, "Folders": [ "INBOX", "Spam" ] }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
 	 * @apiSuccess {mixed} Result.Result Mail account properties in case of success, otherwise **false**.
 	 * @apiSuccess {object[]} Result.Result.Counts List of folders data where key is folder full name and value is array like [message_count, unread_message_count, "next_message_uid", "hash_to_indicate_changes"]
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetRelevantFoldersInformation',
-	 *	Result: { "Counts": { "INBOX": [638, 0, "1690", "97b2a280e7b9f2cbf86857e5cacf63b7"], 
+	 *	Result: { "Counts": { "INBOX": [638, 0, "1690", "97b2a280e7b9f2cbf86857e5cacf63b7"],
 	 *		"Spam": [71, 69, "92", "3c9fe98367857e9930c725010e947d88" ] } }
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -2162,7 +2162,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function GetRelevantFoldersInformation($AccountID, $Folders, $UseListStatusIfPossible)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		if (!\is_array($Folders) || 0 === \count($Folders))
 		{
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
@@ -2173,9 +2173,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 		try
 		{
 			$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
-			
+
 			self::checkAccess($oAccount);
-			
+
 			$aResult = $this->getMailManager()->getFolderListInformation($oAccount, $Folders, $UseListStatusIfPossible);
 		}
 		catch (\MailSo\Net\Exceptions\ConnectionException $oException)
@@ -2198,47 +2198,47 @@ class Module extends \Aurora\System\Module\AbstractModule
 		return array(
 			'Counts' => $aResult,
 		);
-	}	
-	
+	}
+
 	/**
 	 * @api {post} ?/Api/ GetQuota
 	 * @apiName GetQuota
 	 * @apiGroup Mail
 	 * @apiDescription Obtains mail account quota.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=GetQuota} Method Method name
 	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetQuota',
 	 *	Parameters: '{ "AccountID": 12 }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
 	 * @apiSuccess {mixed} Result.Result Array like [quota_limit, used_space] in case of success, otherwise **false**.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetQuota',
 	 *	Result: [8976, 10240]
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -2255,7 +2255,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function GetQuota($AccountID)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
 
 		self::checkAccess($oAccount);
@@ -2270,7 +2270,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$oUser->{self::GetName() . '::UserSpaceLimitMb'} = $iQuota;
 			$oUser->saveAttribute(self::GetName() . '::UserSpaceLimitMb');
 		}
-		
+
 		return $aQuota; // Can be changed by subscribers
 	}
 
@@ -2279,13 +2279,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiName GetMessagesBodies
 	 * @apiGroup Mail
 	 * @apiDescription Obtains full data of specified messages including plain text, HTML text and attachments.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=GetMessagesBodies} Method Method name
 	 * @apiParam {string} Parameters JSON.stringified object<br>
@@ -2294,14 +2294,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **Folder** *string* Folder full name.<br>
 	 * &emsp; **Uids** *array* List of messages' uids.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetMessagesBodies',
 	 *	Parameters: '{ "AccountID": 12, "Folder": "INBOX", "Uids": [ "1591", "1589", "1588", "1587", "1586" ] }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
@@ -2329,12 +2329,12 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiSuccess {boolean} Result.Result.HasIcalAttachment Indicates if message has attachment with ICAL.
 	 * @apiSuccess {int} Result.Result.Importance Importance value of the message, from 1 (highest) to 5 (lowest).
 	 * @apiSuccess {array} Result.Result.DraftInfo Contains information about the original message which is replied or forwarded: message type (reply/forward), UID and folder.
-	 * @apiSuccess {int} Result.Result.Sensitivity If Sensitivity header was set for the message, its value will be returned: 1 for "Confidential", 2 for "Private", 3 for "Personal". 
+	 * @apiSuccess {int} Result.Result.Sensitivity If Sensitivity header was set for the message, its value will be returned: 1 for "Confidential", 2 for "Private", 3 for "Personal".
 	 * @apiSuccess {string} Result.Result.DownloadAsEmlUrl Url for download message as .eml file.
 	 * @apiSuccess {string} Result.Result.Hash Message hash.
 	 * @apiSuccess {string} Result.Result.Headers Block of headers of the message.
 	 * @apiSuccess {string} Result.Result.InReplyTo Value of **In-Reply-To** header which is supplied in replies/forwards and contains Message-ID of the original message. This approach allows for organizing threads.
-	 * @apiSuccess {string} Result.Result.References Content of References header block of the message. 
+	 * @apiSuccess {string} Result.Result.References Content of References header block of the message.
 	 * @apiSuccess {string} Result.Result.ReadingConfirmationAddressee Email address reading confirmation is to be sent to.
 	 * @apiSuccess {string} Result.Result.Html HTML body of the message.
 	 * @apiSuccess {boolean} Result.Result.Truncated Indicates if message body is truncated.
@@ -2348,7 +2348,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiSuccess {array} Result.Result.FoundedContentLocationUrls
 	 * @apiSuccess {array} Result.Result.Attachments Information about attachments of the message.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
@@ -2369,7 +2369,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 *		...
 	 *	]
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -2389,7 +2389,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function GetMessagesBodies($AccountID, $Folder, $Uids, $MessageBodyTruncationThreshold = null)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		if (0 === \strlen(\trim($Folder)) || !\is_array($Uids) || 0 === \count($Uids))
 		{
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
@@ -2434,13 +2434,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiName GetMessage
 	 * @apiGroup Mail
 	 * @apiDescription Obtains full data of specified message including plain text, HTML text and attachments.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=GetMessage} Method Method name
 	 * @apiParam {string} Parameters JSON.stringified object<br>
@@ -2450,14 +2450,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **Uid** *string* Message uid.<br>
 	 * &emsp; **Rfc822MimeIndex** *string* (optional) If specified obtains message from attachment of another message.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetMessage',
 	 *	Parameters: '{ "AccountId": 12, "Folder": "Inbox", "Uid": 1232 }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
@@ -2485,12 +2485,12 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiSuccess {boolean} Result.Result.HasIcalAttachment Indicates if message has attachment with ICAL.
 	 * @apiSuccess {int} Result.Result.Importance Importance value of the message, from 1 (highest) to 5 (lowest).
 	 * @apiSuccess {array} Result.Result.DraftInfo Contains information about the original message which is replied or forwarded: message type (reply/forward), UID and folder.
-	 * @apiSuccess {int} Result.Result.Sensitivity If Sensitivity header was set for the message, its value will be returned: 1 for "Confidential", 2 for "Private", 3 for "Personal". 
+	 * @apiSuccess {int} Result.Result.Sensitivity If Sensitivity header was set for the message, its value will be returned: 1 for "Confidential", 2 for "Private", 3 for "Personal".
 	 * @apiSuccess {string} Result.Result.DownloadAsEmlUrl Url for download message as .eml file.
 	 * @apiSuccess {string} Result.Result.Hash Message hash.
 	 * @apiSuccess {string} Result.Result.Headers Block of headers of the message.
 	 * @apiSuccess {string} Result.Result.InReplyTo Value of **In-Reply-To** header which is supplied in replies/forwards and contains Message-ID of the original message. This approach allows for organizing threads.
-	 * @apiSuccess {string} Result.Result.References Content of References header block of the message. 
+	 * @apiSuccess {string} Result.Result.References Content of References header block of the message.
 	 * @apiSuccess {string} Result.Result.ReadingConfirmationAddressee Email address reading confirmation is to be sent to.
 	 * @apiSuccess {string} Result.Result.Html HTML body of the message.
 	 * @apiSuccess {boolean} Result.Result.Truncated Indicates if message body is truncated.
@@ -2504,7 +2504,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiSuccess {array} Result.Result.FoundedContentLocationUrls
 	 * @apiSuccess {array} Result.Result.Attachments Information about attachments of the message.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
@@ -2517,11 +2517,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * "IsFlagged": false, "IsAnswered": false, "IsForwarded": false, "HasAttachments": false,
 	 * "HasVcardAttachment": false, "HasIcalAttachment": false, "Importance": 3, "DraftInfo": null,
 	 * "Sensitivity": 0, "DownloadAsEmlUrl": "url_value", "Hash": "hash_value",
-	 * "Headers": "headers_value", "InReplyTo": "", "References": "", "ReadingConfirmationAddressee": "", 
+	 * "Headers": "headers_value", "InReplyTo": "", "References": "", "ReadingConfirmationAddressee": "",
 	 * "Html": "html_text_of_message", "Truncated": false, "Plain": "", "PlainRaw": "", "Rtl": false, "Extend": [],
 	 * "Safety": false, "HasExternals": false, "FoundedCIDs": [], "FoundedContentLocationUrls": [], "Attachments": null }
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -2543,7 +2543,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function GetMessage($AccountID, $Folder, $Uid, $Rfc822MimeIndex = '', $MessageBodyTruncationThreshold = null, $oBody = null)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		$iUid = 0 < \strlen($Uid) && \is_numeric($Uid) ? (int) $Uid : 0;
 
 		if (0 === \strlen(\trim($Folder)) || 0 >= $iUid)
@@ -2592,10 +2592,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 			}
 
 			$aParts = $oBodyStructure->GetAllParts();
-			
+
 			$this->broadcastEvent(
-				'GetBodyStructureParts', 
-				$aParts, 
+				'GetBodyStructureParts',
+				$aParts,
 				$aCustomParts
 			);
 		}
@@ -2635,12 +2635,12 @@ class Module extends \Aurora\System\Module\AbstractModule
 						$sLine .= '<0.'.((int) $MessageBodyTruncationThreshold).'>';
 						$bTruncated = true;
 					}
-					
+
 					$aFetchItems[] = $sLine;
 				}
 			}
 		}
-		
+
 		foreach ($aCustomParts as $oCustomPart)
 		{
 			$aFetchItems[] = \MailSo\Imap\Enumerations\FetchType::BODY_PEEK.'['.$oCustomPart->PartID().']';
@@ -2673,10 +2673,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 			if (0 < \strlen($sFromEmail))
 			{
 				$bAlwaysShowImagesInMessage = !!$this->getConfig('AlwaysShowImagesInMessage', false);
-				$oMessage->setSafety($bAlwaysShowImagesInMessage ? true : 
+				$oMessage->setSafety($bAlwaysShowImagesInMessage ? true :
 						$this->getMailManager()->isSafetySender($oAccount->IdUser, $sFromEmail));
 			}
-			
+
 			$aData = array();
 			foreach ($aCustomParts as $oCustomPart)
 			{
@@ -2693,7 +2693,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 					'Part' => $oCustomPart
 				);
 			}
-			
+
 			$this->broadcastEvent('ExtendMessageData', $aData, $oMessage);
 		}
 
@@ -2710,13 +2710,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiName SetMessagesSeen
 	 * @apiGroup Mail
 	 * @apiDescription Puts on or off seen flag of message.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=SetMessagesSeen} Method Method name
 	 * @apiParam {string} Parameters JSON.stringified object<br>
@@ -2726,27 +2726,27 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **Uids** *string* List of messages' uids.<br>
 	 * &emsp; **SetAction** *boolean* Indicates if flag should be set or removed.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'SetMessagesSeen',
 	 *	Parameters: '{ "AccountID": 12, "Folder": "Inbox", "Uids": "1243,1244,1245", "SetAction": false }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
 	 * @apiSuccess {boolean} Result.Result Indicates if seen flag was set successfully.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'SetMessagesSeen',
 	 *	Result: true
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -2766,26 +2766,26 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function SetMessagesSeen($AccountID, $Folder, $Uids, $SetAction)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
 
 		self::checkAccess($oAccount);
-		
+
 		return $this->setMessageFlag($AccountID, $Folder, $Uids, $SetAction, \MailSo\Imap\Enumerations\MessageFlag::SEEN);
-	}	
-	
+	}
+
 	/**
 	 * @api {post} ?/Api/ SetMessageFlagged
 	 * @apiName SetMessageFlagged
 	 * @apiGroup Mail
 	 * @apiDescription Puts on or off flagged flag of message.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=SetMessageFlagged} Method Method name
 	 * @apiParam {string} Parameters JSON.stringified object<br>
@@ -2795,27 +2795,27 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **Uids** *string* List of messages' uids.<br>
 	 * &emsp; **SetAction** *boolean* Indicates if flag should be set or removed.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'SetMessageFlagged',
 	 *	Parameters: '{ "AccountID": 12, "Folder": "Inbox", "Uids": "1243,1244,1245", "SetAction": false }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
 	 * @apiSuccess {boolean} Result.Result Indicates if flagged flag was set successfully.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'SetMessageFlagged',
 	 *	Result: true
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -2835,26 +2835,26 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function SetMessageFlagged($AccountID, $Folder, $Uids, $SetAction)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
 
 		self::checkAccess($oAccount);
-		
+
 		return $this->setMessageFlag($AccountID, $Folder, $Uids, $SetAction, \MailSo\Imap\Enumerations\MessageFlag::FLAGGED);
 	}
-	
+
 	/**
 	 * @api {post} ?/Api/ SetAllMessagesSeen
 	 * @apiName SetAllMessagesSeen
 	 * @apiGroup Mail
 	 * @apiDescription Puts on seen flag for all messages in folder.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=SetAllMessagesSeen} Method Method name
 	 * @apiParam {string} Parameters JSON.stringified object<br>
@@ -2862,27 +2862,27 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **AccountID** *int* Account identifier.<br>
 	 * &emsp; **Folder** *string* Folder full name.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'SetAllMessagesSeen',
 	 *	Parameters: '{ "AccountID": 12, "Folder": "Inbox" }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
 	 * @apiSuccess {boolean} Result.Result Indicates if seen flag was set successfully.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'SetAllMessagesSeen',
 	 *	Result: true
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -2901,7 +2901,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function SetAllMessagesSeen($AccountID, $Folder)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		if (0 === \strlen(\trim($Folder)))
 		{
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
@@ -2920,13 +2920,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiName MoveMessages
 	 * @apiGroup Mail
 	 * @apiDescription Moves messages from one folder to another.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=MoveMessages} Method Method name
 	 * @apiParam {string} Parameters JSON.stringified object<br>
@@ -2936,26 +2936,26 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **ToFolder** *string* Full name of the folder messages will be moved to.<br>
 	 * &emsp; **Uids** *string* Uids of messages to move.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'MoveMessages',
 	 *	Parameters: '{ "AccountID": 12, "Folder": "Inbox", "ToFolder": "Trash", "Uids": "1212,1213,1215" }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
 	 * @apiSuccess {boolean} Result.Result Indicates if messages were moved successfully.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'MoveMessages',
 	 *	Result: true
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -2976,7 +2976,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function CopyMessages($AccountID, $Folder, $ToFolder, $Uids)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		$aUids = \Aurora\System\Utils::ExplodeIntUids((string) $Uids);
 
 		if (0 === \strlen(\trim($Folder)) || 0 === \strlen(\trim($ToFolder)) || !\is_array($aUids) || 0 === \count($aUids))
@@ -2985,7 +2985,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 
 		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
-		
+
 		self::checkAccess($oAccount);
 
 		try
@@ -3005,20 +3005,20 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 
 		return true;
-	}	
-	
+	}
+
 	/**
 	 * @api {post} ?/Api/ MoveMessages
 	 * @apiName MoveMessages
 	 * @apiGroup Mail
 	 * @apiDescription Moves messages from one folder to another.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=MoveMessages} Method Method name
 	 * @apiParam {string} Parameters JSON.stringified object<br>
@@ -3028,26 +3028,26 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **ToFolder** *string* Full name of the folder messages will be moved to.<br>
 	 * &emsp; **Uids** *string* Uids of messages to move.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'MoveMessages',
 	 *	Parameters: '{ "AccountID": 12, "Folder": "Inbox", "ToFolder": "Trash", "Uids": "1212,1213,1215" }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
 	 * @apiSuccess {boolean} Result.Result Indicates if messages were moved successfully.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'MoveMessages',
 	 *	Result: true
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -3068,7 +3068,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function MoveMessages($AccountID, $Folder, $ToFolder, $Uids)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		$aUids = \Aurora\System\Utils::ExplodeIntUids((string) $Uids);
 
 		if (0 === \strlen(\trim($Folder)) || 0 === \strlen(\trim($ToFolder)) || !\is_array($aUids) || 0 === \count($aUids))
@@ -3098,19 +3098,19 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		return true;
 	}
-	
+
 	/**
 	 * @api {post} ?/Api/ DeleteMessages
 	 * @apiName DeleteMessages
 	 * @apiGroup Mail
 	 * @apiDescription Deletes messages from folder.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=DeleteMessages} Method Method name
 	 * @apiParam {string} Parameters JSON.stringified object<br>
@@ -3119,27 +3119,27 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **Folder** *string* Folder full name.<br>
 	 * &emsp; **Uids** *string* Uids of messages to delete.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'DeleteMessages',
 	 *	Parameters: '{ "AccountID": 12, "Folder": "Inbox", "Uids": "1212,1213,1215" }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
 	 * @apiSuccess {boolean} Result.Result Indicates if messages were deleted successfully.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'DeleteMessages',
 	 *	Result: true
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -3159,7 +3159,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function DeleteMessages($AccountID, $Folder, $Uids)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		$aUids = \Aurora\System\Utils::ExplodeIntUids((string) $Uids);
 
 		if (0 === \strlen(\trim($Folder)) || !\is_array($aUids) || 0 === \count($aUids))
@@ -3168,26 +3168,26 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 
 		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
-		
+
 		self::checkAccess($oAccount);
 
 		$this->getMailManager()->deleteMessage($oAccount, $Folder, $aUids);
 
 		return true;
 	}
-	
+
 	/**
 	 * @api {post} ?/Api/ CreateFolder
 	 * @apiName CreateFolder
 	 * @apiGroup Mail
 	 * @apiDescription Creates folder in mail account.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=CreateFolder} Method Method name
 	 * @apiParam {string} Parameters JSON.stringified object<br>
@@ -3197,7 +3197,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **FolderParentFullNameRaw** *string* Full name of parent folder.<br>
 	 * &emsp; **Delimiter** *string* Delimiter that is used if full folder name.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
@@ -3205,20 +3205,20 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 *	Parameters: '{ "AccountID": 12, "FolderNameInUtf8": "new_folder",
 	 *			"FolderParentFullNameRaw": "parent_folder", "Delimiter": "/" }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
 	 * @apiSuccess {boolean} Result.Result Indicates if folder was created successfully.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'CreateFolder',
 	 *	Result: true
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -3240,24 +3240,24 @@ class Module extends \Aurora\System\Module\AbstractModule
 	{
 		$bResult = true;
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		if (0 === \strlen($FolderNameInUtf8) || 1 !== \strlen($Delimiter))
 		{
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
 		}
 
 		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
-		
+
 		self::checkAccess($oAccount);
 
 		try
 		{
 			$this->getMailManager()->createFolder($oAccount, $FolderNameInUtf8, $Delimiter, $FolderParentFullNameRaw);
-		} 
-		catch (\MailSo\Mail\Exceptions\AlreadyExistsFolder $oException) 
+		}
+		catch (\MailSo\Mail\Exceptions\AlreadyExistsFolder $oException)
 		{
 			throw new \Aurora\Modules\Mail\Exceptions\Exception(
-				Enums\ErrorCodes::FolderAlreadyExists, 
+				Enums\ErrorCodes::FolderAlreadyExists,
 				$oException,
 				$oException->getMessage()
 			);
@@ -3309,19 +3309,19 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		return $bResult;
 	}
-	
+
 	/**
 	 * @api {post} ?/Api/ RenameFolder
 	 * @apiName RenameFolder
 	 * @apiGroup Mail
 	 * @apiDescription Renames folder.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=RenameFolder} Method Method name
 	 * @apiParam {string} [Parameters] JSON.stringified object<br>
@@ -3330,7 +3330,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **PrevFolderFullNameRaw** *int* Full name of folder to rename.<br>
 	 * &emsp; **NewFolderNameInUtf8** *int* New folder name.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
@@ -3338,7 +3338,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 *	Parameters: '{ "AccountID": 12, "PrevFolderFullNameRaw": "old_folder_name",
 	 *		"NewFolderNameInUtf8": "new_folder_name" }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
@@ -3346,14 +3346,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiSuccess {string} Result.Result.FullName New full name of folder.
 	 * @apiSuccess {string} Result.Result.FullNameHash Hash of new full name of folder.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'RenameFolder',
 	 *	Result: { "FullName": "new_folder_name", "FullNameHash": "hash_value" }
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -3373,7 +3373,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function RenameFolder($AccountID, $PrevFolderFullNameRaw, $NewFolderNameInUtf8)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		if (0 === \strlen($PrevFolderFullNameRaw) || 0 === \strlen($NewFolderNameInUtf8))
 		{
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
@@ -3396,13 +3396,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiName DeleteFolder
 	 * @apiGroup Mail
 	 * @apiDescription Deletes folder.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=DeleteFolder} Method Method name
 	 * @apiParam {string} Parameters JSON.stringified object<br>
@@ -3410,27 +3410,27 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **AccountID** *int* Account identifier.<br>
 	 * &emsp; **Folder** *string* Full name of folder to delete.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'DeleteFolder',
 	 *	Parameters: '{ "AccountID": 12, "Folder": "folder2" }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
 	 * @apiSuccess {boolean} Result.Result Indicates if folder was deleted successfully.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'DeleteFolder',
 	 *	Result: true
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -3449,33 +3449,33 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function DeleteFolder($AccountID, $Folder)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		if (0 === \strlen(\trim($Folder)))
 		{
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
 		}
 
 		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
-		
+
 		self::checkAccess($oAccount);
 
 		$this->getMailManager()->deleteFolder($oAccount, $Folder);
 
 		return true;
-	}	
+	}
 
 	/**
 	 * @api {post} ?/Api/ SubscribeFolder
 	 * @apiName SubscribeFolder
 	 * @apiGroup Mail
 	 * @apiDescription Subscribes/unsubscribes folder.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=SubscribeFolder} Method Method name
 	 * @apiParam {string} Parameters JSON.stringified object<br>
@@ -3484,27 +3484,27 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **Folder** *string* Full name of folder to subscribe/unsubscribe.<br>
 	 * &emsp; **SetAction** *boolean* Indicates if folder should be subscribed or unsubscribed.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'SubscribeFolder',
 	 *	Parameters: '{ "AccountID": 12, "Folder": "folder2", "SetAction": true }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
 	 * @apiSuccess {boolean} Result.Result Indicates if folder was subscribed/unsubscribed successfully.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'SubscribeFolder',
 	 *	Result: true
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -3524,12 +3524,12 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function SubscribeFolder($AccountID, $Folder, $SetAction)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		if ($this->getConfig('IgnoreImapSubscription', false))
 		{
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::AccessDenied);
 		}
-		
+
 		if (0 === \strlen(\trim($Folder)))
 		{
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
@@ -3540,22 +3540,22 @@ class Module extends \Aurora\System\Module\AbstractModule
 		self::checkAccess($oAccount);
 
 		$this->getMailManager()->subscribeFolder($oAccount, $Folder, $SetAction);
-		
+
 		return true;
-	}	
-	
+	}
+
 	/**
 	 * @api {post} ?/Api/ UpdateFoldersOrder
 	 * @apiName UpdateFoldersOrder
 	 * @apiGroup Mail
 	 * @apiDescription Updates order of folders.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=UpdateFoldersOrder} Method Method name
 	 * @apiParam {string} Parameters JSON.stringified object<br>
@@ -3563,27 +3563,27 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **AccountID** *int* Account identifier.<br>
 	 * &emsp; **FolderList** *array* List of folders with new order.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'UpdateFoldersOrder',
 	 *	Parameters: '{ "AccountID": 12, "FolderList": [ "INBOX", "Sent", "Drafts", "Trash", "Spam", "folder1" ] }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
 	 * @apiSuccess {boolean} Result.Result Indicates if folders' order was changed successfully.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'UpdateFoldersOrder',
 	 *	Result: true
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -3602,7 +3602,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function UpdateFoldersOrder($AccountID, $FolderList)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		if (!\is_array($FolderList))
 		{
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
@@ -3614,19 +3614,19 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		return $this->getMailManager()->updateFoldersOrder($oAccount, $FolderList);
 	}
-	
+
 	/**
 	 * @api {post} ?/Api/ ClearFolder
 	 * @apiName ClearFolder
 	 * @apiGroup Mail
 	 * @apiDescription Removes all messages from folder. Method is used for Trash and Spam folders.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=ClearFolder} Method Method name
 	 * @apiParam {string} Parameters JSON.stringified object<br>
@@ -3634,26 +3634,26 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **AccountID** *int* Account identifier.<br>
 	 * &emsp; **Folder** *string* Folder full name.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'ClearFolder',
 	 *	Parameters: '{ "AccountID": 12, "Folder": "Trash" }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
 	 * @apiSuccess {boolean} Result.Result Indicates if folder was cleared successfully.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'ClearFolder',
 	 *	Result: true
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -3672,33 +3672,33 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function ClearFolder($AccountID, $Folder)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		if (0 === \strlen(\trim($Folder)))
 		{
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
 		}
 
 		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
-		
+
 		self::checkAccess($oAccount);
 
 		$this->getMailManager()->clearFolder($oAccount, $Folder);
 
 		return true;
 	}
-	
+
 	/**
 	 * @api {post} ?/Api/ GetMessagesByUids
 	 * @apiName GetMessagesByUids
 	 * @apiGroup Mail
 	 * @apiDescription Obtains message list for specified messages' uids.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=GetMessagesByUids} Method Method name
 	 * @apiParam {string} Parameters JSON.stringified object<br>
@@ -3707,14 +3707,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **Folder** *string* Folder full name.<br>
 	 * &emsp; **Uids** *array* Uids of messages to obtain.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetMessagesByUids',
 	 *	Parameters: '{ "AccountID": 12, "Folder": "Inbox", "Uids": [ "1221", "1222", "1226" ] }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
@@ -3744,7 +3744,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiSuccess {boolean} Result.Result.Collection.HasIcalAttachment Indicates if message has attachment with ICAL.
 	 * @apiSuccess {int} Result.Result.Collection.Importance Importance value of the message, from 1 (highest) to 5 (lowest).
 	 * @apiSuccess {array} Result.Result.Collection.DraftInfo Contains information about the original message which is replied or forwarded: message type (reply/forward), UID and folder.
-	 * @apiSuccess {int} Result.Result.Collection.Sensitivity If Sensitivity header was set for the message, its value will be returned: 1 for "Confidential", 2 for "Private", 3 for "Personal". 
+	 * @apiSuccess {int} Result.Result.Collection.Sensitivity If Sensitivity header was set for the message, its value will be returned: 1 for "Confidential", 2 for "Private", 3 for "Personal".
 	 * @apiSuccess {string} Result.Result.Collection.DownloadAsEmlUrl Url for download message as .eml file.
 	 * @apiSuccess {string} Result.Result.Collection.Hash Message hash.
 	 * @apiSuccess {array} Result.Result.Collection.Threads List of uids of messages that are belonged to one thread.
@@ -3761,20 +3761,20 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiSuccess {string} Result.Result.Filters List of conditions to obtain messages.
 	 * @apiSuccess {array} Result.Result.New List of short information about new messages.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetMessagesByUids',
 	 *	Result: {
 	 *		"@Count": 30,"@Collection": [
-	 *			{ "Folder": "INBOX", "Uid": 1689, "Subject": "subject_value", "MessageId": "string_id", 
+	 *			{ "Folder": "INBOX", "Uid": 1689, "Subject": "subject_value", "MessageId": "string_id",
 	 * "Size": 2947, "TextSize": 321, "InternalTimeStampInUTC": 1493290584,
 	 * "ReceivedOrDateTimeStampInUTC": 1493290584, "TimeStampInUTC": 1493290584,
-	 * "From": {"@Count": 1, "@Collection": [ { "DisplayName": "","Email": "test@email" } ] }, 
+	 * "From": {"@Count": 1, "@Collection": [ { "DisplayName": "","Email": "test@email" } ] },
 	 * "To": {"@Count": 1, "@Collection": [ { "DisplayName": "", "Email": "test2@email" } ] },
 	 * "Cc": null, "Bcc": null,
-	 * "ReplyTo": { "@Count": 1, "@Collection": [ { "DisplayName": "Afterlogic", "Email":"test@email" } ] }, 
+	 * "ReplyTo": { "@Count": 1, "@Collection": [ { "DisplayName": "Afterlogic", "Email":"test@email" } ] },
 	 * "IsSeen": true, "IsFlagged": false, "IsAnswered": false, "IsForwarded": false,
 	 * "HasAttachments": false, "HasVcardAttachment": false, "HasIcalAttachment": false, "Importance": 3,
 	 * "DraftInfo": null, "Sensitivity": 0, "DownloadAsEmlUrl": "url_value",
@@ -3785,7 +3785,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 *		"MessageUnseenCount": 0, "MessageResultCount": 601, "FolderName": "INBOX", "Offset": 0,
 	 *		"Limit": 30, "Search": "", "Filters": "", "New": []
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -3805,7 +3805,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function GetMessagesByUids($AccountID, $Folder, $Uids)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		if (0 === \strlen(trim($Folder)) || !\is_array($Uids))
 		{
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
@@ -3817,19 +3817,19 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		return $this->getMailManager()->getMessageListByUids($oAccount, $Folder, $Uids);
 	}
-	
+
 	/**
 	 * @api {post} ?/Api/ GetMessagesFlags
 	 * @apiName GetMessagesFlags
 	 * @apiGroup Mail
 	 * @apiDescription Obtains infomation about flagged flags for specified messages.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=GetMessagesFlags} Method Method name
 	 * @apiParam {string} [Parameters] JSON.stringified object<br>
@@ -3838,26 +3838,26 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **Folder** *string* Folder full name.<br>
 	 * &emsp; **Uids** *array* Uids of messages.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetMessagesFlags'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
 	 * @apiSuccess {mixed} Result.Result List of flags for every message uid in case of success, otherwise **false**.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetMessagesFlags',
 	 *	Result: { "1649": ["\flagged", "\seen"], "1666": ["\flagged", "\seen"] }
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -3877,7 +3877,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function GetMessagesFlags($AccountID, $Folder, $Uids)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		if (0 === \strlen(\trim($Folder)) || !\is_array($Uids))
 		{
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
@@ -3889,19 +3889,19 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		return $this->getMailManager()->getMessagesFlags($oAccount, $Folder, $Uids);
 	}
-	
+
 	/**
 	 * @api {post} ?/Api/ SaveMessage
 	 * @apiName SaveMessage
 	 * @apiGroup Mail
 	 * @apiDescription Saves message to Drafts folder.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=SaveMessage} Method Method name
 	 * @apiParam {string} Parameters JSON.stringified object<br>
@@ -3926,7 +3926,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **Sensitivity** *int* Sensitivity header for the message, its value will be returned: 1 for "Confidential", 2 for "Private", 3 for "Personal".<br>
 	 * &emsp; **DraftFolder** *string* Full name of Drafts folder.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
@@ -3936,20 +3936,20 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * "Importance": 3, "SendReadingConfirmation": false, "Attachments": [], "InReplyTo": "", "References": "",
 	 * "Sensitivity": 0, "DraftFolder": "Drafts" }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
 	 * @apiSuccess {boolean} Result.Result Indicates if message was saved successfully.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'SaveMessage',
 	 *	Result: true
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -3976,20 +3976,20 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param boolean $SendReadingConfirmation Indicates if it is necessary to include header that says
 	 * @param array $Attachments List of attachments.
 	 * @param string $InReplyTo Value of **In-Reply-To** header which is supplied in replies/forwards and contains Message-ID of the original message. This approach allows for organizing threads.
-	 * @param string $References Content of References header block of the message. 
-	 * @param int $Sensitivity Sensitivity header for the message, its value will be returned: 1 for "Confidential", 2 for "Private", 3 for "Personal". 
+	 * @param string $References Content of References header block of the message.
+	 * @param int $Sensitivity Sensitivity header for the message, its value will be returned: 1 for "Confidential", 2 for "Private", 3 for "Personal".
 	 * @param string $DraftFolder Full name of Drafts folder.
 	 * @return boolean
 	 * @throws \System\Exceptions\AuroraApiException
 	 */
-	public function SaveMessage($AccountID, $Fetcher = null, $Alias = null, $IdentityID = 0, 
-			$DraftInfo = [], $DraftUid = "", $To = "", $Cc = "", $Bcc = "", 
-			$Subject = "", $Text = "", $IsHtml = false, $Importance = \MailSo\Mime\Enumerations\MessagePriority::NORMAL, 
-			$SendReadingConfirmation = false, $Attachments = array(), $InReplyTo = "", 
+	public function SaveMessage($AccountID, $Fetcher = null, $Alias = null, $IdentityID = 0,
+			$DraftInfo = [], $DraftUid = "", $To = "", $Cc = "", $Bcc = "",
+			$Subject = "", $Text = "", $IsHtml = false, $Importance = \MailSo\Mime\Enumerations\MessagePriority::NORMAL,
+			$SendReadingConfirmation = false, $Attachments = array(), $InReplyTo = "",
 			$References = "", $Sensitivity = \MailSo\Mime\Enumerations\Sensitivity::NOTHING, $DraftFolder = "")
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		$mResult = false;
 
 		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
@@ -4000,10 +4000,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
 		}
-		
+
 		$oIdentity = $IdentityID !== 0 ? $this->getIdentitiesManager()->getIdentity($IdentityID) : null;
 
-		$oMessage = self::Decorator()->BuildMessage($oAccount, $To, $Cc, $Bcc, 
+		$oMessage = self::Decorator()->BuildMessage($oAccount, $To, $Cc, $Bcc,
 			$Subject, $IsHtml, $Text, $Attachments, $DraftInfo, $InReplyTo, $References, $Importance,
 			$Sensitivity, $SendReadingConfirmation, $Fetcher, $Alias, true, $oIdentity);
 		if ($oMessage)
@@ -4019,20 +4019,20 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 
 		return $mResult;
-	}	
-	
+	}
+
 	/**
 	 * @api {post} ?/Api/ SendMessage
 	 * @apiName SendMessage
 	 * @apiGroup Mail
 	 * @apiDescription Sends message.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=SendMessage} Method Method name
 	 * @apiParam {string} Parameters JSON.stringified object<br>
@@ -4060,7 +4060,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **ConfirmFolder** *string* Full name of folder that contains a message that should be marked as confirmed read.<br>
 	 * &emsp; **ConfirmUid** *string* Uid of message that should be marked as confirmed read.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
@@ -4070,20 +4070,20 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * "Importance": 3, "SendReadingConfirmation": false, "Attachments": [], "InReplyTo": "", "References": "",
 	 * "Sensitivity": 0, "SentFolder": "Sent", "DraftFolder": "Drafts", "ConfirmFolder": "", "ConfirmUid": "" }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
 	 * @apiSuccess {boolean} Result.Result Indicates if message was sent successfully.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'SendMessage',
 	 *	Result: true
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -4111,7 +4111,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param array $Attachments List of attachments.
 	 * @param string $InReplyTo Value of **In-Reply-To** header which is supplied in replies/forwards and contains Message-ID of the original message. This approach allows for organizing threads.
 	 * @param string $References Content of References header block of the message.
-	 * @param int $Sensitivity Sensitivity header for the message, its value will be returned: 1 for "Confidential", 2 for "Private", 3 for "Personal". 
+	 * @param int $Sensitivity Sensitivity header for the message, its value will be returned: 1 for "Confidential", 2 for "Private", 3 for "Personal".
 	 * @param string $SentFolder Full name of Sent folder.
 	 * @param string $DraftFolder Full name of Drafts folder.
 	 * @param string $ConfirmFolder Full name of folder that contains a message that should be marked as confirmed read.
@@ -4120,23 +4120,23 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @return boolean
 	 * @throws \System\Exceptions\AuroraApiException
 	 */
-	public function SendMessage($AccountID, $Fetcher = null, $Alias = null, $IdentityID = 0, 
-			$DraftInfo = [], $DraftUid = "", $To = "", $Cc = "", $Bcc = "", 
-			$Subject = "", $Text = "", $IsHtml = false, $Importance = \MailSo\Mime\Enumerations\MessagePriority::NORMAL, 
-			$SendReadingConfirmation = false, $Attachments = array(), $InReplyTo = "", 
+	public function SendMessage($AccountID, $Fetcher = null, $Alias = null, $IdentityID = 0,
+			$DraftInfo = [], $DraftUid = "", $To = "", $Cc = "", $Bcc = "",
+			$Subject = "", $Text = "", $IsHtml = false, $Importance = \MailSo\Mime\Enumerations\MessagePriority::NORMAL,
+			$SendReadingConfirmation = false, $Attachments = array(), $InReplyTo = "",
 			$References = "", $Sensitivity = \MailSo\Mime\Enumerations\Sensitivity::NOTHING, $SentFolder = "",
 			$DraftFolder = "", $ConfirmFolder = "", $ConfirmUid = "",
 			$CustomHeaders = [])
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
 
 		self::checkAccess($oAccount);
 
 		$oIdentity = $IdentityID !== 0 ? $this->getIdentitiesManager()->getIdentity($IdentityID) : null;
 
-		$oMessage = self::Decorator()->BuildMessage($oAccount, $To, $Cc, $Bcc, 
+		$oMessage = self::Decorator()->BuildMessage($oAccount, $To, $Cc, $Bcc,
 			$Subject, $IsHtml, $Text, $Attachments, $DraftInfo, $InReplyTo, $References, $Importance,
 			$Sensitivity, $SendReadingConfirmation, $Fetcher, $Alias, false, $oIdentity, $CustomHeaders);
 		if ($oMessage)
@@ -4186,12 +4186,12 @@ class Module extends \Aurora\System\Module\AbstractModule
 				}
 				catch (\Exception $oException) {}
 			}
-			
+
 			if (0 < \strlen($ConfirmFolder) && 0 < \strlen($ConfirmUid))
 			{
 				try
 				{
-					$mResult = $this->getMailManager()->setMessageFlag($oAccount, $ConfirmFolder, array($ConfirmUid), '$ReadConfirm', 
+					$mResult = $this->getMailManager()->setMessageFlag($oAccount, $ConfirmFolder, array($ConfirmUid), '$ReadConfirm',
 						\Aurora\Modules\Mail\Enums\MessageStoreAction::Add, false, true);
 				}
 				catch (\Exception $oException) {}
@@ -4201,19 +4201,19 @@ class Module extends \Aurora\System\Module\AbstractModule
 		\Aurora\System\Api::LogEvent('message-send: ' . $oAccount->Email, self::GetName());
 		return $mResult;
 	}
-	
+
 	/**
 	 * @api {post} ?/Api/ SetupSystemFolders
 	 * @apiName SetupSystemFolders
 	 * @apiGroup Mail
 	 * @apiDescription Sets up new values of special folders.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=SetupSystemFolders} Method Method name
 	 * @apiParam {string} Parameters JSON.stringified object<br>
@@ -4224,27 +4224,27 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **Trash** *string* New value of Trash folder full name.<br>
 	 * &emsp; **Spam** *string* New value of Spam folder full name.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'SetupSystemFolders',
 	 *	Parameters: '{ "AccountID": 12, "Sent": "Sent", "Drafts": "Drafts", "Trash": "Trash", "Spam": "Spam" }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
 	 * @apiSuccess {boolean} Result.Result Indicates if system folders were set up successfully.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'SetupSystemFolders',
 	 *	Result: true
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -4265,9 +4265,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function SetupSystemFolders($AccountID, $Sent, $Drafts, $Trash, $Spam)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
-		
+
 		self::checkAccess($oAccount);
 
 		$aSystemNames = [
@@ -4276,7 +4276,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			\Aurora\Modules\Mail\Enums\FolderType::Trash => \trim($Trash),
 			\Aurora\Modules\Mail\Enums\FolderType::Spam => \trim($Spam)
 		];
-		
+
 		return $this->getMailManager()->updateSystemFolderNames($oAccount, $aSystemNames);
 	}
 
@@ -4285,18 +4285,18 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param string $FolderFullName folder full name.
 	 * @param bool $AlwaysRefresh
 	 * @return boolean
-	 */	
+	 */
 	public function SetAlwaysRefreshFolder($AccountID, $FolderFullName, $AlwaysRefresh)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
 
 		self::checkAccess($oAccount);
 
 		return $this->getMailManager()->setAlwaysRefreshFolder($oAccount, $FolderFullName, $AlwaysRefresh);
 	}
-	
+
 	/**
 	 * Marks (or unmarks) folder as template folder.
 	 * @param int $AccountID Account identifier.
@@ -4307,7 +4307,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function SetTemplateFolderType($AccountID, $FolderFullName, $SetTemplate)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		if ($this->getConfig('AllowTemplateFolders', false))
 		{
 			$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
@@ -4316,7 +4316,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 			return $this->getMailManager()->setSystemFolder($oAccount, $FolderFullName, \Aurora\Modules\Mail\Enums\FolderType::Template, $SetTemplate);
 		}
-		
+
 		return false;
 	}
 
@@ -4325,13 +4325,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiName SetEmailSafety
 	 * @apiGroup Mail
 	 * @apiDescription Marks sender email as safety for authenticated user. So pictures in messages from this sender will be always displayed.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=SetEmailSafety} Method Method name
 	 * @apiParam {string} Parameters JSON.stringified object<br>
@@ -4339,27 +4339,27 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **AccountID** *int* Account identifier.<br>
 	 * &emsp; **Email** *string* Sender email.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'SetEmailSafety',
 	 *	Parameters: '{ "AccountID": 12, "Email": "test@email" }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
 	 * @apiSuccess {boolean} Result.Result Indicates if email was marked as safety successfully.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'SetEmailSafety',
 	 *	Result: true
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -4378,7 +4378,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function SetEmailSafety($AccountID, $Email)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		if (0 === \strlen(\trim($Email)))
 		{
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
@@ -4391,20 +4391,20 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$this->getMailManager()->setSafetySender($oAccount->IdUser, $Email);
 
 		return true;
-	}	
-	
+	}
+
 	/**
 	 * @api {post} ?/Api/ CreateIdentity
 	 * @apiName CreateIdentity
 	 * @apiGroup Mail
 	 * @apiDescription Creates identity.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=CreateIdentity} Method Method name
 	 * @apiParam {string} Parameters JSON.stringified object<br>
@@ -4414,27 +4414,27 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **FriendlyName** *string* Identity friendly name.<br>
 	 * &emsp; **Email** *string* Identity email.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'CreateIdentity',
 	 *	Parameters: '{ "AccountID": 12, "FriendlyName": "My name", "Email": "test@email" }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
 	 * @apiSuccess {mixed} Result.Result Identifier of created identity in case of success, otherwise **false**.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'CreateIdentity',
 	 *	Result: 14
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -4454,26 +4454,26 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function CreateIdentity($UserId, $AccountID, $FriendlyName, $Email)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
-		
+
 		self::checkAccess($oAccount);
-		
+
 		return $this->getIdentitiesManager()->createIdentity($UserId, $AccountID, $FriendlyName, $Email);
 	}
-	
+
 	/**
 	 * @api {post} ?/Api/ UpdateIdentity
 	 * @apiName UpdateIdentity
 	 * @apiGroup Mail
 	 * @apiDescription Updates identity.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=UpdateIdentity} Method Method name
 	 * @apiParam {string} Parameters JSON.stringified object<br>
@@ -4486,7 +4486,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **Default** *boolean* Indicates if identity should be used by default.<br>
 	 * &emsp; **AccountPart** *boolean* Indicated if account should be updated, not any identity.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
@@ -4494,20 +4494,20 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 *	Parameters: '{ "AccountID": 12, "EntityId": 14, "FriendlyName": "New my name", "Email": "test@email",
 	 *		"Default": false, "AccountPart": false }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
 	 * @apiSuccess {boolean} Result.Result Indicates if identity was updated successfully.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'UpdateIdentity',
 	 *	Result: true
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -4530,16 +4530,16 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function UpdateIdentity($UserId, $AccountID, $EntityId, $FriendlyName, $Email, $Default = false, $AccountPart = false)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
 
 		self::checkAccess($oAccount);
-		
+
 		if ($Default)
 		{
 			$this->getIdentitiesManager()->resetDefaultIdentity($UserId, $AccountID);
 		}
-		
+
 		if ($AccountPart)
 		{
 			return $this->UpdateAccount($AccountID, null, $Email, $FriendlyName);
@@ -4549,46 +4549,46 @@ class Module extends \Aurora\System\Module\AbstractModule
 			return $this->getIdentitiesManager()->updateIdentity($EntityId, $FriendlyName, $Email, $Default);
 		}
 	}
-	
+
 	/**
 	 * @api {post} ?/Api/ DeleteIdentity
 	 * @apiName DeleteIdentity
 	 * @apiGroup Mail
 	 * @apiDescription Deletes identity.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=DeleteIdentity} Method Method name
 	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **EntityId** *int* Identity identifier.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'DeleteIdentity',
 	 *	Parameters: '{ "EntityId": 14 }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
 	 * @apiSuccess {boolean} Result.Result Indicates if identity was deleted successfully.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'DeleteIdentity',
 	 *	Result: true
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -4605,39 +4605,39 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function DeleteIdentity($AccountID, $EntityId)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
-		
+
 		self::checkAccess($oAccount);
-		
+
 		return $this->getIdentitiesManager()->deleteIdentity($EntityId);
 	}
-	
+
 	/**
 	 * @api {post} ?/Api/ GetIdentities
 	 * @apiName GetIdentities
 	 * @apiGroup Mail
 	 * @apiDescription Obtaines all identities of specified user.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=GetServers} Method Method name
 	 * @apiParam {string} [Parameters] JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **UserId** *int* (optional) User identifier.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetIdentities'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
@@ -4652,7 +4652,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiSuccess {boolean} Result.Result.UseSignature Indicates if signature should be used in outgoing mails.
 	 * @apiSuccess {string} Result.Result.Signature Identity signature.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
@@ -4662,7 +4662,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 *				"UseSignature": true, "Signature": "signature_value" },
 	 *			  ... ]
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -4679,24 +4679,24 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function GetIdentities($UserId)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		self::checkAccess(null, $UserId);
-		
+
 		return $this->getIdentitiesManager()->getIdentities($UserId);
 	}
-	
+
 	/**
 	 * @api {post} ?/Api/ UpdateSignature
 	 * @apiName UpdateSignature
 	 * @apiGroup Mail
 	 * @apiDescription Updates signature.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=UpdateSignature} Method Method name
 	 * @apiParam {string} Parameters JSON.stringified object<br>
@@ -4706,27 +4706,27 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **Signature** *string* Account or identity signature.<br>
 	 * &emsp; **IdentityId** *int* (optional) Identity identifier.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'UpdateSignature',
 	 *	Parameters: '{ "AccountID": 12, "UseSignature": true, "Signature": "signature_value", "IdentityId": 14 }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
 	 * @apiSuccess {boolean} Result.Result Indicates if signature was updated successfully.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'UpdateSignature',
 	 *	Result: true
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -4747,13 +4747,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function UpdateSignature($AccountID, $UseSignature = null, $Signature = null, $IdentityId = null)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		if ($AccountID > 0)
 		{
 			$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
 
 			self::checkAccess($oAccount);
-			
+
 			if ($this->getConfig('AllowIdentities', false) && $IdentityId !== null)
 			{
 				return $this->getIdentitiesManager()->updateIdentitySignature($IdentityId, $UseSignature, $Signature);
@@ -4782,19 +4782,19 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		return false;
 	}
-	
+
 	/**
 	 * @api {post} ?/Api/ UploadAttachment
 	 * @apiName UploadAttachment
 	 * @apiGroup Mail
 	 * @apiDescription Uploads attachment.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=UploadAttachment} Method Method name
 	 * @apiParam {string} [Parameters] JSON.stringified object<br>
@@ -4803,20 +4803,20 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **AccountID** *int* Account identifier.<br>
 	 * }
 	 * @apiParam {string} UploadData Data of uploaded file.
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'UploadAttachment',
 	 *	Parameters: '{ "AccountID": 12 }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
 	 * @apiSuccess {mixed} Result.Result Attachment properties in case of success, otherwise **false**.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
@@ -4825,7 +4825,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * "Size": 14, "Hash": "hash_value", "Actions": { "view": { "url": "url_value" },
 	 * "download": { "url": "url_value" } }, "ThumbnailUrl": "" } }
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -4844,12 +4844,12 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function UploadAttachment($UserId, $AccountID, $UploadData)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		$sUUID = \Aurora\System\Api::getUserUUIDById($UserId);
 		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
 
 		self::checkAccess($oAccount);
-		
+
 		$sError = '';
 		$aResponse = array();
 
@@ -4900,19 +4900,19 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		return $aResponse;
 	}
-	
+
 	/**
 	 * @api {post} ?/Api/ SaveAttachmentsAsTempFiles
 	 * @apiName SaveAttachmentsAsTempFiles
 	 * @apiGroup Mail
 	 * @apiDescription Retrieves attachments from message and saves them as files in temporary folder.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=SaveAttachmentsAsTempFiles} Method Method name
 	 * @apiParam {string} [Parameters] JSON.stringified object<br>
@@ -4920,27 +4920,27 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **AccountID** *int* Account identifier.<br>
 	 * &emsp; **Attachments** *array* List of attachments hashes.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'SaveAttachmentsAsTempFiles',
 	 *	Parameters: '{ "Attachments": [ "hash_value" ], "AccountID": 12 }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
 	 * @apiSuccess {mixed} Result.Result Attachments' properties in case of success, otherwise **false**.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'SaveAttachmentsAsTempFiles',
 	 *	Result: { "temp_name_value": "hash_value" }
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -4962,7 +4962,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$self = $this;
 
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
 
 		self::checkAccess($oAccount);
@@ -5016,20 +5016,20 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 
 		return $mResult;
-	}	
-	
+	}
+
 	/**
 	 * @api {post} ?/Api/ SaveMessageAsTempFile
 	 * @apiName SaveMessageAsTempFile
 	 * @apiGroup Mail
 	 * @apiDescription Retrieves message and saves it as .eml file in temporary folder.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=SaveMessageAsTempFile} Method Method name
 	 * @apiParam {string} [Parameters] JSON.stringified object<br>
@@ -5039,7 +5039,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **MessageUid** *string* Message uid.<br>
 	 * &emsp; **FileName** *string* Name of created .eml file.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
@@ -5047,13 +5047,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 *	Parameters: '{ "MessageFolder": "INBOX", "MessageUid": "1691", "FileName": "subject.eml",
 	 *		"AccountID": 12 }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
 	 * @apiSuccess {mixed} Result.Result .eml attachment properties in case of success, otherwise **false**.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
@@ -5063,7 +5063,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * "Actions": { "view": { "url": "view_url" }, "download": { "url": "download_url" } },
 	 * "ThumbnailUrl": "" } }
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -5087,7 +5087,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$self = $this;
 
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
 
 		self::checkAccess($oAccount);
@@ -5127,20 +5127,20 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 
 		return $mResult;
-	}	
-	
+	}
+
 	/**
 	 * @api {post} ?/Api/ UploadMessage
 	 * @apiName UploadMessage
 	 * @apiGroup Mail
 	 * @apiDescription Uploads message and puts it to specified folder.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=UploadMessage} Method Method name
 	 * @apiParam {string} [Parameters] JSON.stringified object<br>
@@ -5149,27 +5149,27 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **Folder** *string* Folder full name.<br>
 	 * }
 	 * @apiParam {string} UploadData Information about uploaded .eml file.
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'UploadMessage',
 	 *	Parameters: '{ "AccountID": 12, "Folder": "INBOX" }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
 	 * @apiSuccess {boolean} Result.Result Indicates if message was uploaded successfully.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'UploadMessage',
 	 *	Result: true
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -5189,11 +5189,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function UploadMessage($AccountID, $Folder, $UploadData)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		$bResult = false;
 
 		$oAccount = $this->getAccountsManager()->getAccountById((int)$AccountID);
-		
+
 		self::checkAccess($oAccount);
 
 		if ($oAccount)
@@ -5204,7 +5204,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 				$sUploadName = $UploadData['name'];
 				$bIsEmlExtension  = strtolower(pathinfo($sUploadName, PATHINFO_EXTENSION)) === 'eml';
 
-				if ($bIsEmlExtension) 
+				if ($bIsEmlExtension)
 				{
 					$sSavedName = 'upload-post-' . md5($UploadData['name'] . $UploadData['tmp_name']);
 					if (is_resource($UploadData['tmp_name']))
@@ -5227,8 +5227,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 						{
 							throw new \Aurora\Modules\Mail\Exceptions\Exception(Enums\ErrorCodes::CannotUploadMessage, $oException, $oException->getMessage());
 						}
-					} 
-					else 
+					}
+					else
 					{
 						throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::UnknownError);
 					}
@@ -5246,19 +5246,19 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		return $bResult;
 	}
-	
+
 	/**
 	 * @api {post} ?/Api/ ChangePassword
 	 * @apiName ChangePassword
 	 * @apiGroup Mail
 	 * @apiDescription Changes account password.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=ChangePassword} Method Method name
 	 * @apiParam {string} Parameters JSON.stringified object<br>
@@ -5267,26 +5267,26 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **CurrentPassword** *string* Current password.<br>
 	 * &emsp; **NewPassword** *string* New password.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'ChangePassword',
 	 *	Parameters: '{ "AccountId": 12, "CurrentPassword": "pass_value", "NewPassword": "new_pass_value" }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
 	 * @apiSuccess {boolean} Result.Result Indicates if password was changed successfully.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'ChangePassword',
 	 *	Result: true
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -5297,7 +5297,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	/**
 	 * This method will trigger some event, subscribers of which perform all change password process
-	 * 
+	 *
 	 * @param int $AccountId Account identifier.
 	 * @param string $CurrentPassword Current password.
 	 * @param string $NewPassword New password.
@@ -5306,13 +5306,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function ChangePassword($AccountId, $CurrentPassword, $NewPassword)
 	{
 		$mResult = false;
-		
+
 		if ($AccountId > 0)
 		{
 			$oAccount = $this->getAccountsManager()->getAccountById($AccountId);
-			
+
 			self::checkAccess($oAccount);
-			
+
 			$oUser = \Aurora\System\Api::getAuthenticatedUser();
 			if ($oAccount instanceof \Aurora\Modules\Mail\Classes\Account &&
 				$oUser instanceof \Aurora\Modules\Core\Classes\User &&
@@ -5325,7 +5325,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 					\Aurora\System\Api::LogEvent('password-change-failed: ' . $oAccount->Email, self::GetName());
 					throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Exceptions\Errs::UserManager_AccountOldPasswordNotCorrect);
 				}
-				
+
 				$aArgs = [
 					'Account' => $oAccount,
 					'CurrentPassword' => $CurrentPassword,
@@ -5334,13 +5334,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 				$aResponse = [
 					'AccountPasswordChanged' => false
 				];
-				
+
 				\Aurora\System\Api::GetModule('Core')->broadcastEvent(
 					'Mail::ChangeAccountPassword',
 					$aArgs,
 					$aResponse
 				);
-				
+
 				if ($aResponse['AccountPasswordChanged'])
 				{
 					$oAccount->setPassword($NewPassword);
@@ -5360,46 +5360,46 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		return $mResult;
 	}
-	
+
 	/**
 	 * @api {post} ?/Api/ GetFilters
 	 * @apiName GetFilters
 	 * @apiGroup Mail
 	 * @apiDescription Obtains filters for specified account.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=GetFilters} Method Method name
 	 * @apiParam {string} [Parameters] JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetFilters',
 	 *	Parameters: '{ "AccountID": 12 }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
 	 * @apiSuccess {mixed} Result.Result List of filters in case of success, otherwise **false**.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetFilters',
 	 *	Result: []
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -5416,9 +5416,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function GetFilters($AccountID)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		$mResult = false;
-		
+
 		$oAccount = $this->getAccountsManager()->getAccountById((int) $AccountID);
 
 		self::checkAccess($oAccount);
@@ -5427,22 +5427,22 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
 			$mResult = $this->getSieveManager()->getSieveFilters($oAccount);
 		}
-		
+
 		return $mResult;
 	}
-	
+
 	/**
 	 * @api {post} ?/Api/ UpdateFilters
 	 * @apiName UpdateFilters
 	 * @apiGroup Mail
 	 * @apiDescription Updates filters.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=UpdateFilters} Method Method name
 	 * @apiParam {string} Parameters JSON.stringified object<br>
@@ -5450,28 +5450,28 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **AccountID** *int* Account identifier<br>
 	 * &emsp; **Filters** *array* New filters data.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'UpdateFilters',
-	 *	Parameters: '{ "AccountID": 12, "Filters": [ { "Enable": "1", "Field": 0, "Filter": "test", 
+	 *	Parameters: '{ "AccountID": 12, "Filters": [ { "Enable": "1", "Field": 0, "Filter": "test",
 	 *			"Condition": 0, "Action": 3, "FolderFullName": "test" } ] }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
 	 * @apiSuccess {boolean} Result.Result Indicates if filters were updated successfully.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'UpdateFilters',
 	 *	Result: true
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -5489,9 +5489,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function UpdateFilters($AccountID, $Filters)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		$bResult = false;
-		
+
 		$oAccount = $this->getAccountsManager()->getAccountById((int) $AccountID);
 
 		self::checkAccess($oAccount);
@@ -5499,52 +5499,52 @@ class Module extends \Aurora\System\Module\AbstractModule
 		if ($oAccount)
 		{
 			$aFilters = array();
-			
+
 			if (is_array($Filters))
 			{
 				foreach ($Filters as $aFilterData)
 				{
 					$oFilter = $this->getSieveManager()->createFilterInstance($oAccount, $aFilterData);
-						
+
 					if ($oFilter)
 					{
 						$aFilters[] = $oFilter;
 					}
 				}
 			}
-			
+
 			$bResult = $this->getSieveManager()->updateSieveFilters($oAccount, $aFilters);
 		}
-		
+
 		return $bResult;
 	}
-	
+
 	/**
 	 * @api {post} ?/Api/ GetForward
 	 * @apiName GetForward
 	 * @apiGroup Mail
 	 * @apiDescription Obtains forward data for specified account.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=GetForward} Method Method name
 	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetForward',
 	 *	Parameters: '{ "AccountID": 12 }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
@@ -5552,14 +5552,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiSuccess {boolean} Result.Result.Enable Indicates if forward is enabled.
 	 * @apiSuccess {string} Result.Result.Email Forward email.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetForward',
 	 *	Result: { "Enable": false, "Email": "" }
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -5576,11 +5576,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function GetForward($AccountID)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		$mResult = false;
-		
+
 		$oAccount = $this->getAccountsManager()->getAccountById((int) $AccountID);
-		
+
 		self::checkAccess($oAccount);
 
 		if ($oAccount)
@@ -5590,19 +5590,19 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		return $mResult;
 	}
-	
+
 	/**
 	 * @api {post} ?/Api/ UpdateForward
 	 * @apiName UpdateForward
 	 * @apiGroup Mail
 	 * @apiDescription Updates forward.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=UpdateForward} Method Method name
 	 * @apiParam {string} Parameters JSON.stringified object<br>
@@ -5611,27 +5611,27 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **Enable** *boolean* Indicates if forward is enabled.<br>
 	 * &emsp; **Email** *string* Email that should be used for message forward.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'UpdateForward',
 	 *	Parameters: '{ "AccountID": 12, "Enable": true, "Email": "test2@email" }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
 	 * @apiSuccess {boolean} Result.Result Indicates if server was updated successfully.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'UpdateForward',
 	 *	Result: true
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -5650,9 +5650,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function UpdateForward($AccountID, $Enable = false, $Email = "")
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		$mResult = false;
-		
+
 		$oAccount = $this->getAccountsManager()->getAccountById((int) $AccountID);
 
 		self::checkAccess($oAccount);
@@ -5661,36 +5661,36 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
 			$mResult = $this->getSieveManager()->setForward($oAccount, $Email, $Enable);
 		}
-		
+
 		return $mResult;
 	}
-	
+
 	/**
 	 * @api {post} ?/Api/ GetAutoresponder
 	 * @apiName GetAutoresponder
 	 * @apiGroup Mail
 	 * @apiDescription Obtains autoresponder for specified account.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=GetAutoresponder} Method Method name
 	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetAutoresponder',
 	 *	Parameters: '{ "AccountID": 12 }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
@@ -5699,14 +5699,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiSuccess {string} Result.Result.Subject Subject of auto-respond message.
 	 * @apiSuccess {string} Result.Result.Message Text of auto-respond message.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetAutoresponder',
 	 *	Result: { Enable: false, Subject: "", Message: "" }
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -5723,13 +5723,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function GetAutoresponder($AccountID)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		$mResult = false;
-		
+
 		$oAccount = $this->getAccountsManager()->getAccountById((int) $AccountID);
-		
+
 		self::checkAccess($oAccount);
-		
+
 		if ($oAccount)
 		{
 			$mResult = $this->getSieveManager()->getAutoresponder($oAccount);
@@ -5737,19 +5737,19 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		return $mResult;
 	}
-	
+
 	/**
 	 * @api {post} ?/Api/ UpdateAutoresponder
 	 * @apiName UpdateAutoresponder
 	 * @apiGroup Mail
 	 * @apiDescription Updates autoresponder data.
-	 * 
+	 *
 	 * @apiHeader {string} Authorization "Bearer " + Authentication token which was received as the result of Core.Login method.
 	 * @apiHeaderExample {json} Header-Example:
 	 *	{
 	 *		"Authorization": "Bearer 32b2ecd4a4016fedc4abee880425b6b8"
 	 *	}
-	 * 
+	 *
 	 * @apiParam {string=Mail} Module Module name
 	 * @apiParam {string=UpdateAutoresponder} Method Method name
 	 * @apiParam {string} Parameters JSON.stringified object<br>
@@ -5759,27 +5759,27 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **Subject** *string* Subject of auto-respond message.<br>
 	 * &emsp; **Message** *string* Text of auto-respond message.<br>
 	 * }
-	 * 
+	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'UpdateAutoresponder',
 	 *	Parameters: '{ "AccountID": 12, "Enable": true, "Subject": "subject_value", "Text": "text_value" }'
 	 * }
-	 * 
+	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
 	 * @apiSuccess {boolean} Result.Result Indicates if Autoresponder was updated successfully.
 	 * @apiSuccess {int} [Result.ErrorCode] Error code
-	 * 
+	 *
 	 * @apiSuccessExample {json} Success response example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'UpdateAutoresponder',
 	 *	Result: true
 	 * }
-	 * 
+	 *
 	 * @apiSuccessExample {json} Error response example:
 	 * {
 	 *	Module: 'Mail',
@@ -5799,9 +5799,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function UpdateAutoresponder($AccountID, $Enable = false, $Subject = "", $Message = "")
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		$mResult = false;
-		
+
 		$oAccount = $this->getAccountsManager()->getAccountById((int) $AccountID);
 
 		self::checkAccess($oAccount);
@@ -5810,11 +5810,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
 			$mResult = $this->getSieveManager()->setAutoresponder($oAccount, $Subject, $Message, $Enable);
 		}
-		
+
 		return $mResult;
 	}
 	/***** public functions might be called with web API *****/
-	
+
 	/***** private functions *****/
 	/**
 	 * Deletes all mail accounts which are belonged to the specified user.
@@ -5826,7 +5826,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function onBeforeDeleteUser($aArgs, &$mResult)
 	{
 		$mResult = $this->getAccountsManager()->getUserAccounts($aArgs["UserId"]);
-		
+
 		if (\is_array($mResult))
 		{
 			foreach($mResult as $oItem)
@@ -5835,7 +5835,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			}
 		}
 	}
-	
+
 	/**
 	 * Obtains a server object for the specified domain.
 	 * @param string $Domain
@@ -5871,7 +5871,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		return $aResult;
 	}
-	
+
 	/**
 	 * Attempts to authorize user via mail account with specified credentials.
 	 * Called from subscribed event.
@@ -5884,11 +5884,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 	{
 		$bResult = false;
 		$iUserId = 0;
-		
+
 		$sEmail = $aArgs['Login'];
 		$sMailLogin = $aArgs['Login'];
 		$oAccount = $this->getAccountsManager()->getAccountUsedToAuthorize($sEmail);
-		
+
 		$bNewAccount = false;
 		$bAutocreateMailAccountOnNewUserFirstLogin = $this->getConfig('AutocreateMailAccountOnNewUserFirstLogin', false);
 		if (!$bAutocreateMailAccountOnNewUserFirstLogin && !$oAccount)
@@ -5899,7 +5899,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 				$bAutocreateMailAccountOnNewUserFirstLogin = true;
 			}
 		}
-		
+
 		$oServer = null;
 		if ($bAutocreateMailAccountOnNewUserFirstLogin && !$oAccount)
 		{
@@ -5936,7 +5936,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 				}
 			}
 		}
-		
+
 		if ($oAccount instanceof \Aurora\Modules\Mail\Classes\Account)
 		{
 			try
@@ -5966,7 +5966,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 						'TenantId' => $oServer->TenantId
 					);
 					$this->broadcastEvent(
-						'CreateAccount', 
+						'CreateAccount',
 						$aSubArgs,
 						$oUser
 					);
@@ -5976,11 +5976,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 						$iUserId = $oUser->EntityId;
 						$bPrevState = \Aurora\System\Api::skipCheckUserRole(true);
 						$oAccount = self::Decorator()->CreateAccount(
-							$iUserId, 
+							$iUserId,
 							'',
 							$sEmail,
 							$sMailLogin,
-							$aArgs['Password'], 
+							$aArgs['Password'],
 							array('ServerId' => $oServer->EntityId)
 						);
 						\Aurora\System\Api::skipCheckUserRole($bPrevState);
@@ -5996,7 +5996,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 						}
 					}
 				}
-				
+
 				if ($bResult)
 				{
 					$mResult = \Aurora\System\UserSession::getTokenData($oAccount, $aArgs['SignMe']);
@@ -6007,13 +6007,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 				throw $oException;
 			}
 			catch (\Exception $oException) {}
-		}			
+		}
 
 		return $bResult;
 	}
-	
+
 	/**
-	 * 
+	 *
 	 * @param array $aArgs
 	 * @param array $aResult
 	 */
@@ -6043,8 +6043,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 				}
 			}
 		}
-	}		
-	
+	}
+
 	/**
 	 * Puts on or off some flag of message.
 	 * @param int $AccountID account identifier.
@@ -6069,12 +6069,12 @@ class Module extends \Aurora\System\Module\AbstractModule
 		return $this->getMailManager()->setMessageFlag($oAccount, $sFolderFullNameRaw, $aUids, $sFlagName,
 			$bSetAction ? \Aurora\Modules\Mail\Enums\MessageStoreAction::Add : \Aurora\Modules\Mail\Enums\MessageStoreAction::Remove);
 	}
-	
+
 	/**
 	 * When using a memory stream and the read
-	 * filter "convert.base64-encode" the last 
-	 * character is missing from the output if 
-	 * the base64 conversion needs padding bytes. 
+	 * filter "convert.base64-encode" the last
+	 * character is missing from the output if
+	 * the base64 conversion needs padding bytes.
 	 * @param string $sRaw
 	 * @return string
 	 */
@@ -6084,16 +6084,16 @@ class Module extends \Aurora\System\Module\AbstractModule
 		\fwrite($rStream, '0');
 		\rewind($rStream);
 		$rFilter = \stream_filter_append($rStream, 'convert.base64-encode');
-		
+
 		if (0 === \strlen(\stream_get_contents($rStream)))
 		{
 			$iFileSize = \strlen($sRaw);
 			$sRaw = \str_pad($sRaw, $iFileSize + ($iFileSize % 3));
 		}
-		
+
 		return $sRaw;
-	}	
-	
+	}
+
 	/**
 	 * Builds message for further sending or saving.
 	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
@@ -6108,7 +6108,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param string $sInReplyTo Value of **In-Reply-To** header which is supplied in replies/forwards and contains Message-ID of the original message. This approach allows for organizing threads.
 	 * @param string $sReferences Content of References header block of the message.
 	 * @param int $iImportance Importance of the message - LOW = 5, NORMAL = 3, HIGH = 1.
-	 * @param int $iSensitivity Sensitivity header for the message, its value will be returned: 1 for "Confidential", 2 for "Private", 3 for "Personal". 
+	 * @param int $iSensitivity Sensitivity header for the message, its value will be returned: 1 for "Confidential", 2 for "Private", 3 for "Personal".
 	 * @param boolean $bSendReadingConfirmation Indicates if it is necessary to include header that says
 	 * @param object $oFetcher
 	 * @param object $oAlias
@@ -6117,8 +6117,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param array $aCustomHeaders
 	 * @return \MailSo\Mime\Message
 	 */
-	public function BuildMessage($oAccount, $sTo = '', $sCc = '', $sBcc = '', 
-			$sSubject = '', $bTextIsHtml = false, $sText = '', $aAttachments = null, 
+	public function BuildMessage($oAccount, $sTo = '', $sCc = '', $sBcc = '',
+			$sSubject = '', $bTextIsHtml = false, $sText = '', $aAttachments = null,
 			$aDraftInfo = null, $sInReplyTo = '', $sReferences = '', $iImportance = '',
 			$iSensitivity = 0, $bSendReadingConfirmation = false,
 			$oFetcher = null, $oAlias = null, $bWithDraftInfo = true, $oIdentity = null, $aCustomHeaders = [])
@@ -6127,7 +6127,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		$oMessage = \MailSo\Mime\Message::NewInstance();
 		$oMessage->RegenerateMessageId();
-		
+
 		$sUUID = \Aurora\System\Api::getUserUUIDById($oAccount->IdUser);
 
 		$sXMailer = $this->getConfig('XMailerValue', '');
@@ -6135,15 +6135,15 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
 			$oMessage->SetXMailer($sXMailer);
 		}
-		
-		$bXOriginatingIP = 	$this->getConfig('XOriginatingIP', false);
-		if ($bXOriginatingIP)
+
+		$sXOriginatingIPHeaderName = $this->getConfig('XOriginatingIPHeaderName', '');
+		if (!empty($sXOriginatingIPHeaderName))
 		{
 			$sIP = $this->oHttp->GetClientIp();
 			$oMessage->SetCustomHeader(
-				\MailSo\Mime\Enumerations\Header::X_ORIGINATING_IP,
+				$sXOriginatingIPHeaderName,
 				$this->oHttp->IsLocalhost($sIP) ? '127.0.0.1' : $sIP
-			);			
+			);
 		}
 
 		if ($oIdentity)
@@ -6198,7 +6198,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
 			$oMessage->SetReferences($sReferences);
 		}
-		
+
 		if (\in_array($iImportance, array(
 			\MailSo\Mime\Enumerations\MessagePriority::HIGH,
 			\MailSo\Mime\Enumerations\MessagePriority::NORMAL,
@@ -6242,9 +6242,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$mFoundDataURL = array();
 		$aFoundedContentLocationUrls = array();
 
-		$sTextConverted = $bTextIsHtml ? 
+		$sTextConverted = $bTextIsHtml ?
 			\MailSo\Base\HtmlUtils::BuildHtml($sText, $aFoundCids, $mFoundDataURL, $aFoundedContentLocationUrls) : $sText;
-		
+
 		$oMessage->AddText($sTextConverted, $bTextIsHtml);
 
 		if (\is_array($aAttachments))
@@ -6297,10 +6297,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 					if (0 < $iFileSize)
 					{
 						$sFileName = \preg_replace('/[^a-z0-9]+/i', '.', \MailSo\Base\Utils::NormalizeContentType($aMatch[1]));
-						
+
 						// fix bug #68532 php < 5.5.21 or php < 5.6.5
 						$sRaw = $this->fixBase64EncodeOmitsPaddingBytes($sRaw);
-						
+
 						$rResource = \MailSo\Base\ResourceRegistry::CreateMemoryResourceFromString($sRaw);
 
 						$sRaw = '';
@@ -6317,7 +6317,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		return $oMessage;
 	}
-	
+
 	public function onAfterDeleteTenant(&$aArgs, &$mResult)
 	{
 		$TenantId = $aArgs['TenantId'];
@@ -6330,7 +6330,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			}
 		}
 	}
-	
+
 	public function onAfterGetAutodiscover(&$aArgs, &$mResult)
 	{
 		$sIncomingServer = \trim($this->getConfig('ExternalHostNameOfLocalImap'));
@@ -6383,7 +6383,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$mResult = $mResult . $sResult;
 		}
 	}
-	
+
 	public function EntryMessageNewtab()
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
@@ -6398,10 +6398,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 			);
 
 			$oCoreWebclientModule = \Aurora\System\Api::GetModule('CoreWebclient');
-			if ($oCoreWebclientModule instanceof \Aurora\System\Module\AbstractModule) 
+			if ($oCoreWebclientModule instanceof \Aurora\System\Module\AbstractModule)
 			{
 				$sResult = \file_get_contents($oCoreWebclientModule->GetPath().'/templates/Index.html');
-				if (\is_string($sResult)) 
+				if (\is_string($sResult))
 				{
 					return strtr($sResult, array(
 						'{{AppVersion}}' => AU_APP_VERSION,
@@ -6413,35 +6413,35 @@ class Module extends \Aurora\System\Module\AbstractModule
 			}
 		}
 	}
-	
+
 	public function EntryDownloadAttachment()
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-		
+
 		if ($this->getConfig('CleanupOutputBeforeDownload', false))
 		{
 			@ob_clean(); // discard any data in the output buffer (if possible)
 		}
-		
+
 		$this->getRaw(
 			(string) \Aurora\System\Router::getItemByIndex(1, ''),
 			(string) \Aurora\System\Router::getItemByIndex(2, '')
-		);		
+		);
 	}
-	
+
 	public function EntryDownloadAttachmentCookieless()
 	{
 		$sAuthToken = $_GET['AuthToken'];
-		
+
 		$re = '/^[a-zA-Z0-9_-]+$/';
 		$bSafeToken = preg_match($re, $sAuthToken);
-		
+
 		if ($sAuthToken !== '' && !!$bSafeToken) {
 			\Aurora\System\Api::authorise($sAuthToken);
 			$this->EntryDownloadAttachment();
 		}
 	}
-	
+
 	/**
 	 * @param string $sHash
 	 * @param string $sAction
@@ -6452,7 +6452,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$self = $this;
 		$bDownload = true;
 		$bThumbnail = false;
-		
+
 		switch ($sAction)
 		{
 			case 'view':
@@ -6468,9 +6468,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 				$bThumbnail = false;
 			break;
 		}
-		
+
 		$aValues = \Aurora\System\Api::DecodeKeyValues($sHash);
-		
+
 		$sFolder = '';
 		$iUid = 0;
 		$sMimeIndex = '';
@@ -6483,9 +6483,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 		if (isset($aValues['AccountID']))
 		{
 			$oAccount = $this->getAccountsManager()->getAccountById((int) $aValues['AccountID']);
-			
+
 			self::checkAccess($oAccount);
-			
+
 			if (!$oAccount || \Aurora\System\Api::getAuthenticatedUserId() !== $oAccount->IdUser)
 			{
 				return false;
@@ -6497,13 +6497,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$sMimeIndex = (string) (isset($aValues['MimeIndex']) ? $aValues['MimeIndex'] : '');
 		$sContentTypeIn = (string) (isset($aValues['MimeType']) ? $aValues['MimeType'] : '');
 		$sFileNameIn = (string) (isset($aValues['FileName']) ? $aValues['FileName'] : '');
-		
+
 		$bCache = true;
 		if ($bCache && 0 < \strlen($sFolder) && 0 < $iUid)
 		{
 			\Aurora\System\Managers\Response::verifyCacheByKey($sHash);
 		}
-		
+
 		return $this->getMailManager()->directMessageToStream($oAccount,
 			function($rResource, $sContentType, $sFileName, $sMimeIndex = '') use ($self, $sUUID, $sHash, $bCache, $sContentTypeIn, $sFileNameIn, $bThumbnail, $bDownload) {
 				if (\is_resource($rResource))
@@ -6534,7 +6534,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 					\Aurora\System\Utils::OutputFileResource($sUUID, $sContentType, $sFileName, $rResource, $bThumbnail, $bDownload);
 				}
 			}, $sFolder, $iUid, $sMimeIndex);
-	}	
+	}
 
 	public function onGetDigestHash($aArgs, &$mResult)
 	{
