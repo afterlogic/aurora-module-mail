@@ -6519,7 +6519,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 					}
 
 					$sFileNameOut = $sFileNameIn;
-					if (empty($sFileNameOut) || '.' === $sFileNameOut{0})
+					if (empty($sFileNameOut) || '.' === $sFileNameOut[0])
 					{
 						$sFileNameOut = $sFileName;
 					}
