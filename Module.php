@@ -6477,8 +6477,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		$oAccount = null;
 
-		$iUserId = (isset($aValues['UserId'])) ? $aValues['UserId'] : 0;
-		$sUUID = \Aurora\System\Api::getUserUUIDById($iUserId);
+		$iUserId = null;
 
 		if (isset($aValues['AccountID']))
 		{
@@ -6490,6 +6489,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			{
 				return false;
 			}
+			$iUserId = $oAccount->IdUser;
 		}
 
 		$sFolder = isset($aValues['Folder']) ? $aValues['Folder'] : '';
@@ -6504,8 +6504,20 @@ class Module extends \Aurora\System\Module\AbstractModule
 			\Aurora\System\Managers\Response::verifyCacheByKey($sHash);
 		}
 
+		if ($bThumbnail)
+		{
+			$sThumbnail = \Aurora\System\Managers\Response::GetThumbResourceCache($iUserId, $sFileNameIn);
+			if ($sThumbnail)
+			{
+				$sContentType = \MailSo\Base\Utils::MimeContentType($sFileNameIn);
+				\Aurora\System\Managers\Response::OutputHeaders($bDownload, $sContentType, $sFileNameIn);
+				echo $sThumbnail;
+				exit();
+			}
+		}
+
 		return $this->getMailManager()->directMessageToStream($oAccount,
-			function($rResource, $sContentType, $sFileName, $sMimeIndex = '') use ($self, $sUUID, $sHash, $bCache, $sContentTypeIn, $sFileNameIn, $bThumbnail, $bDownload) {
+			function($rResource, $sContentType, $sFileName, $sMimeIndex = '') use ($self, $iUserId, $sHash, $bCache, $sContentTypeIn, $sFileNameIn, $bThumbnail, $bDownload) {
 				if (\is_resource($rResource))
 				{
 					$sContentTypeOut = $sContentTypeIn;
@@ -6531,7 +6543,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 						\Aurora\System\Managers\Response::cacheByKey($sHash);
 					}
 
-					\Aurora\System\Utils::OutputFileResource($sUUID, $sContentType, $sFileName, $rResource, $bThumbnail, $bDownload);
+					\Aurora\System\Utils::OutputFileResource($iUserId, $sContentType, $sFileName, $rResource, $bThumbnail, $bDownload);
 				}
 			}, $sFolder, $iUid, $sMimeIndex);
 	}
