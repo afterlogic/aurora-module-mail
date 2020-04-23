@@ -1287,6 +1287,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiParam {string} [Parameters] JSON.stringified object<br>
 	 * {<br>
 	 * &emsp; **TenantId** *int* (optional) Identifier of tenant which contains servers to return. If TenantId is 0 returns server which are belonged to SuperAdmin, not Tenant.<br>
+	 * &emsp; **Offset** *int* (optional) Says to skip that many servers before beginning to return them.<br>
+	 * &emsp; **Limit** *int* (optional) Limit says to return that many servers in the list.<br>
+	 * &emsp; **Search** *string* (optional) Search string.<br>
 	 * }
 	 *
 	 * @apiParamExample {json} Request-Example:
@@ -1322,9 +1325,12 @@ class Module extends \Aurora\System\Module\AbstractModule
 	/**
 	 * Obtains list of servers which contains settings for IMAP and SMTP connections.
 	 * @param int $TenantId Identifier of tenant which contains servers to return. If $TenantId is 0 returns server which are belonged to SuperAdmin, not Tenant.
+	 * @param int $Offset Says to skip that many servers before beginning to return them.
+	 * @param int $Limit Limit says to return that many servers in the list.
+	 * @param string $Search Search string.
 	 * @return array
 	 */
-	public function GetServers($TenantId = 0)
+	public function GetServers($TenantId = 0, $Offset = 0, $Limit = 0, $Search = '')
 	{
 		$oAuthenticatedUser = \Aurora\System\Api::getAuthenticatedUser();
 		if ($oAuthenticatedUser instanceof \Aurora\Modules\Core\Classes\User && $oAuthenticatedUser->isNormalOrTenant())
@@ -1343,7 +1349,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 			\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::SuperAdmin);
 		}
 
-		return $this->getServersManager()->getServerList($TenantId);
+		return [
+			'Items' => $this->getServersManager()->getServerList($TenantId, $Offset, $Limit, $Search),
+			'Count' => $this->getServersManager()->getServersCount($TenantId),
+		];
 	}
 
 	/**
@@ -6322,11 +6331,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	{
 		$TenantId = $aArgs['TenantId'];
 		$aServers = self::Decorator()->GetServers($TenantId);
-		foreach ($aServers as $oServer)
+		if (is_array($aServers) && $aServers['Count'] > 0)
 		{
-			if ($oServer->TenantId === $TenantId)
+			foreach ($aServers['Items'] as $oServer)
 			{
-				self::Decorator()->DeleteServer($oServer->EntityId, $TenantId);
+				if ($oServer->TenantId === $TenantId)
+				{
+					self::Decorator()->DeleteServer($oServer->EntityId, $TenantId);
+				}
 			}
 		}
 	}

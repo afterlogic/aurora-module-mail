@@ -180,18 +180,11 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	}	
 	
 	/**
-	 * 
 	 * @param int $iTenantId
-	 * @return boolean|array
+	 * @return array
 	 */
-	public function getServerList($iTenantId = 0)
+	private function _getServersFilters($iTenantId = 0)
 	{
-		$aResult = false;
-		$iOffset = 0;
-		$iLimit = 0;
-		$sOrderBy = 'Name';
-		$iOrderType = \Aurora\System\Enums\SortOrder::ASC;
-		
 		$aFilters = [];
 		if ($iTenantId === 0)
 		{
@@ -207,26 +200,52 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 				],
 			]];
 		}
+		return $aFilters;
+	}
+	
+	/**
+	 * 
+	 * @param int $iTenantId
+	 * @return int
+	 */
+	public function getServersCount($iTenantId = 0)
+	{
+		$aFilters = $this->_getServersFilters($iTenantId);
+		return $this->oEavManager->getEntitiesCount(
+			\Aurora\Modules\Mail\Classes\Server::class,
+			$aFilters
+		);
+	}
+	
+	/**
+	 * @param int $iTenantId
+	 * @param int $iOffset
+	 * @param int $iLimit
+	 * @param string $sSearch
+	 * @return boolean|array
+	 */
+	public function getServerList($iTenantId = 0, $iOffset = 0, $iLimit = 0, $sSearch = '')
+	{
+		$sOrderBy = 'Name';
+		$iOrderType = \Aurora\System\Enums\SortOrder::ASC;
 		
-		try
+		$aFilters = $this->_getServersFilters($iTenantId);
+		
+		if ($sSearch !== '')
 		{
-			$aResult = $this->oEavManager->getEntities(
-				\Aurora\Modules\Mail\Classes\Server::class,
-				array(),
-				$iOffset,
-				$iLimit,
-				$aFilters,
-				$sOrderBy,
-				$iOrderType
-			);
-		}
-		catch (\Aurora\System\Exceptions\BaseException $oException)
-		{
-			$aResult = false;
-			$this->setLastException($oException);
+			$aFilters['Name'] = ['%' . $sSearch . '%', 'LIKE'];
+			$aFilters = ['$AND' => $aFilters];
 		}
 		
-		return $aResult;
+		return $this->oEavManager->getEntities(
+			\Aurora\Modules\Mail\Classes\Server::class,
+			array(),
+			$iOffset,
+			$iLimit,
+			$aFilters,
+			$sOrderBy,
+			$iOrderType
+		);
 	}
 	
 	/**
@@ -287,16 +306,12 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 */
 	public function getServerListByFilter($aFilters)
 	{
-		$aResult = [];
-
-		$aResult = $this->oEavManager->getEntities(
+		return $this->oEavManager->getEntities(
 			\Aurora\Modules\Mail\Classes\Server::class,
 			[],
 			0,
 			0,
 			$aFilters
 		);
-
-		return $aResult;
 	}
 }
