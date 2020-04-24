@@ -1351,7 +1351,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		return [
 			'Items' => $this->getServersManager()->getServerList($TenantId, $Offset, $Limit, $Search),
-			'Count' => $this->getServersManager()->getServersCount($TenantId),
+			'Count' => $this->getServersManager()->getServersCount($TenantId, $Search),
 		];
 	}
 

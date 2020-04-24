@@ -181,9 +181,10 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	
 	/**
 	 * @param int $iTenantId
+	 * @param string $sSearch
 	 * @return array
 	 */
-	private function _getServersFilters($iTenantId = 0)
+	private function _getServersFilters($iTenantId = 0, $sSearch = '')
 	{
 		$aFilters = [];
 		if ($iTenantId === 0)
@@ -200,17 +201,22 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 				],
 			]];
 		}
+		if ($sSearch !== '')
+		{
+			$aFilters['Name'] = ['%' . $sSearch . '%', 'LIKE'];
+			$aFilters = ['$AND' => $aFilters];
+		}
 		return $aFilters;
 	}
 	
 	/**
-	 * 
 	 * @param int $iTenantId
+	 * @param string $sSearch
 	 * @return int
 	 */
-	public function getServersCount($iTenantId = 0)
+	public function getServersCount($iTenantId = 0, $sSearch = '')
 	{
-		$aFilters = $this->_getServersFilters($iTenantId);
+		$aFilters = $this->_getServersFilters($iTenantId, $sSearch);
 		return $this->oEavManager->getEntitiesCount(
 			\Aurora\Modules\Mail\Classes\Server::class,
 			$aFilters
@@ -229,13 +235,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		$sOrderBy = 'Name';
 		$iOrderType = \Aurora\System\Enums\SortOrder::ASC;
 		
-		$aFilters = $this->_getServersFilters($iTenantId);
-		
-		if ($sSearch !== '')
-		{
-			$aFilters['Name'] = ['%' . $sSearch . '%', 'LIKE'];
-			$aFilters = ['$AND' => $aFilters];
-		}
+		$aFilters = $this->_getServersFilters($iTenantId, $sSearch);
 		
 		return $this->oEavManager->getEntities(
 			\Aurora\Modules\Mail\Classes\Server::class,
