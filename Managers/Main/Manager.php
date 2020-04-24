@@ -330,7 +330,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		{
 			if ($oSystemFolder !== null)
 			{
-				$bResult = $this->oEavManager->deleteEntity($oSystemFolder->EntityId);					
+				$bResult = $this->oEavManager->deleteEntity($oSystemFolder->EntityId, \Aurora\Modules\Mail\Classes\SystemFolder::class);					
 			}
 		}
 		
@@ -388,7 +388,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		{
 			foreach ($aSystemFolders as $oSystemFolder)
 			{
-				$bResult = $bResult && $this->oEavManager->deleteEntity($oSystemFolder->EntityId);
+				$bResult = $bResult && $this->oEavManager->deleteEntity($oSystemFolder->EntityId, \Aurora\Modules\Mail\Classes\SystemFolder::class);
 			}
 		}
 		
@@ -430,7 +430,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 				}
 				else
 				{
-					$this->oEavManager->deleteEntity($oSystemFolder->EntityId);
+					$this->oEavManager->deleteEntity($oSystemFolder->EntityId, \Aurora\Modules\Mail\Classes\SystemFolder::class);
 				}
 			}
 		}

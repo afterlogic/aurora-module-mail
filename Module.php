@@ -6518,7 +6518,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		if ($bThumbnail)
 		{
-			$sThumbnail = \Aurora\System\Managers\Response::GetThumbResourceCache($iUserId, $sFileNameIn);
+			$sThumbnail = \Aurora\System\Managers\Thumb::GetResourceCache($iUserId, $sFileNameIn);
 			if ($sThumbnail)
 			{
 				$sContentType = \MailSo\Base\Utils::MimeContentType($sFileNameIn);

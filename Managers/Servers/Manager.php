@@ -67,7 +67,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			$oServer = $this->getServer($iServerId);
 			if ($oServer && ($oServer->OwnerType !== \Aurora\Modules\Mail\Enums\ServerOwnerType::Tenant || $oServer->TenantId === $iTenantId))
 			{
-				$bResult = $this->oEavManager->deleteEntity($iServerId);
+				$bResult = $this->oEavManager->deleteEntity($iServerId, \Aurora\Modules\Mail\Classes\Server::class);
 			}
 		}
 		catch (\Aurora\System\Exceptions\BaseException $oException)

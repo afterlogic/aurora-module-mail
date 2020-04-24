@@ -138,7 +138,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			$oIdentity = $this->getIdentity($iEntityId);
 			if ($oIdentity)
 			{
-				$bResult = $this->oEavManager->deleteEntity($iEntityId);
+				$bResult = $this->oEavManager->deleteEntity($iEntityId, \Aurora\Modules\Mail\Classes\Identity::class);
 			}
 		}
 		catch (\Aurora\System\Exceptions\BaseException $oException)
@@ -209,7 +209,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		{
 			foreach ($aIdentities as $oIdentity)
 			{
-				$bResult = $bResult && $this->oEavManager->deleteEntity($oIdentity->EntityId);
+				$bResult = $bResult && $this->oEavManager->deleteEntity($oIdentity->EntityId, \Aurora\Modules\Mail\Classes\Identity::class);
 			}
 		}
 		
