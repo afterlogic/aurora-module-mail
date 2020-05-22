@@ -102,6 +102,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$this->subscribeEvent('Core::DeleteTenant::after', array($this, 'onAfterDeleteTenant'));
 		$this->subscribeEvent('Core::GetDigestHash', array($this, 'onGetDigestHash'));
 		$this->subscribeEvent('Core::GetAccountUsedToAuthorize', array($this, 'onGetAccountUsedToAuthorize'));
+		$this->subscribeEvent('System::RunEntry::before', array($this, 'onBeforeRunEntry'));
 
 		\MailSo\Config::$PreferStartTlsIfAutoDetect = !!$this->getConfig('PreferStarttls', true);
 	}
@@ -6428,6 +6429,17 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 	public function EntryDownloadAttachment()
 	{
+		$sHash = (string) \Aurora\System\Router::getItemByIndex(1, '');
+		$aValues = \Aurora\System\Api::DecodeKeyValues($sHash);
+		$sAuthToken = isset($aValues['AuthToken']) ? $aValues['AuthToken'] : null;
+		if (isset($sAuthToken))
+		{
+			\Aurora\System\Api::setAuthToken($sAuthToken);
+			\Aurora\System\Api::setUserId(
+				\Aurora\System\Api::getAuthenticatedUserId($sAuthToken)
+			);
+		}
+
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 
 		if ($this->getConfig('CleanupOutputBeforeDownload', false))
@@ -6436,9 +6448,41 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 
 		$this->getRaw(
-			(string) \Aurora\System\Router::getItemByIndex(1, ''),
+			$sHash,
 			(string) \Aurora\System\Router::getItemByIndex(2, '')
 		);
+	}
+
+	public function onBeforeRunEntry(&$aArguments, &$aResult)
+	{
+		$sEntry = 'mail-attachment';
+		if ($aArguments['EntryName'] === $sEntry)
+		{
+			$sParam3 = \Aurora\System\Router::getItemByIndex(3, null);
+			if (isset($sParam3) && $sParam3 === 'get-expired-link')
+			{
+				$sHash = (string) \Aurora\System\Router::getItemByIndex(1, '');
+				$sAction = (string) \Aurora\System\Router::getItemByIndex(2, '');
+				$iTime = $this->getConfig('ExpiredLinkLifetimeMinutes ', 30);
+
+				$aValues = \Aurora\System\Api::DecodeKeyValues($sHash);
+
+				if (!isset($aValues['AuthToken']))
+				{
+					$aValues['AuthToken'] = \Aurora\System\Api::UserSession()->Set(
+						array(
+							'token' => 'auth',
+							'id' => \Aurora\System\Api::getAuthenticatedUserId()
+						),
+						time() + 60 * $iTime // min
+					);
+
+					$sHash = \Aurora\System\Api::EncodeKeyValues($aValues);
+				}
+
+				\header('Location: ' . \MailSo\Base\Http::SingletonInstance()->GetFullUrl() . '?' . $sEntry .'/' . $sHash . '/' . $sAction);
+			}
+		}
 	}
 
 	public function EntryDownloadAttachmentCookieless()

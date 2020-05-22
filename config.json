@@ -180,5 +180,9 @@
 	"MessagesInfoChunkSize": [
 		1000,
 		"int"
+	],
+	"ExpiredLinkLifetimeMinutes": [
+		30,
+		"int"
 	]
 }
