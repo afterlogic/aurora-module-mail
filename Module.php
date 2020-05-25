@@ -6434,10 +6434,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$sAuthToken = isset($aValues['AuthToken']) ? $aValues['AuthToken'] : null;
 		if (isset($sAuthToken))
 		{
-			\Aurora\System\Api::setAuthToken($sAuthToken);
 			\Aurora\System\Api::setUserId(
 				\Aurora\System\Api::getAuthenticatedUserId($sAuthToken)
 			);
+			\Aurora\System\Api::setAuthToken($sAuthToken);
 		}
 
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
@@ -6472,9 +6472,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 					$aValues['AuthToken'] = \Aurora\System\Api::UserSession()->Set(
 						array(
 							'token' => 'auth',
-							'id' => \Aurora\System\Api::getAuthenticatedUserId()
+							'id' => \Aurora\System\Api::getAuthenticatedUserId(),
 						),
-						time() + 60 * $iTime // min
+						time(),
+						time() + 60 * $iTime
 					);
 
 					$sHash = \Aurora\System\Api::EncodeKeyValues($aValues);
