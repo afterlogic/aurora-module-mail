@@ -4113,6 +4113,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param string $To Message recipients.
 	 * @param string $Cc Recipients which will get a copy of the message.
 	 * @param string $Bcc Recipients which will get a hidden copy of the message.
+	 * @param array $Recipients Recipients that will be used to send messages through the SMTP. Use this parameter if you want real recipients to differ from those specified in the message body (To, CC, BCC).
 	 * @param string $Subject Subject of the message.
 	 * @param string $Text Text of the message.
 	 * @param boolean $IsHtml Indicates if text of the message is HTML or plain.
@@ -4131,7 +4132,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @throws \System\Exceptions\AuroraApiException
 	 */
 	public function SendMessage($AccountID, $Fetcher = null, $Alias = null, $IdentityID = 0,
-			$DraftInfo = [], $DraftUid = "", $To = "", $Cc = "", $Bcc = "",
+			$DraftInfo = [], $DraftUid = "", $To = "", $Cc = "", $Bcc = "", $Recipients = array(),
 			$Subject = "", $Text = "", $IsHtml = false, $Importance = \MailSo\Mime\Enumerations\MessagePriority::NORMAL,
 			$SendReadingConfirmation = false, $Attachments = array(), $InReplyTo = "",
 			$References = "", $Sensitivity = \MailSo\Mime\Enumerations\Sensitivity::NOTHING, $SentFolder = "",
@@ -4151,7 +4152,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$Sensitivity, $SendReadingConfirmation, $Fetcher, $Alias, false, $oIdentity, $CustomHeaders);
 		if ($oMessage)
 		{
-			$mResult = $this->getMailManager()->sendMessage($oAccount, $oMessage, $Fetcher, $SentFolder, $DraftFolder, $DraftUid);
+			$mResult = $this->getMailManager()->sendMessage($oAccount, $oMessage, $Fetcher, $SentFolder, $DraftFolder, $DraftUid, $Recipients);
 
 			if ($mResult)
 			{

@@ -1353,12 +1353,13 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 * @param string $sSentFolder = ''. Name of Sent folder.
 	 * @param string $sDraftFolder = ''. Name of Sent folder.
 	 * @param string $sDraftUid = ''. Last UID value of the message saved in Drafts folder.
+	 * @param array $aRecipients Recipients that will be used to send messages through the SMTP. Use this parameter if you want real recipients to differ from those specified in the message body (To, CC, BCC).
 	 *
 	 * @return array|bool
 	 *
 	 * @throws \Aurora\System\Exceptions\InvalidArgumentException
 	 */
-	public function sendMessage($oAccount, $oMessage, $oFetcher = null, $sSentFolder = '', $sDraftFolder = '', $sDraftUid = '')
+	public function sendMessage($oAccount, $oMessage, $oFetcher = null, $sSentFolder = '', $sDraftFolder = '', $sDraftUid = '', $aRecipients = array())
 	{
 		if (!$oAccount || !$oMessage)
 		{
@@ -1376,6 +1377,10 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		if (false !== $iMessageStreamSize && is_resource($rMessageStream))
 		{
 			$oRcpt = $oMessage->GetRcpt();
+			if (count($aRecipients) > 0)
+			{
+				$oRcpt = \MailSo\Mime\EmailCollection::NewInstance(implode(',', $aRecipients));
+			}
 			if ($oRcpt && 0 < $oRcpt->Count())
 			{
 				$oServer = null;
