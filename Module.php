@@ -1523,11 +1523,18 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param string $SmtpPassword (optional)
 	 * @param boolean $UseFullEmailAddressAsLogin (optional)
 	 * @param int $TenantId (optional) If tenant identifier is specified creates mail server belonged to specified tenant.
+	 * @param boolean $SetExternalAccessServers
+	 * @param string $ExternalAccessImapServer
+	 * @param int $ExternalAccessImapPort
+	 * @param string $ExternalAccessSmtpServer
+	 * @param int $ExternalAccessSmtpPort
 	 * @return int|boolean
 	 */
 	public function CreateServer($Name, $IncomingServer, $IncomingPort, $IncomingUseSsl,
 			$OutgoingServer, $OutgoingPort, $OutgoingUseSsl, $SmtpAuthType, $Domains, $EnableThreading, $EnableSieve,
-			$SievePort, $SmtpLogin = '', $SmtpPassword = '', $UseFullEmailAddressAsLogin = true, $TenantId = 0)
+			$SievePort, $SmtpLogin = '', $SmtpPassword = '', $UseFullEmailAddressAsLogin = true, $TenantId = 0,
+			$SetExternalAccessServers = false, $ExternalAccessImapServer = '', $ExternalAccessImapPort = 143,
+			$ExternalAccessSmtpServer = '', $ExternalAccessSmtpPort = 25)
 	{
 		$oAuthenticatedUser = \Aurora\System\Api::getAuthenticatedUser();
 		if ($oAuthenticatedUser instanceof \Aurora\Modules\Core\Classes\User && $oAuthenticatedUser->Role === \Aurora\Modules\Mail\Enums\ServerOwnerType::Tenant)
@@ -1562,6 +1569,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$oServer->EnableSieve = $EnableSieve;
 		$oServer->SievePort = $SievePort;
 		$oServer->UseFullEmailAddressAsLogin = $UseFullEmailAddressAsLogin;
+		$oServer->SetExternalAccessServers = $SetExternalAccessServers;
+		if ($oServer->SetExternalAccessServers)
+		{
+			$oServer->ExternalAccessImapServer = $ExternalAccessImapServer;
+			$oServer->ExternalAccessImapPort = $ExternalAccessImapPort;
+			$oServer->ExternalAccessSmtpServer = $ExternalAccessSmtpServer;
+			$oServer->ExternalAccessSmtpPort = $ExternalAccessSmtpPort;
+		}
 
 		return $this->getServersManager()->createServer($oServer);
 	}
