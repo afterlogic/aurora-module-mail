@@ -19,6 +19,7 @@ namespace Aurora\Modules\Mail\Classes;
  * @property int $Condition
  * @property int $Action
  * @property string $FolderFullName
+ * @property string $Email
  *
  * @package Sieve
  * @subpackage Classes
@@ -39,7 +40,8 @@ class SieveFilter extends \Aurora\System\AbstractContainer
 			'Filter'	=> '',
 			'Condition'	=> \Aurora\Modules\Mail\Enums\FilterCondition::ContainSubstring,
 			'Action'	=> \Aurora\Modules\Mail\Enums\FilterAction::DoNothing,
-			'FolderFullName' => ''
+			'FolderFullName' => '',
+			'Email' => ''
 		));
 	}
 	
@@ -63,7 +65,8 @@ class SieveFilter extends \Aurora\System\AbstractContainer
 			'Filter'	=> array('string'),
 			'Condition'	=> array('int'),
 			'Action'	=> array('int'),
-			'FolderFullName' => array('string')
+			'FolderFullName' => array('string'),
+			'Email' => array('string')
 		);
 	}
 	
@@ -76,6 +79,7 @@ class SieveFilter extends \Aurora\System\AbstractContainer
 			'Condition' => $this->Condition,
 			'Action' => $this->Action,
 			'FolderFullName' => $this->FolderFullName,
+			'Email' => $this->Email,
 		);		
 	}
 }

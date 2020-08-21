@@ -235,6 +235,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			$oFilter->Condition = (int) trim($aData['Condition']);
 			$oFilter->Action = (int) trim($aData['Action']);
 			$oFilter->Filter = (string) trim($aData['Filter']);
+			$oFilter->Email = (string) trim($aData['Email']);
 
 			if (\Aurora\Modules\Mail\Enums\FilterAction::MoveToFolder === $oFilter->Action && isset($aData['FolderFullName']))
 			{
@@ -280,7 +281,8 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 							'Condition' => $aFilter[1],
 							'Action' => $aFilter[4],
 							'Filter' => $aFilter[3],
-							'FolderFullName' => $aFilter[5]
+							'FolderFullName' => $aFilter[5],
+							'Email' => isset($aFilter[6]) ? $aFilter[6] : ''
 						);
 						
 						$oFilter = $this->createFilterInstance($oAccount, $aFilterData);
@@ -368,6 +370,13 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 						'utf7-imap', $this->sSieveFolderCharset);
 				}
 
+				// redirect
+				$sEmail = '';
+				if (\Aurora\Modules\Mail\Enums\FilterAction::Redirect === $oFilter->Action)
+				{
+					$sEmail = $oFilter->Email;
+				}
+
 				// action
 				$sAction = '';
 				switch($oFilter->Action)
@@ -378,6 +387,10 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 						break;
 					case \Aurora\Modules\Mail\Enums\FilterAction::MoveToFolder:
 						$sAction = 'fileinto "'.$this->_quoteValue($sFolderFullName).'" ;'."\n";
+						$sAction .= 'stop ;';
+						break;
+					case \Aurora\Modules\Mail\Enums\FilterAction::Redirect:
+						$sAction = 'redirect "'.$this->_quoteValue($sEmail).'" ;'."\n";
 						$sAction .= 'stop ;';
 						break;
 				}

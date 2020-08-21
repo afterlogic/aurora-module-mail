@@ -24,4 +24,5 @@ class FilterAction extends \Aurora\System\Enums\AbstractEnumeration
 	const MoveToSpamFolder = 4;
 	const SpamDetect = 5;
 	const VirusDetect = 6;
+	const Redirect = 7;
 }
