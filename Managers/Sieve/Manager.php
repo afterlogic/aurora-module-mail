@@ -390,7 +390,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 						$sAction .= 'stop ;';
 						break;
 					case \Aurora\Modules\Mail\Enums\FilterAction::Redirect:
-						$sAction = 'redirect "'.$this->_quoteValue($sEmail).'" ;'."\n";
+						$sAction = 'redirect :copy "'.$this->_quoteValue($sEmail).'" ;'."\n";
 						$sAction .= 'stop ;';
 						break;
 				}
