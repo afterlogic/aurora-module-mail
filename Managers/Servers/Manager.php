@@ -137,14 +137,11 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			{
 				$aFilters = [
 					'$AND' => [
-						'1$OR' => [
+						'$OR' => [
 							'OwnerType' => [\Aurora\Modules\Mail\Enums\ServerOwnerType::SuperAdmin, '='],
-							'Domains' => ['%' . $sDomain . '%', 'LIKE']
-						],
-						'2$OR' => [
 							'OwnerType' => [\Aurora\Modules\Mail\Enums\ServerOwnerType::Tenant, '='],
-							'Domains' => ['%' . $sDomain . '%', 'LIKE']
 						],
+						'Domains' => ['%' . $sDomain . '%', 'LIKE'],
 					]
 				];
 			}
