@@ -136,13 +136,16 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			else
 			{
 				$aFilters = [
-					'$AND' => [
-						'$OR' => [
+					'$OR' => [
+						'1$AND' => [
 							'OwnerType' => [\Aurora\Modules\Mail\Enums\ServerOwnerType::SuperAdmin, '='],
-							'OwnerType' => [\Aurora\Modules\Mail\Enums\ServerOwnerType::Tenant, '='],
+							'Domains' => ['%' . $sDomain . '%', 'LIKE'],
 						],
-						'Domains' => ['%' . $sDomain . '%', 'LIKE'],
-					]
+						'2$AND' => [
+							'OwnerType' => [\Aurora\Modules\Mail\Enums\ServerOwnerType::Tenant, '='],
+							'Domains' => ['%' . $sDomain . '%', 'LIKE'],
+						],
+					],
 				];
 			}
 
@@ -152,7 +155,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 				0,
 				999,
 				$aFilters
-			);		
+			);	
 			if (count($aResult) > 0)
 			{
 				foreach ($aResult as $oTempServer)
