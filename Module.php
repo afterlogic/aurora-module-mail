@@ -6421,6 +6421,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		if ($oApiIntegrator)
 		{
+			\Aurora\System\Managers\Response::HtmlOutputHeaders();
 			$aConfig = array(
 				'new_tab' => true,
 				'modules_list' => $oApiIntegrator->GetModulesForEntry('MailWebclient')
