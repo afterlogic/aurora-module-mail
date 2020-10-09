@@ -347,6 +347,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 			'AllowInsertImage' => $this->getConfig('AllowInsertImage', false),
 			'AutoSaveIntervalSeconds' => $this->getConfig('AutoSaveIntervalSeconds', 60),
 			'AllowTemplateFolders' => $this->getConfig('AllowTemplateFolders', false),
+			'AllowInsertTemplateOnCompose' => $this->getConfig('AllowInsertTemplateOnCompose', false),
+			'MaxTemplatesCountOnCompose' => $this->getConfig('MaxTemplatesCountOnCompose', 100),
 			'AllowAlwaysRefreshFolders' => $this->getConfig('AllowAlwaysRefreshFolders', false),
 			'AutocreateMailAccountOnNewUserFirstLogin' => $this->getConfig('AutocreateMailAccountOnNewUserFirstLogin', false),
 			'IgnoreImapSubscription' => $this->getConfig('IgnoreImapSubscription', false),

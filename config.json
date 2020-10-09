@@ -55,6 +55,14 @@
 		false,
 		"bool"
 	],
+	"AllowInsertTemplateOnCompose": [
+		false,
+		"bool"
+	],
+	"MaxTemplatesCountOnCompose": [
+		100,
+		"int"
+	],
 	"AllowAlwaysRefreshFolders": [
 		false,
 		"bool"
