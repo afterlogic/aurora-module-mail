@@ -2732,6 +2732,21 @@ class Module extends \Aurora\System\Module\AbstractModule
 		return $oMessage;
 	}
 
+	public function GetMessageByMessageID($AccountID, $Folder, $UidFrom, $MessageID)
+	{
+		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
+
+		self::checkAccess($oAccount);
+		$mResult = false;
+		$iUID = $this->getMailManager()->getMessageUIDByMessageID($oAccount, $Folder, $UidFrom, $MessageID);
+		if ($iUID !== false)
+		{
+			$mResult = $this->Decorator()->GetMessage($AccountID, $Folder, $iUID);
+		}
+
+		return $mResult;
+	}
+
 	/**
 	 * @api {post} ?/Api/ SetMessagesSeen
 	 * @apiName SetMessagesSeen
