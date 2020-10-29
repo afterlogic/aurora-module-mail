@@ -5392,6 +5392,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 						$mResult = $oAccount;
 						$mResult->RefreshToken = \Aurora\System\Api::UserSession()->UpdateTimestamp(\Aurora\System\Api::getAuthToken(), time());
 						\Aurora\System\Api::LogEvent('password-change-success: ' . $oAccount->Email, self::GetName());
+						\Aurora\System\Api::UserSession()->DeleteAllUserSessions($oUser->EntityId);
 					}
 				}
 			}
