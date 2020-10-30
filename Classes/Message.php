@@ -1051,7 +1051,7 @@ class Message
 
 		$mResult['Hash'] = $sHash;
 
-		if (isset($aParameters['Method']) && ('GetMessage' === $aParameters['Method'] || 'GetMessagesBodies' === $aParameters['Method']))
+		if (isset($aParameters['Method']) && ('GetMessage' === $aParameters['Method'] || 'GetMessagesBodies' === $aParameters['Method'] || 'GetMessageByMessageID' === $aParameters['Method']))
 		{
 			$mResult['Headers'] = \MailSo\Base\Utils::Utf8Clear($this->getHeaders());
 			$mResult['InReplyTo'] = $this->getInReplyTo();
