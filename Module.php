@@ -2741,7 +2741,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$iUID = $this->getMailManager()->getMessageUIDByMessageID($oAccount, $Folder, $UidFrom, $MessageID);
 		if ($iUID !== false)
 		{
-			$mResult = $this->Decorator()->GetMessage($AccountID, $Folder, $iUID);
+			$mResult = $this->Decorator()->GetMessagesByUids($AccountID, $Folder, [$iUID]);
 		}
 
 		return $mResult;
