@@ -28,9 +28,9 @@ class Account extends \Aurora\System\Classes\AbstractAccount
 		'IncomingLogin'		=> array('string', ''),
 		'IncomingPassword'	=> array('encrypted', ''),
 		'UseSignature'		=> array('bool', false),
-		'Signature'			=> array('text', ''),
+		'Signature'			=> array('mediumblob', ''),
 		'ServerId'			=> array('int',  0),
-		'FoldersOrder'		=> array('text', ''),
+		'FoldersOrder'		=> array('mediumblob', ''),
 		'UseThreading'		=> array('bool', false),
 		'SaveRepliesToCurrFolder' => array('bool', false),
 	);

@@ -32,6 +32,6 @@ class Identity extends \Aurora\System\EAV\Entity
 		'Email'			=> array('string', ''),
 		'FriendlyName'	=> array('string', '', true),
 		'UseSignature'	=> array('bool', false),
-		'Signature'		=> array('text', ''),
+		'Signature'		=> array('mediumblob', ''),
 	);
 }
