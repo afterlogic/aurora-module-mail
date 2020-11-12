@@ -406,7 +406,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
 				$sFilters .= "\n".'#sieve_filter:'.implode(';', array(
 					$oFilter->Enable ? '1' : '0', $oFilter->Condition, $oFilter->Field,
-					$oFilter->Filter, $oFilter->Action, $sFolderFullName))."\n";
+					$oFilter->Filter, $oFilter->Action, $sFolderFullName, $sEmail))."\n";
 
 				$sFilters .= $sCondition."\n";
 				$sFilters .= $sAction."\n";
