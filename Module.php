@@ -10,7 +10,7 @@ namespace Aurora\Modules\Mail;
 /**
  * @license https://www.gnu.org/licenses/agpl-3.0.html AGPL-3.0
  * @license https://afterlogic.com/products/common-licensing Afterlogic Software License
- * @copyright Copyright (c) 2019, Afterlogic Corp.
+ * @copyright Copyright (c) 2020, Afterlogic Corp.
  *
  * @package Modules
  */
@@ -6455,7 +6455,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		if ($oApiIntegrator)
 		{
-			\Aurora\System\Managers\Response::HtmlOutputHeaders();
+			\Aurora\Modules\CoreWebclient\Module::Decorator()->SetHtmlOutputHeaders();
 			$aConfig = array(
 				'new_tab' => true,
 				'modules_list' => $oApiIntegrator->GetModulesForEntry('MailWebclient')
