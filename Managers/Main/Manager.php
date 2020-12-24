@@ -2902,6 +2902,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		$oMessageCollection->Search = $sSearch;
 		$oMessageCollection->UidNext = $sUidNext;
 		$oMessageCollection->Filters = implode(',', $aFilters);
+		$oMessageCollection->FolderHash = $aList[3];
 
 		$aThreads = array();
 		$oServer = $oAccount->getServer();
@@ -2910,8 +2911,6 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		{
 			$bUseThreadingIfSupported = $bUseThreading;
 		}
-
-		$oMessageCollection->FolderHash = $aList[3];
 
 		$bSearch = false;
 		if (0 < $iRealMessageCount)

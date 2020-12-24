@@ -32,6 +32,13 @@ class Message
 	protected $iUid;
 
 	/**
+	 * Unified UID value of the message.
+	 * 
+	 * @var int
+	 */
+	protected $sUnifiedUid;
+
+	/**
 	 * Subject of the message.
 	 * 
 	 * @var string
@@ -246,6 +253,7 @@ class Message
 	{
 		$this->sFolder = '';
 		$this->iUid = 0;
+		$this->sUnifiedUid = '';
 		$this->sSubject = '';
 		$this->sMessageId = '';
 		$this->sContentType = '';
@@ -407,6 +415,21 @@ class Message
 	public function getUid()
 	{
 		return $this->iUid;
+	}
+
+	/**
+	 * Unified UID value of the message.
+	 * 
+	 * @return int
+	 */
+	public function getUnifiedUid()
+	{
+		return $this->sUnifiedUid;
+	}
+
+	public function setUnifiedUid($sUnifiedUid)
+	{
+		$this->sUnifiedUid = $sUnifiedUid;
 	}
 
 	/**
@@ -1007,6 +1030,7 @@ class Message
 		$mResult = array_merge(\Aurora\System\Managers\Response::objectWrapper($this, $aParameters), array(
 			'Folder' => $this->getFolder(),
 			'Uid' => $this->getUid(),
+			'UnifiedUid' => $this->getUnifiedUid(),
 			'Subject' => $this->getSubject(),
 			'MessageId' => $this->getMessageId(),
 			'Size' => $this->getSize(),
