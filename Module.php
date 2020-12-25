@@ -2125,10 +2125,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 			});
 		}
 
-//		$iOffset = (int) $Offset;
 		$iLimit = (int) $Limit;
 
-		if (0 === \strlen(trim($Folder)) /*|| 0 > $iOffset*/ || 0 >= $iLimit || 200 < $iLimit)
+		if (0 === \strlen(trim($Folder)) || 0 >= $iLimit || 200 < $iLimit)
 		{
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
 		}
@@ -2171,23 +2170,19 @@ class Module extends \Aurora\System\Module\AbstractModule
 				$oMessage->setAccountId($oAccount->EntityId);
 				$oMessage->setUnifiedUid($oAccount->EntityId . ':' . $oMessage->getUid());
 			}
-			// $aAllMessages = array_merge($aAllMessages, $aMessages);
-			$aAllMessages[$oAccount->EntityId] = $aMessages;
+			$aAllMessages = array_merge($aAllMessages, $aMessages);
 		}
 
-		$aAllMessages = array_reduce($aAllMessages, function($a, $b) {
-			if (is_null($a)) {
-				return $b;
-			}
-			if (is_null($b)) {
-				return $a;
-			}
-			return array_merge($a, $b);
-		});
-
 		// sort by time
-		usort($aAllMessages, function($a, $b) {
-			return $a->getReceivedOrDateTimeStamp() < $b->getReceivedOrDateTimeStamp();
+		usort($aAllMessages, function($a, $b) use ($aSortInfo) {
+			if ($aSortInfo[1] === \Aurora\System\Enums\SortOrder::DESC)
+			{
+				return $a->getReceivedOrDateTimeStamp() > $b->getReceivedOrDateTimeStamp();
+			}
+			else
+			{
+				return $a->getReceivedOrDateTimeStamp() < $b->getReceivedOrDateTimeStamp();
+			}
 		});
 
 		if (count($aAllMessages) >= 0) {
