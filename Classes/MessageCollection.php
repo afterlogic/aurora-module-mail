@@ -9,11 +9,11 @@ namespace Aurora\Modules\Mail\Classes;
 
 /**
  * MessageCollection is used for work with mail messages.
- * 
+ *
  * @license https://www.gnu.org/licenses/agpl-3.0.html AGPL-3.0
  * @license https://afterlogic.com/products/common-licensing Afterlogic Software License
  * @copyright Copyright (c) 2019, Afterlogic Corp.
- * 
+ *
  * @package Mail
  * @subpackage Classes
  */
@@ -21,91 +21,91 @@ class MessageCollection extends \MailSo\Base\Collection
 {
 	/**
 	 * Number of messages in the folder.
-	 * 
+	 *
 	 * @var int
 	 */
 	public $MessageCount;
 
 	/**
 	 * Number of unread mails in the folder.
-	 * 
+	 *
 	 * @var int
 	 */
 	public $MessageUnseenCount;
 
 	/**
 	 * Number of messages returned upon running search.
-	 * 
+	 *
 	 * @var int
 	 */
 	public $MessageResultCount;
 
 	/**
 	 * Full name of the folder.
-	 * 
+	 *
 	 * @var string
 	 */
 	public $FolderName;
 
 	/**
 	 * Along with **Limit**, denotes a range of message list to retrieve.
-	 * 
+	 *
 	 * @var int
 	 */
 	public $Offset;
 
 	/**
 	 * Along with **Offset**, denotes a range of message list to retrieve.
-	 * 
+	 *
 	 * @var int
 	 */
 	public $Limit;
 
 	/**
 	 * Denotes search string.
-	 * 
+	 *
 	 * @var string
 	 */
 	public $Search;
 
 	/**
 	 * Denotes message lookup type. Typical use case is search in Starred folder.
-	 * 
+	 *
 	 * @var string
 	 */
 	public $Filters;
 
 	/**
 	 * List of message UIDs.
-	 * 
+	 *
 	 * @var array
 	 */
 	public $Uids;
 
 	/**
 	 * UIDNEXT value for the current folder.
-	 * 
+	 *
 	 * @var string
 	 */
 	public $UidNext;
 
 	/**
 	 * Value which changes if any folder parameter, such as message count, was changed.
-	 * 
+	 *
 	 * @var string
 	 */
 	public $FolderHash;
 
 	/**
 	 * List of information about new messages. $UidNext is used for obtaining this information.
-	 * 
+	 *
 	 * @var array
 	 */
 	public $New;
 
 	/**
 	 * Initializes collection properties.
-	 * 
+	 *
 	 * @return void
 	 */
 	protected function __construct()
@@ -117,7 +117,7 @@ class MessageCollection extends \MailSo\Base\Collection
 
 	/**
 	 * Removes all messages from the collection.
-	 * 
+	 *
 	 * @return MessageCollection
 	 */
 	public function clear()
@@ -145,17 +145,17 @@ class MessageCollection extends \MailSo\Base\Collection
 
 	/**
 	 * Creates new instance of the object.
-	 * 
+	 *
 	 * @return MessageCollection
 	 */
 	public static function createInstance()
 	{
 		return new self();
 	}
-	
+
 	public function toResponseArray($aParameters = array()) {
 		return array_merge(
-				\Aurora\System\Managers\Response::CollectionToResponseArray($this, $aParameters), 
+				\Aurora\System\Managers\Response::CollectionToResponseArray($this, $aParameters),
 				array(
 					'Uids' => $this->Uids,
 					'UidNext' => $this->UidNext,
@@ -169,7 +169,7 @@ class MessageCollection extends \MailSo\Base\Collection
 					'Search' => $this->Search,
 					'Filters' => $this->Filters,
 					'New' => $this->New
-				)				
+				)
 		);
 	}
 }

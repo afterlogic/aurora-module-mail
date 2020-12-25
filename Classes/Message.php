@@ -18,6 +18,13 @@ namespace Aurora\Modules\Mail\Classes;
 class Message
 {
 	/**
+	 * Account Id.
+	 * 
+	 * @var int
+	 */
+	protected $iAccountId;
+
+	/**
 	 * Raw full name of the folder the message resides in.
 	 * 
 	 * @var string
@@ -251,6 +258,7 @@ class Message
 	 */
 	public function clear()
 	{
+		$this->iAccountId = 0;
 		$this->sFolder = '';
 		$this->iUid = 0;
 		$this->sUnifiedUid = '';
@@ -395,6 +403,16 @@ class Message
 	public function getHtml()
 	{
 		return $this->sHtml;
+	}
+
+	public function getAccountId()
+	{
+		return $this->iAccountId;
+	}
+
+	public function setAccountId($iAccountId)
+	{
+		$this->iAccountId = $iAccountId;
 	}
 
 	/**
