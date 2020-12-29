@@ -129,6 +129,10 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		$sText = str_replace(array("\r"), '', trim($sText));
 
 		$sData = '#data='.($bEnabled ? '1' : '0').'~'.base64_encode($sSubject."\x0".$sText)."\n";
+
+		$sSubject = addslashes($sSubject);
+		$sText = addslashes($sText);
+
 		$sScriptText = 'vacation :days 1 :subject "'.$this->_quoteValue($sSubject).'" "'.$this->_quoteValue($sText).'";';
 
 		if ($bEnabled)
