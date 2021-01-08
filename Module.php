@@ -2177,11 +2177,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 		usort($aAllMessages, function($a, $b) use ($aSortInfo) {
 			if ($aSortInfo[1] === \Aurora\System\Enums\SortOrder::DESC)
 			{
-				return $a->getReceivedOrDateTimeStamp() > $b->getReceivedOrDateTimeStamp();
+				return ($a->getReceivedOrDateTimeStamp() > $b->getReceivedOrDateTimeStamp()) ? 1 : -1;
 			}
 			else
 			{
-				return $a->getReceivedOrDateTimeStamp() < $b->getReceivedOrDateTimeStamp();
+				return ($a->getReceivedOrDateTimeStamp() < $b->getReceivedOrDateTimeStamp()) ? 1 : -1;
 			}
 		});
 
