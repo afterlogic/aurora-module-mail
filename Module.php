@@ -2130,9 +2130,12 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$aAccounts = $this->getAccountsManager()->getUserAccounts($UserId);
 		$aAccountsCache = [];
 		$aUids = [];
+		$aAccountUids = [];
+
 		foreach ($aAccounts as $oAccount)
 		{
 			$aAccountsCache[$oAccount->EntityId] = $oAccount;
+			$aAccountUids[$oAccount->EntityId] = [];
 			$aUids = array_merge(
 				$aUids,
 				$this->getMailManager()->getUnifiedMailboxMessagesInfo($oAccount, $Folder, $Search, $Offset + $Limit)
@@ -2157,7 +2160,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$aAllMessages = [];
 		$aNextUids = [];
 		$aFoldersHash = [];
-		$aAccountUids = [];
+
 		foreach ($aUids as $aUid)
 		{
 			$aAccountUids[$aUid['accountid']][] = $aUid['uid'];

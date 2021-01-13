@@ -3254,7 +3254,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 */
 	public function getMessageListByUids($oAccount, $sFolderFullNameRaw, $aUids)
 	{
-		if (0 === strlen($sFolderFullNameRaw) || !is_array($aUids) || 0 === count($aUids))
+		if (0 === strlen($sFolderFullNameRaw) /*|| !is_array($aUids) || 0 === count($aUids)*/)
 		{
 			throw new \Aurora\System\Exceptions\InvalidArgumentException();
 		}
