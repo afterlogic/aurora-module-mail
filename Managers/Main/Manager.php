@@ -1807,6 +1807,73 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		return is_array($aUids) && 1 === count($aUids) && is_numeric($aUids[0]) ? (int) $aUids[0] : null;
 	}
 
+	public function getUnifiedMailboxMessagesInfo($oAccount, $sFolderName, $Search, $Limit = 20, $sSortBy = 'ARRIVAL', $sSortOrder = 'REVERSE')
+	{
+		if (0 === strlen($sFolderName))
+		{
+			throw new \Aurora\System\Exceptions\InvalidArgumentException();
+		}
+
+		$oImapClient =& $this->_getImapClient($oAccount);
+		$oImapClient->FolderExamine($sFolderName);
+
+		$oCurrentFolderInformation = $oImapClient->FolderCurrentInformation();
+
+		$mResult = array();
+
+		if ($oCurrentFolderInformation->Exists > 0)
+		{
+			$bUseSortIfSupported = false;
+			$aMessagesSortBy = $this->GetModule()->getConfig('MessagesSortBy', false);
+			if ($aMessagesSortBy !== false && is_array($aMessagesSortBy) && isset($aMessagesSortBy['Allow']) && (bool) $aMessagesSortBy['Allow'] !== false && !empty($sSortBy))
+			{
+				$bUseSortIfSupported = $oImapClient->IsSupported('SORT');
+			}
+
+			$sFilter = $this->_prepareImapSearchString($oImapClient, $Search);
+			if ($bUseSortIfSupported)
+			{
+				$aUids = $oImapClient->MessageSimpleSort(array($sSortOrder . ' ' . $sSortBy), $sFilter);
+			}
+			else
+			{
+				$aUids = $oImapClient->MessageSimpleSearch($sFilter);
+			}
+
+			$aIndexOrUids= array_slice(
+				$aUids,
+				0,
+				$Limit
+			);
+
+			// $mResult = array_flip($aUids);
+
+			$aFetchResponse = $oImapClient->Fetch([
+				\MailSo\Imap\Enumerations\FetchType::INDEX,
+				\MailSo\Imap\Enumerations\FetchType::UID,
+				\MailSo\Imap\Enumerations\FetchType::INTERNALDATE
+			], implode(',', $aIndexOrUids), true);
+
+			if (is_array($aFetchResponse) && 0 < count($aFetchResponse))
+			{
+				$oFetchResponseItem = null;
+				foreach ($aFetchResponse as /* @var $oFetchResponseItem \MailSo\Imap\FetchResponse */ &$oFetchResponseItem)
+				{
+					$sUid = $oFetchResponseItem->GetFetchValue(\MailSo\Imap\Enumerations\FetchType::UID);
+					$sInternalDate = $oFetchResponseItem->GetFetchValue(\MailSo\Imap\Enumerations\FetchType::INTERNALDATE);
+
+					$mResult[$sUid] = [
+						'accountid' => $oAccount->EntityId,
+						'uid' => $sUid,
+						'internaldate' => $sInternalDate
+					];
+				}
+			}
+		}
+
+		return array_values($mResult);
+	}
+
 	public function getMessagesInfo($oAccount, $sFolderName, $Search, $bUseThreading = false,  $sSortBy = 'ARRIVAL', $sSortOrder = 'REVERSE')
 	{
 		if (0 === strlen($sFolderName))

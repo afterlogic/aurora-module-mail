@@ -2109,7 +2109,105 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$oAccount, $Folder, $iOffset, $iLimit, $sSearch, $UseThreading, $aFilters, $InboxUidnext, $sSortBy, $sSortOrder);
 	}
 
-	public function GetUnifiedMailboxMessages($UserId, $Folder = 'INBOX', $Offset = [], $Limit = 20, $Search = '', $Filters = '', $UseThreading = false, $InboxUidnext = '', $SortBy = null, $SortOrder = null)
+	public function GetUnifiedMailboxMessages($UserId, $Folder = 'INBOX', $Offset = 0, $Limit = 20, $Search = '', $Filters = '', $UseThreading = false, $InboxUidnext = '', $SortBy = null, $SortOrder = null)
+	{
+		$aFilters = array();
+		$sFilters = \strtolower(\trim((string) $Filters));
+		if (0 < \strlen($sFilters))
+		{
+			$aFilters = \array_filter(\explode(',', $sFilters), function ($sValue) {
+				return '' !== trim($sValue);
+			});
+		}
+
+		$oMessageCollectionResult = \Aurora\Modules\Mail\Classes\MessageCollection::createInstance();
+		$oMessageCollectionResult->FolderName = $Folder;
+		$oMessageCollectionResult->Limit = $Limit;
+		$oMessageCollectionResult->Offset = $Offset;
+		$oMessageCollectionResult->Search = $Search;
+		$oMessageCollectionResult->Filters = implode(',', $aFilters);
+
+		$aAccounts = $this->getAccountsManager()->getUserAccounts($UserId);
+		$aAccountsCache = [];
+		$aUids = [];
+		foreach ($aAccounts as $oAccount)
+		{
+			$aAccountsCache[$oAccount->EntityId] = $oAccount;
+			$aUids = array_merge(
+				$aUids,
+				$this->getMailManager()->getUnifiedMailboxMessagesInfo($oAccount, $Folder, $Search)
+			);
+		}
+
+		// sort by time
+		usort($aUids, function($a, $b) /*use ($aSortInfo)*/ {
+			// if ($aSortInfo[1] === \Aurora\System\Enums\SortOrder::DESC)
+			// {
+				return (strtotime($a['internaldate']) < strtotime($b['internaldate'])) ? 1 : -1;
+			// }
+			// else
+			// {
+			// 	return ($a->getReceivedOrDateTimeStamp() < $b->getReceivedOrDateTimeStamp()) ? 1 : -1;
+			// }
+		});
+		if (count($aUids) >= 0) {
+			$aUids = array_slice($aUids, $Offset, $Limit);
+		}
+
+		$aAllMessages = [];
+		$aNextUids = [];
+		$aFoldersHash = [];
+		$aAccountUids = [];
+		foreach ($aUids as $aUid)
+		{
+			$aAccountUids[$aUid['accountid']][] = $aUid['uid'];
+		}
+		foreach ($aAccountUids as $iAccountId => $aAcctUids)
+		{
+			// $aAccountUids = array_filter(array_map(function($aUid) use ($oAccount) {
+			// 	if ($aUid['accountid'] === $oAccount->EntityId)
+			// 	{
+			// 		return $aUid['uid'];
+			// 	}
+			// }, $aUids));
+			$oAccount = $aAccountsCache[$iAccountId];
+			$oMessageCollection = $this->getMailManager()->getMessageListByUids(
+				$oAccount, $Folder, $aAcctUids
+			);
+			$aFoldersHash[] = $oAccount->EntityId . ':' . $oMessageCollection->FolderHash;
+			$oMessageCollectionResult->MessageCount = $oMessageCollectionResult->MessageCount + $oMessageCollection->MessageCount;
+			$oMessageCollectionResult->MessageResultCount =$oMessageCollectionResult->MessageResultCount + $oMessageCollection->MessageResultCount;
+			$oMessageCollectionResult->MessageUnseenCount = $oMessageCollectionResult->MessageUnseenCount + $oMessageCollection->MessageUnseenCount;
+			foreach ($oMessageCollection->New as $iNewUid)
+			{
+				$oMessageCollectionResult->New[] = $oAccount->EntityId . ':' . $iNewUid;
+			}
+			$aNextUids[] = $oAccount->EntityId . ':' . $oMessageCollection->UidNext;
+			$aMessages = $oMessageCollection->GetAsArray();
+			foreach ($aMessages as $oMessage)
+			{
+				$oMessage->setAccountId($oAccount->EntityId);
+				$oMessage->setUnifiedUid($oAccount->EntityId . ':' . $oMessage->getUid());
+			}
+			$aAllMessages = array_merge($aAllMessages, $aMessages);
+		}
+
+		// sort by time
+		usort($aAllMessages, function($a, $b) {
+			return ($a->getReceivedOrDateTimeStamp() < $b->getReceivedOrDateTimeStamp()) ? 1 : -1;
+		});
+
+		$oMessageCollectionResult->Uids = array_map(function ($oMessage) {
+			return $oMessage->getUnifiedUid();
+		}, $aAllMessages);
+
+		$oMessageCollectionResult->UidNext = implode('.', $aNextUids);
+		$oMessageCollectionResult->FolderHash = implode('.', $aFoldersHash);
+		$oMessageCollectionResult->AddArray($aAllMessages);
+		return $oMessageCollectionResult;
+	}
+
+	public function GetUnifiedMailboxMessages2($UserId, $Folder = 'INBOX', $Offset = 0, $Limit = 20, $Search = '', $Filters = '', $UseThreading = false, $InboxUidnext = '', $SortBy = null, $SortOrder = null)
 	{
 		$aMessageList = [];
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
