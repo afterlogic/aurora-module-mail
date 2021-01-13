@@ -2135,7 +2135,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$aAccountsCache[$oAccount->EntityId] = $oAccount;
 			$aUids = array_merge(
 				$aUids,
-				$this->getMailManager()->getUnifiedMailboxMessagesInfo($oAccount, $Folder, $Search)
+				$this->getMailManager()->getUnifiedMailboxMessagesInfo($oAccount, $Folder, $Search, $Offset + $Limit)
 			);
 		}
 
@@ -2164,12 +2164,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 		foreach ($aAccountUids as $iAccountId => $aAcctUids)
 		{
-			// $aAccountUids = array_filter(array_map(function($aUid) use ($oAccount) {
-			// 	if ($aUid['accountid'] === $oAccount->EntityId)
-			// 	{
-			// 		return $aUid['uid'];
-			// 	}
-			// }, $aUids));
 			$oAccount = $aAccountsCache[$iAccountId];
 			$oMessageCollection = $this->getMailManager()->getMessageListByUids(
 				$oAccount, $Folder, $aAcctUids
