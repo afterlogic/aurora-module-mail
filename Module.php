@@ -2109,7 +2109,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$oAccount, $Folder, $iOffset, $iLimit, $sSearch, $UseThreading, $aFilters, $InboxUidnext, $sSortBy, $sSortOrder);
 	}
 
-	public function GetUnifiedMailboxMessages($UserId, $Folder = 'INBOX', $Offset = 0, $Limit = 20, $Search = '', $Filters = '', $UseThreading = false, $InboxUidnext = '', $SortBy = null, $SortOrder = null)
+	public function GetUnifiedMailboxMessages($UserId, $Folder = 'INBOX', $Offset = 0, $Limit = 20, $Search = '', $Filters = '', $UseThreading = false, $InboxUidnext = '', $SortOrder = \Aurora\System\Enums\SortOrder::DESC)
 	{
 		$aFilters = array();
 		$sFilters = \strtolower(\trim((string) $Filters));
@@ -2132,26 +2132,29 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$aUids = [];
 		$aAccountUids = [];
 
+		$sSortBy = 'ARRIVAL';
+		$sSortOrder = $SortOrder === \Aurora\System\Enums\SortOrder::DESC ? 'REVERSE' : '';
+
 		foreach ($aAccounts as $oAccount)
 		{
 			$aAccountsCache[$oAccount->EntityId] = $oAccount;
 			$aAccountUids[$oAccount->EntityId] = [];
 			$aUids = array_merge(
 				$aUids,
-				$this->getMailManager()->getUnifiedMailboxMessagesInfo($oAccount, $Folder, $Search, $Offset + $Limit)
+				$this->getMailManager()->getUnifiedMailboxMessagesInfo($oAccount, $Folder, $Search, $aFilters, $UseThreading, $Offset + $Limit, $sSortBy, $sSortOrder)
 			);
 		}
 
 		// sort by time
-		usort($aUids, function($a, $b) /*use ($aSortInfo)*/ {
-			// if ($aSortInfo[1] === \Aurora\System\Enums\SortOrder::DESC)
-			// {
+		usort($aUids, function($a, $b) use ($SortOrder) {
+			if ($SortOrder === \Aurora\System\Enums\SortOrder::DESC)
+			{
 				return (strtotime($a['internaldate']) < strtotime($b['internaldate'])) ? 1 : -1;
-			// }
-			// else
-			// {
-			// 	return ($a->getReceivedOrDateTimeStamp() < $b->getReceivedOrDateTimeStamp()) ? 1 : -1;
-			// }
+			}
+			else
+			{
+				return (strtotime($a['internaldate']) > strtotime($b['internaldate'])) ? 1 : -1;
+			}
 		});
 		if (count($aUids) >= 0) {
 			$aUids = array_slice($aUids, $Offset, $Limit);
@@ -2171,6 +2174,21 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$oMessageCollection = $this->getMailManager()->getMessageListByUids(
 				$oAccount, $Folder, $aAcctUids
 			);
+
+			if ($UseThreading)
+			{
+				$oMessageCollection->ForeachList(function (/* @var $oMessage \Aurora\Modules\Mail\Classes\Message */ $oMessage) use ($aUids, $iAccountId) {
+					$iUid = $oMessage->getUid();
+					$aUidInfo = current(array_filter($aUids, function ($aUid) use ($iAccountId, $iUid) {
+						return $aUid['accountid'] === $iAccountId && $aUid['uid'] == $iUid;
+					}));
+					if (isset($aUidInfo['threads']) && is_array($aUidInfo['threads']))
+					{
+						$oMessage->setThreads($aUidInfo['threads']);
+					}
+				});
+			}
+
 			$aFoldersHash[] = $oAccount->EntityId . ':' . $oMessageCollection->FolderHash;
 			$oMessageCollectionResult->MessageCount = $oMessageCollectionResult->MessageCount + $oMessageCollection->MessageCount;
 			$oMessageCollectionResult->MessageResultCount =$oMessageCollectionResult->MessageResultCount + $oMessageCollection->MessageResultCount;
@@ -2190,8 +2208,15 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 
 		// sort by time
-		usort($aAllMessages, function($a, $b) {
-			return ($a->getReceivedOrDateTimeStamp() < $b->getReceivedOrDateTimeStamp()) ? 1 : -1;
+		usort($aAllMessages, function($a, $b) use ($SortOrder) {
+			if ($SortOrder === \Aurora\System\Enums\SortOrder::DESC)
+			{
+				return ($a->getReceivedOrDateTimeStamp() < $b->getReceivedOrDateTimeStamp()) ? 1 : -1;
+			}
+			else
+			{
+				return ($a->getReceivedOrDateTimeStamp() > $b->getReceivedOrDateTimeStamp()) ? 1 : -1;
+			}
 		});
 
 		$oMessageCollectionResult->Uids = array_map(function ($oMessage) {
@@ -2201,6 +2226,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$oMessageCollectionResult->UidNext = implode('.', $aNextUids);
 		$oMessageCollectionResult->FolderHash = implode('.', $aFoldersHash);
 		$oMessageCollectionResult->AddArray($aAllMessages);
+
 		return $oMessageCollectionResult;
 	}
 

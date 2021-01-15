@@ -1807,7 +1807,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		return is_array($aUids) && 1 === count($aUids) && is_numeric($aUids[0]) ? (int) $aUids[0] : null;
 	}
 
-	public function getUnifiedMailboxMessagesInfo($oAccount, $sFolderName, $Search, $Limit = 20, $sSortBy = 'ARRIVAL', $sSortOrder = 'REVERSE')
+	public function getUnifiedMailboxMessagesInfo($oAccount, $sFolderName, $sSearch = '', $aFilters = [], $bUseThreading = false, $Limit = 20, $sSortBy = 'ARRIVAL', $sSortOrder = 'REVERSE')
 	{
 		if (0 === strlen($sFolderName))
 		{
@@ -1818,42 +1818,223 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		$oImapClient->FolderExamine($sFolderName);
 
 		$oCurrentFolderInformation = $oImapClient->FolderCurrentInformation();
-
+		$iMessageCount = $oCurrentFolderInformation->Exists;
 		$mResult = array();
 
-		if ($oCurrentFolderInformation->Exists > 0)
+		$aThreads = array();
+		$oServer = $oAccount->getServer();
+		$bUseThreadingIfSupported = $oServer->EnableThreading && $oAccount->UseThreading;
+		if ($bUseThreadingIfSupported)
 		{
-			$bUseSortIfSupported = false;
-			$aMessagesSortBy = $this->GetModule()->getConfig('MessagesSortBy', false);
-			if ($aMessagesSortBy !== false && is_array($aMessagesSortBy) && isset($aMessagesSortBy['Allow']) && (bool) $aMessagesSortBy['Allow'] !== false && !empty($sSortBy))
-			{
-				$bUseSortIfSupported = $oImapClient->IsSupported('SORT');
-			}
+			$bUseThreadingIfSupported = $bUseThreading;
+		}
+		if ($bUseThreadingIfSupported)
+		{
+			$bUseThreadingIfSupported = $oImapClient->IsSupported('THREAD=REFS') || $oImapClient->IsSupported('THREAD=REFERENCES') || $oImapClient->IsSupported('THREAD=ORDEREDSUBJECT');
+		}
 
-			$sFilter = $this->_prepareImapSearchString($oImapClient, $Search);
-			if ($bUseSortIfSupported)
+		if ($iMessageCount > 0)
+		{
+			$bIndexAsUid = true;
+
+			$bUseSortIfSupported = $oImapClient->IsSupported('SORT') && !empty($sSortBy);
+
+			if (0 < strlen($sSearch) || 0 < count($aFilters))
 			{
-				$aUids = $oImapClient->MessageSimpleSort(array($sSortOrder . ' ' . $sSortBy), $sFilter);
+				$sCutedSearch = $sSearch;
+
+				$sCutedSearch = \preg_replace('/[\s]+/', ' ', $sCutedSearch);
+				$sCutedSearch = \preg_replace('/attach[ ]?:[ ]?/i', 'attach:', $sCutedSearch);
+
+				$bSearchAttachments = false;
+				$fAttachmentSearchCallback = null;
+				$aMatch = array();
+
+				$oMailModule = \Aurora\System\Api::GetModule('Mail');
+				$bUseBodyStructuresForHasAttachmentsSearch = $oMailModule->getConfig('UseBodyStructuresForHasAttachmentsSearch', false);
+				if (($bUseBodyStructuresForHasAttachmentsSearch && \preg_match('/has[ ]?:[ ]?attachments/i', $sSearch)) ||
+					\preg_match('/attach:([^\s]+)/i', $sSearch, $aMatch))
+				{
+					$bSearchAttachments = true;
+					$sAttachmentName = isset($aMatch[1]) ? trim($aMatch[1]) : '';
+					$sAttachmentRegs = !empty($sAttachmentName) && '*' !== $sAttachmentName ?
+						'/[^>]*'.str_replace('\\*', '[^>]*', preg_quote(trim($sAttachmentName, '*'), '/')).'[^>]*/ui' : '';
+
+					if ($bUseBodyStructuresForHasAttachmentsSearch)
+					{
+						$sCutedSearch = trim(preg_replace('/has[ ]?:[ ]?attachments/i', '', $sCutedSearch));
+					}
+
+					$sCutedSearch = trim(preg_replace('/attach:([^\s]+)/', '', $sCutedSearch));
+
+					$fAttachmentSearchCallback = function ($oBodyStructure, $sSize, $sInternalDate, $aFlagsLower, $sUid) use ($sFolderFullNameRaw, $sAttachmentRegs) {
+
+						$bResult = false;
+						if ($oBodyStructure)
+						{
+							$aAttachmentsParts = $oBodyStructure->SearchAttachmentsParts();
+							if ($aAttachmentsParts && 0 < count($aAttachmentsParts))
+							{
+								$oAttachments = \Aurora\Modules\Mail\Classes\AttachmentCollection::createInstance();
+								foreach ($aAttachmentsParts as /* @var $oAttachmentItem \MailSo\Imap\BodyStructure */ $oAttachmentItem)
+								{
+									$oAttachments->Add(
+										\Aurora\Modules\Mail\Classes\Attachment::createInstance($sFolderFullNameRaw, $sUid, $oAttachmentItem)
+									);
+								}
+
+								$bResult = $oAttachments->hasNotInlineAttachments();
+								if ($bResult && !empty($sAttachmentRegs))
+								{
+									$aList = $oAttachments->FilterList(function ($oAttachment) use ($sAttachmentRegs) {
+										if ($oAttachment && !$oAttachment->isInline() && !$oAttachment->getCid())
+										{
+											return !!preg_match($sAttachmentRegs, $oAttachment->getFileName());
+										}
+
+										return false;
+									});
+
+									return is_array($aList) ? 0 < count($aList) : false;
+								}
+							}
+						}
+
+						unset($oBodyStructure);
+
+						return $bResult;
+					};
+				}
+
+				if (0 < strlen($sCutedSearch) || 0 < count($aFilters))
+				{
+					$bSearch = true;
+					$sSearchCriterias = $this->_prepareImapSearchString($oImapClient, $sCutedSearch,
+						$oAccount->getDefaultTimeOffset() * 60, $aFilters);
+
+					$bIndexAsUid = true;
+					$aIndexOrUids = null;
+
+					if ($bUseSortIfSupported)
+					{
+						$aIndexOrUids = $oImapClient->MessageSimpleSort(array($sSortOrder . ' ' . $sSortBy), $sSearchCriterias, $bIndexAsUid);
+					}
+					else
+					{
+						if (!\MailSo\Base\Utils::IsAscii($sCutedSearch))
+						{
+							try
+							{
+								$aIndexOrUids = $oImapClient->MessageSimpleSearch($sSearchCriterias, $bIndexAsUid, 'UTF-8');
+							}
+							catch (\MailSo\Imap\Exceptions\NegativeResponseException $oException)
+							{
+								// Charset is not supported. Skip and try request without charset.
+								$aIndexOrUids = null;
+							}
+						}
+
+						if (null === $aIndexOrUids)
+						{
+							$aIndexOrUids = $oImapClient->MessageSimpleSearch($sSearchCriterias, $bIndexAsUid);
+						}
+					}
+
+					if ($bSearchAttachments && is_array($aIndexOrUids) && 0 < count($aIndexOrUids))
+					{
+						$aIndexOrUids = $this->_doSpecialUidsSearch(
+							$oImapClient, $fAttachmentSearchCallback, $sFolderFullNameRaw, $aIndexOrUids, $iOffset, $iLimit);
+					}
+				}
+				else if ($bSearchAttachments)
+				{
+					$bIndexAsUid = true;
+					$aIndexOrUids = $this->_doSpecialIndexSearch(
+						$oImapClient, $fAttachmentSearchCallback, $sFolderFullNameRaw, $iOffset, $iLimit);
+				}
+			}
+			else if ($bUseThreadingIfSupported && 1 < $iMessageCount)
+			{
+				$bIndexAsUid = true;
+				$aThreadUids = array();
+				try
+				{
+					$aThreadUids = $oImapClient->MessageSimpleThread();
+				}
+				catch (\MailSo\Imap\Exceptions\RuntimeException $oException)
+				{
+					$aThreadUids = array();
+				}
+
+				$aThreads = $this->_compileThreadList($aThreadUids);
+				if ($bUseSortIfSupported)
+				{
+					$aThreads = $this->_resortThreadList($aThreads,
+						$oImapClient->MessageSimpleSort(array($sSortOrder . ' ' . $sSortBy), 'ALL', true));
+				}
+				else
+				{
+//						$this->chunkThreadArray($aThreads);
+				}
+
+				$aIndexOrUids = array_keys($aThreads);
+				$iMessageCount = count($aIndexOrUids);
 			}
 			else
 			{
-				$aUids = $oImapClient->MessageSimpleSearch($sFilter);
+				 if ($bUseSortIfSupported && 1 < $iMessageCount)
+				{
+					$bIndexAsUid = true;
+					$aIndexOrUids = $oImapClient->MessageSimpleSort(array($sSortOrder . ' ' . $sSortBy), 'ALL', $bIndexAsUid);
+				}
+				else
+				{
+					$bIndexAsUid = false;
+					$aIndexOrUids = array(1);
+					if (1 < $iMessageCount)
+					{
+						$aIndexOrUids = array_reverse(range(1, $iMessageCount));
+					}
+				}
 			}
 
-			$aIndexOrUids= array_slice(
-				$aUids,
+			$aIndexOrUids = array_slice(
+				$aIndexOrUids,
 				0,
 				$Limit
 			);
 
-			// $mResult = array_flip($aUids);
+//			$iMessageCount = 0;
+			if ($bUseThreadingIfSupported/* && 1 < $iMessageCount*/)
+			{
+				$aThreadUids = array();
+				try
+				{
+					$aThreadUids = $oImapClient->MessageSimpleThread();
+				}
+				catch (\MailSo\Imap\Exceptions\RuntimeException $oException)
+				{
+					$aThreadUids = array();
+				}
 
-			$aFetchResponse = $oImapClient->Fetch([
-				\MailSo\Imap\Enumerations\FetchType::INDEX,
-				\MailSo\Imap\Enumerations\FetchType::UID,
-				\MailSo\Imap\Enumerations\FetchType::INTERNALDATE
-			], implode(',', $aIndexOrUids), true);
+				$aThreads = $this->_compileThreadList($aThreadUids);
+//				$aIndexOrUids = array_keys($aThreads);
+//				$iMessageCount = count($aIndexOrUids);
+			}
 
+			$aFetchResponse = null;
+			try
+			{
+				$aFetchResponse = $oImapClient->Fetch([
+					\MailSo\Imap\Enumerations\FetchType::INDEX,
+					\MailSo\Imap\Enumerations\FetchType::UID,
+					\MailSo\Imap\Enumerations\FetchType::INTERNALDATE
+				], implode(',', $aIndexOrUids), $bIndexAsUid);
+			}
+			catch (\Exception $oEx)
+			{
+
+			}
 			if (is_array($aFetchResponse) && 0 < count($aFetchResponse))
 			{
 				$oFetchResponseItem = null;
@@ -1867,6 +2048,25 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 						'uid' => $sUid,
 						'internaldate' => $sInternalDate
 					];
+				}
+			}
+
+			if ($bUseThreadingIfSupported && 0 < count($aThreads))
+			{
+				foreach ($mResult as $sKey => $aItem)
+				{
+					$iUid = $aItem['uid'];
+					if (isset($aThreads[$iUid]) && is_array($aThreads[$iUid]))
+					{
+						foreach($aThreads[$iUid] as $iThreadUid)
+						{
+							if (isset($mResult[$iThreadUid]))
+							{
+								unset($mResult[$iThreadUid]);
+							}
+							$mResult[$sKey]['threads'][] = $iThreadUid;
+						}
+					}
 				}
 			}
 		}
