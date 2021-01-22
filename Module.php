@@ -2349,6 +2349,40 @@ class Module extends \Aurora\System\Module\AbstractModule
 		);
 	}
 
+	public function GetUnifiedRelevantFoldersInformation($AccountsData)
+	{
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
+
+		if (!\is_array($AccountsData) || 0 === \count($AccountsData))
+		{
+			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
+		}
+
+		$aResult = [];
+		$iUnifiedCount = 0;
+		$iUnifiedUnseenCount = 0;
+		$aUnifiedUidNext = [];
+		$aUnifiedFolderHash = [];
+		foreach ($AccountsData as $aAccountData)
+		{
+			$iAccountId = $aAccountData['AccountID'];
+			$aCounts = self::Decorator()->GetRelevantFoldersInformation($iAccountId, $aAccountData['Folders'], $aAccountData['UseListStatusIfPossible']);
+			$aResult[$iAccountId] = $aCounts['Counts'];
+			if (isset($aResult[$iAccountId]['INBOX']))
+			{
+				$iUnifiedCount += $aResult[$iAccountId]['INBOX'][0];
+				$iUnifiedUnseenCount += $aResult[$iAccountId]['INBOX'][1];
+				$aUnifiedUidNext[] = $aResult[$iAccountId]['INBOX'][2];
+				$aUnifiedFolderHash[] = $aResult[$iAccountId]['INBOX'][3];
+			}
+		}
+
+		return [
+			'Counts' => $aResult,
+			'Unified' => [$iUnifiedCount, $iUnifiedUnseenCount, implode('.', $aUnifiedUidNext), implode('.', $aUnifiedFolderHash)]
+		];
+	}
+	
 	/**
 	 * @api {post} ?/Api/ GetRelevantFoldersInformation
 	 * @apiName GetRelevantFoldersInformation
