@@ -2137,12 +2137,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		foreach ($aAccounts as $oAccount)
 		{
-			$aAccountsCache[$oAccount->EntityId] = $oAccount;
+			$aAccountsCache[$oAccount->EntityId]['Account'] = $oAccount;
 			$aAccountUids[$oAccount->EntityId] = [];
+			$aUnifiedInfo = $this->getMailManager()->getUnifiedMailboxMessagesInfo($oAccount, $Folder, $Search, $aFilters, $UseThreading, $Offset + $Limit, $sSortBy, $sSortOrder);
 			$aUids = array_merge(
 				$aUids,
-				$this->getMailManager()->getUnifiedMailboxMessagesInfo($oAccount, $Folder, $Search, $aFilters, $UseThreading, $Offset + $Limit, $sSortBy, $sSortOrder)
+				$aUnifiedInfo['Uids']
 			);
+			$aAccountsCache[$oAccount->EntityId]['MessageCount'] = $aUnifiedInfo['Count'];
 		}
 
 		// sort by time
@@ -2170,10 +2172,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 		foreach ($aAccountUids as $iAccountId => $aAcctUids)
 		{
-			$oAccount = $aAccountsCache[$iAccountId];
+			$oAccount = $aAccountsCache[$iAccountId]['Account'];
 			$oMessageCollection = $this->getMailManager()->getMessageListByUids(
 				$oAccount, $Folder, $aAcctUids
 			);
+			$oMessageCollection->MessageResultCount = $aAccountsCache[$iAccountId]['MessageCount'];
 
 			if ($UseThreading)
 			{

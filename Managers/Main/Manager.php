@@ -1998,14 +1998,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 				}
 			}
 
-			$aIndexOrUids = array_slice(
-				$aIndexOrUids,
-				0,
-				$Limit
-			);
-
-//			$iMessageCount = 0;
-			if ($bUseThreadingIfSupported/* && 1 < $iMessageCount*/)
+			if ($bUseThreadingIfSupported && 1 < $iMessageCount)
 			{
 				$aThreadUids = array();
 				try
@@ -2018,9 +2011,18 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 				}
 
 				$aThreads = $this->_compileThreadList($aThreadUids);
-//				$aIndexOrUids = array_keys($aThreads);
-//				$iMessageCount = count($aIndexOrUids);
+				$aIndexOrUids = array_keys($aThreads);
+				$iMessageCount = count($aIndexOrUids);
 			}
+
+			$iMessageResultCount = 0 < strlen($sSearch) || 0 < count($aFilters)
+			? count($aIndexOrUids) : $iMessageCount;
+
+			$aIndexOrUids = array_slice(
+				$aIndexOrUids,
+				0,
+				$Limit
+			);
 
 			$aFetchResponse = null;
 			try
@@ -2071,7 +2073,10 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			}
 		}
 
-		return array_values($mResult);
+		return [
+			'Count' => $iMessageResultCount,
+			'Uids' => array_values($mResult)
+		];
 	}
 
 	public function getMessagesInfo($oAccount, $sFolderName, $Search, $bUseThreading = false,  $sSortBy = 'ARRIVAL', $sSortOrder = 'REVERSE')
