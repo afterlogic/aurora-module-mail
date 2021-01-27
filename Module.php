@@ -2367,18 +2367,19 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
 			$iAccountId = $aAccountData['AccountID'];
 			$aCounts = self::Decorator()->GetRelevantFoldersInformation($iAccountId, $aAccountData['Folders'], $aAccountData['UseListStatusIfPossible']);
-			$aResult[$iAccountId] = $aCounts['Counts'];
-			if (isset($aResult[$iAccountId]['INBOX']))
+            $aCounts['AccountId'] = $iAccountId;
+			$aResult[] = $aCounts;
+			if (isset($aCounts['Counts']['INBOX']))
 			{
-				$iUnifiedCount += $aResult[$iAccountId]['INBOX'][0];
-				$iUnifiedUnseenCount += $aResult[$iAccountId]['INBOX'][1];
-				$aUnifiedUidNext[] = $aResult[$iAccountId]['INBOX'][2];
-				$aUnifiedFolderHash[] = $aResult[$iAccountId]['INBOX'][3];
+				$iUnifiedCount += $aCounts['Counts']['INBOX'][0];
+				$iUnifiedUnseenCount += $aCounts['Counts']['INBOX'][1];
+				$aUnifiedUidNext[] = $aCounts['Counts']['INBOX'][2];
+				$aUnifiedFolderHash[] = $aCounts['Counts']['INBOX'][3];
 			}
 		}
 
 		return [
-			'Counts' => $aResult,
+			'Accounts' => $aResult,
 			'Unified' => [$iUnifiedCount, $iUnifiedUnseenCount, implode('.', $aUnifiedUidNext), implode('.', $aUnifiedFolderHash)]
 		];
 	}
