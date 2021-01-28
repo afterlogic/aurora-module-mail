@@ -192,5 +192,9 @@
 	"ExpiredLinkLifetimeMinutes": [
 		30,
 		"int"
+	],
+	"AllowUnifiedInbox": [
+		false,
+		"bool"
 	]
 }

@@ -354,6 +354,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			'AutocreateMailAccountOnNewUserFirstLogin' => $this->getConfig('AutocreateMailAccountOnNewUserFirstLogin', false),
 			'IgnoreImapSubscription' => $this->getConfig('IgnoreImapSubscription', false),
 			'ImageUploadSizeLimit' => $this->getConfig('ImageUploadSizeLimit', 0),
+            'AllowUnifiedInbox' => $this->getConfig('AllowUnifiedInbox', false),
 			'SmtpAuthType' => (new \Aurora\Modules\Mail\Enums\SmtpAuthType)->getMap(),
 			'MessagesSortBy' => $this->getConfig('MessagesSortBy', [])
 		);
@@ -1170,32 +1171,35 @@ class Module extends \Aurora\System\Module\AbstractModule
 		return false;
 	}
 
-    public function UpdateAccountUnifiedInbox($AccountID, $IncludeInUnifiedMailbox, $ShowUnifiedMailboxLabel, $UnifiedMailboxLabelText, $UnifiedMailboxLabelColor)
+    public function UpdateAccountUnifiedMailbox($AccountID, $IncludeInUnifiedMailbox, $ShowUnifiedMailboxLabel,
+                                              $UnifiedMailboxLabelText, $UnifiedMailboxLabelColor)
     {
         \Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-
-        if ($AccountID > 0)
+        if (!$this->getConfig('AllowUnifiedInbox', false))
         {
-            $oAccount = $this->getAccountsManager()->getAccountById($AccountID);
-
-            self::checkAccess($oAccount);
-
-            if ($oAccount)
-            {
-                $oAccount->IncludeInUnifiedMailbox = $IncludeInUnifiedMailbox;
-                $oAccount->ShowUnifiedMailboxLabel = $ShowUnifiedMailboxLabel;
-                $oAccount->UnifiedMailboxLabelText = $UnifiedMailboxLabelText;
-                $oAccount->UnifiedMailboxLabelColor = $UnifiedMailboxLabelColor;
-
-                if ($this->getAccountsManager()->updateAccount($oAccount))
-                {
-                    return $oAccount;
-                }
-            }
+            throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::AccessDenied);
         }
-        else
+        if (!is_int($AccountID) || $AccountID <= 0 || !is_bool($IncludeInUnifiedMailbox) || !is_bool($ShowUnifiedMailboxLabel) ||
+            !is_string($UnifiedMailboxLabelText) || !is_string($UnifiedMailboxLabelColor))
         {
             throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
+        }
+
+        $oAccount = $this->getAccountsManager()->getAccountById($AccountID);
+
+        self::checkAccess($oAccount);
+
+        if ($oAccount instanceof Classes\Account)
+        {
+            $oAccount->IncludeInUnifiedMailbox = $IncludeInUnifiedMailbox;
+            $oAccount->ShowUnifiedMailboxLabel = $ShowUnifiedMailboxLabel;
+            $oAccount->UnifiedMailboxLabelText = $UnifiedMailboxLabelText;
+            $oAccount->UnifiedMailboxLabelColor = $UnifiedMailboxLabelColor;
+
+            if ($this->getAccountsManager()->updateAccount($oAccount))
+            {
+                return $oAccount;
+            }
         }
 
         return false;
@@ -2142,7 +2146,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 	public function GetUnifiedMailboxMessages($UserId, $Folder = 'INBOX', $Offset = 0, $Limit = 20, $Search = '', $Filters = '', $UseThreading = false, $InboxUidnext = '', $SortOrder = \Aurora\System\Enums\SortOrder::DESC)
 	{
-		$aFilters = array();
+        \Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
+        self::checkAccess(null, $UserId);
+        if (!$this->getConfig('AllowUnifiedInbox', false))
+        {
+            throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::AccessDenied);
+        }
+
+        $aFilters = array();
 		$sFilters = \strtolower(\trim((string) $Filters));
 		if (0 < \strlen($sFilters))
 		{
@@ -2168,14 +2179,17 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		foreach ($aAccounts as $oAccount)
 		{
-			$aAccountsCache[$oAccount->EntityId]['Account'] = $oAccount;
-			$aAccountUids[$oAccount->EntityId] = [];
-			$aUnifiedInfo = $this->getMailManager()->getUnifiedMailboxMessagesInfo($oAccount, $Folder, $Search, $aFilters, $UseThreading, $Offset + $Limit, $sSortBy, $sSortOrder);
-			$aUids = array_merge(
-				$aUids,
-				$aUnifiedInfo['Uids']
-			);
-			$aAccountsCache[$oAccount->EntityId]['MessageCount'] = $aUnifiedInfo['Count'];
+		    if ($oAccount->IncludeInUnifiedMailbox)
+            {
+                $aAccountsCache[$oAccount->EntityId]['Account'] = $oAccount;
+                $aAccountUids[$oAccount->EntityId] = [];
+                $aUnifiedInfo = $this->getMailManager()->getUnifiedMailboxMessagesInfo($oAccount, $Folder, $Search, $aFilters, $UseThreading, $Offset + $Limit, $sSortBy, $sSortOrder);
+                $aUids = array_merge(
+                    $aUids,
+                    $aUnifiedInfo['Uids']
+                );
+                $aAccountsCache[$oAccount->EntityId]['MessageCount'] = $aUnifiedInfo['Count'];
+            }
 		}
 
 		// sort by time
@@ -2279,107 +2293,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 		return $oMessageCollectionResult;
 	}
 
-	public function GetUnifiedMailboxMessages2($UserId, $Folder = 'INBOX', $Offset = 0, $Limit = 20, $Search = '', $Filters = '', $UseThreading = false, $InboxUidnext = '', $SortBy = null, $SortOrder = null)
-	{
-		$aMessageList = [];
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-
-		$sSearch = \trim((string) $Search);
-
-		$aFilters = array();
-		$sFilters = \strtolower(\trim((string) $Filters));
-		if (0 < \strlen($sFilters))
-		{
-			$aFilters = \array_filter(\explode(',', $sFilters), function ($sValue) {
-				return '' !== trim($sValue);
-			});
-		}
-
-		$iLimit = (int) $Limit;
-
-		if (0 === \strlen(trim($Folder)) || 0 >= $iLimit || 200 < $iLimit)
-		{
-			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
-		}
-
-		$aSortInfo = $this->getSortInfo($SortBy, $SortOrder);
-		$sSortBy = \strtoupper($aSortInfo[0]);
-		$sSortOrder = $aSortInfo[1] === \Aurora\System\Enums\SortOrder::DESC ? 'REVERSE' : '';
-
-		$oMessageCollectionResult = \Aurora\Modules\Mail\Classes\MessageCollection::createInstance();
-		$oMessageCollectionResult->FolderName = $Folder;
-		$oMessageCollectionResult->Limit = $iLimit;
-		$oMessageCollectionResult->Search = $sSearch;
-		$oMessageCollectionResult->Filters = implode(',', $aFilters);
-
-		$aNextOffset = [];
-		$aNextUids = [];
-		$aFoldersHash = [];
-		$aAllMessages = [];
-		$aAccounts = $this->getAccountsManager()->getUserAccounts($UserId);
-		foreach ($aAccounts as $oAccount)
-		{
-			$aNextOffset[$oAccount->EntityId] = 0;
-			$iOffset = isset($Offset[$oAccount->EntityId]) ? (int) $Offset[$oAccount->EntityId] : 0;
-			$oMessageCollection = $this->getMailManager()->getMessageList(
-				$oAccount, $Folder, $iOffset, $iLimit, $sSearch, $UseThreading, $aFilters, $InboxUidnext, $sSortBy, $sSortOrder
-			);
-
-			$aFoldersHash[] = $oAccount->EntityId . ':' . $oMessageCollection->FolderHash;
-			$oMessageCollectionResult->MessageCount = $oMessageCollectionResult->MessageCount + $oMessageCollection->MessageCount;
-			$oMessageCollectionResult->MessageUnseenCount = $oMessageCollectionResult->MessageUnseenCount + $oMessageCollection->MessageUnseenCount;
-			foreach ($oMessageCollection->New as $iNewUid)
-			{
-				$oMessageCollectionResult->New[] = $oAccount->EntityId . ':' . $iNewUid;
-			}
-			$aNextUids[] = $oAccount->EntityId . ':' . $oMessageCollection->UidNext;
-
-			$aMessages = $oMessageCollection->GetAsArray();
-			foreach ($aMessages as $oMessage)
-			{
-				$oMessage->setAccountId($oAccount->EntityId);
-				$oMessage->setUnifiedUid($oAccount->EntityId . ':' . $oMessage->getUid());
-			}
-			$aAllMessages = array_merge($aAllMessages, $aMessages);
-		}
-
-		// sort by time
-		usort($aAllMessages, function($a, $b) use ($aSortInfo) {
-			if ($aSortInfo[1] === \Aurora\System\Enums\SortOrder::DESC)
-			{
-				return ($a->getReceivedOrDateTimeStamp() > $b->getReceivedOrDateTimeStamp()) ? 1 : -1;
-			}
-			else
-			{
-				return ($a->getReceivedOrDateTimeStamp() < $b->getReceivedOrDateTimeStamp()) ? 1 : -1;
-			}
-		});
-
-		if (count($aAllMessages) >= 0) {
-			$aAllMessages = array_slice($aAllMessages, 0, $iLimit);
-		}
-
-		foreach($aAllMessages as $oMessage)
-		{
-			if (!isset($aNextOffset[$oMessage->getAccountId()]))
-			{
-				$aNextOffset[$oMessage->getAccountId()] = 0;
-			}
-			$aNextOffset[$oMessage->getAccountId()]++;
-		}
-
-		$oMessageCollectionResult->Uids = array_map(function ($oMessage) {
-			return $oMessage->getUnifiedUid();
-		}, $aAllMessages);
-
-		$oMessageCollectionResult->UidNext = implode('.', $aNextUids);
-		$oMessageCollectionResult->FolderHash = implode('.', $aFoldersHash);
-		$oMessageCollectionResult->MessageResultCount = count($aAllMessages);
-		$oMessageCollectionResult->Offset = $aNextOffset;
-		$oMessageCollectionResult->AddArray($aAllMessages);
-		return $oMessageCollectionResult;
-	}
-
 	public function GetMessagesInfo($AccountID, $Folder, $Search = null, $UseThreading = false, $SortBy = null, $SortOrder = null)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
@@ -2401,6 +2314,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function GetUnifiedRelevantFoldersInformation($AccountsData)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
+        if (!$this->getConfig('AllowUnifiedInbox', false))
+        {
+            throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::AccessDenied);
+        }
 
 		if (!\is_array($AccountsData) || 0 === \count($AccountsData))
 		{
@@ -2414,17 +2331,22 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$aUnifiedFolderHash = [];
 		foreach ($AccountsData as $aAccountData)
 		{
-			$iAccountId = $aAccountData['AccountID'];
-			$aCounts = self::Decorator()->GetRelevantFoldersInformation($iAccountId, $aAccountData['Folders'], $aAccountData['UseListStatusIfPossible']);
-            $aCounts['AccountId'] = $iAccountId;
-			$aResult[] = $aCounts;
-			if (isset($aCounts['Counts']['INBOX']))
-			{
-				$iUnifiedCount += $aCounts['Counts']['INBOX'][0];
-				$iUnifiedUnseenCount += $aCounts['Counts']['INBOX'][1];
-				$aUnifiedUidNext[] = $iAccountId . ':' . $aCounts['Counts']['INBOX'][2];
-				$aUnifiedFolderHash[] = $iAccountId . ':' . $aCounts['Counts']['INBOX'][3];
-			}
+            $iAccountId = $aAccountData['AccountID'];
+            $oAccount = $this->getAccountsManager()->getAccountById($iAccountId);
+            if ($oAccount instanceof Classes\Account)
+            {
+                self::checkAccess($oAccount);
+                $aCounts = self::Decorator()->GetRelevantFoldersInformation($iAccountId, $aAccountData['Folders'], $aAccountData['UseListStatusIfPossible']);
+                $aCounts['AccountId'] = $iAccountId;
+                $aResult[] = $aCounts;
+                if (isset($aCounts['Counts']['INBOX']) && $oAccount->IncludeInUnifiedMailbox)
+                {
+                    $iUnifiedCount += $aCounts['Counts']['INBOX'][0];
+                    $iUnifiedUnseenCount += $aCounts['Counts']['INBOX'][1];
+                    $aUnifiedUidNext[] = $iAccountId . ':' . $aCounts['Counts']['INBOX'][2];
+                    $aUnifiedFolderHash[] = $iAccountId . ':' . $aCounts['Counts']['INBOX'][3];
+                }
+            }
 		}
 
 		return [
