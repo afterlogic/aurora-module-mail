@@ -10,7 +10,7 @@ namespace Aurora\Modules\Mail;
 /**
  * @license https://www.gnu.org/licenses/agpl-3.0.html AGPL-3.0
  * @license https://afterlogic.com/products/common-licensing Afterlogic Software License
- * @copyright Copyright (c) 2020, Afterlogic Corp.
+ * @copyright Copyright (c) 2021, Afterlogic Corp.
  *
  * @package Modules
  */
@@ -1169,6 +1169,37 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		return false;
 	}
+
+    public function UpdateAccountUnifiedInbox($AccountID, $IncludeInUnifiedMailbox, $ShowUnifiedMailboxLabel, $UnifiedMailboxLabelText, $UnifiedMailboxLabelColor)
+    {
+        \Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
+
+        if ($AccountID > 0)
+        {
+            $oAccount = $this->getAccountsManager()->getAccountById($AccountID);
+
+            self::checkAccess($oAccount);
+
+            if ($oAccount)
+            {
+                $oAccount->IncludeInUnifiedMailbox = $IncludeInUnifiedMailbox;
+                $oAccount->ShowUnifiedMailboxLabel = $ShowUnifiedMailboxLabel;
+                $oAccount->UnifiedMailboxLabelText = $UnifiedMailboxLabelText;
+                $oAccount->UnifiedMailboxLabelColor = $UnifiedMailboxLabelColor;
+
+                if ($this->getAccountsManager()->updateAccount($oAccount))
+                {
+                    return $oAccount;
+                }
+            }
+        }
+        else
+        {
+            throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
+        }
+
+        return false;
+    }
 
 	/**
 	 * @api {post} ?/Api/ DeleteAccount

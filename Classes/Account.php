@@ -10,7 +10,7 @@ namespace Aurora\Modules\Mail\Classes;
 /**
  * @license https://www.gnu.org/licenses/agpl-3.0.html AGPL-3.0
  * @license https://afterlogic.com/products/common-licensing Afterlogic Software License
- * @copyright Copyright (c) 2019, Afterlogic Corp.
+ * @copyright Copyright (c) 2021, Afterlogic Corp.
  *
  * @package Users
  * @subpackage Classes
@@ -33,6 +33,10 @@ class Account extends \Aurora\System\Classes\AbstractAccount
 		'FoldersOrder'		=> array('mediumblob', ''),
 		'UseThreading'		=> array('bool', false),
 		'SaveRepliesToCurrFolder' => array('bool', false),
+        'IncludeInUnifiedMailbox' => array('bool', false),
+        'ShowUnifiedMailboxLabel' => array('bool', false),
+        'UnifiedMailboxLabelText' => array('string', ''),
+        'UnifiedMailboxLabelColor' => array('string', ''),
 	);
 	
 	public function getPassword()
