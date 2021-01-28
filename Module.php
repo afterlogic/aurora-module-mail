@@ -2166,6 +2166,17 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$aNextUids = [];
 		$aFoldersHash = [];
 
+		$aInboxUidsNext = [];
+		if (!empty($InboxUidnext))
+		{
+			$aInboxUids = \explode('.', $InboxUidnext);
+			foreach ($aInboxUids as $aUid)
+			{
+				list($key, $val) = \explode(':', $aUid);
+				$aInboxUidsNext[$key] = $val;
+			}
+		}
+
 		foreach ($aUids as $aUid)
 		{
 			$aAccountUids[$aUid['accountid']][] = $aUid['uid'];
@@ -2173,8 +2184,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 		foreach ($aAccountUids as $iAccountId => $aAcctUids)
 		{
 			$oAccount = $aAccountsCache[$iAccountId]['Account'];
+			$sInboxUidnext = isset($aInboxUidsNext[$iAccountId]) ? $aInboxUidsNext[$iAccountId] : '';
 			$oMessageCollection = $this->getMailManager()->getMessageListByUids(
-				$oAccount, $Folder, $aAcctUids
+				$oAccount, $Folder, $aAcctUids, $sInboxUidnext
 			);
 			$oMessageCollection->MessageResultCount = $aAccountsCache[$iAccountId]['MessageCount'];
 
@@ -2196,10 +2208,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$oMessageCollectionResult->MessageCount = $oMessageCollectionResult->MessageCount + $oMessageCollection->MessageCount;
 			$oMessageCollectionResult->MessageResultCount =$oMessageCollectionResult->MessageResultCount + $oMessageCollection->MessageResultCount;
 			$oMessageCollectionResult->MessageUnseenCount = $oMessageCollectionResult->MessageUnseenCount + $oMessageCollection->MessageUnseenCount;
-			foreach ($oMessageCollection->New as $iNewUid)
+
+			foreach ($oMessageCollection->New as $aNew)
 			{
-				$oMessageCollectionResult->New[] = $oAccount->EntityId . ':' . $iNewUid;
+				$aNew['AccountId'] = $oAccount->EntityId;
+				$oMessageCollectionResult->New[] = $aNew;
 			}
+
 			$aNextUids[] = $oAccount->EntityId . ':' . $oMessageCollection->UidNext;
 			$aMessages = $oMessageCollection->GetAsArray();
 			foreach ($aMessages as $oMessage)
@@ -2376,8 +2391,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 			{
 				$iUnifiedCount += $aCounts['Counts']['INBOX'][0];
 				$iUnifiedUnseenCount += $aCounts['Counts']['INBOX'][1];
-				$aUnifiedUidNext[] = $aCounts['Counts']['INBOX'][2];
-				$aUnifiedFolderHash[] = $aCounts['Counts']['INBOX'][3];
+				$aUnifiedUidNext[] = $iAccountId . ':' . $aCounts['Counts']['INBOX'][2];
+				$aUnifiedFolderHash[] = $iAccountId . ':' . $aCounts['Counts']['INBOX'][3];
 			}
 		}
 
@@ -2386,7 +2401,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			'Unified' => [$iUnifiedCount, $iUnifiedUnseenCount, implode('.', $aUnifiedUidNext), implode('.', $aUnifiedFolderHash)]
 		];
 	}
-	
+
 	/**
 	 * @api {post} ?/Api/ GetRelevantFoldersInformation
 	 * @apiName GetRelevantFoldersInformation

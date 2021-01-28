@@ -3457,7 +3457,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 *
 	 * @throws \Aurora\System\Exceptions\InvalidArgumentException
 	 */
-	public function getMessageListByUids($oAccount, $sFolderFullNameRaw, $aUids)
+	public function getMessageListByUids($oAccount, $sFolderFullNameRaw, $aUids, $sInboxUidnext = '')
 	{
 		if (0 === strlen($sFolderFullNameRaw) /*|| !is_array($aUids) || 0 === count($aUids)*/)
 		{
@@ -3556,6 +3556,13 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			$oMessageCollection->MessageCount,
 			$oMessageCollection->MessageUnseenCount,
 			$oMessageCollection->UidNext);
+
+		if (0 < strlen($sInboxUidnext) &&
+			'INBOX' === $oMessageCollection->FolderName &&
+			$sInboxUidnext !== $oMessageCollection->UidNext)
+		{
+			$oMessageCollection->New = $this->getNewMessagesInformation($oAccount, 'INBOX', $sInboxUidnext, $oMessageCollection->UidNext);
+		}
 
 		return $oMessageCollection;
 	}
