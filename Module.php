@@ -2672,7 +2672,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			if (\is_numeric($iUid))
 			{
 				$oBody = isset($aBodystructures[$iUid]) ? $aBodystructures[$iUid] : null;
-				$oMessage = $this->GetMessage($AccountID, $Folder, (string) $iUid, '', $MessageBodyTruncationThreshold, $oBody);
+				$oMessage = $this->Decorator()->GetMessage($AccountID, $Folder, (string) $iUid, '', $MessageBodyTruncationThreshold, $oBody);
 				if ($oMessage instanceof \Aurora\Modules\Mail\Classes\Message)
 				{
 					$aList[] = $oMessage;
@@ -4296,6 +4296,72 @@ class Module extends \Aurora\System\Module\AbstractModule
 		return $mResult;
 	}
 
+	public function SendMessageObject($oAccount, $oMessage, $Fetcher = null, $SentFolder = '', $DraftFolder = '', $DraftUid = '', $Recipients = array())
+	{
+		$mResult = false;
+
+		if ($oMessage)
+		{
+			$mResult = $this->getMailManager()->sendMessage($oAccount, $oMessage, $Fetcher, $SentFolder, $DraftFolder, $DraftUid, $Recipients);
+
+			if ($mResult)
+			{
+				$aCollection = $oMessage->GetRcpt();
+
+				$aEmails = array();
+				$aCollection->ForeachList(function ($oEmail) use (&$aEmails) {
+					$aEmails[strtolower($oEmail->GetEmail())] = trim($oEmail->GetDisplayName());
+				});
+
+				if (\is_array($aEmails))
+				{
+					$aArgs = ['Emails' => $aEmails];
+					$this->broadcastEvent('AfterUseEmails', $aArgs);
+				}
+			}
+
+			if (\is_array($DraftInfo) && 3 === \count($DraftInfo))
+			{
+				$sDraftInfoType = $DraftInfo[0];
+				$sDraftInfoUid = $DraftInfo[1];
+				$sDraftInfoFolder = $DraftInfo[2];
+
+				try
+				{
+					switch (\strtolower($sDraftInfoType))
+					{
+						case 'reply':
+						case 'reply-all':
+							$this->getMailManager()->setMessageFlag($oAccount,
+								$sDraftInfoFolder, array($sDraftInfoUid),
+								\MailSo\Imap\Enumerations\MessageFlag::ANSWERED,
+								\Aurora\Modules\Mail\Enums\MessageStoreAction::Add);
+							break;
+						case 'forward':
+							$this->getMailManager()->setMessageFlag($oAccount,
+								$sDraftInfoFolder, array($sDraftInfoUid),
+								'$Forwarded',
+								\Aurora\Modules\Mail\Enums\MessageStoreAction::Add);
+							break;
+					}
+				}
+				catch (\Exception $oException) {}
+			}
+
+			if (0 < \strlen($ConfirmFolder) && 0 < \strlen($ConfirmUid))
+			{
+				try
+				{
+					$mResult = $this->getMailManager()->setMessageFlag($oAccount, $ConfirmFolder, array($ConfirmUid), '$ReadConfirm',
+						\Aurora\Modules\Mail\Enums\MessageStoreAction::Add, false, true);
+				}
+				catch (\Exception $oException) {}
+			}
+		}
+
+		return $mResult;
+	}
+
 	/**
 	 * @api {post} ?/Api/ SendMessage
 	 * @apiName SendMessage
@@ -4402,7 +4468,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$SendReadingConfirmation = false, $Attachments = array(), $InReplyTo = "",
 			$References = "", $Sensitivity = \MailSo\Mime\Enumerations\Sensitivity::NOTHING, $SentFolder = "",
 			$DraftFolder = "", $ConfirmFolder = "", $ConfirmUid = "",
-			$CustomHeaders = [])
+			$CustomHeaders = [], $ScheduleDateTime = null)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 
@@ -4415,64 +4481,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$oMessage = self::Decorator()->BuildMessage($oAccount, $To, $Cc, $Bcc,
 			$Subject, $IsHtml, $Text, $Attachments, $DraftInfo, $InReplyTo, $References, $Importance,
 			$Sensitivity, $SendReadingConfirmation, $Fetcher, $Alias, false, $oIdentity, $CustomHeaders);
-		if ($oMessage)
-		{
-			$mResult = $this->getMailManager()->sendMessage($oAccount, $oMessage, $Fetcher, $SentFolder, $DraftFolder, $DraftUid, $Recipients);
 
-			if ($mResult)
-			{
-				$aCollection = $oMessage->GetRcpt();
-
-				$aEmails = array();
-				$aCollection->ForeachList(function ($oEmail) use (&$aEmails) {
-					$aEmails[strtolower($oEmail->GetEmail())] = trim($oEmail->GetDisplayName());
-				});
-
-				if (\is_array($aEmails))
-				{
-					$aArgs = ['Emails' => $aEmails];
-					$this->broadcastEvent('AfterUseEmails', $aArgs);
-				}
-			}
-
-			if (\is_array($DraftInfo) && 3 === \count($DraftInfo))
-			{
-				$sDraftInfoType = $DraftInfo[0];
-				$sDraftInfoUid = $DraftInfo[1];
-				$sDraftInfoFolder = $DraftInfo[2];
-
-				try
-				{
-					switch (\strtolower($sDraftInfoType))
-					{
-						case 'reply':
-						case 'reply-all':
-							$this->getMailManager()->setMessageFlag($oAccount,
-								$sDraftInfoFolder, array($sDraftInfoUid),
-								\MailSo\Imap\Enumerations\MessageFlag::ANSWERED,
-								\Aurora\Modules\Mail\Enums\MessageStoreAction::Add);
-							break;
-						case 'forward':
-							$this->getMailManager()->setMessageFlag($oAccount,
-								$sDraftInfoFolder, array($sDraftInfoUid),
-								'$Forwarded',
-								\Aurora\Modules\Mail\Enums\MessageStoreAction::Add);
-							break;
-					}
-				}
-				catch (\Exception $oException) {}
-			}
-
-			if (0 < \strlen($ConfirmFolder) && 0 < \strlen($ConfirmUid))
-			{
-				try
-				{
-					$mResult = $this->getMailManager()->setMessageFlag($oAccount, $ConfirmFolder, array($ConfirmUid), '$ReadConfirm',
-						\Aurora\Modules\Mail\Enums\MessageStoreAction::Add, false, true);
-				}
-				catch (\Exception $oException) {}
-			}
-		}
+		$mResult = $this->SendMessageObject($oAccount, $oMessage, $Fetcher, $SentFolder, $DraftFolder, $DraftUid, $Recipients);
 
 		\Aurora\System\Api::LogEvent('message-send: ' . $oAccount->Email, self::GetName());
 		return $mResult;
