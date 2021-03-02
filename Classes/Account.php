@@ -18,27 +18,28 @@ namespace Aurora\Modules\Mail\Classes;
 class Account extends \Aurora\System\Classes\AbstractAccount
 {
 	private $oServer = null;
-	
+
 	protected $aStaticMap = array(
-		'IsDisabled'		=> array('bool', false, true),
-		'IdUser'			=> array('int', 0, true),
-		'UseToAuthorize'	=> array('bool', false, true),
-		'Email'				=> array('string', '', true),
-		'FriendlyName'		=> array('string', ''),
-		'IncomingLogin'		=> array('string', ''),
-		'IncomingPassword'	=> array('encrypted', ''),
-		'UseSignature'		=> array('bool', false),
-		'Signature'			=> array('mediumblob', ''),
-		'ServerId'			=> array('int',  0),
-		'FoldersOrder'		=> array('mediumblob', ''),
-		'UseThreading'		=> array('bool', false),
-		'SaveRepliesToCurrFolder' => array('bool', false),
-        'IncludeInUnifiedMailbox' => array('bool', false),
-        'ShowUnifiedMailboxLabel' => array('bool', false),
-        'UnifiedMailboxLabelText' => array('string', ''),
-        'UnifiedMailboxLabelColor' => array('string', ''),
+		'IsDisabled'				=> array('bool', false, true),
+		'IdUser'					=> array('int', 0, true),
+		'UseToAuthorize'			=> array('bool', false, true),
+		'Email'						=> array('string', '', true),
+		'FriendlyName'				=> array('string', ''),
+		'IncomingLogin'				=> array('string', ''),
+		'IncomingPassword'			=> array('encrypted', ''),
+		'UseSignature'				=> array('bool', false),
+		'Signature'					=> array('mediumblob', ''),
+		'ServerId'					=> array('int',  0),
+		'FoldersOrder'				=> array('mediumblob', ''),
+		'UseThreading'				=> array('bool', false),
+		'SaveRepliesToCurrFolder' 	=> array('bool', false),
+        'IncludeInUnifiedMailbox' 	=> array('bool', false),
+        'ShowUnifiedMailboxLabel' 	=> array('bool', false),
+        'UnifiedMailboxLabelText' 	=> array('string', ''),
+		'UnifiedMailboxLabelColor' 	=> array('string', ''),
+		'XOAuth' 					=> array('string', '')
 	);
-	
+
 	public function getPassword()
 	{
 		$sPassword = '';
@@ -53,7 +54,7 @@ class Account extends \Aurora\System\Classes\AbstractAccount
 		{
 			$sPassword = $this->IncomingPassword;
 		}
-		
+
 		if ($sPassword !== '' && strpos($sPassword, $this->IncomingLogin . ':') === false)
 		{
 			$this->setPassword($sPassword);
@@ -65,19 +66,19 @@ class Account extends \Aurora\System\Classes\AbstractAccount
 		}
 		return $sPassword;
 	}
-	
+
 	public function setPassword($sPassword)
 	{
 		$this->IncomingPassword = $this->IncomingLogin . ':' . $sPassword;
 	}
-			
+
 	public function updateServer($iServerId)
 	{
 		$this->oServer = null;
 		$this->ServerId = $iServerId;
 		$this->oServer = $this->getServer();
 	}
-	
+
 	public function getServer()
 	{
 		$oMailModule = \Aurora\System\Api::GetModule('Mail');
@@ -87,18 +88,18 @@ class Account extends \Aurora\System\Classes\AbstractAccount
 		}
 		return $this->oServer;
 	}
-	
+
 	private function canBeUsedToAuthorize()
 	{
 		$oMailModule = \Aurora\System\Api::GetModule('Mail');
 		return !$oMailModule->getAccountsManager()->useToAuthorizeAccountExists($this->Email, $this->EntityId);
 	}
-	
+
 	public function getDefaultTimeOffset()
 	{
 		return 0;
 	}
-	
+
 	public function toResponseArray()
 	{
 		$aResponse = parent::toResponseArray();
@@ -106,12 +107,12 @@ class Account extends \Aurora\System\Classes\AbstractAccount
 		$aResponse['AllowFilters'] = false;
 		$aResponse['AllowForward'] = false;
 		$aResponse['AllowAutoresponder'] = false;
-		
+
 		$oServer = $this->getServer();
 		if ($oServer instanceof \Aurora\System\EAV\Entity)
 		{
 			$aResponse['Server'] = $oServer->toResponseArray();
-			
+
 			$oMailModule = \Aurora\System\Api::GetModule('Mail');
 			if ($oServer->EnableSieve && $oMailModule)
 			{
@@ -120,17 +121,17 @@ class Account extends \Aurora\System\Classes\AbstractAccount
 				$aResponse['AllowAutoresponder'] = $oMailModule->getConfig('AllowAutoresponder', '');
 			}
 		}
-		
+
 		$aResponse['CanBeUsedToAuthorize'] = $this->canBeUsedToAuthorize();
 //		unset($aResponse['IncomingPassword']);
-		
+
 		$aArgs = ['Account' => $this];
 		\Aurora\System\Api::GetModule('Core')->broadcastEvent(
 			'Mail::Account::ToResponseArray',
 			$aArgs,
 			$aResponse
 		);
-		
+
 		return $aResponse;
 	}
 

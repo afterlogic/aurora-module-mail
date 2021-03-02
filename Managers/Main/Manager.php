@@ -121,17 +121,18 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 //				$sProxyAuthUser = !empty($oAccount->CustomFields['ProxyAuthUser'])
 //					? $oAccount->CustomFields['ProxyAuthUser'] : '';
 
-				try
+				if (!empty($oAccount->XOAuth))
+				{
+					$sToken = \Aurora\Modules\OAuthIntegratorWebclient\Module::Decorator()->GetAccessToken($oAccount->XOAuth);
+					if ($sToken)
+					{
+						$sXOAuthKey = \MailSo\Imap\ImapClient::GetXOAuthKeyStatic($oAccount->Email, $sToken);
+						$oResult->LoginWithXOAuth2($sXOAuthKey);
+					}
+				}
+				else
 				{
 					$oResult->Login($oAccount->IncomingLogin, $oAccount->getPassword(), '');
-				}
-				catch (\MailSo\Imap\Exceptions\LoginBadCredentialsException $oException)
-				{
-					throw new \Aurora\Modules\Mail\Exceptions\Exception(
-						\Aurora\Modules\Mail\Enums\ErrorCodes::CannotLoginCredentialsIncorrect,
-						$oException,
-						$oException->getMessage()
-					);
 				}
 			}
 		}
@@ -3126,6 +3127,103 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
 		rsort($aResult, SORT_NUMERIC);
 		return $aResult;
+	}
+
+	/**
+	 * @param Aurora\Modules\Mail\Classes\Account $oAccount Account object.
+	 * @param string $sFolderName
+	 * @param int $iIndex
+	 * @param bool $bIndexIsUid = true
+
+	 *
+	 * @return \MailSo\Mail\Message|false
+	 *
+	 * @throws \MailSo\Base\Exceptions\InvalidArgumentException
+	 * @throws \MailSo\Net\Exceptions\Exception
+	 * @throws \MailSo\Imap\Exceptions\Exception
+	 */
+	public function getMessage($oAccount, $sFolderName, $iIndex, $bIndexIsUid = true)
+	{
+		$oImapClient =& $this->_getImapClient($oAccount);
+
+		$oImapClient->FolderExamine($sFolderName);
+
+		$oBodyStructure = null;
+		$oMessage = false;
+
+		$aBodyPeekMimeIndexes = array();
+		$aSignatureMimeIndexes = array();
+
+		$aFetchResponse = $oImapClient->Fetch(array(\MailSo\Imap\Enumerations\FetchType::BODYSTRUCTURE), $iIndex, $bIndexIsUid);
+		if (0 < \count($aFetchResponse) && isset($aFetchResponse[0]))
+		{
+			$oBodyStructure = $aFetchResponse[0]->GetFetchBodyStructure();
+			if ($oBodyStructure)
+			{
+				$aTextParts = $oBodyStructure->SearchHtmlOrPlainParts();
+				if (is_array($aTextParts) && 0 < \count($aTextParts))
+				{
+					foreach ($aTextParts as $oPart)
+					{
+						$aBodyPeekMimeIndexes[] = array($oPart->PartID(), $oPart->Size());
+					}
+				}
+
+				$aSignatureParts = $oBodyStructure->SearchByContentType('application/pgp-signature');
+				if (is_array($aSignatureParts) && 0 < \count($aSignatureParts))
+				{
+					foreach ($aSignatureParts as $oPart)
+					{
+						$aSignatureMimeIndexes[] = $oPart->PartID();
+					}
+				}
+			}
+		}
+
+		$aFetchItems = array(
+			\MailSo\Imap\Enumerations\FetchType::INDEX,
+			\MailSo\Imap\Enumerations\FetchType::UID,
+			\MailSo\Imap\Enumerations\FetchType::RFC822_SIZE,
+			\MailSo\Imap\Enumerations\FetchType::INTERNALDATE,
+			\MailSo\Imap\Enumerations\FetchType::FLAGS,
+			\MailSo\Imap\Enumerations\FetchType::BODY_HEADER_PEEK
+		);
+
+		if (0 < \count($aBodyPeekMimeIndexes))
+		{
+			foreach ($aBodyPeekMimeIndexes as $aTextMimeData)
+			{
+				$sLine = \MailSo\Imap\Enumerations\FetchType::BODY_PEEK.'['.$aTextMimeData[0].']';
+				if (\is_numeric($iBodyTextLimit) && 0 < $iBodyTextLimit && $iBodyTextLimit < $aTextMimeData[1])
+				{
+					$sLine .= '<0.'.((int) $iBodyTextLimit).'>';
+				}
+
+				$aFetchItems[] = $sLine;
+			}
+		}
+
+		if (0 < \count($aSignatureMimeIndexes))
+		{
+			foreach ($aSignatureMimeIndexes as $sTextMimeIndex)
+			{
+				$aFetchItems[] = \MailSo\Imap\Enumerations\FetchType::BODY_PEEK.'['.$sTextMimeIndex.']';
+			}
+		}
+
+		if (!$oBodyStructure)
+		{
+			$aFetchItems[] = \MailSo\Imap\Enumerations\FetchType::BODYSTRUCTURE;
+		}
+
+		$aFetchResponse = $oImapClient->Fetch($aFetchItems, $iIndex, $bIndexIsUid);
+		if (0 < \count($aFetchResponse))
+		{
+			$oMessage = \MailSo\Mail\Message::NewFetchResponseInstance(
+				$sFolderName, $aFetchResponse[0], $oBodyStructure);
+		}
+
+		return $oMessage;
 	}
 
 	/**

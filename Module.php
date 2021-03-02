@@ -866,7 +866,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @return \Aurora\Modules\Mail\Classes\Account|boolean
 	 */
 	public function CreateAccount($UserId = 0, $FriendlyName = '', $Email = '', $IncomingLogin = '',
-			$IncomingPassword = '', $Server = null)
+			$IncomingPassword = '', $Server = null, $XAuth = null)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 
@@ -924,9 +924,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 					$oAccount->UseThreading = $oServer->EnableThreading;
 				}
 
+				$oAccount->XOAuth = $XAuth;
+
 				$bAccoutResult = false;
 				$oResException = null;
-				$bDoImapLoginOnAccountCreate = $this->getConfig('DoImapLoginOnAccountCreate', true);
+				$bDoImapLoginOnAccountCreate = $this->getConfig('DoImapLoginOnAccountCreate', true) && is_null($XAuth);
 				if ($bDoImapLoginOnAccountCreate)
 				{
 					$oResException = $this->getMailManager()->validateAccountConnection($oAccount, false);
