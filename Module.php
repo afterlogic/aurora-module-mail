@@ -903,9 +903,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 				if ($Server === null)
 				{
-					$oServer = $this->getServersManager()->getServerByDomain($sDomain);
-					if ($oServer)
+					$aServerResult = self::Decorator()->GetMailServerByDomain($sDomain);
+					if (isset($aServerResult['Server']))
 					{
+						$oServer = $aServerResult['Server'];
 						$iServerId = $oServer->EntityId;
 					}
 				}
