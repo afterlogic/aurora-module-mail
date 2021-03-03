@@ -39,8 +39,12 @@ class Server extends \Aurora\System\EAV\Entity
 		'ExternalAccessImapServer'		=> array('string', ''),
 		'ExternalAccessImapPort'		=> array('int',  143),
 		'ExternalAccessSmtpServer'		=> array('string', ''),
-		'ExternalAccessSmtpPort'		=> array('int',  25)
-	);	
+		'ExternalAccessSmtpPort'		=> array('int',  25),
+		'OAuthEnable'					=> array('bool', false),
+		'OAuthName'						=> array('string', ''),
+		'OAuthType'						=> array('string', ''),
+		'OAuthIconUrl'					=> array('string', '')
+	);
 
 	public function toResponseArray()
 	{

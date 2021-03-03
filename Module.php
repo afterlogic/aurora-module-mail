@@ -1569,13 +1569,18 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param int $ExternalAccessImapPort
 	 * @param string $ExternalAccessSmtpServer
 	 * @param int $ExternalAccessSmtpPort
+	 * @param boolean $OAuthEnable
+	 * @param string $OAuthName
+	 * @param string $OAuthType
+	 * @param string $OAuthIconUrl
 	 * @return int|boolean
 	 */
 	public function CreateServer($Name, $IncomingServer, $IncomingPort, $IncomingUseSsl,
 			$OutgoingServer, $OutgoingPort, $OutgoingUseSsl, $SmtpAuthType, $Domains, $EnableThreading, $EnableSieve,
 			$SievePort, $SmtpLogin = '', $SmtpPassword = '', $UseFullEmailAddressAsLogin = true, $TenantId = 0,
 			$SetExternalAccessServers = false, $ExternalAccessImapServer = '', $ExternalAccessImapPort = 143,
-			$ExternalAccessSmtpServer = '', $ExternalAccessSmtpPort = 25)
+			$ExternalAccessSmtpServer = '', $ExternalAccessSmtpPort = 25,
+			$OAuthEnable = false, $OAuthName = '', $OAuthType = '', $OAuthIconUrl = '')
 	{
 		$oAuthenticatedUser = \Aurora\System\Api::getAuthenticatedUser();
 		if ($oAuthenticatedUser instanceof \Aurora\Modules\Core\Classes\User && $oAuthenticatedUser->Role === \Aurora\Modules\Mail\Enums\ServerOwnerType::Tenant)
@@ -1617,6 +1622,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$oServer->ExternalAccessImapPort = $ExternalAccessImapPort;
 			$oServer->ExternalAccessSmtpServer = $ExternalAccessSmtpServer;
 			$oServer->ExternalAccessSmtpPort = $ExternalAccessSmtpPort;
+		}
+		$oServer->OAuthEnable = $OAuthEnable;
+		if ($oServer->OAuthEnable)
+		{
+			$oServer->OAuthName = $OAuthName;
+			$oServer->OAuthType = $OAuthType;
+			$oServer->OAuthIconUrl = $OAuthIconUrl;
 		}
 
 		return $this->getServersManager()->createServer($oServer);
@@ -1707,13 +1719,18 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param int $ExternalAccessImapPort
 	 * @param string $ExternalAccessSmtpServer
 	 * @param int $ExternalAccessSmtpPort
+	 * @param boolean $OAuthEnable
+	 * @param string $OAuthName
+	 * @param string $OAuthType
+	 * @param string $OAuthIconUrl
 	 * @return boolean
 	 */
 	public function UpdateServer($ServerId, $Name, $IncomingServer, $IncomingPort, $IncomingUseSsl,
 			$OutgoingServer, $OutgoingPort, $OutgoingUseSsl, $SmtpAuthType, $Domains, $EnableThreading, $EnableSieve,
 			$SievePort, $SmtpLogin = '', $SmtpPassword = '', $UseFullEmailAddressAsLogin = true, $TenantId = 0,
 			$SetExternalAccessServers = false, $ExternalAccessImapServer = '', $ExternalAccessImapPort = 143,
-			$ExternalAccessSmtpServer = '', $ExternalAccessSmtpPort = 25)
+			$ExternalAccessSmtpServer = '', $ExternalAccessSmtpPort = 25,
+			$OAuthEnable = false, $OAuthName = '', $OAuthType = '', $OAuthIconUrl = '')
 	{
 		$bResult = false;
 
@@ -1758,6 +1775,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 				$oServer->ExternalAccessImapPort = $ExternalAccessImapPort;
 				$oServer->ExternalAccessSmtpServer = $ExternalAccessSmtpServer;
 				$oServer->ExternalAccessSmtpPort = $ExternalAccessSmtpPort;
+			}
+			$oServer->OAuthEnable = $OAuthEnable;
+			if ($oServer->OAuthEnable)
+			{
+				$oServer->OAuthName = $OAuthName;
+				$oServer->OAuthType = $OAuthType;
+				$oServer->OAuthIconUrl = $OAuthIconUrl;
 			}
 
 			$bResult = $this->getServersManager()->updateServer($oServer);
