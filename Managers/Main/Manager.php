@@ -123,7 +123,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
 				if (!empty($oAccount->XOAuth))
 				{
-					$sToken = \Aurora\Modules\OAuthIntegratorWebclient\Module::Decorator()->GetAccessToken($oAccount->XOAuth);
+					$sToken = \Aurora\Modules\OAuthIntegratorWebclient\Module::Decorator()->GetAccessToken($oAccount->XOAuth, $oAccount->Email);
 					if ($sToken)
 					{
 						$sXOAuthKey = \MailSo\Imap\ImapClient::GetXOAuthKeyStatic($oAccount->Email, $sToken);
