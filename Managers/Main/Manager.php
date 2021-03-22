@@ -1467,7 +1467,19 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 					}
 					else if ($oServer->SmtpAuthType === \Aurora\Modules\Mail\Enums\SmtpAuthType::UseUserCredentials)
 					{
-						$oSmtpClient->Login($oAccount->IncomingLogin, $oAccount->getPassword());
+						if (!empty($oAccount->XOAuth))
+						{
+							$sToken = \Aurora\Modules\OAuthIntegratorWebclient\Module::Decorator()->GetAccessToken($oAccount->XOAuth, $oAccount->Email);
+							if ($sToken)
+							{
+								$sXOAuthKey = \MailSo\Imap\ImapClient::GetXOAuthKeyStatic($oAccount->Email, $sToken);
+								$oSmtpClient->LoginWithXOAuth2($sXOAuthKey);
+							}
+						}
+						else
+						{
+							$oSmtpClient->Login($oAccount->IncomingLogin, $oAccount->getPassword(), '');
+						}
 					}
 					else if ($oServer->SmtpAuthType === \Aurora\Modules\Mail\Enums\SmtpAuthType::UseSpecifiedCredentials)
 					{
