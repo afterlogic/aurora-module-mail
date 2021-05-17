@@ -13,7 +13,7 @@ namespace Aurora\Modules\Mail\Classes;
  * @license https://www.gnu.org/licenses/agpl-3.0.html AGPL-3.0
  * @license https://afterlogic.com/products/common-licensing Afterlogic Software License
  * @copyright Copyright (c) 2019, Afterlogic Corp.
- * 
+ *
  * @package Mail
  * @subpackage Classes
  */
@@ -21,28 +21,28 @@ class Attachment
 {
 	/**
 	 * Full name of the folder in which there is the message that contains the attachment.
-	 * 
+	 *
 	 * @var string
 	 */
 	protected $sFolder;
 
 	/**
 	 * Uid of the message that contains the attachment.
-	 * 
+	 *
 	 * @var int
 	 */
 	protected $iUid;
 
 	/**
 	 * Content of the attachment. It is used only for files with .asc extension.
-	 * 
+	 *
 	 * @var string
 	 */
 	protected $sContent;
 
 	/**
 	 * Body structure of the message part that contains the attachment.
-	 * 
+	 *
 	 * @var \MailSo\Imap\BodyStructure
 	 */
 	protected $oBodyStructure;
@@ -57,7 +57,7 @@ class Attachment
 
 	/**
 	 * Clears all fields of the object.
-	 * 
+	 *
 	 * @return \Aurora\Modules\Mail\Classes\Attachment
 	 */
 	public function clear()
@@ -72,7 +72,7 @@ class Attachment
 
 	/**
 	 * Returns full name of the folder in which there is the message that contains the attachment.
-	 * 
+	 *
 	 * @return string
 	 */
 	public function getFolder()
@@ -82,7 +82,7 @@ class Attachment
 
 	/**
 	 * Returns uid of the message that contains the attachment.
-	 * 
+	 *
 	 * @return int
 	 */
 	public function getUid()
@@ -92,7 +92,7 @@ class Attachment
 
 	/**
 	 * Returns content of the attachment. It is used only for files with .asc extension.
-	 * 
+	 *
 	 * @return string
 	 */
 	public function getContent()
@@ -102,7 +102,7 @@ class Attachment
 
 	/**
 	 * Fills content of the attachment. It is used only for files with .asc extension.
-	 * 
+	 *
 	 * @param string $sContent
 	 */
 	public function setContent($sContent)
@@ -112,7 +112,7 @@ class Attachment
 
 	/**
 	 * Returns part identifier of the attachment in the message.
-	 * 
+	 *
 	 * @return string
 	 */
 	public function getMimeIndex()
@@ -122,7 +122,7 @@ class Attachment
 
 	/**
 	 * Returns file name of the attachment.
-	 * 
+	 *
 	 * @return string
 	 */
 	public function getFileName($bCalculateOnEmpty = false)
@@ -158,7 +158,7 @@ class Attachment
 
 	/**
 	 * Returns mime type of the attachment.
-	 * 
+	 *
 	 * @return string
 	 */
 	public function getMimeType()
@@ -168,7 +168,7 @@ class Attachment
 
 	/**
 	 * Returns encoding that encodes content of the attachment.
-	 * 
+	 *
 	 * @return string
 	 */
 	public function getEncoding()
@@ -178,7 +178,7 @@ class Attachment
 
 	/**
 	 * Returns estimated size of decoded attachment content.
-	 * 
+	 *
 	 * @return int
 	 */
 	public function getEstimatedSize()
@@ -188,7 +188,7 @@ class Attachment
 
 	/**
 	 * Returns content identifier of the attachment.
-	 * 
+	 *
 	 * @return string
 	 */
 	public function getCid()
@@ -198,7 +198,7 @@ class Attachment
 
 	/**
 	 * Returns content location of the attachment.
-	 * 
+	 *
 	 * @return string
 	 */
 	public function getContentLocation()
@@ -208,7 +208,7 @@ class Attachment
 
 	/**
 	 * Returns **true** if the attachment is marked as inline attachment in it's  headers.
-	 * 
+	 *
 	 * @return bool
 	 */
 	public function isInline()
@@ -218,7 +218,7 @@ class Attachment
 
 	/**
 	 * Returns **true** if the attachment is contact card.
-	 * 
+	 *
 	 * @return bool
 	 */
 	public function isVcard()
@@ -228,7 +228,7 @@ class Attachment
 
 	/**
 	 * Returns **true** if the attachment is calendar event or calendar appointment.
-	 * 
+	 *
 	 * @return bool
 	 */
 	public function isIcal()
@@ -238,7 +238,7 @@ class Attachment
 
 	/**
 	 * Creates new empty instance.
-	 * 
+	 *
 	 * @return \Aurora\Modules\Mail\Classes\Attachment
 	 */
 	public static function createEmptyInstance()
@@ -248,7 +248,7 @@ class Attachment
 
 	/**
 	 * Creates and initializes new instance.
-	 * 
+	 *
 	 * @param string $sFolder Full name of the folder in which there is the message that contains the attachment.
 	 * @param int $iUid Uid of the message that contains the attachment.
 	 * @param \MailSo\Imap\BodyStructure $oBodyStructure Body structure of the message part that contains the attachment.
@@ -262,7 +262,7 @@ class Attachment
 
 	/**
 	 * Initializes object fields.
-	 * 
+	 *
 	 * @param string $sFolder Full name of the folder in which there is the message that contains the attachment.
 	 * @param int $iUid Uid of the message that contains the attachment.
 	 * @param \MailSo\Imap\BodyStructure $oBodyStructure Body structure of the message part that contains the attachment.
@@ -276,7 +276,7 @@ class Attachment
 		$this->oBodyStructure = $oBodyStructure;
 		return $this;
 	}
-	
+
 	public function toResponseArray($aParameters = array())
 	{
 		$iAccountID = isset($aParameters['AccountID']) ? $aParameters['AccountID'] : null;
@@ -302,7 +302,7 @@ class Attachment
 
 		$sFileName = $this->getFileName(true);
 		$iEstimatedSize = $this->getEstimatedSize();
-		
+
 		$oSettings =& \Aurora\System\Api::GetSettings();
 		$iThumbnailLimit = ((int) $oSettings->GetValue('ThumbnailMaxFileSizeMb', 5)) * 1024 * 1024;
 
@@ -312,6 +312,10 @@ class Attachment
 		}
 
 		$sCid = \trim(\trim($this->getCid()), '<>');
+
+		$bIsPdfAttach = isset($mResult['MimeType']) && $mResult['MimeType'] === 'application/pdf';
+		$bCidFoundInHtml = !empty($sCid) && is_array($mFoundedCIDs) && in_array($sCid, $mFoundedCIDs) ||
+			is_array($mFoundedContentLocationUrls) && in_array(trim($this->getContentLocation()), $mFoundedContentLocationUrls);
 
 		$mResult = array_merge(\Aurora\System\Managers\Response::objectWrapper($this, $aParameters), array(
 			'FileName' => $sFileName,
@@ -323,18 +327,17 @@ class Attachment
 			'ContentLocation' => $this->getContentLocation(),
 			'Content' => $this->getContent(),
 			'IsInline' => $this->isInline(),
-			'IsLinked' => (!empty($sCid) && $mFoundedCIDs && \in_array($sCid, $mFoundedCIDs)) ||
-				($mFoundedContentLocationUrls && \in_array(\trim($this->getContentLocation()), $mFoundedContentLocationUrls))
+			'IsLinked' => $bCidFoundInHtml && !$bIsPdfAttach
 		));
-		
+
 		$sHash = \Aurora\System\Api::EncodeKeyValues(array(
-			'AccountID' => $iAccountID, 
+			'AccountID' => $iAccountID,
 			'Folder' => $this->getFolder(),
 			'Uid' => $this->getUid(),
 			'MimeIndex' => $sMimeIndex,
 			'MimeType' =>  $sMimeType,
 			'FileName' => $this->getFileName(true)
-		));		 
+		));
 		$mResult['Hash'] = $sHash;
 
 		$mResult['Actions']['view'] = [
@@ -343,16 +346,16 @@ class Attachment
 		$mResult['Actions']['download'] = [
 			'url' => '?mail-attachment/' . $sHash
 		];
-		
+
 		$oSettings =& \Aurora\System\Api::GetSettings();
 		if ($oSettings->GetValue('AllowThumbnail', true) &&
 				$iEstimatedSize < $iThumbnailLimit && \Aurora\System\Utils::IsGDImageMimeTypeSuppoted($sMimeType, $sFileName))
 		{
 			$mResult['ThumbnailUrl'] = '?mail-attachment/' . $sHash . '/thumb';
 		}
-		
-		
+
+
 		return $mResult;
 	}
-			
+
 }
