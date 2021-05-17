@@ -4442,7 +4442,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$oMessage = self::Decorator()->BuildMessage($oAccount, $To, $Cc, $Bcc,
 			$Subject, $IsHtml, $Text, $Attachments, $DraftInfo, $InReplyTo, $References, $Importance,
 			$Sensitivity, $SendReadingConfirmation, $Fetcher, $Alias, false, $oIdentity, $CustomHeaders);
-
+		$this->broadcastEvent('AfterBuildMessage', $oMessage);
 		if ($oMessage)
 		{
 			$mResult = $this->getMailManager()->sendMessage($oAccount, $oMessage, $Fetcher, $SentFolder, $DraftFolder, $DraftUid, $Recipients);
