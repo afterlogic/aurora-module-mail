@@ -199,7 +199,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 	/**
 	 * Checks if actions are allowed for authenticated user.
-	 * @param \Aurora\Modules\Mail\Classes\Account $oAccount Account should be checked if it belongs to authenticated user. If it's null check is not needed.
+	 * @param \Aurora\Modules\Mail\Models\MailAccount $oAccount Account should be checked if it belongs to authenticated user. If it's null check is not needed.
 	 * @param int $iUserId User identifier should be checked if it's identifier of authenticated user. If it's null check is not needed.
 	 * @throws \Aurora\System\Exceptions\ApiException
 	 */
@@ -213,7 +213,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		$bAccessDenied = true;
 		$oAuthenticatedUser = \Aurora\System\Api::getAuthenticatedUser();
-		$iUserRole = $oAuthenticatedUser instanceof \Aurora\Modules\Core\Classes\User ? $oAuthenticatedUser->Role : \Aurora\System\Enums\UserRole::Anonymous;
+		$iUserRole = $oAuthenticatedUser instanceof \Aurora\Modules\Core\Models\User ? $oAuthenticatedUser->Role : \Aurora\System\Enums\UserRole::Anonymous;
 		switch ($iUserRole)
 		{
 			case (\Aurora\System\Enums\UserRole::SuperAdmin):
@@ -231,7 +231,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 				{
 					$oUser = \Aurora\Modules\Core\Module::getInstance()->GetUser($iUserId);
 				}
-				if ($oUser instanceof \Aurora\Modules\Core\Classes\User)
+				if ($oUser instanceof \Aurora\Modules\Core\Models\User)
 				{
 					if ($oAuthenticatedUser->IdTenant === $oUser->IdTenant)
 					{
@@ -243,7 +243,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 				// User identifier shoud be checked
 				if ($iUserId !== null)
 				{
-					if ($iUserId === $oAuthenticatedUser->EntityId)
+					if ($iUserId === $oAuthenticatedUser->Id)
 					{
 						$bAccessDenied = false;
 					}
@@ -252,7 +252,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 				// Account shoud be checked
 				if ($oAccount !== null)
 				{
-					if ($oAccount instanceof Classes\Account && $oAccount->IdUser === $oAuthenticatedUser->EntityId)
+					if ($oAccount instanceof Models\MailAccount && $oAccount->IdUser === $oAuthenticatedUser->Id)
 					{
 						$bAccessDenied = false;
 					}
@@ -362,7 +362,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$oUser = \Aurora\System\Api::getAuthenticatedUser();
 		if ($oUser && $oUser->isNormalOrTenant())
 		{
-			$aAcc = $this->GetAccounts($oUser->EntityId);
+			$aAcc = $this->GetAccounts($oUser->Id);
 			$aResponseAcc = [];
 			foreach($aAcc as $oAccount)
 			{
@@ -490,7 +490,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		if ($Type === 'Tenant' && is_int($TenantId) && $TenantId > 0)
 		{
 			$oTenant = \Aurora\System\Api::getTenantById($TenantId);
-			if ($oTenant instanceof \Aurora\Modules\Core\Classes\Tenant && $oAuthenticatedUser instanceof \Aurora\Modules\Core\Classes\User &&
+			if ($oTenant instanceof \Aurora\Modules\Core\Models\Tenant && $oAuthenticatedUser instanceof \Aurora\Modules\Core\Models\User &&
 					($oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin ||
 					$oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::TenantAdmin && $oAuthenticatedUser->IdTenant === $TenantId))
 			{
@@ -524,10 +524,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::TenantAdmin);
 		$oAuthenticatedUser = \Aurora\System\Api::getAuthenticatedUser();
 
-		if ($oAuthenticatedUser instanceof \Aurora\Modules\Core\Classes\User && $Type === 'User' && is_int($UserId) && $UserId > 0)
+		if ($oAuthenticatedUser instanceof \Aurora\Modules\Core\Models\User && $Type === 'User' && is_int($UserId) && $UserId > 0)
 		{
 			$oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserUnchecked($UserId);
-			if ($oUser instanceof \Aurora\Modules\Core\Classes\User
+			if ($oUser instanceof \Aurora\Modules\Core\Models\User
 					&& ($oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin
 					|| $oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::TenantAdmin && $oAuthenticatedUser->IdTenant === $oUser->IdTenant))
 			{
@@ -617,7 +617,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 *	Method: 'GetAccounts',
 	 *	Result: [ { "AccountID": 12, "UUID": "uuid_value", "UseToAuthorize": true, "Email": "test@email",
 	 * "FriendlyName": "", "IncomingLogin": "test@email", "UseSignature": false, "Signature": "",
-	 * "ServerId": 10, "Server": { "EntityId": 10, "UUID": "uuid_value", "TenantId": 0, "Name": "Mail server",
+	 * "ServerId": 10, "Server": { "Id": 10, "UUID": "uuid_value", "TenantId": 0, "Name": "Mail server",
 	 * "IncomingServer": "mail.email", "IncomingPort": 143, "IncomingUseSsl": false, "OutgoingServer": "mail.email",
 	 * "OutgoingPort": 25, "OutgoingUseSsl": false, "SmtpAuthType": "0", "OwnerType": "superadmin",
 	 * "Domains": "", "ServerId": 10 }, "CanBeUsedToAuthorize": true, "UseThreading": true,
@@ -642,7 +642,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$mResult = false;
 
 		$oAuthenticatedUser = \Aurora\System\Api::getAuthenticatedUser();
-		if ($oAuthenticatedUser && $oAuthenticatedUser->EntityId === $UserId)
+		if ($oAuthenticatedUser && $oAuthenticatedUser->Id === $UserId)
 		{
 			// If $UserId is equal to identifier of authenticated user, it is a situation when normal user is logged in.
 			\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
@@ -656,21 +656,16 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 
 		$aAccounts = $this->getAccountsManager()->getUserAccounts($UserId);
-		if (is_array($aAccounts))
-		{
-			$mResult = [];
-			foreach ($aAccounts as $oAccount)
-			{
-				if ($oAuthenticatedUser && $oAccount->IncomingLogin === $oAuthenticatedUser->PublicId)
-				{
-					array_unshift($mResult, $oAccount);
-				}
-				else
-				{
-					$mResult[] = $oAccount;
-				}
-			}
-		}
+
+        $mResult = [];
+        foreach ($aAccounts as $oAccount) {
+            if ($oAuthenticatedUser && $oAccount->IncomingLogin === $oAuthenticatedUser->PublicId) {
+                array_unshift($mResult, $oAccount);
+            } else {
+                $mResult[] = $oAccount;
+            }
+        }
+
 
 		return $mResult;
 	}
@@ -725,7 +720,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 *	Method: 'GetAccount',
 	 *	Result: { "AccountID": 12, "UUID": "uuid_value", "UseToAuthorize": true, "Email": "test@email",
 	 * "FriendlyName": "", "IncomingLogin": "test@email", "UseSignature": false, "Signature": "",
-	 * "ServerId": 10, "Server": { "EntityId": 10, "UUID": "uuid_value", "TenantId": 0, "Name": "Mail server",
+	 * "ServerId": 10, "Server": { "Id": 10, "UUID": "uuid_value", "TenantId": 0, "Name": "Mail server",
 	 * "IncomingServer": "mail.email", "IncomingPort": 143, "IncomingUseSsl": false, "OutgoingServer": "mail.email",
 	 * "OutgoingPort": 25, "OutgoingUseSsl": false, "SmtpAuthType": "0", "OwnerType": "superadmin",
 	 * "Domains": "", "ServerId": 10 }, "CanBeUsedToAuthorize": true, "UseThreading": true }
@@ -742,7 +737,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	/**
 	 * Obtains mail account with specified identifier.
 	 * @param int $AccountId Identifier of mail account to obtain.
-	 * @return \Aurora\Modules\Mail\Classes\Account|boolean
+	 * @return \Aurora\Modules\Mail\Models\MailAccount|boolean
 	 */
 	public function GetAccount($AccountId)
 	{
@@ -761,9 +756,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$oUser = $UserId !== 0 ? \Aurora\Modules\Core\Module::Decorator()->GetUserUnchecked($UserId) : null;
 
 		// Method has its specific access check so checkAccess method isn't used.
-		if ($oAuthenticatedUser instanceof \Aurora\Modules\Core\Classes\User && $oUser instanceof \Aurora\Modules\Core\Classes\User)
+		if ($oAuthenticatedUser instanceof \Aurora\Modules\Core\Models\User && $oUser instanceof \Aurora\Modules\Core\Models\User)
 		{
-			if ($oUser->EntityId === $oAuthenticatedUser->EntityId)
+			if ($oUser->Id === $oAuthenticatedUser->Id)
 			{
 				\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 			}
@@ -779,7 +774,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		$mResult = false;
 		$oAccount = $this->getAccountsManager()->getAccountByEmail($Email, $UserId);
-		if ($oAccount instanceof \Aurora\Modules\Mail\Classes\Account && $UserId === $oAccount->IdUser)
+		if ($oAccount instanceof \Aurora\Modules\Mail\Models\MailAccount && $UserId === $oAccount->IdUser)
 		{
 			$mResult = $oAccount;
 		}
@@ -863,7 +858,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param string $IncomingLogin Login for IMAP connection.
 	 * @param string $IncomingPassword Password for IMAP connection.
 	 * @param array $Server List of settings for IMAP and SMTP connections.
-	 * @return \Aurora\Modules\Mail\Classes\Account|boolean
+	 * @return \Aurora\Modules\Mail\Models\MailAccount|boolean
 	 */
 	public function CreateAccount($UserId = 0, $FriendlyName = '', $Email = '', $IncomingLogin = '',
 			$IncomingPassword = '', $Server = null, $XAuth = null)
@@ -873,7 +868,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 		self::checkAccess(null, $UserId);
 
 		$oAccount = $this->GetAccountByEmail($Email, $UserId);
-		if ($oAccount instanceof \Aurora\Modules\Mail\Classes\Account)
+
+		if ($oAccount instanceof \Aurora\Modules\Mail\Models\MailAccount)
 		{
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::AccountExists);
 		}
@@ -886,7 +882,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 				$iServerId = $Server['ServerId'];
 				if ($Server !== null && $iServerId === 0)
 				{
-					$oNewServer = new \Aurora\Modules\Mail\Classes\Server(self::GetName());
+					$oNewServer = new \Aurora\Modules\Mail\Models\Server();
 					$oNewServer->Name = $Server['IncomingServer'];
 					$oNewServer->IncomingServer = $Server['IncomingServer'];
 					$oNewServer->IncomingPort = $Server['IncomingPort'];
@@ -907,19 +903,21 @@ class Module extends \Aurora\System\Module\AbstractModule
 					if (isset($aServerResult['Server']))
 					{
 						$oServer = $aServerResult['Server'];
-						$iServerId = $oServer->EntityId;
+						$iServerId = $oServer->Id;
 					}
 				}
 
-				$oAccount = new \Aurora\Modules\Mail\Classes\Account(self::GetName());
+				$oAccount = new \Aurora\Modules\Mail\Models\MailAccount();
 
 				$oAccount->IdUser = $UserId;
 				$oAccount->FriendlyName = $FriendlyName;
 				$oAccount->Email = $Email;
 				$oAccount->IncomingLogin = $IncomingLogin;
 				$oAccount->setPassword($IncomingPassword);
-				$oAccount->ServerId = $iServerId;
-				$oServer = $oAccount->getServer();
+				if ($iServerId > 0) {
+                    $oServer = $this->getServersManager()->getServer($iServerId);
+                }
+                $oAccount->Server()->associate($oServer);
 				if ($oServer)
 				{
 					$oAccount->UseThreading = $oServer->EnableThreading;
@@ -939,7 +937,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 				$aQuota = [];
 				$iQuota = 0;
 
-				if ($oResException === null && $oUser instanceof \Aurora\Modules\Core\Classes\User && $oUser->PublicId === $oAccount->Email)
+				if ($oResException === null && $oUser instanceof \Aurora\Modules\Core\Models\User && $oUser->PublicId === $oAccount->Email)
 				{
 					$aTenantQuota = self::Decorator()->GetEntitySpaceLimits('Tenant', $UserId, $oUser->IdTenant);
 					if (is_array($aTenantQuota) && isset($aTenantQuota['AllocatedSpaceMb']) && isset($aTenantQuota['TenantSpaceLimitMb']))
@@ -963,7 +961,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 				if ($oResException === null)
 				{
-					if ($oUser instanceof \Aurora\Modules\Core\Classes\User && $oUser->PublicId === $Email &&
+					if ($oUser instanceof \Aurora\Modules\Core\Models\User && $oUser->PublicId === $Email &&
 						!$this->getAccountsManager()->useToAuthorizeAccountExists($Email))
 					{
 						$oAccount->UseToAuthorize = true;
@@ -982,7 +980,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 						}
 						$this->updateAllocatedTenantSpace($oUser->IdTenant, $iQuota, 0);
 						$oUser->{self::GetName() . '::UserSpaceLimitMb'} = $iQuota;
-						$oUser->saveAttribute(self::GetName() . '::UserSpaceLimitMb');
+						$oUser->save();
 					}
 					return $oAccount;
 				}
@@ -1087,7 +1085,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 				{
 					$oAccount->Email = $Email;
 				}
-				if ($UseToAuthorize === false || $UseToAuthorize === true && !$this->getAccountsManager()->useToAuthorizeAccountExists($oAccount->Email, $oAccount->EntityId))
+				if ($UseToAuthorize === false || $UseToAuthorize === true && !$this->getAccountsManager()->useToAuthorizeAccountExists($oAccount->Email, $oAccount->Id))
 				{
 					$oAccount->UseToAuthorize = $UseToAuthorize;
 				}
@@ -1108,7 +1106,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 					if ($Server['ServerId'] === 0)
 					{
 						$sDomains = explode('@', $oAccount->Email)[1];
-						$oNewServer = new \Aurora\Modules\Mail\Classes\Server(self::GetName());
+						$oNewServer = new \Aurora\Modules\Mail\Models\Server(self::GetName());
 						$oNewServer->Name = $Server['IncomingServer'];
 						$oNewServer->IncomingServer = $Server['IncomingServer'];
 						$oNewServer->IncomingPort = $Server['IncomingPort'];
@@ -1120,7 +1118,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 						$oNewServer->Domains = $sDomains;
 						$oNewServer->EnableThreading = $Server['EnableThreading'];
 						$iNewServerId = $this->getServersManager()->createServer($oNewServer);
-						$oAccount->updateServer($iNewServerId);
+						$oAccount->Server = $iNewServerId;
 					}
 					elseif ($oAccount->ServerId === $Server['ServerId'])
 					{
@@ -1144,9 +1142,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 						$oAccServer = $oAccount->getServer();
 						if ($oAccServer && $oAccServer->OwnerType === \Aurora\Modules\Mail\Enums\ServerOwnerType::Account)
 						{
-							$this->getServersManager()->deleteServer($oAccServer->EntityId);
+							$this->getServersManager()->deleteServer($oAccServer->Id);
 						}
-						$oAccount->updateServer($Server['ServerId']);
+						$oAccount->Server = $Server['ServerId'];
 					}
 				}
 
@@ -1275,18 +1273,18 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 			if ($oAccount)
 			{
-				$this->getIdentitiesManager()->deleteAccountIdentities($oAccount->EntityId);
-				$this->getMailManager()->deleteSystemFolderNames($oAccount->EntityId);
+				$this->getIdentitiesManager()->deleteAccountIdentities($oAccount->Id);
+				$this->getMailManager()->deleteSystemFolderNames($oAccount->Id);
 				$bServerRemoved = true;
 				$oServer = $oAccount->getServer();
 				if ($oServer && $oServer->OwnerType === \Aurora\Modules\Mail\Enums\ServerOwnerType::Account)
 				{
-					$bServerRemoved = $this->getServersManager()->deleteServer($oServer->EntityId);
+					$bServerRemoved = $this->getServersManager()->deleteServer($oServer->Id);
 				}
 				if ($bServerRemoved)
 				{
 					$oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserUnchecked($oAccount->IdUser);
-					if ($oUser instanceof \Aurora\Modules\Core\Classes\User && $oAccount->Email === $oUser->PublicId)
+					if ($oUser instanceof \Aurora\Modules\Core\Models\User && $oAccount->Email === $oUser->PublicId)
 					{
 						$iQuota = $oUser->{self::GetName() . '::UserSpaceLimitMb'};
 						$this->updateAllocatedTenantSpace($oUser->IdTenant, 0, $iQuota);
@@ -1350,7 +1348,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetServers',
-	 *	Result: [ { "EntityId": 10, "UUID": "uuid_value", "TenantId": 0, "Name": "Mail server",
+	 *	Result: [ { "Id": 10, "UUID": "uuid_value", "TenantId": 0, "Name": "Mail server",
 	 * "IncomingServer": "mail.email", "IncomingPort": 143, "IncomingUseSsl": false, "OutgoingServer": "mail.email",
 	 * "OutgoingPort": 25, "OutgoingUseSsl": false, "SmtpAuthType": "0", "OwnerType": "superadmin",
 	 * "Domains": "", "ServerId": 10 } ]
@@ -1375,7 +1373,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function GetServers($TenantId = 0, $Offset = 0, $Limit = 0, $Search = '')
 	{
 		$oAuthenticatedUser = \Aurora\System\Api::getAuthenticatedUser();
-		if ($oAuthenticatedUser instanceof \Aurora\Modules\Core\Classes\User && $oAuthenticatedUser->isNormalOrTenant())
+		if ($oAuthenticatedUser instanceof \Aurora\Modules\Core\Models\User && $oAuthenticatedUser->isNormalOrTenant())
 		{
 			if ($TenantId === 0)
 			{
@@ -1392,7 +1390,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 
 		return [
-			'Items' => $this->getServersManager()->getServerList($TenantId, $Offset, $Limit, $Search),
+			'Items' => $this->getServersManager()->getServerList($TenantId, $Offset, $Limit, $Search)->toArray(),
 			'Count' => $this->getServersManager()->getServersCount($TenantId, $Search),
 		];
 	}
@@ -1465,13 +1463,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 	/**
 	 * Obtains server with specified server identifier.
 	 * @param int $ServerId Server identifier.
-	 * @return \Aurora\Modules\Mail\Classes\Server|boolean
+	 * @return \Aurora\Modules\Mail\Models\Server|boolean
 	 */
 	public function GetServer($ServerId)
 	{
 		$oServer = $this->getServersManager()->getServer($ServerId);
 		$oAuthenticatedUser = \Aurora\System\Api::getAuthenticatedUser();
-		if ($oAuthenticatedUser instanceof \Aurora\Modules\Core\Classes\User && $oAuthenticatedUser->isNormalOrTenant())
+		if ($oAuthenticatedUser instanceof \Aurora\Modules\Core\Models\User && $oAuthenticatedUser->isNormalOrTenant())
 		{
 			if ($oServer->TenantId !== $oAuthenticatedUser->IdTenant)
 			{
@@ -1590,7 +1588,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$OAuthEnable = false, $OAuthName = '', $OAuthType = '', $OAuthIconUrl = '')
 	{
 		$oAuthenticatedUser = \Aurora\System\Api::getAuthenticatedUser();
-		if ($oAuthenticatedUser instanceof \Aurora\Modules\Core\Classes\User && $oAuthenticatedUser->Role === \Aurora\Modules\Mail\Enums\ServerOwnerType::Tenant)
+		if ($oAuthenticatedUser instanceof \Aurora\Modules\Core\Models\User && $oAuthenticatedUser->Role === \Aurora\Modules\Mail\Enums\ServerOwnerType::Tenant)
 		{
 			if ($TenantId !== $oAuthenticatedUser->IdTenant)
 			{
@@ -1604,7 +1602,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		$sOwnerType = ($TenantId === 0) ? \Aurora\Modules\Mail\Enums\ServerOwnerType::SuperAdmin : \Aurora\Modules\Mail\Enums\ServerOwnerType::Tenant;
 
-		$oServer = new \Aurora\Modules\Mail\Classes\Server(self::GetName());
+		$oServer = new \Aurora\Modules\Mail\Models\Server();
 		$oServer->OwnerType = $sOwnerType;
 		$oServer->TenantId = $TenantId;
 		$oServer->Name = $Name;
@@ -1875,7 +1873,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function DeleteServer($ServerId, $TenantId = 0)
 	{
 		$oAuthenticatedUser = \Aurora\System\Api::getAuthenticatedUser();
-		if ($oAuthenticatedUser instanceof \Aurora\Modules\Core\Classes\User && $oAuthenticatedUser->Role === \Aurora\Modules\Mail\Enums\ServerOwnerType::Tenant)
+		if ($oAuthenticatedUser instanceof \Aurora\Modules\Core\Models\User && $oAuthenticatedUser->Role === \Aurora\Modules\Mail\Enums\ServerOwnerType::Tenant)
 		{
 			if ($TenantId !== $oAuthenticatedUser->IdTenant)
 			{
@@ -1901,7 +1899,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
 			foreach ($mSecondaryAccounts as $oAccount)
 			{
-				self::Decorator()->DeleteAccount($oAccount->EntityId);
+				self::Decorator()->DeleteAccount($oAccount->Id);
 			}
 		}
 
@@ -2232,14 +2230,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
 		    if ($oAccount->IncludeInUnifiedMailbox)
             {
-                $aAccountsCache[$oAccount->EntityId]['Account'] = $oAccount;
-                $aAccountUids[$oAccount->EntityId] = [];
+                $aAccountsCache[$oAccount->Id]['Account'] = $oAccount;
+                $aAccountUids[$oAccount->Id] = [];
                 $aUnifiedInfo = $this->getMailManager()->getUnifiedMailboxMessagesInfo($oAccount, $Folder, $Search, $aFilters, $UseThreading, $Offset + $Limit, $sSortBy, $sSortOrder);
                 $aUids = array_merge(
                     $aUids,
                     $aUnifiedInfo['Uids']
                 );
-                $aAccountsCache[$oAccount->EntityId]['MessageCount'] = $aUnifiedInfo['Count'];
+                $aAccountsCache[$oAccount->Id]['MessageCount'] = $aUnifiedInfo['Count'];
             }
 		}
 
@@ -2300,23 +2298,23 @@ class Module extends \Aurora\System\Module\AbstractModule
 				});
 			}
 
-			$aFoldersHash[] = $oAccount->EntityId . ':' . $oMessageCollection->FolderHash;
+			$aFoldersHash[] = $oAccount->Id . ':' . $oMessageCollection->FolderHash;
 			$oMessageCollectionResult->MessageCount = $oMessageCollectionResult->MessageCount + $oMessageCollection->MessageCount;
 			$oMessageCollectionResult->MessageResultCount =$oMessageCollectionResult->MessageResultCount + $oMessageCollection->MessageResultCount;
 			$oMessageCollectionResult->MessageUnseenCount = $oMessageCollectionResult->MessageUnseenCount + $oMessageCollection->MessageUnseenCount;
 
 			foreach ($oMessageCollection->New as $aNew)
 			{
-				$aNew['AccountId'] = $oAccount->EntityId;
+				$aNew['AccountId'] = $oAccount->Id;
 				$oMessageCollectionResult->New[] = $aNew;
 			}
 
-			$aNextUids[] = $oAccount->EntityId . ':' . $oMessageCollection->UidNext;
+			$aNextUids[] = $oAccount->Id . ':' . $oMessageCollection->UidNext;
 			$aMessages = $oMessageCollection->GetAsArray();
 			foreach ($aMessages as $oMessage)
 			{
-				$oMessage->setAccountId($oAccount->EntityId);
-				$oMessage->setUnifiedUid($oAccount->EntityId . ':' . $oMessage->getUid());
+				$oMessage->setAccountId($oAccount->Id);
+				$oMessage->setUnifiedUid($oAccount->Id . ':' . $oMessage->getUid());
 			}
 			$aAllMessages = array_merge($aAllMessages, $aMessages);
 		}
@@ -2570,7 +2568,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$aQuota = $this->getMailManager()->getQuota($oAccount);
 		$iQuota = (is_array($aQuota) && isset($aQuota[1])) ? $aQuota[1] / 1024 : 0;
 		$oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserUnchecked($oAccount->IdUser);
-		$iUserSpaceLimitMb = ($oUser instanceof \Aurora\Modules\Core\Classes\User) ? $oUser->{self::GetName() . '::UserSpaceLimitMb'} : 0;
+		$iUserSpaceLimitMb = ($oUser instanceof \Aurora\Modules\Core\Models\User) ? $oUser->{self::GetName() . '::UserSpaceLimitMb'} : 0;
 		if ($iQuota !== $iUserSpaceLimitMb)
 		{
 			$this->updateAllocatedTenantSpace($oUser->IdTenant, $iQuota, $iUserSpaceLimitMb);
@@ -4235,7 +4233,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **AccountID** *int* Account identifier.<br>
 	 * &emsp; **FetcherID** *int* Fetcher identifier.<br>
 	 * &emsp; **AliasID** *int* Alias identifier.<br>
-	 * &emsp; **IdentityID** *int* Identity identifier.<br>
+	 * &emsp; **IdId** *int* Identity identifier.<br>
 	 * &emsp; **DraftInfo** *array* Contains information about the original message which is replied or forwarded: message type (reply/forward), UID and folder.<br>
 	 * &emsp; **DraftUid** *string* Uid of message to save in Drafts folder.<br>
 	 * &emsp; **To** *string* Message recipients.<br>
@@ -4257,7 +4255,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'SaveMessage',
-	 *	Parameters: '{ "AccountID": 12, "FetcherID": 0, "AliasID": 0, "IdentityID": 14, "DraftInfo": [], "DraftUid": "",
+	 *	Parameters: '{ "AccountID": 12, "FetcherID": 0, "AliasID": 0, "IdId": 14, "DraftInfo": [], "DraftUid": "",
 	 * "To": "test@email", "Cc": "", "Bcc": "", "Subject": "", "Text": "text_value", "IsHtml": true,
 	 * "Importance": 3, "SendReadingConfirmation": false, "Attachments": [], "InReplyTo": "", "References": "",
 	 * "Sensitivity": 0, "DraftFolder": "Drafts" }'
@@ -4289,7 +4287,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param int $AccountID Account identifier.
 	 * @param int $Fetcher Fetcher object is filled in by subscription. Webclient sends FetcherID parameter.
 	 * @param int $Alias Alias object is filled in by subscription. Webclient sends AliasID parameter.
-	 * @param int $IdentityID Identity identifier.
+	 * @param int $IdId Identity identifier.
 	 * @param array $DraftInfo Contains information about the original message which is replied or forwarded: message type (reply/forward), UID and folder.
 	 * @param string $DraftUid Uid of message to save in Drafts folder.
 	 * @param string $To Message recipients.
@@ -4308,7 +4306,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @return boolean
 	 * @throws \System\Exceptions\AuroraApiException
 	 */
-	public function SaveMessage($AccountID, $Fetcher = null, $Alias = null, $IdentityID = 0,
+	public function SaveMessage($AccountID, $Fetcher = null, $Alias = null, $IdId = 0,
 			$DraftInfo = [], $DraftUid = "", $To = "", $Cc = "", $Bcc = "",
 			$Subject = "", $Text = "", $IsHtml = false, $Importance = \MailSo\Mime\Enumerations\MessagePriority::NORMAL,
 			$SendReadingConfirmation = false, $Attachments = array(), $InReplyTo = "",
@@ -4327,7 +4325,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
 		}
 
-		$oIdentity = $IdentityID !== 0 ? $this->getIdentitiesManager()->getIdentity($IdentityID) : null;
+		$oIdentity = $IdId !== 0 ? $this->getIdentitiesManager()->getIdentity($IdId) : null;
 
 		$oMessage = self::Decorator()->BuildMessage($oAccount, $To, $Cc, $Bcc,
 			$Subject, $IsHtml, $Text, $Attachments, $DraftInfo, $InReplyTo, $References, $Importance,
@@ -4366,7 +4364,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **AccountID** *int* Account identifier.<br>
 	 * &emsp; **FetcherID** *int* Fetcher identifier.<br>
 	 * &emsp; **AliasID** *int* Alias identifier.<br>
-	 * &emsp; **IdentityID** *int* Identity identifier.<br>
+	 * &emsp; **IdId** *int* Identity identifier.<br>
 	 * &emsp; **DraftInfo** *array* Contains information about the original message which is replied or forwarded: message type (reply/forward), UID and folder.<br>
 	 * &emsp; **DraftUid** *string* Uid of message to save in Drafts folder.<br>
 	 * &emsp; **To** *string* Message recipients.<br>
@@ -4391,7 +4389,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'SendMessage',
-	 *	Parameters: '{ "AccountID": 12, "FetcherID": 0, "AliasID": 0, "IdentityID": 14, "DraftInfo": [], "DraftUid": "",
+	 *	Parameters: '{ "AccountID": 12, "FetcherID": 0, "AliasID": 0, "IdId": 14, "DraftInfo": [], "DraftUid": "",
 	 * "To": "test@email", "Cc": "", "Bcc": "", "Subject": "", "Text": "text_value", "IsHtml": true,
 	 * "Importance": 3, "SendReadingConfirmation": false, "Attachments": [], "InReplyTo": "", "References": "",
 	 * "Sensitivity": 0, "SentFolder": "Sent", "DraftFolder": "Drafts", "ConfirmFolder": "", "ConfirmUid": "" }'
@@ -4423,7 +4421,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param int $AccountID Account identifier.
 	 * @param int $Fetcher Fetcher object is filled in by subscription. Webclient sends FetcherID parameter.
 	 * @param int $Alias Alias object is filled in by subscription. Webclient sends AliasID parameter.
-	 * @param int $IdentityID Identity identifier.
+	 * @param int $IdId Identity identifier.
 	 * @param array $DraftInfo Contains information about the original message which is replied or forwarded: message type (reply/forward), UID and folder.
 	 * @param string $DraftUid Uid of message to save in Drafts folder.
 	 * @param string $To Message recipients.
@@ -4447,7 +4445,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @return boolean
 	 * @throws \System\Exceptions\AuroraApiException
 	 */
-	public function SendMessage($AccountID, $Fetcher = null, $Alias = null, $IdentityID = 0,
+	public function SendMessage($AccountID, $Fetcher = null, $Alias = null, $IdId = 0,
 			$DraftInfo = [], $DraftUid = "", $To = "", $Cc = "", $Bcc = "", $Recipients = array(),
 			$Subject = "", $Text = "", $IsHtml = false, $Importance = \MailSo\Mime\Enumerations\MessagePriority::NORMAL,
 			$SendReadingConfirmation = false, $Attachments = array(), $InReplyTo = "",
@@ -4461,7 +4459,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		self::checkAccess($oAccount);
 
-		$oIdentity = $IdentityID !== 0 ? $this->getIdentitiesManager()->getIdentity($IdentityID) : null;
+		$oIdentity = $IdId !== 0 ? $this->getIdentitiesManager()->getIdentity($IdId) : null;
 
 		$oMessage = self::Decorator()->BuildMessage($oAccount, $To, $Cc, $Bcc,
 			$Subject, $IsHtml, $Text, $Attachments, $DraftInfo, $InReplyTo, $References, $Importance,
@@ -4808,7 +4806,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {<br>
 	 * &emsp; **UserId** *int* (optional) User identifier.<br>
 	 * &emsp; **AccountID** *int* Account identifier.<br>
-	 * &emsp; **EntityId** *int* Identity identifier.<br>
+	 * &emsp; **Id** *int* Identity identifier.<br>
 	 * &emsp; **FriendlyName** *string* New value of identity friendly name.<br>
 	 * &emsp; **Email** *string* New value of identity email.<br>
 	 * &emsp; **Default** *boolean* Indicates if identity should be used by default.<br>
@@ -4819,7 +4817,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'UpdateIdentity',
-	 *	Parameters: '{ "AccountID": 12, "EntityId": 14, "FriendlyName": "New my name", "Email": "test@email",
+	 *	Parameters: '{ "AccountID": 12, "Id": 14, "FriendlyName": "New my name", "Email": "test@email",
 	 *		"Default": false, "AccountPart": false }'
 	 * }
 	 *
@@ -4848,14 +4846,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * Updates identity.
 	 * @param int $UserId User identifier.
 	 * @param int $AccountID Account identifier.
-	 * @param int $EntityId Identity identifier.
+	 * @param int $Id Identity identifier.
 	 * @param string $FriendlyName New value of identity friendly name.
 	 * @param string $Email New value of identity email.
 	 * @param boolean $Default Indicates if identity should be used by default.
 	 * @param boolean $AccountPart Indicated if account should be updated, not any identity.
 	 * @return boolean
 	 */
-	public function UpdateIdentity($UserId, $AccountID, $EntityId, $FriendlyName, $Email, $Default = false, $AccountPart = false)
+	public function UpdateIdentity($UserId, $AccountID, $Id, $FriendlyName, $Email, $Default = false, $AccountPart = false)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 
@@ -4874,7 +4872,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 		else
 		{
-			return $this->getIdentitiesManager()->updateIdentity($EntityId, $FriendlyName, $Email, $Default);
+			return $this->getIdentitiesManager()->updateIdentity($Id, $FriendlyName, $Email, $Default);
 		}
 	}
 
@@ -4894,14 +4892,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiParam {string=DeleteIdentity} Method Method name
 	 * @apiParam {string} Parameters JSON.stringified object<br>
 	 * {<br>
-	 * &emsp; **EntityId** *int* Identity identifier.<br>
+	 * &emsp; **Id** *int* Identity identifier.<br>
 	 * }
 	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'DeleteIdentity',
-	 *	Parameters: '{ "EntityId": 14 }'
+	 *	Parameters: '{ "Id": 14 }'
 	 * }
 	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
@@ -4927,10 +4925,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	/**
 	 * Deletes identity.
-	 * @param int $EntityId Identity identifier.
+	 * @param int $Id Identity identifier.
 	 * @return boolean
 	 */
-	public function DeleteIdentity($AccountID, $EntityId)
+	public function DeleteIdentity($AccountID, $Id)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 
@@ -4938,7 +4936,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		self::checkAccess($oAccount);
 
-		return $this->getIdentitiesManager()->deleteIdentity($EntityId);
+		return $this->getIdentitiesManager()->deleteIdentity($Id);
 	}
 
 	/**
@@ -4970,7 +4968,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @apiSuccess {string} Result.Module Module name.
 	 * @apiSuccess {string} Result.Method Method name.
 	 * @apiSuccess {mixed} Result.Result List identities in case of success, otherwise **false**.
-	 * @apiSuccess {int} Result.Result.EntityId Identity identifier.
+	 * @apiSuccess {int} Result.Result.Id Identity identifier.
 	 * @apiSuccess {int} Result.Result.UUID Identity UUID.
 	 * @apiSuccess {int} Result.Result.IdUser User identifier.
 	 * @apiSuccess {int} Result.Result.IdAccount Identifier of account owns identity.
@@ -4985,7 +4983,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'GetIdentities',
-	 *	Result: [ { "EntityId": 14, "UUID": "uuid_value", "IdUser": 3, "IdAccount": 12,
+	 *	Result: [ { "Id": 14, "UUID": "uuid_value", "IdUser": 3, "IdAccount": 12,
 	 *				"Default": false, "Email": "test@email", "FriendlyName": "My name",
 	 *				"UseSignature": true, "Signature": "signature_value" },
 	 *			  ... ]
@@ -5032,14 +5030,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **AccountID** *int* Account identifier.<br>
 	 * &emsp; **UseSignature** *boolean* Indicates if signature should be used in outgoing mails.<br>
 	 * &emsp; **Signature** *string* Account or identity signature.<br>
-	 * &emsp; **IdentityId** *int* (optional) Identity identifier.<br>
+	 * &emsp; **IdId** *int* (optional) Identity identifier.<br>
 	 * }
 	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'UpdateSignature',
-	 *	Parameters: '{ "AccountID": 12, "UseSignature": true, "Signature": "signature_value", "IdentityId": 14 }'
+	 *	Parameters: '{ "AccountID": 12, "UseSignature": true, "Signature": "signature_value", "IdId": 14 }'
 	 * }
 	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
@@ -5068,11 +5066,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param int $AccountID Account identifier.
 	 * @param boolean $UseSignature Indicates if signature should be used in outgoing mails.
 	 * @param string $Signature Account or identity signature.
-	 * @param int $IdentityId Identity identifier.
+	 * @param int $IdId Identity identifier.
 	 * @return boolean
 	 * @throws \Aurora\System\Exceptions\ApiException
 	 */
-	public function UpdateSignature($AccountID, $UseSignature = null, $Signature = null, $IdentityId = null)
+	public function UpdateSignature($AccountID, $UseSignature = null, $Signature = null, $IdId = null)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 
@@ -5082,9 +5080,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 			self::checkAccess($oAccount);
 
-			if ($this->getConfig('AllowIdentities', false) && $IdentityId !== null)
+			if ($this->getConfig('AllowIdentities', false) && $IdId !== null)
 			{
-				return $this->getIdentitiesManager()->updateIdentitySignature($IdentityId, $UseSignature, $Signature);
+				return $this->getIdentitiesManager()->updateIdentitySignature($IdId, $UseSignature, $Signature);
 			}
 			else
 			{
@@ -5181,7 +5179,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$sError = '';
 		$aResponse = array();
 
-		if ($oAccount instanceof \Aurora\Modules\Mail\Classes\Account)
+		if ($oAccount instanceof \Aurora\Modules\Mail\Models\MailAccount)
 		{
 			if (\is_array($UploadData))
 			{
@@ -5295,7 +5293,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		self::checkAccess($oAccount);
 
-		if ($oAccount instanceof \Aurora\Modules\Mail\Classes\Account)
+		if ($oAccount instanceof \Aurora\Modules\Mail\Models\MailAccount)
 		{
 			$sUUID = \Aurora\System\Api::getUserUUIDById($oAccount->IdUser);
 			try
@@ -5420,7 +5418,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		self::checkAccess($oAccount);
 
-		if ($oAccount instanceof \Aurora\Modules\Mail\Classes\Account)
+		if ($oAccount instanceof \Aurora\Modules\Mail\Models\MailAccount)
 		{
 			$sUUID = \Aurora\System\Api::getUserUUIDById($oAccount->IdUser);
 			try
@@ -5642,9 +5640,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 			self::checkAccess($oAccount);
 
 			$oUser = \Aurora\System\Api::getAuthenticatedUser();
-			if ($oAccount instanceof \Aurora\Modules\Mail\Classes\Account &&
-				$oUser instanceof \Aurora\Modules\Core\Classes\User &&
-				(($oUser->isNormalOrTenant() && $oUser->EntityId === $oAccount->IdUser) ||
+			if ($oAccount instanceof \Aurora\Modules\Mail\Models\MailAccount &&
+				$oUser instanceof \Aurora\Modules\Core\Models\User &&
+				(($oUser->isNormalOrTenant() && $oUser->Id === $oAccount->IdUser) ||
 				$oUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin)
 			)
 			{
@@ -5677,7 +5675,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 						$mResult = $oAccount;
 						$mResult->RefreshToken = \Aurora\System\Api::UserSession()->UpdateTimestamp(\Aurora\System\Api::getAuthToken(), time());
 						\Aurora\System\Api::LogEvent('password-change-success: ' . $oAccount->Email, self::GetName());
-						\Aurora\System\Api::UserSession()->DeleteAllUserSessions($oUser->EntityId);
+						\Aurora\System\Api::UserSession()->DeleteAllUserSessions($oUser->Id);
 					}
 				}
 			}
@@ -6171,7 +6169,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
 			foreach($mResult as $oItem)
 			{
-				self::Decorator()->DeleteAccount($oItem->EntityId);
+				self::Decorator()->DeleteAccount($oItem->Id);
 			}
 		}
 	}
@@ -6189,19 +6187,19 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		$oServer = $this->getServersManager()->getServerByDomain($Domain);
 
-		if (!($oServer instanceof \Aurora\Modules\Mail\Classes\Server) && $AllowWildcardDomain)
+		if (!($oServer instanceof \Aurora\Modules\Mail\Models\Server) && $AllowWildcardDomain)
 		{
 			$oServer = $this->getServersManager()->getServerByDomain('*');
 			$bFoundWithWildcard = true;
 		}
 
-		if (!($oServer instanceof \Aurora\Modules\Mail\Classes\Server) && $AllowWildcardDomain)
+		if (!($oServer instanceof \Aurora\Modules\Mail\Models\Server) && $AllowWildcardDomain)
 		{
 			$oServer = $this->getServersManager()->getServerByDomain('');
 			$bFoundWithWildcard = true;
 		}
 
-		if ($oServer instanceof \Aurora\Modules\Mail\Classes\Server)
+		if ($oServer instanceof \Aurora\Modules\Mail\Models\Server)
 		{
 			$aResult = [
 				'Server'			=> $oServer,
@@ -6234,7 +6232,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		if (!$bAutocreateMailAccountOnNewUserFirstLogin && !$oAccount)
 		{
 			$oUser = \Aurora\System\Api::GetModuleDecorator('Core')->GetUserByPublicId($sEmail);
-			if ($oUser instanceof \Aurora\Modules\Core\Classes\User)
+			if ($oUser instanceof \Aurora\Modules\Core\Models\User)
 			{
 				$bAutocreateMailAccountOnNewUserFirstLogin = true;
 			}
@@ -6247,21 +6245,21 @@ class Module extends \Aurora\System\Module\AbstractModule
 			if (!empty(trim($sDomain)))
 			{
 				$aGetMailServerResult = self::Decorator()->GetMailServerByDomain($sDomain, /*AllowWildcardDomain*/true);
-				if (!empty($aGetMailServerResult) && isset($aGetMailServerResult['Server']) && $aGetMailServerResult['Server'] instanceof \Aurora\Modules\Mail\Classes\Server)
+				if (!empty($aGetMailServerResult) && isset($aGetMailServerResult['Server']) && $aGetMailServerResult['Server'] instanceof \Aurora\Modules\Mail\Models\Server)
 				{
 					$oServer = $aGetMailServerResult['Server'];
 				}
 
 				$oTenant = \Aurora\System\Api::getTenantByWebDomain();
-				if ($oServer && (!$oTenant || $oServer->OwnerType === \Aurora\Modules\Mail\Enums\ServerOwnerType::SuperAdmin || $oServer->TenantId === $oTenant->EntityId))
+				if ($oServer && (!$oTenant || $oServer->OwnerType === \Aurora\Modules\Mail\Enums\ServerOwnerType::SuperAdmin || $oServer->TenantId === $oTenant->Id))
 				{
 					$sMailLogin = !$oServer->UseFullEmailAddressAsLogin && preg_match('/(.+)@.+$/',  $sEmail, $matches) && $matches[1] ? $matches[1] : $sEmail;
 
-					$oAccount = new \Aurora\Modules\Mail\Classes\Account(self::GetName());
+					$oAccount = new \Aurora\Modules\Mail\Models\MailAccount();
 					$oAccount->Email = $sEmail;
 					$oAccount->IncomingLogin = $sMailLogin;
 					$oAccount->setPassword($aArgs['Password']);
-					$oAccount->ServerId = $oServer->EntityId;
+					$oAccount->ServerId = $oServer->Id;
 					$bNewAccount = true;
 				}
 				else
@@ -6277,7 +6275,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			}
 		}
 
-		if ($oAccount instanceof \Aurora\Modules\Mail\Classes\Account)
+		if ($oAccount instanceof \Aurora\Modules\Mail\Models\MailAccount)
 		{
 			try
 			{
@@ -6311,9 +6309,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 						$oUser
 					);
 
-					if ($oUser instanceof \Aurora\Modules\Core\Classes\User)
+					if ($oUser instanceof \Aurora\Modules\Core\Models\User)
 					{
-						$iUserId = $oUser->EntityId;
+						$iUserId = $oUser->Id;
 						$bPrevState = \Aurora\System\Api::skipCheckUserRole(true);
 						$oAccount = self::Decorator()->CreateAccount(
 							$iUserId,
@@ -6321,7 +6319,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 							$sEmail,
 							$sMailLogin,
 							$aArgs['Password'],
-							array('ServerId' => $oServer->EntityId)
+							array('ServerId' => $oServer->Id)
 						);
 						\Aurora\System\Api::skipCheckUserRole($bPrevState);
 						if ($oAccount)
@@ -6371,7 +6369,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 					$aItem = array(
 						'Type' => $oItem->getName(),
 						'Module' => $oItem->getModule(),
-						'Id' => $oItem->EntityId,
+						'Id' => $oItem->Id,
 						'UUID' => $oItem->UUID,
 						'Login' => $oItem->IncomingLogin
 					);
@@ -6436,7 +6434,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 	/**
 	 * Builds message for further sending or saving.
-	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
+	 * @param \Aurora\Modules\StandardAuth\Models\MailAccount $oAccount
 	 * @param string $sTo Message recipients.
 	 * @param string $sCc Recipients which will get a copy of the message.
 	 * @param string $sBcc Recipients which will get a hidden copy of the message.
@@ -6453,7 +6451,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param object $oFetcher
 	 * @param object $oAlias
 	 * @param boolean $bWithDraftInfo
-	 * @param \Aurora\Modules\Mail\Classes\Identity $oIdentity
+	 * @param \Aurora\Modules\Mail\Models\Identity $oIdentity
 	 * @param array $aCustomHeaders
 	 * @return \MailSo\Mime\Message
 	 */
@@ -6668,7 +6666,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			{
 				if ($oServer->TenantId === $TenantId)
 				{
-					self::Decorator()->DeleteServer($oServer->EntityId, $TenantId);
+					self::Decorator()->DeleteServer($oServer->Id, $TenantId);
 				}
 			}
 		}
@@ -6985,7 +6983,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		)
 		{
 			$oUser = \Aurora\System\Api::GetModuleDecorator('Core')->GetUserByPublicId($Email);
-			if ($oUser instanceof \Aurora\Modules\Core\Classes\User)
+			if ($oUser instanceof \Aurora\Modules\Core\Models\User)
 			{
 				return false;
 			}

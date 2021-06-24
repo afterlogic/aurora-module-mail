@@ -7,6 +7,10 @@
 
 namespace Aurora\Modules\Mail\Managers\Identities;
 
+use Aurora\Modules\Mail\Models\Identity;
+use Aurora\System\Enums\SortOrder;
+use Illuminate\Database\Eloquent\Builder;
+
 /**
  * @license https://www.gnu.org/licenses/agpl-3.0.html AGPL-3.0
  * @license https://afterlogic.com/products/common-licensing Afterlogic Software License
@@ -25,8 +29,6 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	public function __construct(\Aurora\System\Module\AbstractModule $oModule = null)
 	{
 		parent::__construct($oModule);
-		
-		$this->oEavManager = \Aurora\System\Managers\Eav::getInstance();
 	}
 
 	/**
@@ -40,13 +42,13 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	{
 		try
 		{
-			$oIdentity = new \Aurora\Modules\Mail\Classes\Identity(\Aurora\Modules\Mail\Module::GetName());
+			$oIdentity = new Identity();
 			$oIdentity->IdUser = $iUserId;
 			$oIdentity->IdAccount = $iAccountID;
 			$oIdentity->FriendlyName = $sFriendlyName;
 			$oIdentity->Email = $sEmail;
-			$this->oEavManager->saveEntity($oIdentity);
-			return $oIdentity->EntityId;
+            $oIdentity->save();
+			return $oIdentity->Id;
 		}
 		catch (\Aurora\System\Exceptions\BaseException $oException)
 		{
@@ -57,16 +59,16 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	}
 
 	/**
-	 * @param int $iEntityId
+	 * @param int $iId
 	 * @return boolean
 	 */
-	public function getIdentity($iEntityId)
+	public function getIdentity($Id)
 	{
 		$oIdentity = false;
 		
 		try
 		{
-			$oIdentity = $this->oEavManager->getEntity($iEntityId, \Aurora\Modules\Mail\Classes\Identity::class);
+			$oIdentity = Identity::find($Id);
 		}
 		catch (\Aurora\System\Exceptions\BaseException $oException)
 		{
@@ -78,21 +80,21 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	}
 	
 	/**
-	 * @param int $iEntityId
+	 * @param int $iId
 	 * @param string $sFriendlyName
 	 * @param string $sEmail
 	 * @param boolean $bDefault
 	 * @return boolean
 	 */
-	public function updateIdentity($iEntityId, $sFriendlyName, $sEmail, $bDefault)
+	public function updateIdentity($iId, $sFriendlyName, $sEmail, $bDefault)
 	{
 		try
 		{
-			$oIdentity = $this->getIdentity($iEntityId);
+			$oIdentity = Identity::find($iId);
 			$oIdentity->FriendlyName = $sFriendlyName;
 			$oIdentity->Email = $sEmail;
 			$oIdentity->Default = $bDefault;
-			return $this->oEavManager->saveEntity($oIdentity);
+			return $oIdentity->save();
 		}
 		catch (\Aurora\System\Exceptions\BaseException $oException)
 		{
@@ -103,19 +105,19 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	}
 
 	/**
-	 * @param int $iEntityId
+	 * @param int $iId
 	 * @param boolean $bUseSignature
 	 * @param string $sSignature
 	 * @return boolean
 	 */
-	public function updateIdentitySignature($iEntityId, $bUseSignature, $sSignature)
+	public function updateIdentitySignature($iId, $bUseSignature, $sSignature)
 	{
 		try
 		{
-			$oIdentity = $this->getIdentity($iEntityId);
+			$oIdentity = Identity::find($iId);
 			$oIdentity->UseSignature = $bUseSignature;
 			$oIdentity->Signature = $sSignature;
-			return $this->oEavManager->saveEntity($oIdentity);
+			return $oIdentity->save();
 		}
 		catch (\Aurora\System\Exceptions\BaseException $oException)
 		{
@@ -126,19 +128,19 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	}
 
 	/**
-	 * @param int $iEntityId
+	 * @param int $iId
 	 * @return boolean
 	 */
-	public function deleteIdentity($iEntityId)
+	public function deleteIdentity($iId)
 	{
 		$bResult = false;
 		
 		try
 		{
-			$oIdentity = $this->getIdentity($iEntityId);
+			$oIdentity = Identity::find($iId);
 			if ($oIdentity)
 			{
-				$bResult = $this->oEavManager->deleteEntity($iEntityId, \Aurora\Modules\Mail\Classes\Identity::class);
+				$bResult = $oIdentity->delete();
 			}
 		}
 		catch (\Aurora\System\Exceptions\BaseException $oException)
@@ -151,37 +153,31 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
 	/**
 	 * @param int $iUserId
-	 * @param array $aFilters
+	 * @param Builder $oFilters null
 	 * @return boolean
 	 */
-	public function getIdentities($iUserId, $aFilters = [])
+	public function getIdentities($iUserId, Builder $oFilters = null)
 	{
 		$aResult = false;
 		$iOffset = 0;
 		$iLimit = 0;
-		if (count($aFilters) === 0)
-		{
-			$aFilters = ['IdUser' => [$iUserId, '=']];
-		}
-		else
-		{
-			$aFilters['IdUser'] = [$iUserId, '='];
-			$aFilters = ['$AND' => $aFilters];
-		}
+
+        $oQuery = isset($oFilters) ? $oFilters : Identity::query();
+        $oQuery->where('id', $iUserId);
+
 		$sOrderBy = 'FriendlyName';
-		$iOrderType = \Aurora\System\Enums\SortOrder::ASC;
-		
-		try
-		{
-			$aResult = $this->oEavManager->getEntities(
-				\Aurora\Modules\Mail\Classes\Identity::class,
-				array(),
-				$iOffset,
-				$iLimit,
-				$aFilters,
-				$sOrderBy,
-				$iOrderType
-			);
+		$iOrderType = SortOrder::ASC;
+
+        try {
+            if ($iOffset > 0) {
+                $oQuery->offset($iOffset);
+            }
+
+            if ($iLimit > 0) {
+                $oQuery->limit($iLimit);
+            }
+
+            $aResult = $oQuery->orderBy($sOrderBy, $iOrderType === SortOrder::ASC ? 'asc' : 'desc')->get();
 		}
 		catch (\Aurora\System\Exceptions\BaseException $oException)
 		{
@@ -199,21 +195,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 */
 	public function deleteAccountIdentities($iAccountId)
 	{
-		$bResult = true;
-		
-		$iOffset = 0;
-		$iLimit = 0;
-		$aFilters = array('IdAccount' => array($iAccountId, '='));
-		$aIdentities = $this->oEavManager->getEntities(\Aurora\Modules\Mail\Classes\Identity::class, array(), $iOffset, $iLimit, $aFilters);
-		if (is_array($aIdentities))
-		{
-			foreach ($aIdentities as $oIdentity)
-			{
-				$bResult = $bResult && $this->oEavManager->deleteEntity($oIdentity->EntityId, \Aurora\Modules\Mail\Classes\Identity::class);
-			}
-		}
-		
-		return $bResult;
+		return Identity::query()->where('IdAccount', $iAccountId)->delete();
 	}
 	
 	/**
@@ -222,13 +204,14 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 */
 	public function resetDefaultIdentity($iUserId, $iAccountId)
 	{
-		$aIdentities = $this->getIdentities($iUserId, ['Default' => [true, '=']]);
+        $oFilters = Identity::query()->where('default', true);
+		$aIdentities = $this->getIdentities($iUserId, $oFilters);
 		foreach ($aIdentities as $oIdentity)
 		{
-			if ($oIdentity->IdAccount === $iAccountId)
+			if ($oIdentity->IdAccount === $iAccountId) // TODO strange conditions. Can be refactored?
 			{
 				$oIdentity->Default = false;
-				$this->oEavManager->saveEntity($oIdentity);
+                $oIdentity->save();
 			}
 		}
 	}

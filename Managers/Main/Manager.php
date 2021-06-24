@@ -7,6 +7,9 @@
 
 namespace Aurora\Modules\Mail\Managers\Main;
 
+use Aurora\Modules\Mail\Models\RefreshFolder;
+use Aurora\Modules\Mail\Models\Sender;
+use Aurora\Modules\Mail\Models\SystemFolder;
 use Aurora\System\Exceptions;
 
 /**
@@ -26,12 +29,6 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	protected $aImapClientCache;
 
 	/**
-	 * @var \Aurora\System\Managers\Eav
-	 */
-	private $oEavManager = null;
-
-
-	/**
 	 * Initializes manager property.
 	 *
 	 * @param \Aurora\System\Module\AbstractModule $oModule
@@ -43,23 +40,18 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		parent::__construct($oModule);
 
 		$this->aImapClientCache = array();
-
-		if ($oModule instanceof \Aurora\System\Module\AbstractModule)
-		{
-			$this->oEavManager = \Aurora\System\Managers\Eav::getInstance();
-		}
 	}
 
 	/**
 	 * Returns ImapClient object from cache.
 	 *
-	 * @param Aurora\Modules\Mail\Classes\Account $oAccount Account object.
+	 * @param \Aurora\Modules\Mail\Models\MailAccount $oAccount Account object.
 	 * @param int $iForceConnectTimeOut = 0. The value overrides connection timeout value.
 	 * @param int $iForceSocketTimeOut = 0. The value overrides socket timeout value.
 	 *
 	 * @return \MailSo\Imap\ImapClient|null
 	 */
-	public function &_getImapClient(\Aurora\Modules\Mail\Classes\Account $oAccount, $iForceConnectTimeOut = 0, $iForceSocketTimeOut = 0)
+	public function &_getImapClient(\Aurora\Modules\Mail\Models\MailAccount $oAccount, $iForceConnectTimeOut = 0, $iForceSocketTimeOut = 0)
 	{
 		$oResult = null;
 		if ($oAccount)
@@ -90,8 +82,8 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			$oResult =& $this->aImapClientCache[$sCacheKey];
 			if (!$oResult->IsConnected())
 			{
-				$oServer = $oAccount->getServer();
-				if ($oServer instanceof \Aurora\Modules\Mail\Classes\Server)
+                $oServer = $oAccount->Server;
+				if ($oServer instanceof \Aurora\Modules\Mail\Models\Server)
 				{
 					try
 					{
@@ -132,7 +124,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 				}
 				else
 				{
-					$oResult->Login($oAccount->IncomingLogin, $oAccount->getPassword(), '');
+                    $oResult->Login($oAccount->IncomingLogin, $oAccount->getPassword(), '');
 				}
 			}
 		}
@@ -198,31 +190,22 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	{
 		$bResult = false;
 
-		$aEntities = $this->oEavManager->getEntities(
-			\Aurora\Modules\Mail\Classes\RefreshFolder::class,
-			array(),
-			0,
-			1,
-			array(
-				'IdAccount' => $oAccount->EntityId,
-				'FolderFullName' => $sFolderFullName
-			)
-		);
+        $oEntity = RefreshFolder::where(array(
+            'IdAccount' => $oAccount->Id,
+            'FolderFullName' => $sFolderFullName
+        ))->first();
+
 		$oRefreshFolder = null;
-		if (count($aEntities) > 0 && $aEntities[0] instanceof \Aurora\Modules\Mail\Classes\RefreshFolder)
+		if (!$oEntity instanceof RefreshFolder)
 		{
-			$oRefreshFolder = $aEntities[0];
-		}
-		else
-		{
-			$oRefreshFolder = new \Aurora\Modules\Mail\Classes\RefreshFolder(\Aurora\Modules\Mail\Module::GetName());
+			$oRefreshFolder = new RefreshFolder();
 			$oRefreshFolder->FolderFullName = $sFolderFullName;
-			$oRefreshFolder->IdAccount = $oAccount->EntityId;
+			$oRefreshFolder->IdAccount = $oAccount->Id;
 		}
 		if ($oRefreshFolder->AlwaysRefresh !== $bRefresh)
 		{
 		    $oRefreshFolder->AlwaysRefresh = $bRefresh;
-			$bResult = !!$this->oEavManager->saveEntity($oRefreshFolder);
+			$bResult = !!$oRefreshFolder->save();
 		}
 		else
 		{
@@ -235,15 +218,10 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	public function getAlwaysRefreshFolders($oAccount)
     {
 		$aFolders = [];
-		$aEntities = $this->oEavManager->getEntities(
-			\Aurora\Modules\Mail\Classes\RefreshFolder::class,
-			array(),
-			0,
-			0,
-			array(
-				'IdAccount' => $oAccount->EntityId
-			)
-		);
+        $aEntities = RefreshFolder::where(array(
+            'IdAccount' => $oAccount->Id
+        ))->get();
+
 		foreach ($aEntities as $oEntity)
 		{
 			if ($oEntity->AlwaysRefresh)
@@ -267,29 +245,19 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	{
 		foreach ($aSystemNames as $iTypeValue => $sFolderFullName)
 		{
-			$aEntities = $this->oEavManager->getEntities(
-				\Aurora\Modules\Mail\Classes\SystemFolder::class,
-				array(),
-				0,
-				1,
-				array(
-					'IdAccount' => $oAccount->EntityId,
-					'Type' => $iTypeValue
-				)
-			);
-			$oSystemFolder = null;
-			if (count($aEntities) > 0 && $aEntities[0] instanceof \Aurora\Modules\Mail\Classes\SystemFolder)
+            $oSystemFolder = SystemFolder::where(array(
+                'IdAccount' => $oAccount->Id,
+                'Type' => $iTypeValue
+            ))->first();
+
+			if (!$oSystemFolder instanceof SystemFolder)
 			{
-				$oSystemFolder = $aEntities[0];
-			}
-			else
-			{
-				$oSystemFolder = new \Aurora\Modules\Mail\Classes\SystemFolder(\Aurora\Modules\Mail\Module::GetName());
+				$oSystemFolder = new SystemFolder();
 				$oSystemFolder->Type = $iTypeValue;
-				$oSystemFolder->IdAccount = $oAccount->EntityId;
+				$oSystemFolder->IdAccount = $oAccount->Id;
 			}
 			$oSystemFolder->FolderFullName = $sFolderFullName;
-			$this->oEavManager->saveEntity($oSystemFolder);
+            $oSystemFolder->save();
 		}
 
 		return true;
@@ -299,39 +267,28 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	{
 		$bResult = true;
 
-		$aEntities = $this->oEavManager->getEntities(
-			\Aurora\Modules\Mail\Classes\SystemFolder::class,
-			array(),
-			0,
-			1,
-			array(
-				'IdAccount' => $oAccount->EntityId,
-				'Type' => $iTypeValue,
-				'FolderFullName' => $sFolderFullName,
-			)
-		);
-		$oSystemFolder = null;
-		if (count($aEntities) > 0 && $aEntities[0] instanceof \Aurora\Modules\Mail\Classes\SystemFolder)
-		{
-			$oSystemFolder = $aEntities[0];
-		}
+        $oSystemFolder = SystemFolder::where(array(
+            'IdAccount' => $oAccount->Id,
+            'Type' => $iTypeValue,
+            'FolderFullName' => $sFolderFullName,
+        ))->first();
 
 		if ($bSet)
 		{
 			if ($oSystemFolder === null)
 			{
-				$oSystemFolder = new \Aurora\Modules\Mail\Classes\SystemFolder(\Aurora\Modules\Mail\Module::GetName());
+				$oSystemFolder = new SystemFolder();
 				$oSystemFolder->Type = $iTypeValue;
-				$oSystemFolder->IdAccount = $oAccount->EntityId;
+				$oSystemFolder->IdAccount = $oAccount->Id;
 				$oSystemFolder->FolderFullName = $sFolderFullName;
-				$bResult = $this->oEavManager->saveEntity($oSystemFolder);
+				$bResult = $oSystemFolder->save();
 			}
 		}
 		else
 		{
 			if ($oSystemFolder !== null)
 			{
-				$bResult = $this->oEavManager->deleteEntity($oSystemFolder->EntityId, \Aurora\Modules\Mail\Classes\SystemFolder::class);
+				$bResult = $oSystemFolder->delete();
 			}
 		}
 
@@ -360,16 +317,9 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
 	private function _getSystemFolderEntities($oAccount)
 	{
-		$aEntities = $this->oEavManager->getEntities(
-			\Aurora\Modules\Mail\Classes\SystemFolder::class,
-			array(),
-			0,
-			9,
-			array(
-				'IdAccount' => $oAccount->EntityId
-			)
-		);
-		return is_array($aEntities) ? $aEntities : [];
+        return SystemFolder::where(array(
+            'IdAccount' => $oAccount->Id
+        ))->limit(9)->get();
 	}
 
 	/**
@@ -383,13 +333,14 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
 		$iOffset = 0;
 		$iLimit = 0;
-		$aFilters = array('IdAccount' => array($iAccountId, '='));
-		$aSystemFolders = $this->oEavManager->getEntities(\Aurora\Modules\Mail\Classes\SystemFolder::class,  array(), $iOffset, $iLimit, $aFilters);
-		if (is_array($aSystemFolders))
+		$aFilters = array('IdAccount' => $iAccountId);
+
+        $aSystemFolders = SystemFolder::where($aFilters)->get();
+		if ($aSystemFolders->isNotEmpty())
 		{
 			foreach ($aSystemFolders as $oSystemFolder)
 			{
-				$bResult = $bResult && $this->oEavManager->deleteEntity($oSystemFolder->EntityId, \Aurora\Modules\Mail\Classes\SystemFolder::class);
+				$bResult = $bResult && $oSystemFolder->detete();
 			}
 		}
 
@@ -431,7 +382,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 				}
 				else
 				{
-					$this->oEavManager->deleteEntity($oSystemFolder->EntityId, \Aurora\Modules\Mail\Classes\SystemFolder::class);
+                    $oSystemFolder->delete();
 				}
 			}
 		}
@@ -566,21 +517,10 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
 	public function isSafetySender($iIdUser, $sEmail)
 	{
-		$bResult = false;
-		$aEntities = $this->oEavManager->getEntities(
-			\Aurora\Modules\Mail\Classes\Sender::class,
-			array('Email'),
-			0,
-			1,
-			array(
-				'IdUser' => $iIdUser,
-				'Email' => $sEmail
-			)
-		);
-		if (count($aEntities) > 0)
-		{
-			$bResult = true;
-		}
+        $bResult = Sender::where(array(
+            'IdUser' => $iIdUser,
+            'Email' => $sEmail
+        ))->exists();
 
 		return $bResult;
 	}
@@ -590,11 +530,11 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		$bResult = true;
 		if (!$this->isSafetySender($iIdUser, $sEmail))
 		{
-			$oEntity = new \Aurora\Modules\Mail\Classes\Sender(\Aurora\Modules\Mail\Module::GetName());
+			$oEntity = new Sender();
 
 			$oEntity->IdUser = $iIdUser;
 			$oEntity->Email = $sEmail;
-			$bResult = $this->oEavManager->saveEntity($oEntity);
+			$bResult = $oEntity->save();
 		}
 
 		return $bResult;
@@ -610,7 +550,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * Obtains the list of IMAP folders.
 	 *
-	 * @param Aurora\Modules\Mail\Classes\Account $oAccount Account object.
+	 * @param \Aurora\Modules\Mail\Models\MailAccount $oAccount Account object.
 	 * @param bool $bCreateUnExistenSystemFolders = true. Creating folders is required for WebMail work, usually it is done on first login to the account.
 	 *
 	 * @return \Aurora\Modules\Mail\Classes\FolderCollection Collection of folders.
@@ -771,7 +711,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	public function updateFoldersOrder($oAccount, $aOrder)
 	{
 		$oAccount->FoldersOrder = @json_encode($aOrder);
-		return $this->oEavManager->saveEntity($oAccount);
+		return $oAccount->save();
 	}
 
 	/**
@@ -2059,7 +1999,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 					$sInternalDate = $oFetchResponseItem->GetFetchValue(\MailSo\Imap\Enumerations\FetchType::INTERNALDATE);
 
 					$mResult[$sUid] = [
-						'accountid' => $oAccount->EntityId,
+						'accountid' => $oAccount->Id,
 						'uid' => $sUid,
 						'internaldate' => $sInternalDate
 					];
@@ -3241,7 +3181,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * Obtains message list with messages data.
 	 *
-	 * @param Aurora\Modules\Mail\Classes\Account $oAccount Account object.
+	 * @param \Aurora\Modules\Mail\Models\MailAccount $oAccount Account object.
 	 * @param string $sFolderFullNameRaw Raw full name of the folder.
 	 * @param int $iOffset = 0. Offset value for obtaining a partial list.
 	 * @param int $iLimit = 20. Limit value for obtaining a partial list.
