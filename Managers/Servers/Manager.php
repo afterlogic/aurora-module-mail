@@ -7,6 +7,10 @@
 
 namespace Aurora\Modules\Mail\Managers\Servers;
 
+use Aurora\Modules\Mail\Models\Server;
+use Aurora\System\Enums\SortOrder;
+use Illuminate\Database\Query\Builder;
+
 /**
  * @license https://www.gnu.org/licenses/agpl-3.0.html AGPL-3.0
  * @license https://afterlogic.com/products/common-licensing Afterlogic Software License
@@ -14,35 +18,21 @@ namespace Aurora\Modules\Mail\Managers\Servers;
  */
 class Manager extends \Aurora\System\Managers\AbstractManager
 {
-	/**
-	 * @var \Aurora\System\Managers\Eav
-	 */
-	public $oEavManager = null;
-	
-	/**
-	 * @param \Aurora\System\Module\AbstractModule $oModule
-	 */
-	public function __construct(\Aurora\System\Module\AbstractModule $oModule = null)
-	{
-		parent::__construct($oModule);
-		
-		$this->oEavManager = \Aurora\System\Managers\Eav::getInstance();
-	}
 
 	/**
-	 * @param instanceof \Aurora\Modules\Mail\Classes\Server
+	 * @param instanceof \Aurora\Modules\Mail\Models\Server
 	 * @return int|boolean
 	 * @throws \Aurora\System\Exceptions\ManagerException
 	 */
-	public function createServer(\Aurora\Modules\Mail\Classes\Server $oServer)
+	public function createServer(\Aurora\Modules\Mail\Models\Server $oServer)
 	{
 		try
 		{
-			if (!$this->oEavManager->saveEntity($oServer))
+			if (!$oServer->save())
 			{
 				throw new \Aurora\System\Exceptions\ManagerException(\Aurora\System\Exceptions\Errs::UsersManager_UserCreateFailed);
 			}
-			return $oServer->EntityId;
+			return $oServer->Id;
 		}
 		catch (\Aurora\System\Exceptions\BaseException $oException)
 		{
@@ -67,7 +57,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			$oServer = $this->getServer($iServerId);
 			if ($oServer && ($oServer->OwnerType !== \Aurora\Modules\Mail\Enums\ServerOwnerType::Tenant || $oServer->TenantId === $iTenantId))
 			{
-				$bResult = $this->oEavManager->deleteEntity($iServerId, \Aurora\Modules\Mail\Classes\Server::class);
+				$bResult = $oServer->delete();
 			}
 		}
 		catch (\Aurora\System\Exceptions\BaseException $oException)
@@ -89,7 +79,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		
 		try
 		{
-			$oServer = $this->oEavManager->getEntity((int)$iServerId, \Aurora\Modules\Mail\Classes\Server::class);
+			$oServer = Server::whereId($iServerId)->first();
 		}
 		catch (\Aurora\System\Exceptions\BaseException $oException)
 		{
@@ -118,45 +108,35 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		try
 		{
 			$oTenant = \Aurora\System\Api::getCurrentTenant();
+
+            $query = Server::query();
 			if ($oTenant)
 			{
-				$aFilters = [
-					'$AND' => [
-						'$OR' => [
-							'OwnerType' => [\Aurora\Modules\Mail\Enums\ServerOwnerType::SuperAdmin, '='],
-							'$AND' => [
-								'TenantId' => [$oTenant->EntityId, '='],
-								'OwnerType' => [\Aurora\Modules\Mail\Enums\ServerOwnerType::Tenant, '='],
-							],
-						],
-						'Domains' => ['%' . $sDomain . '%', 'LIKE']
-					]
-				];
+                $aFilters = $query->where(function ($q) use ($oTenant) {
+                    $q->where(function ($q) use ($oTenant) {
+                        $q->where(['OwnerType', \Aurora\Modules\Mail\Enums\ServerOwnerType::SuperAdmin])
+                            ->orWhere(function ($q) use ($oTenant) {
+                                $q->where([
+                                    ['TenantId', '=', $oTenant->Id],
+                                    ['OwnerType', '=', \Aurora\Modules\Mail\Enums\ServerOwnerType::Tenant],
+                                ]);
+                            });
+                    });
+                })->where('Domains', 'LIKE', '%' . $sDomain . '%');
 			}
 			else
 			{
-				$aFilters = [
-					'$OR' => [
-						'1$AND' => [
-							'OwnerType' => [\Aurora\Modules\Mail\Enums\ServerOwnerType::SuperAdmin, '='],
-							'Domains' => ['%' . $sDomain . '%', 'LIKE'],
-						],
-						'2$AND' => [
-							'OwnerType' => [\Aurora\Modules\Mail\Enums\ServerOwnerType::Tenant, '='],
-							'Domains' => ['%' . $sDomain . '%', 'LIKE'],
-						],
-					],
-				];
-			}
+                $aFilters = $query->orWhere([
+                    ['OwnerType', '=', \Aurora\Modules\Mail\Enums\ServerOwnerType::SuperAdmin],
+                    ['Domains', 'LIKE', '%' . $sDomain . '%'],
+                ])->orWhere([
+                    ['OwnerType', '=', \Aurora\Modules\Mail\Enums\ServerOwnerType::Tenant],
+                    ['Domains', 'LIKE', '%' . $sDomain . '%'],
+                ]);
+            }
 
-			$aResult = $this->oEavManager->getEntities(
-				\Aurora\Modules\Mail\Classes\Server::class,
-				array(),
-				0,
-				999,
-				$aFilters
-			);	
-			if (count($aResult) > 0)
+			$aResult = $aFilters->get();
+			if ($aResult->count() > 0)
 			{
 				foreach ($aResult as $oTempServer)
 				{
@@ -178,34 +158,41 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		
 		return $oServer;
 	}	
-	
-	/**
-	 * @param int $iTenantId
-	 * @param string $sSearch
-	 * @return array
-	 */
+
+    /**
+     * @param int $iTenantId
+     * @param string $sSearch
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
 	private function _getServersFilters($iTenantId = 0, $sSearch = '')
 	{
-		$aFilters = [];
-		if ($iTenantId === 0)
-		{
-			$aFilters = ['OwnerType' => [\Aurora\Modules\Mail\Enums\ServerOwnerType::Account, '<>']];
-		}
-		else
-		{
-			$aFilters = ['$OR' => [
-				'OwnerType' => [\Aurora\Modules\Mail\Enums\ServerOwnerType::SuperAdmin, '='],
-				'$AND' => [
-					'TenantId' => [$iTenantId, '='],
-					'OwnerType' => [\Aurora\Modules\Mail\Enums\ServerOwnerType::Tenant, '='],
-				],
-			]];
-		}
+        $query = Server::query();
+
+        $aFilters = [];
+        if ($iTenantId === 0)
+        {
+            $aFilters = $query->where('OwnerType', '<>', \Aurora\Modules\Mail\Enums\ServerOwnerType::Account);
+        }
+        else
+        {
+            $aFilters = $query->where(function ($q) use ($iTenantId) {
+                $q->where(function ($q) use ($iTenantId) {
+                    $q->where([['OwnerType', '=', \Aurora\Modules\Mail\Enums\ServerOwnerType::SuperAdmin]])
+                        ->orWhere(function ($q) use ($iTenantId) {
+                            $q->where([
+                                ['TenantId', '=', $iTenantId],
+                                ['OwnerType', '=', \Aurora\Modules\Mail\Enums\ServerOwnerType::Tenant],
+                            ]);
+                        });
+                });
+            });
+        }
+
 		if ($sSearch !== '')
 		{
-			$aFilters['Name'] = ['%' . $sSearch . '%', 'LIKE'];
-			$aFilters = ['$AND' => $aFilters];
+		    $aFilters = $query->where('Name', 'LIKE', '%' . $sSearch . '%');
 		}
+
 		return $aFilters;
 	}
 	
@@ -216,51 +203,47 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 */
 	public function getServersCount($iTenantId = 0, $sSearch = '')
 	{
-		$aFilters = $this->_getServersFilters($iTenantId, $sSearch);
-		return $this->oEavManager->getEntitiesCount(
-			\Aurora\Modules\Mail\Classes\Server::class,
-			$aFilters
-		);
+		return $this->_getServersFilters($iTenantId, $sSearch)->count();
 	}
-	
-	/**
-	 * @param int $iTenantId
-	 * @param int $iOffset
-	 * @param int $iLimit
-	 * @param string $sSearch
-	 * @return boolean|array
-	 */
+
+    /**
+     * @param int $iTenantId
+     * @param int $iOffset
+     * @param int $iLimit
+     * @param string $sSearch
+     * @return \Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection
+     */
 	public function getServerList($iTenantId = 0, $iOffset = 0, $iLimit = 0, $sSearch = '')
 	{
 		$sOrderBy = 'Name';
 		$iOrderType = \Aurora\System\Enums\SortOrder::ASC;
 		
-		$aFilters = $this->_getServersFilters($iTenantId, $sSearch);
-		
-		return $this->oEavManager->getEntities(
-			\Aurora\Modules\Mail\Classes\Server::class,
-			array(),
-			$iOffset,
-			$iLimit,
-			$aFilters,
-			$sOrderBy,
-			$iOrderType
-		);
+		$query = $this->_getServersFilters($iTenantId, $sSearch);
+
+        if ($iOffset > 0) {
+            $query = $query->offset($iOffset);
+        }
+
+        if ($iLimit > 0) {
+            $query = $query->limit($iLimit);
+        }
+
+		return $query->orderBy($sOrderBy, $iOrderType === SortOrder::ASC ? 'asc' : 'desc')->get();
 	}
 	
 	/**
 	 * 
-	 * @param instanceof \Aurora\Modules\Mail\Classes\Server
+	 * @param instanceof \Aurora\Modules\Mail\Models\Server
 	 * @return boolean
 	 * @throws \Aurora\System\Exceptions\ManagerException
 	 */
-	public function updateServer(\Aurora\Modules\Mail\Classes\Server $oServer)
+	public function updateServer(\Aurora\Modules\Mail\Models\Server $oServer)
 	{
 		$bResult = false;
 		
 		try
 		{
-			if (!$this->oEavManager->saveEntity($oServer))
+			if (!$oServer->save())
 			{
 				throw new \Aurora\System\Exceptions\ManagerException(\Aurora\System\Exceptions\Errs::UsersManager_UserCreateFailed);
 			}
@@ -275,43 +258,33 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		return $bResult;
 	}
 
-	/**
-	 *
-	 * @param array $aFilters
-	 * @return boolean
-	 */
-	public function getServerByFilter($aFilters)
+    /**
+     * @param Builder|null $aFilters
+     * @return Server|false|\Illuminate\Database\Eloquent\Model
+     */
+	public function getServerByFilter(Builder $aFilters = null)
 	{
 		$oServer = false;
 
-		$aResult = $this->oEavManager->getEntities(
-			\Aurora\Modules\Mail\Classes\Server::class,
-			array(),
-			0,
-			999,
-			$aFilters
-		);
-		if (count($aResult) > 0)
+        $aFilters = ($aFilters instanceof Builder) ? $aFilters : Server::query();
+		$oData = $aFilters->first();
+
+		if ($oData instanceof Server)
 		{
-			$oServer = $aResult[0];
+			$oServer = $oData;
 		}
 
 		return $oServer;
 	}
 
-	/**
-	 *
-	 * @param array $aFilters
-	 * @return boolean
-	 */
-	public function getServerListByFilter($aFilters)
+    /**
+     * @param Builder|null $aFilters
+     * @return \Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection|\Illuminate\Support\Collection
+     */
+	public function getServerListByFilter(Builder $aFilters = null)
 	{
-		return $this->oEavManager->getEntities(
-			\Aurora\Modules\Mail\Classes\Server::class,
-			[],
-			0,
-			0,
-			$aFilters
-		);
+        $aFilters = ($aFilters instanceof Builder) ? $aFilters : Server::query();
+
+		return $aFilters->get();
 	}
 }
