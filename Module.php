@@ -6149,9 +6149,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function onAfterCreateTables(&$aData, &$mResult)
 	{
-		\Aurora\System\Managers\Eav::getInstance()->updateAttributeType(Classes\Account::class, 'FoldersOrder', 'text', 'mediumblob');
-		\Aurora\System\Managers\Eav::getInstance()->updateAttributeType(Classes\Account::class, 'Signature', 'text', 'mediumblob');
-		\Aurora\System\Managers\Eav::getInstance()->updateAttributeType(Classes\Identity::class, 'Signature', 'text', 'mediumblob');
+//		\Aurora\System\Managers\Eav::getInstance()->updateAttributeType(Classes\Account::class, 'FoldersOrder', 'text', 'mediumblob');
+//		\Aurora\System\Managers\Eav::getInstance()->updateAttributeType(Classes\Account::class, 'Signature', 'text', 'mediumblob');
+//		\Aurora\System\Managers\Eav::getInstance()->updateAttributeType(Classes\Identity::class, 'Signature', 'text', 'mediumblob');
 	}
 
 	/**
