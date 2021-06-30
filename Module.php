@@ -103,7 +103,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$this->subscribeEvent('Core::GetDigestHash', array($this, 'onGetDigestHash'));
 		$this->subscribeEvent('Core::GetAccountUsedToAuthorize', array($this, 'onGetAccountUsedToAuthorize'));
 		$this->subscribeEvent('System::RunEntry::before', array($this, 'onBeforeRunEntry'));
-		$this->subscribeEvent('Core::CreateTables::after', array($this, 'onAfterCreateTables'));
 
 		\MailSo\Config::$PreferStartTlsIfAutoDetect = !!$this->getConfig('PreferStarttls', true);
 	}
@@ -6143,16 +6142,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	/***** public functions might be called with web API *****/
 
 	/***** private functions *****/
-
-	/**
-	 *
-	 */
-	public function onAfterCreateTables(&$aData, &$mResult)
-	{
-//		\Aurora\System\Managers\Eav::getInstance()->updateAttributeType(Classes\Account::class, 'FoldersOrder', 'text', 'mediumblob');
-//		\Aurora\System\Managers\Eav::getInstance()->updateAttributeType(Classes\Account::class, 'Signature', 'text', 'mediumblob');
-//		\Aurora\System\Managers\Eav::getInstance()->updateAttributeType(Classes\Identity::class, 'Signature', 'text', 'mediumblob');
-	}
 
 	/**
 	 * Deletes all mail accounts which are belonged to the specified user.
