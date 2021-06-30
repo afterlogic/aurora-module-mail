@@ -71,22 +71,22 @@ class Module extends \Aurora\System\Module\AbstractModule
 			Enums\ErrorCodes::TenantQuotaExceeded					=> $this->i18N('ERROR_TENANT_QUOTA_EXCEEDED'),
 		];
 
-		\Aurora\Modules\Core\Classes\User::extend(
-			self::GetName(),
-			[
-				'AllowAutosaveInDrafts'	=> ['bool', (bool) $this->getConfig('AllowAutosaveInDrafts', false)],
-				'UserSpaceLimitMb'	=> ['int', 0],
-			]
-		);
-		\Aurora\Modules\Core\Classes\Tenant::extend(
-			self::GetName(),
-			[
-				'TenantSpaceLimitMb' => ['int', 0],
-				'UserSpaceLimitMb'	=> ['int', 0],
-				'AllowChangeUserSpaceLimit'	=> ['bool', true],
-				'AllocatedSpaceMb' => ['int', 0],
-			]
-		);
+		// \Aurora\Modules\Core\Classes\User::extend(
+		// 	self::GetName(),
+		// 	[
+		// 		'AllowAutosaveInDrafts'	=> ['bool', (bool) $this->getConfig('AllowAutosaveInDrafts', false)],
+		// 		'UserSpaceLimitMb'	=> ['int', 0],
+		// 	]
+		// );
+		// \Aurora\Modules\Core\Classes\Tenant::extend(
+		// 	self::GetName(),
+		// 	[
+		// 		'TenantSpaceLimitMb' => ['int', 0],
+		// 		'UserSpaceLimitMb'	=> ['int', 0],
+		// 		'AllowChangeUserSpaceLimit'	=> ['bool', true],
+		// 		'AllocatedSpaceMb' => ['int', 0],
+		// 	]
+		// );
 
 		$this->AddEntries(array(
 				'message-newtab' => 'EntryMessageNewtab',
@@ -446,7 +446,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			{
 				if ($AllowAutosaveInDrafts !== null)
 				{
-					$oUser->{self::GetName().'::AllowAutosaveInDrafts'} = $AllowAutosaveInDrafts;
+					$oUser->setExtendedProp(self::GetName().'::AllowAutosaveInDrafts', $AllowAutosaveInDrafts);
 				}
 				$oCoreDecorator = \Aurora\Modules\Core\Module::Decorator();
 				return $oCoreDecorator->UpdateUserObject($oUser);
@@ -515,7 +515,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
 			$iAllocatedSpaceMb = 0;
 		}
-		$oTenant->{self::GetName() . '::AllocatedSpaceMb'} = $iAllocatedSpaceMb;
+		$oTenant->setExtendedProp(self::GetName() . '::AllocatedSpaceMb', $iAllocatedSpaceMb);
 		\Aurora\Modules\Core\Module::Decorator()->getTenantsManager()->updateTenant($oTenant);
 	}
 
@@ -555,8 +555,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 				if ($mResult !== false)
 				{
 					$this->updateAllocatedTenantSpace($TenantId, $UserSpaceLimitMb, $aPrevUserQuota['UserSpaceLimitMb']);
-					$oUser->{self::GetName() . '::UserSpaceLimitMb'} = $UserSpaceLimitMb;
-					$oUser->saveAttribute(self::GetName() . '::UserSpaceLimitMb');
+					$oUser->setExtendedProp(self::GetName() . '::UserSpaceLimitMb', $UserSpaceLimitMb);
+					$oUser->save();
 				}
 				return $mResult;
 			}
@@ -568,10 +568,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 			if ($oTenant && ($oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin ||
 					$oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::TenantAdmin && $oAuthenticatedUser->IdTenant === $TenantId))
 			{
-				$oTenant->{self::GetName() . '::TenantSpaceLimitMb'} = $TenantSpaceLimitMb;
+				$oTenant->setExtendedProp(self::GetName() . '::TenantSpaceLimitMb', $TenantSpaceLimitMb);
 				if (is_int($UserSpaceLimitMb))
 				{
-					$oTenant->{self::GetName() . '::UserSpaceLimitMb'} = $UserSpaceLimitMb;
+					$oTenant->setExtendedProp(self::GetName() . '::UserSpaceLimitMb', $UserSpaceLimitMb);
 				}
 				return $oTenant->save();
 			}
@@ -979,7 +979,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 							$iQuota = (is_array($aQuota) && isset($aQuota[1])) ? $aQuota[1] / 1024 : 0;
 						}
 						$this->updateAllocatedTenantSpace($oUser->IdTenant, $iQuota, 0);
-						$oUser->{self::GetName() . '::UserSpaceLimitMb'} = $iQuota;
+						$oUser->setExtendedProp(self::GetName() . '::UserSpaceLimitMb', $iQuota);
 						$oUser->save();
 					}
 					return $oAccount;
@@ -2572,8 +2572,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 		if ($iQuota !== $iUserSpaceLimitMb)
 		{
 			$this->updateAllocatedTenantSpace($oUser->IdTenant, $iQuota, $iUserSpaceLimitMb);
-			$oUser->{self::GetName() . '::UserSpaceLimitMb'} = $iQuota;
-			$oUser->saveAttribute(self::GetName() . '::UserSpaceLimitMb');
+			$oUser->setExtendedProp(self::GetName() . '::UserSpaceLimitMb', $iQuota);
+			$oUser->save();
 		}
 
 		return $aQuota; // Can be changed by subscribers
