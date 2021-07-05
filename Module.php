@@ -5006,8 +5006,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 
 		self::checkAccess(null, $UserId);
-
-		return $this->getIdentitiesManager()->getIdentities($UserId);
+		dump($this->getIdentitiesManager()->getIdentities($UserId)->toArray()); exit;
+		return $this->getIdentitiesManager()->getIdentities($UserId)->toArray();
 	}
 
 	/**

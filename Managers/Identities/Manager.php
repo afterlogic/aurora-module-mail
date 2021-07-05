@@ -163,7 +163,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		$iLimit = 0;
 
         $oQuery = isset($oFilters) ? $oFilters : Identity::query();
-        $oQuery->where('id', $iUserId);
+        $oQuery->where('IdUser', $iUserId);
 
 		$sOrderBy = 'FriendlyName';
 		$iOrderType = SortOrder::ASC;
