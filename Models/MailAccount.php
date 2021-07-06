@@ -89,7 +89,7 @@ class MailAccount extends Model
     private function canBeUsedToAuthorize()
     {
         $oMailModule = \Aurora\System\Api::GetModule('Mail');
-        return !$oMailModule->getAccountsManager()->useToAuthorizeAccountExists($this->Email, $this->EntityId);
+        return !$oMailModule->getAccountsManager()->useToAuthorizeAccountExists($this->Email, $this->Id);
     }
 
     public function getDefaultTimeOffset()
@@ -100,7 +100,7 @@ class MailAccount extends Model
     public function toResponseArray()
     {
         $aResponse = parent::toResponseArray();
-        $aResponse['AccountID'] = $this->EntityId;
+        $aResponse['AccountID'] = $this->Id;
         $aResponse['AllowFilters'] = false;
         $aResponse['AllowForward'] = false;
         $aResponse['AllowAutoresponder'] = false;

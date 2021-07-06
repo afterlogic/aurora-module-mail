@@ -29,12 +29,12 @@ class SieveFilter extends \Aurora\System\AbstractContainer
 	/**
 	 * @param CAccount $oAccount
 	 */
-	public function __construct(\Aurora\Modules\Mail\Classes\Account $oAccount)
+	public function __construct(\Aurora\Modules\Mail\Models\MailAccount $oAccount)
 	{
 		parent::__construct(get_class($this));
 
 		$this->SetDefaults(array(
-			'IdAccount'	=> $oAccount->EntityId,
+			'IdAccount'	=> $oAccount->Id,
 			'Enable'	=> true,
 			'Field'		=> \Aurora\Modules\Mail\Enums\FilterFields::From,
 			'Filter'	=> '',
