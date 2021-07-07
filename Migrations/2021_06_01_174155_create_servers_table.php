@@ -43,7 +43,8 @@ class CreateServersTable extends Migration
             $table->string('OAuthType')->default('');
             $table->string('OAuthIconUrl')->default('');
 
-            $table->timestamps();
+            $table->timestamp(\Aurora\System\Classes\Model::CREATED_AT)->nullable();
+            $table->timestamp(\Aurora\System\Classes\Model::UPDATED_AT)->nullable();
         });
     }
 

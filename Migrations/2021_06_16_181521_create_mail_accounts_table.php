@@ -48,7 +48,8 @@ class CreateMailAccountsTable extends Migration
             $table->string('UnifiedMailboxLabelColor')->default('');
             $table->string('XOAuth')->nullable();
 
-            $table->timestamps();
+            $table->timestamp(\Aurora\System\Classes\Model::CREATED_AT)->nullable();
+            $table->timestamp(\Aurora\System\Classes\Model::UPDATED_AT)->nullable();
         });
     }
 

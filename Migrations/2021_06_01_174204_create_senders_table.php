@@ -19,7 +19,8 @@ class CreateSendersTable extends Migration
             $table->integer('IdUser')->default(0);
             $table->string('Email')->default('');
 
-            $table->timestamps();
+            $table->timestamp(\Aurora\System\Classes\Model::CREATED_AT)->nullable();
+            $table->timestamp(\Aurora\System\Classes\Model::UPDATED_AT)->nullable();
         });
     }
 
