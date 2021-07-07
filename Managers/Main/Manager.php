@@ -1845,7 +1845,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		{
 			$bUseThreadingIfSupported = $oImapClient->IsSupported('THREAD=REFS') || $oImapClient->IsSupported('THREAD=REFERENCES') || $oImapClient->IsSupported('THREAD=ORDEREDSUBJECT');
 		}
-
+		$iMessageResultCount = 0;
 		if ($iMessageCount > 0)
 		{
 			$bIndexAsUid = true;
