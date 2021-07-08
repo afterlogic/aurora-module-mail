@@ -107,6 +107,7 @@ class Account extends \Aurora\System\Classes\AbstractAccount
 		$aResponse['AllowFilters'] = false;
 		$aResponse['AllowForward'] = false;
 		$aResponse['AllowAutoresponder'] = false;
+		$aResponse['EnableAllowBlockLists'] = false;
 
 		$oServer = $this->getServer();
 		if ($oServer instanceof \Aurora\System\EAV\Entity)
@@ -119,6 +120,7 @@ class Account extends \Aurora\System\Classes\AbstractAccount
 				$aResponse['AllowFilters'] = $oMailModule->getConfig('AllowFilters', '');
 				$aResponse['AllowForward'] = $oMailModule->getConfig('AllowForward', '');
 				$aResponse['AllowAutoresponder'] = $oMailModule->getConfig('AllowAutoresponder', '');
+				$aResponse['EnableAllowBlockLists'] = $oMailModule->getConfig('EnableAllowBlockLists', false);
 			}
 		}
 

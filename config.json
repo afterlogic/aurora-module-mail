@@ -39,6 +39,10 @@
 		true,
 		"bool"
 	],
+	"EnableAllowBlockLists": [
+		false,
+		"bool"
+	],
 	"AllowInsertImage": [
 		true,
 		"bool"
