@@ -482,7 +482,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 					$aAllowListStr[] = '	address :is "from" "' . $sItem . '"';
 				}
 				else {
-					$aAllowListStr[] = '	address :regex ["from"] "<(.*)@' . $sItem . '"';
+					$aAllowListStr[] = '	address :domain "from" "' . $sItem . '"';
 				}
 			}
 		}
@@ -494,7 +494,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 					$aBlockListStr[] = '	address :is "from" "' . $sItem . '"';
 				}
 				else {
-					$aBlockListStr[] = '	address :regex ["from"] "<(.*)@' . $sItem . '"';
+					$aBlockListStr[] = '	address :domain "from" "' . $sItem . '"';
 				}
 			}
 		}
