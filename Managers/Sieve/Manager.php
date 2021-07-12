@@ -71,7 +71,8 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		$this->aSectionsOrders = array(
 			'forward',
 			'autoresponder',
-			'filters'
+			'filters',
+			'allow_block_lists'
 		);
 	}
 
@@ -445,6 +446,98 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		return $this->setForward($oAccount, $sForward, false);
 	}
 
+	public function getAllowBlockLists($oAccount)
+	{
+		$mResult = [
+			'AllowList' => [],
+			'BlockList' => []
+		];
+		$this->_parseSectionsData($oAccount);
+		$sData = $this->_getSectionData('allow_block_lists');
+
+		$aMatch = array();
+		if (!empty($sData) && preg_match('/#data=([^\n]+)~([^\n]+)/', $sData, $aMatch) && isset($aMatch[1]) && isset($aMatch[2]))
+		{
+			$mResult['AllowList'] = \json_decode(\base64_decode($aMatch[1]));
+			$mResult['BlockList'] = \json_decode(\base64_decode($aMatch[2]));
+		}
+		return $mResult;
+	}
+
+	public function setAllowBlockLists($oAccount, $aAllowList, $aBlockList)
+	{
+		if (!is_array($aAllowList)) {
+			$aAllowList = [];
+		}
+		if (!is_array($aBlockList)) {
+			$aBlockList = [];
+		}
+		$sAllowList = \base64_encode(\json_encode($aAllowList));
+		$sBlockList = \base64_encode(\json_encode($aBlockList));
+
+		$aAllowListStr = [];
+		foreach ($aAllowList as $sItem) {
+			if (!empty($sItem)) {
+				if (strpos($sItem, '@') !== false) {
+					$aAllowListStr[] = '	address :is "from" "' . $sItem . '"';
+				}
+				else {
+					$aAllowListStr[] = '	address :regex ["from"] "<(.*)@' . $sItem . '"';
+				}
+			}
+		}
+
+		$aBlockListStr = [];
+		foreach ($aBlockList as $sItem) {
+			if (!empty($sItem)) {
+				if (strpos($sItem, '@') !== false) {
+					$aBlockListStr[] = '	address :is "from" "' . $sItem . '"';
+				}
+				else {
+					$aBlockListStr[] = '	address :regex ["from"] "<(.*)@' . $sItem . '"';
+				}
+			}
+		}
+
+		$sAllowListScript = "";
+		if (count ($aAllowListStr) > 0) {
+			$sAllowListScript = "if anyof ( \n" . \implode(",\n", $aAllowListStr) . "\n" .
+		")
+{
+	keep;
+	stop;
+}\n";
+		}
+
+		if (count ($aBlockListStr) > 0) {
+			$sBlockListScript = "if anyof ( \n" . \implode(",\n", $aBlockListStr) . "\n" .
+		")
+{
+	fileinto \"Spam\" ;
+	stop;
+}\n";
+		}
+
+		$sData = '#data=' . $sAllowList . '~' . $sBlockList . "\n" . $sAllowListScript . $sBlockListScript . "\n" .
+"# copy Spamassassin-tagged email to Spam folder
+
+if header :contains \"X-Spam-Flag\" \"YES\" {
+#   setflag \"\\seen\";
+	fileinto \"Spam\";
+#   setflag \"\\seen\";
+	stop;
+}";
+
+		$this->_parseSectionsData($oAccount);
+		$this->_setSectionData('allow_block_lists', $sData);
+		if (self::AutoSave)
+		{
+			return $this->_resaveSectionsData($oAccount);
+		}
+		return true;
+	}
+
+
 	/**
 	 * @depricated
 	 * 
@@ -694,7 +787,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			}
 		}
 
-		$sResult = 'require ["fileinto", "copy", "vacation"] ;'."\n".$sResult;
+		$sResult = 'require ["fileinto", "copy", "vacation","regex","include", "envelope", "imap4flags"] ;'."\n".$sResult;
 		$sResult = "# Sieve filter\n".$sResult;
 		$sResult .= "keep ;\n";
 		return $sResult;
