@@ -509,6 +509,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 }\n";
 		}
 
+		$sBlockListScript = "";
 		if (count ($aBlockListStr) > 0) {
 			$sBlockListScript = "if anyof ( \n" . \implode(",\n", $aBlockListStr) . "\n" .
 		")
