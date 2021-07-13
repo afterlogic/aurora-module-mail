@@ -29,11 +29,18 @@ class Server extends Model
         'SievePort',
         'EnableThreading',
         'UseFullEmailAddressAsLogin',
+
         'SetExternalAccessServers',
         'ExternalAccessImapServer',
         'ExternalAccessImapPort',
+        'ExternalAccessImapAlterPort',
+        'ExternalAccessPop3Server',
+        'ExternalAccessPop3Port',
+        'ExternalAccessPop3AlterPort',
         'ExternalAccessSmtpServer',
         'ExternalAccessSmtpPort',
+        'ExternalAccessSmtpAlterPort',
+        
         'OAuthEnable',
         'OAuthName',
         'OAuthType',

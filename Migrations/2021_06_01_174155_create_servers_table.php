@@ -33,11 +33,18 @@ class CreateServersTable extends Migration
             $table->integer('SievePort')->default(4190);
             $table->boolean('EnableThreading')->default(true);
             $table->boolean('UseFullEmailAddressAsLogin')->default(true);
+
             $table->boolean('SetExternalAccessServers')->default(false);
             $table->string('ExternalAccessImapServer')->default('');
             $table->integer('ExternalAccessImapPort')->default(143);
+            $table->integer('ExternalAccessImapAlterPort')->default(143);
             $table->string('ExternalAccessSmtpServer')->default('');
             $table->integer('ExternalAccessSmtpPort')->default(25);
+            $table->integer('ExternalAccessSmtpAlterPort')->default(25);
+            $table->string('ExternalAccessPop3Server')->default('');
+            $table->integer('ExternalAccessPop3Port')->default(110);
+            $table->integer('ExternalAccessPop3AlterPort')->default(110);
+
             $table->boolean('OAuthEnable')->default(false);
             $table->string('OAuthName')->default('');
             $table->string('OAuthType')->default('');
