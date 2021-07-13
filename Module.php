@@ -984,6 +984,12 @@ class Module extends \Aurora\System\Module\AbstractModule
 						$oUser->{self::GetName() . '::UserSpaceLimitMb'} = $iQuota;
 						$oUser->saveAttribute(self::GetName() . '::UserSpaceLimitMb');
 					}
+
+					if ($oServer && $oServer->EnableSieve && $this->getConfig('EnableAllowBlockLists', false))
+					{
+						$this->getSieveManager()->setAllowBlockLists($oAccount, [], []);
+					}
+
 					return $oAccount;
 				}
 				else if ($bCustomServerCreated)
