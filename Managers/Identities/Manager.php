@@ -137,11 +137,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		
 		try
 		{
-			$oIdentity = Identity::find($iId);
-			if ($oIdentity)
-			{
-				$bResult = $oIdentity->delete();
-			}
+			$bResult = !!Identity::find($iId)->delete();
 		}
 		catch (\Aurora\System\Exceptions\BaseException $oException)
 		{

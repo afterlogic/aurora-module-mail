@@ -4924,10 +4924,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	/**
 	 * Deletes identity.
-	 * @param int $Id Identity identifier.
+	 * @param int $EntityId Identity identifier.
 	 * @return boolean
 	 */
-	public function DeleteIdentity($AccountID, $Id)
+	public function DeleteIdentity($AccountID, $EntityId)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 
@@ -4935,7 +4935,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		self::checkAccess($oAccount);
 
-		return $this->getIdentitiesManager()->deleteIdentity($Id);
+		return $this->getIdentitiesManager()->deleteIdentity($EntityId);
 	}
 
 	/**
@@ -5007,7 +5007,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		self::checkAccess(null, $UserId);
 
-		return $this->getIdentitiesManager()->getIdentities($UserId)->toArray();
+		return $this->getIdentitiesManager()->getIdentities($UserId)->all();
 	}
 
 	/**

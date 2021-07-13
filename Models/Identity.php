@@ -34,4 +34,21 @@ class Identity extends Model
 
     protected $attributes = [
     ];
+
+    protected $appends = [
+        'EntityId'
+    ];
+
+    public function getEntityIdAttribute() {
+        return $this->Id;
+    }
+
+
+    public function toResponseArray()
+    {
+        $aResponse = parent::toResponseArray();
+        $aResponse['EntityId'] = $this->Id;
+
+        return $aResponse;
+    }
 }
