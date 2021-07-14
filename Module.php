@@ -6653,9 +6653,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
 			foreach ($aServers['Items'] as $oServer)
 			{
-				if ($oServer->TenantId === $TenantId)
+				if ($oServer['TenantId'] === $TenantId)
 				{
-					self::Decorator()->DeleteServer($oServer->Id, $TenantId);
+					self::Decorator()->DeleteServer($oServer['Id'], $TenantId);
 				}
 			}
 		}
