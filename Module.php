@@ -7,6 +7,8 @@
 
 namespace Aurora\Modules\Mail;
 
+use Aurora\System\Classes\Model;
+
 /**
  * @license https://www.gnu.org/licenses/agpl-3.0.html AGPL-3.0
  * @license https://afterlogic.com/products/common-licensing Afterlogic Software License
@@ -1189,7 +1191,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
         self::checkAccess($oAccount);
 
-        if ($oAccount instanceof Classes\Account)
+        if ($oAccount instanceof Models\MailAccount)
         {
             $oAccount->IncludeInUnifiedMailbox = $IncludeInUnifiedMailbox;
             $oAccount->ShowUnifiedMailboxLabel = $ShowUnifiedMailboxLabel;
@@ -2381,7 +2383,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
             $iAccountId = $aAccountData['AccountID'];
             $oAccount = $this->getAccountsManager()->getAccountById($iAccountId);
-            if ($oAccount instanceof Classes\Account)
+            if ($oAccount instanceof Models\MailAccount)
             {
                 self::checkAccess($oAccount);
                 $aCounts = self::Decorator()->GetRelevantFoldersInformation($iAccountId, $aAccountData['Folders'], $aAccountData['UseListStatusIfPossible']);
@@ -6949,7 +6951,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$aResult = [];
 
 		$oServer = $this->getServersManager()->getServer($ServerId);
-		if ($oServer instanceof Classes\Server)
+		if ($oServer instanceof Models\Server)
 		{
 			$aResult = explode("\n",  $oServer->Domains);
 			$iWildcard = array_search('*', $aResult);
