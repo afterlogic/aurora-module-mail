@@ -26,6 +26,7 @@ class CreateMailAccountsTable extends Migration
             $table->string('IncomingLogin')->default('');
             $table->string('IncomingPassword')->default('');
 
+            $table->boolean('IncludeInUnifiedMailbox')->default(false);
             $table->boolean('UseSignature')->default(false);
         });
 
