@@ -135,8 +135,6 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                 ]);
             }
 
-			dd($aFilters->toSql());
-
 			$aResult = $aFilters->get();
 			if ($aResult->count() > 0)
 			{
