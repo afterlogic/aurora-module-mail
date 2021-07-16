@@ -4854,7 +4854,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param boolean $AccountPart Indicated if account should be updated, not any identity.
 	 * @return boolean
 	 */
-	public function UpdateIdentity($UserId, $AccountID, $Id, $FriendlyName, $Email, $Default = false, $AccountPart = false)
+	public function UpdateIdentity($UserId, $AccountID, $EntityId, $FriendlyName, $Email, $Default = false, $AccountPart = false)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 
@@ -4873,7 +4873,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 		else
 		{
-			return $this->getIdentitiesManager()->updateIdentity($Id, $FriendlyName, $Email, $Default);
+			return $this->getIdentitiesManager()->updateIdentity($EntityId, $FriendlyName, $Email, $Default);
 		}
 	}
 

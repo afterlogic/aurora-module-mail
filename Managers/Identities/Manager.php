@@ -88,20 +88,21 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 */
 	public function updateIdentity($iId, $sFriendlyName, $sEmail, $bDefault)
 	{
+		$mResult = false;
 		try
 		{
-			$oIdentity = Identity::find($iId);
+			$oIdentity = Identity::findOrFail($iId);
 			$oIdentity->FriendlyName = $sFriendlyName;
 			$oIdentity->Email = $sEmail;
 			$oIdentity->Default = $bDefault;
-			return $oIdentity->save();
+			$mResult = !!$oIdentity->save();
 		}
-		catch (\Aurora\System\Exceptions\BaseException $oException)
+		catch (\Illuminate\Database\Eloquent\ModelNotFoundException $oException)
 		{
-			$this->setLastException($oException);
+			\Aurora\Api::LogException($oException);
 		}
 
-		return false;
+		return $mResult;
 	}
 
 	/**
