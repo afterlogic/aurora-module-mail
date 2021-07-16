@@ -56,6 +56,7 @@ class Server extends Model
     ];
 
     protected $casts = [
+        'SetExternalAccessServers' => 'boolean',
     ];
 
     protected $attributes = [
