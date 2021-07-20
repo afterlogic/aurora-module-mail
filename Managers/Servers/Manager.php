@@ -113,15 +113,13 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			if ($oTenant)
 			{
                 $aFilters = $query->where(function ($q) use ($oTenant) {
-                    $q->where(function ($q) use ($oTenant) {
-                        $q->where(['OwnerType', \Aurora\Modules\Mail\Enums\ServerOwnerType::SuperAdmin])
-                            ->orWhere(function ($q) use ($oTenant) {
-                                $q->where([
-                                    ['TenantId', '=', $oTenant->Id],
-                                    ['OwnerType', '=', \Aurora\Modules\Mail\Enums\ServerOwnerType::Tenant],
-                                ]);
-                            });
-                    });
+					$q->where('OwnerType', \Aurora\Modules\Mail\Enums\ServerOwnerType::SuperAdmin)
+						->orWhere(function ($q) use ($oTenant) {
+							$q->where([
+								['TenantId', '=', $oTenant->Id],
+								['OwnerType', '=', \Aurora\Modules\Mail\Enums\ServerOwnerType::Tenant],
+							]);
+						});
                 })->where('Domains', 'LIKE', '%' . $sDomain . '%');
 			}
 			else
