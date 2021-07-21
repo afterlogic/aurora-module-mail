@@ -1601,6 +1601,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 			\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::SuperAdmin);
 		}
 
+		if ($TenantId === 0) { // Default Tenant
+			$oTenant = \Aurora\Modules\Core\Module::Decorator()->GetDefaultGlobalTenant();
+			if ($oTenant) {
+				$TenantId = $oTenant->Id;
+			}
+		}
+
 		$sOwnerType = ($TenantId === 0) ? \Aurora\Modules\Mail\Enums\ServerOwnerType::SuperAdmin : \Aurora\Modules\Mail\Enums\ServerOwnerType::Tenant;
 
 		$oServer = new \Aurora\Modules\Mail\Models\Server();
