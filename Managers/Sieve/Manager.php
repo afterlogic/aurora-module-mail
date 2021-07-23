@@ -496,10 +496,10 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
 	 * @return \MailSo\Sieve\ManageSieveClient|false
 	 */
-	protected function _getSieveDriver(\Aurora\Modules\Mail\Classes\Account $oAccount)
+	protected function _getSieveDriver(\Aurora\Modules\Mail\Models\MailAccount $oAccount)
 	{
 		$oSieve = false;
-		if ($oAccount instanceof \Aurora\Modules\Mail\Classes\Account)
+		if ($oAccount instanceof \Aurora\Modules\Mail\Models\MailAccount)
 		{
 			if (!isset($this->aSieves[$oAccount->Email]))
 			{
