@@ -51,19 +51,19 @@ class MailAccount extends Model
       'EntityId'
     ];
 
-    public function getPassword()
+    public function getIncomingPasswordAttribute()
     {
         $sPassword = '';
-        if (!$this->IncomingPassword) // TODO: Legacy support
+        if (!$this->attributes['IncomingPassword']) // TODO: Legacy support
         {
             $sSalt = \Aurora\System\Api::$sSalt;
             \Aurora\System\Api::$sSalt = md5($sSalt);
-            $sPassword = $this->IncomingPassword;
+            $sPassword = $this->attributes['IncomingPassword'];
             \Aurora\System\Api::$sSalt = $sSalt;
         }
         else
         {
-            $sPassword = $this->IncomingPassword;
+            $sPassword = $this->attributes['IncomingPassword'];
         }
 
         $sPassword = \Aurora\System\Utils::DecryptValue($sPassword);
@@ -81,9 +81,19 @@ class MailAccount extends Model
         return $sPassword;
     }
 
+    public function setIncomingPasswordAttribute($sPassword)
+    {
+        $this->attributes['IncomingPassword'] = \Aurora\System\Utils::EncryptValue($this->IncomingLogin . ':' . $sPassword);
+    }
+
     public function setPassword($sPassword)
     {
-        $this->IncomingPassword = \Aurora\System\Utils::EncryptValue($this->IncomingLogin . ':' . $sPassword);
+        $this->IncomingPassword = $sPassword;
+    }
+
+    public function getPassword()
+    {
+        return $this->IncomingPassword;
     }
 
     private function canBeUsedToAuthorize()
