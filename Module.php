@@ -6163,12 +6163,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 	{
 		$mResult = $this->getAccountsManager()->getUserAccounts($aArgs["UserId"]);
 
-		if (\is_array($mResult))
+		foreach($mResult as $oItem)
 		{
-			foreach($mResult as $oItem)
-			{
-				self::Decorator()->DeleteAccount($oItem->Id);
-			}
+			self::Decorator()->DeleteAccount($oItem->Id);
 		}
 	}
 
