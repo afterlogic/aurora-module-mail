@@ -21,7 +21,7 @@ class CreateIdentitiesTable extends Migration
             $table->boolean('Default')->default(false);
             $table->string('Email')->default('');
             $table->string('FriendlyName')->default('');
-            $table->bool('UseSignature')->default(false);
+            $table->boolean('UseSignature')->default(false);
         });
 
         $prefix = Capsule::connection()->getTablePrefix();
