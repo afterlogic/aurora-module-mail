@@ -1580,8 +1580,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @return int|boolean
 	 */
 	public function CreateServer($Name, $IncomingServer, $IncomingPort, $IncomingUseSsl,
-			$OutgoingServer, $OutgoingPort, $OutgoingUseSsl, $SmtpAuthType, $Domains, $EnableThreading, $EnableSieve,
-			$SievePort, $SmtpLogin = '', $SmtpPassword = '', $UseFullEmailAddressAsLogin = true, $TenantId = 0,
+			$OutgoingServer, $OutgoingPort, $OutgoingUseSsl, $SmtpAuthType, $Domains, $EnableThreading = true, $EnableSieve = false,
+			$SievePort = 4190, $SmtpLogin = '', $SmtpPassword = '', $UseFullEmailAddressAsLogin = true, $TenantId = 0,
 			$SetExternalAccessServers = false,
 			$ExternalAccessImapServer = '', $ExternalAccessImapPort = 143, $ExternalAccessImapAlterPort = 0,
 			$ExternalAccessPop3Server = '', $ExternalAccessPop3Port = 143, $ExternalAccessPop3AlterPort = 0,
