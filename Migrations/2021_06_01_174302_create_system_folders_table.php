@@ -13,7 +13,7 @@ class CreateSystemFoldersTable extends Migration
      */
     public function up()
     {
-        Capsule::schema()->create('system_folders', function (Blueprint $table) {
+        Capsule::schema()->create('mail_system_folders', function (Blueprint $table) {
             $table->increments('Id');
 
             $table->integer('IdAccount')->default(0);
@@ -32,6 +32,6 @@ class CreateSystemFoldersTable extends Migration
      */
     public function down()
     {
-        Capsule::schema()->dropIfExists('system_folders');
+        Capsule::schema()->dropIfExists('mail_system_folders');
     }
 }

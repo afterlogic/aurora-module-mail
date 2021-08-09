@@ -13,7 +13,7 @@ class CreateIdentitiesTable extends Migration
      */
     public function up()
     {
-        Capsule::schema()->create('identities', function (Blueprint $table) {
+        Capsule::schema()->create('mail_identities', function (Blueprint $table) {
             $table->increments('Id');
 
             $table->integer('IdUser')->default(0);
@@ -25,9 +25,9 @@ class CreateIdentitiesTable extends Migration
         });
 
         $prefix = Capsule::connection()->getTablePrefix();
-        Capsule::statement("ALTER TABLE {$prefix}identities ADD Signature MEDIUMBLOB");
+        Capsule::statement("ALTER TABLE {$prefix}mail_identities ADD Signature MEDIUMBLOB");
 
-        Capsule::schema()->table('identities', function (Blueprint $table) {
+        Capsule::schema()->table('mail_identities', function (Blueprint $table) {
             $table->timestamp(\Aurora\System\Classes\Model::CREATED_AT)->nullable();
             $table->timestamp(\Aurora\System\Classes\Model::UPDATED_AT)->nullable();
         });
@@ -40,6 +40,6 @@ class CreateIdentitiesTable extends Migration
      */
     public function down()
     {
-        Capsule::schema()->dropIfExists('identities');
+        Capsule::schema()->dropIfExists('mail_identities');
     }
 }

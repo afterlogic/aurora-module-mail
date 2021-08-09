@@ -57,13 +57,14 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		if ($oAccount)
 		{
 			$sCacheKey = $oAccount->Email;
+
+			$oSettings =& \Aurora\System\Api::GetSettings();
+			$iConnectTimeOut = $oSettings->GetValue('SocketConnectTimeoutSeconds', 10);
+			$iSocketTimeOut = $oSettings->GetValue('SocketGetTimeoutSeconds', 20);
+			$bVerifySsl = !!$oSettings->GetValue('SocketVerifySsl', false);
+			
 			if (!isset($this->aImapClientCache[$sCacheKey]))
 			{
-				$oSettings =& \Aurora\System\Api::GetSettings();
-				$iConnectTimeOut = $oSettings->GetValue('SocketConnectTimeoutSeconds', 10);
-				$iSocketTimeOut = $oSettings->GetValue('SocketGetTimeoutSeconds', 20);
-				$bVerifySsl = !!$oSettings->GetValue('SocketVerifySsl', false);
-
 				if (0 < $iForceConnectTimeOut)
 				{
 					$iConnectTimeOut = $iForceConnectTimeOut;

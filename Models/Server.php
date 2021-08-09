@@ -6,6 +6,8 @@ use \Aurora\System\Classes\Model;
 
 class Server extends Model
 {
+    protected $table = 'mail_servers';    
+
     /**
      * The attributes that are mass assignable.
      *

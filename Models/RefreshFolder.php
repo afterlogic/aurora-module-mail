@@ -6,6 +6,7 @@ use \Aurora\System\Classes\Model;
 
 class RefreshFolder extends Model
 {
+    protected $table = 'mail_refresh_folders';    
     /**
      * The attributes that are mass assignable.
      *

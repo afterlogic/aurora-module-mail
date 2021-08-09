@@ -13,7 +13,7 @@ class CreateRefreshFoldersTable extends Migration
      */
     public function up()
     {
-        Capsule::schema()->create('refresh_folders', function (Blueprint $table) {
+        Capsule::schema()->create('mail_refresh_folders', function (Blueprint $table) {
             $table->increments('Id');
 
             $table->integer('IdAccount')->default(0);
@@ -32,6 +32,6 @@ class CreateRefreshFoldersTable extends Migration
      */
     public function down()
     {
-        Capsule::schema()->dropIfExists('refresh_folders');
+        Capsule::schema()->dropIfExists('mail_refresh_folders');
     }
 }

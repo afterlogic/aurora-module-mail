@@ -35,7 +35,7 @@ class CreateMailAccountsTable extends Migration
 
         Capsule::schema()->table('mail_accounts', function (Blueprint $table) {
             $table->unsignedInteger('ServerId')->default(0);
-            $table->foreign('ServerId')->references('Id')->on('servers');
+            $table->foreign('ServerId')->references('Id')->on('mail_servers');
         });
 
         Capsule::statement("ALTER TABLE {$prefix}mail_accounts ADD FoldersOrder MEDIUMBLOB");
