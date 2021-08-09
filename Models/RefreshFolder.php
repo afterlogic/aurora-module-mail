@@ -27,6 +27,7 @@ class RefreshFolder extends Model
     ];
 
     protected $casts = [
+        'AlwaysRefresh' => 'boolean'
     ];
 
     protected $attributes = [

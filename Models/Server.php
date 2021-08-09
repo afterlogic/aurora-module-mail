@@ -58,7 +58,13 @@ class Server extends Model
     ];
 
     protected $casts = [
+        'IncomingUseSsl' => 'boolean',
+        'OutgoingUseSsl' => 'boolean',
+        'EnableSieve' => 'boolean',
+        'EnableThreading' => 'boolean',
+        'UseFullEmailAddressAsLogin' => 'boolean',
         'SetExternalAccessServers' => 'boolean',
+        'OAuthEnable' => 'boolean',
         'SmtpPassword' => \Aurora\System\Casts\Encrypt::class
     ];
 
