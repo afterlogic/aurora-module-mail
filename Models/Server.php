@@ -57,6 +57,7 @@ class Server extends Model
 
     protected $casts = [
         'SetExternalAccessServers' => 'boolean',
+        'SmtpPassword' => \Aurora\System\Casts\Encrypt::class
     ];
 
     protected $attributes = [

@@ -42,6 +42,7 @@ class MailAccount extends Model
     ];
 
     protected $casts = [
+        'IncomingPassword' => \Aurora\System\Casts\Encrypt::class
     ];
 
     protected $attributes = [
@@ -51,40 +52,40 @@ class MailAccount extends Model
       'EntityId'
     ];
 
-    public function getIncomingPasswordAttribute()
-    {
-        $sPassword = '';
-        if (!$this->attributes['IncomingPassword']) // TODO: Legacy support
-        {
-            $sSalt = \Aurora\System\Api::$sSalt;
-            \Aurora\System\Api::$sSalt = md5($sSalt);
-            $sPassword = $this->attributes['IncomingPassword'];
-            \Aurora\System\Api::$sSalt = $sSalt;
-        }
-        else
-        {
-            $sPassword = $this->attributes['IncomingPassword'];
-        }
+    // public function getIncomingPasswordAttribute()
+    // {
+    //     $sPassword = '';
+    //     if (!$this->attributes['IncomingPassword']) // TODO: Legacy support
+    //     {
+    //         $sSalt = \Aurora\System\Api::$sSalt;
+    //         \Aurora\System\Api::$sSalt = md5($sSalt);
+    //         $sPassword = $this->attributes['IncomingPassword'];
+    //         \Aurora\System\Api::$sSalt = $sSalt;
+    //     }
+    //     else
+    //     {
+    //         $sPassword = $this->attributes['IncomingPassword'];
+    //     }
 
-        $sPassword = \Aurora\System\Utils::DecryptValue($sPassword);
+    //     $sPassword = \Aurora\System\Utils::DecryptValue($sPassword);
 
-        if ($sPassword !== '' && strpos($sPassword, $this->IncomingLogin . ':') === false)
-        {
-            $this->IncomingPassword = $sPassword;
-            \Aurora\System\Api::GetModule('Mail')->getAccountsManager()->updateAccount($this);
-        }
-        else
-        {
-            $sPassword = substr($sPassword, strlen($this->IncomingLogin) + 1);
-        }
+    //     if ($sPassword !== '' && strpos($sPassword, $this->IncomingLogin . ':') === false)
+    //     {
+    //         $this->IncomingPassword = $sPassword;
+    //         \Aurora\System\Api::GetModule('Mail')->getAccountsManager()->updateAccount($this);
+    //     }
+    //     else
+    //     {
+    //         $sPassword = substr($sPassword, strlen($this->IncomingLogin) + 1);
+    //     }
 
-        return $sPassword;
-    }
+    //     return $sPassword;
+    // }
 
-    public function setIncomingPasswordAttribute($sPassword)
-    {
-        $this->attributes['IncomingPassword'] = \Aurora\System\Utils::EncryptValue($this->IncomingLogin . ':' . $sPassword);
-    }
+    // public function setIncomingPasswordAttribute($sPassword)
+    // {
+    //     $this->attributes['IncomingPassword'] = \Aurora\System\Utils::EncryptValue($this->IncomingLogin . ':' . $sPassword);
+    // }
 
     public function setPassword($sPassword)
     {
