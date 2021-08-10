@@ -6,7 +6,7 @@ use \Aurora\System\Classes\Model;
 
 class Sender extends Model
 {
-    protected $table = 'mail_trusted_sender';
+    protected $table = 'mail_trusted_senders';
     /**
      * The attributes that are mass assignable.
      *
