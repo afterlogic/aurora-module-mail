@@ -12,6 +12,7 @@ class Server extends Model
      * @var array
      */
     protected $fillable = [
+        'Id',
         'TenantId',
         'Name',
         'IncomingServer',

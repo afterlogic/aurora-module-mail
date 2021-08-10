@@ -12,6 +12,7 @@ class Identity extends Model
      * @var array
      */
     protected $fillable = [
+        'Id',
         'IdUser',
         'IdAccount',
         'Default',

@@ -13,6 +13,7 @@ class MailAccount extends Model
      * @var array
      */
     protected $fillable = [
+        'Id',
         'IsDisabled',
         'IdUser',
         'UseToAuthorize',

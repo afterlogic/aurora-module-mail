@@ -12,6 +12,7 @@ class RefreshFolder extends Model
      * @var array
      */
     protected $fillable = [
+        'Id',
         'IdAccount',
         'FolderFullName',
         'Type'

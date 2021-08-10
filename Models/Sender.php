@@ -12,6 +12,7 @@ class Sender extends Model
      * @var array
      */
     protected $fillable = [
+        'Id',
         'IdUser',
         'Email'
     ];
