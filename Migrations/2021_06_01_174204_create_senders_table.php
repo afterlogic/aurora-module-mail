@@ -13,7 +13,7 @@ class CreateSendersTable extends Migration
      */
     public function up()
     {
-        Capsule::schema()->create('senders', function (Blueprint $table) {
+        Capsule::schema()->create('mail_trusted_senders', function (Blueprint $table) {
             $table->increments('Id');
 
             $table->integer('IdUser')->default(0);
@@ -31,6 +31,6 @@ class CreateSendersTable extends Migration
      */
     public function down()
     {
-        Capsule::schema()->dropIfExists('senders');
+        Capsule::schema()->dropIfExists('mail_trusted_senders');
     }
 }

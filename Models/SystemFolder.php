@@ -6,6 +6,8 @@ use \Aurora\System\Classes\Model;
 
 class SystemFolder extends Model
 {
+    protected $table = 'mail_system_folders';
+
     /**
      * The attributes that are mass assignable.
      *

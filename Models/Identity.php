@@ -6,6 +6,8 @@ use \Aurora\System\Classes\Model;
 
 class Identity extends Model
 {
+    protected $table = 'mail_identities';
+
     /**
      * The attributes that are mass assignable.
      *
@@ -31,6 +33,8 @@ class Identity extends Model
     ];
 
     protected $casts = [
+        'Default' => 'boolean',
+        'UseSignature' => 'boolean'
     ];
 
     protected $attributes = [

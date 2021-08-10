@@ -13,7 +13,7 @@ class CreateServersTable extends Migration
      */
     public function up()
     {
-        Capsule::schema()->create('servers', function (Blueprint $table) {
+        Capsule::schema()->create('mail_servers', function (Blueprint $table) {
             $table->increments('Id');
 
             $table->integer('TenantId')->default(0);
@@ -62,6 +62,6 @@ class CreateServersTable extends Migration
      */
     public function down()
     {
-        Capsule::schema()->dropIfExists('servers');
+        Capsule::schema()->dropIfExists('mail_servers');
     }
 }
