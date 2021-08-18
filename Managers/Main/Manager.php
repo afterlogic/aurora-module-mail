@@ -2516,14 +2516,34 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 				{
 					$sValue = $this->_escapeSearchString($oImapClient, $aLines['OTHER']);
 
-					$aImapSearchResult[] = 'OR OR OR';
+					$aImapSearchResult[] = 'OR OR OR OR OR OR OR OR';
+
 					$aImapSearchResult[] = 'FROM';
 					$aImapSearchResult[] = $sValue;
+
 					$aImapSearchResult[] = 'TO';
 					$aImapSearchResult[] = $sValue;
+
 					$aImapSearchResult[] = 'CC';
 					$aImapSearchResult[] = $sValue;
+
 					$aImapSearchResult[] = 'SUBJECT';
+					$aImapSearchResult[] = $sValue;
+
+					// REPLY-TO
+					$aImapSearchResult[] = 'HEADER "reply-to"';
+					$aImapSearchResult[] = $sValue;
+
+					$aImapSearchResult[] = 'HEADER "X-Project-Name"';
+					$aImapSearchResult[] = $sValue;
+
+					$aImapSearchResult[] = 'HEADER "X-Project-ID"';
+					$aImapSearchResult[] = $sValue;
+
+					$aImapSearchResult[] = 'HEADER "X-Project-Builder"';
+					$aImapSearchResult[] = $sValue;
+
+					$aImapSearchResult[] = 'HEADER "X-Generated-Mail-Id"';
 					$aImapSearchResult[] = $sValue;
 				}
 				else
@@ -2561,8 +2581,12 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 							$sValue = $this->_escapeSearchString($oImapClient, $sEmail);
 
 							//$aImapSearchResult[] = 'OR OR OR'; //and - all matches in message
+							$aImapSearchResult[] = 'OR';
 							$aImapSearchResult[] = 'FROM';
 							$aImapSearchResult[] = $sValue;
+    						$aImapSearchResult[] = 'HEADER "reply-to"';
+							$aImapSearchResult[] = $sValue;
+
 							$aImapSearchResult[] = 'TO';
 							$aImapSearchResult[] = $sValue;
 							$aImapSearchResult[] = 'CC';
@@ -2600,7 +2624,11 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 					switch ($sName)
 					{
 						case 'FROM':
+							$aImapSearchResult[] = 'OR';
 							$aImapSearchResult[] = 'FROM';
+							$aImapSearchResult[] = $sValue;
+
+							$aImapSearchResult[] = 'HEADER "reply-to"';
 							$aImapSearchResult[] = $sValue;
 							break;
 						case 'SUBJECT':
@@ -2698,7 +2726,21 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 					}
 					else
 					{
+						$aImapSearchResult[] = 'OR OR OR OR';
+
 						$aImapSearchResult[] = 'BODY';
+						$aImapSearchResult[] = $this->_escapeSearchString($oImapClient, $sMainText);
+
+						$aImapSearchResult[] = 'HEADER "X-Project-Name"';
+						$aImapSearchResult[] = $this->_escapeSearchString($oImapClient, $sMainText);
+
+						$aImapSearchResult[] = 'HEADER "X-Project-ID"';
+						$aImapSearchResult[] = $this->_escapeSearchString($oImapClient, $sMainText);
+
+						$aImapSearchResult[] = 'HEADER "X-Project-Builder"';
+						$aImapSearchResult[] = $this->_escapeSearchString($oImapClient, $sMainText);
+
+						$aImapSearchResult[] = 'HEADER "X-Generated-Mail-Id"';
 						$aImapSearchResult[] = $this->_escapeSearchString($oImapClient, $sMainText);
 					}
 				}
