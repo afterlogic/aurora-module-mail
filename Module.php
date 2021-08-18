@@ -3702,7 +3702,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @return array | boolean
 	 * @throws \Aurora\System\Exceptions\ApiException
 	 */
-	public function RenameFolder($AccountID, $PrevFolderFullNameRaw, $NewFolderNameInUtf8)
+	public function RenameFolder($AccountID, $PrevFolderFullNameRaw, $NewFolderNameInUtf8, $ChangeParent, $NewParentFolder)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 
@@ -3715,7 +3715,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		self::checkAccess($oAccount);
 
-		$mResult = $this->getMailManager()->renameFolder($oAccount, $PrevFolderFullNameRaw, $NewFolderNameInUtf8);
+		$mResult = $this->getMailManager()->renameFolder($oAccount, $PrevFolderFullNameRaw, $NewFolderNameInUtf8, $ChangeParent, $NewParentFolder);
 
 		return (0 < \strlen($mResult) ? array(
 			'FullName' => $mResult,
