@@ -1107,13 +1107,15 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount Account object.
 	 * @param string $sPrevFolderFullNameRaw Raw full name of the folder.
 	 * @param string $sNewTopFolderNameInUtf8 = ''. New name for the folder in utf8.
+	 * @param bool $bChangeParent = false
+	 * @param string $sNewParentFolder = ''
 	 *
 	 * @return string
 	 *
 	 * @throws \Aurora\System\Exceptions\InvalidArgumentException
 	 * @throws \Aurora\System\Exceptions\BaseException
 	 */
-	public function renameFolder($oAccount, $sPrevFolderFullNameRaw, $sNewTopFolderNameInUtf8)
+	public function renameFolder($oAccount, $sPrevFolderFullNameRaw, $sNewTopFolderNameInUtf8, $bChangeParent, $sNewParentFolder)
 	{
 		$sNewTopFolderNameInUtf8 = trim($sNewTopFolderNameInUtf8);
 		if (0 === strlen($sPrevFolderFullNameRaw) || 0 === strlen($sNewTopFolderNameInUtf8))
@@ -1151,7 +1153,17 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			throw new \Aurora\Modules\Mail\Exceptions\Exception(\Aurora\Modules\Mail\Enums\ErrorCodes::FolderNameContainsDelimiter);
 		}
 
-		$sNewFolderFullNameRaw = $sFolderParentFullNameRaw.$sNewFolderFullNameRaw;
+		if ($bChangeParent)
+		{
+			if (!empty($sNewParentFolder))
+			{
+				$sNewFolderFullNameRaw = $sNewParentFolder . $sDelimiter . $sNewFolderFullNameRaw;
+			}
+		}
+		else
+		{
+			$sNewFolderFullNameRaw = $sFolderParentFullNameRaw.$sNewFolderFullNameRaw;
+		}
 
 		$oImapClient->FolderRename($sPrevFolderFullNameRaw, $sNewFolderFullNameRaw);
 
