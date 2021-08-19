@@ -8,6 +8,9 @@ class SystemFolder extends Model
 {
     protected $table = 'mail_system_folders';
 
+    protected $foreignModel = 'Aurora\Modules\Mail\Models\MailAccount';
+	protected $foreignModelIdColumn = 'IdAccount'; // Column that refers to an external table
+
     /**
      * The attributes that are mass assignable.
      *

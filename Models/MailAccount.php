@@ -12,6 +12,8 @@ class MailAccount extends Model
      *
      * @var array
      */
+    protected $foreignModel = 'Aurora\Modules\Core\Models\User';
+    protected $foreignModelIdColumn = 'IdUser'; // Column that refers to an external table
     protected $fillable = [
         'Id',
         'IsDisabled',

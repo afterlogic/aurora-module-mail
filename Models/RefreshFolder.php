@@ -7,6 +7,10 @@ use \Aurora\System\Classes\Model;
 class RefreshFolder extends Model
 {
     protected $table = 'mail_refresh_folders';    
+
+	protected $foreignModel = 'Aurora\Modules\Mail\Models\MailAccount';
+	protected $foreignModelIdColumn = 'IdAccount'; // Column that refers to an external table
+    
     /**
      * The attributes that are mass assignable.
      *

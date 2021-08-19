@@ -8,6 +8,9 @@ class Server extends Model
 {
     protected $table = 'mail_servers';    
 
+    protected $foreignModel = 'Aurora\Modules\Core\Models\Tenant';
+	protected $foreignModelIdColumn = 'TenantId'; // Column that refers to an external table
+
     /**
      * The attributes that are mass assignable.
      *

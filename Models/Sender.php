@@ -7,6 +7,10 @@ use \Aurora\System\Classes\Model;
 class Sender extends Model
 {
     protected $table = 'mail_trusted_senders';
+
+	protected $foreignModel = 'Aurora\Modules\Core\Models\User';
+	protected $foreignModelIdColumn = 'IdUser'; // Column that refers to an external table
+
     /**
      * The attributes that are mass assignable.
      *
