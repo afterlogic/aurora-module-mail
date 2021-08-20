@@ -3,12 +3,13 @@
 namespace Aurora\Modules\Mail\Models;
 
 use \Aurora\System\Classes\Model;
+use Aurora\Modules\Mail\Models\MailAccount;
 
 class SystemFolder extends Model
 {
     protected $table = 'mail_system_folders';
 
-    protected $foreignModel = 'Aurora\Modules\Mail\Models\MailAccount';
+    protected $foreignModel = MailAccount::class;
 	protected $foreignModelIdColumn = 'IdAccount'; // Column that refers to an external table
 
     /**

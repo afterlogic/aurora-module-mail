@@ -4,6 +4,7 @@ namespace Aurora\Modules\Mail\Models;
 
 use Aurora\Modules\Contacts\Models\Group;
 use \Aurora\System\Classes\Model;
+use Aurora\Modules\Core\Models\User;
 
 class MailAccount extends Model
 {
@@ -12,7 +13,7 @@ class MailAccount extends Model
      *
      * @var array
      */
-    protected $foreignModel = 'Aurora\Modules\Core\Models\User';
+    protected $foreignModel = User::class;
     protected $foreignModelIdColumn = 'IdUser'; // Column that refers to an external table
     protected $fillable = [
         'Id',

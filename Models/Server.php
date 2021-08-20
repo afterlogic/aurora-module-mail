@@ -3,12 +3,13 @@
 namespace Aurora\Modules\Mail\Models;
 
 use \Aurora\System\Classes\Model;
+use Aurora\Modules\Core\Models\Tenant;
 
 class Server extends Model
 {
     protected $table = 'mail_servers';    
 
-    protected $foreignModel = 'Aurora\Modules\Core\Models\Tenant';
+    protected $foreignModel = Tenant::class;
 	protected $foreignModelIdColumn = 'TenantId'; // Column that refers to an external table
 
     /**

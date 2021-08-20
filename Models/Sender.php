@@ -3,12 +3,13 @@
 namespace Aurora\Modules\Mail\Models;
 
 use \Aurora\System\Classes\Model;
+use Aurora\Modules\Core\Models\User;
 
 class Sender extends Model
 {
     protected $table = 'mail_trusted_senders';
 
-	protected $foreignModel = 'Aurora\Modules\Core\Models\User';
+	protected $foreignModel = User::class;
 	protected $foreignModelIdColumn = 'IdUser'; // Column that refers to an external table
 
     /**
