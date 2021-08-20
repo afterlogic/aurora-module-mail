@@ -6154,6 +6154,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function onBeforeDeleteUser($aArgs, &$mResult)
 	{
+		$mResult = $this->getIdentitiesManager()->GetIdentitiesByUserId($aArgs["UserId"]);
+
+		foreach($mResult as $oItem)
+		{
+			$this->getIdentitiesManager()->deleteIdentity($oItem->Id);
+		}
+
 		$mResult = $this->getAccountsManager()->getUserAccounts($aArgs["UserId"]);
 
 		foreach($mResult as $oItem)

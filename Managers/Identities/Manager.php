@@ -78,6 +78,27 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		
 		return $oIdentity;
 	}
+
+		/**
+	 * @param int $iId
+	 * @return boolean
+	 */
+	public function GetIdentitiesByUserId($UserId)
+	{
+		$oIdentity = false;
+		
+		try
+		{
+			$oIdentity = Identity::where('IdUser', $UserId)->get();
+		}
+		catch (\Aurora\System\Exceptions\BaseException $oException)
+		{
+			$oIdentity = false;
+			$this->setLastException($oException);
+		}
+		
+		return $oIdentity;
+	}
 	
 	/**
 	 * @param int $iId
