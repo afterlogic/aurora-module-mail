@@ -2,15 +2,16 @@
 
 namespace Aurora\Modules\Mail\Models;
 
-use \Aurora\System\Classes\Model;
 use Aurora\Modules\Core\Models\Tenant;
+use Aurora\Modules\Mail\Models\MailAccount;
+use \Aurora\System\Classes\Model;
 
 class Server extends Model
 {
-    protected $table = 'mail_servers';    
+    protected $table = 'mail_servers';
 
     protected $foreignModel = Tenant::class;
-	protected $foreignModelIdColumn = 'TenantId'; // Column that refers to an external table
+    protected $foreignModelIdColumn = 'TenantId'; // Column that refers to an external table
 
     /**
      * The attributes that are mass assignable.
@@ -47,11 +48,11 @@ class Server extends Model
         'ExternalAccessSmtpServer',
         'ExternalAccessSmtpPort',
         'ExternalAccessSmtpAlterPort',
-        
+
         'OAuthEnable',
         'OAuthName',
         'OAuthType',
-        'OAuthIconUrl'
+        'OAuthIconUrl',
     ];
 
     /**
@@ -70,7 +71,7 @@ class Server extends Model
         'UseFullEmailAddressAsLogin' => 'boolean',
         'SetExternalAccessServers' => 'boolean',
         'OAuthEnable' => 'boolean',
-        'SmtpPassword' => \Aurora\System\Casts\Encrypt::class
+        'SmtpPassword' => \Aurora\System\Casts\Encrypt::class,
     ];
 
     protected $attributes = [
@@ -78,14 +79,16 @@ class Server extends Model
 
     protected $appends = [
         'EntityId',
-        'ServerId'
+        'ServerId',
     ];
 
-    public function getServerIdAttribute() {
+    public function getServerIdAttribute()
+    {
         return $this->Id;
     }
 
-    public function MailAccounts() {
+    public function MailAccounts()
+    {
         return $this->hasMany(MailAccount::class, 'ServerId', 'Id');
     }
 
@@ -101,5 +104,29 @@ class Server extends Model
             $aResponse
         );
         return $aResponse;
+    }
+
+    public function getOrphanIds()
+    {
+        if (!$this->foreignModel || !$this->foreignModelIdColumn) {
+            return ['status' => -1, 'message' => 'Foreign fields doesnt exist'];
+        }
+        $tableName = $this->getTable();
+        $foreignObject = new $this->foreignModel;
+        $foreignTable = $foreignObject->getTable();
+        $foreignPK = $foreignObject->primaryKey;
+
+        // DB::enableQueryLog();
+        $oAccount = new MailAccount;
+        $accountTable = $oAccount->getTable();
+        $serversWithoutAccount = self::leftJoin($accountTable, "$accountTable.ServerId", '=', "$tableName.$this->primaryKey")->where('OwnerType', '=', 'account')->whereNull("$accountTable.Id")->groupBy("$tableName.$this->primaryKey")->pluck("$tableName.$this->primaryKey")->all();
+        $orphanIds = self::where('OwnerType', '=', 'tenant')->pluck($this->primaryKey)->diff(
+            self::leftJoin($foreignTable, "$tableName.$this->foreignModelIdColumn", '=', "$foreignTable.$foreignPK")->whereNotNull("$foreignTable.$foreignPK")->pluck("$tableName.$this->primaryKey")
+        )->union($serversWithoutAccount)->all();
+        $message = $orphanIds ? "$tableName table has orphans." : "Orphans didnt found.";
+        $oResult = ['status' => $orphanIds ? 1 : 0, 'message' => $message, 'orphansIds' => $orphanIds];
+        // dd(DB::getQueryLog());
+
+        return $oResult;
     }
 }
