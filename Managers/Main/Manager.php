@@ -341,7 +341,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		{
 			foreach ($aSystemFolders as $oSystemFolder)
 			{
-				$bResult = $bResult && $oSystemFolder->detete();
+				$bResult = $oSystemFolder->delete();
 			}
 		}
 
