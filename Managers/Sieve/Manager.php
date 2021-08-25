@@ -226,7 +226,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		return true;
 	}
 	
-	public function createFilterInstance(\Aurora\Modules\Mail\Classes\Account $oAccount, $aData)
+	public function createFilterInstance(\Aurora\Modules\Mail\Models\MailAccount $oAccount, $aData)
 	{
 		$oFilter = null;
 		
