@@ -1077,7 +1077,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @return boolean
 	 * @throws \Aurora\System\Exceptions\ApiException
 	 */
-	public function UpdateAccount($AccountID, $UseToAuthorize = null, $Email = null, $FriendlyName = null, $IncomingLogin = null,
+	public function UpdateAccount($AccountID, $UseToAuthorize = null, $Email = null, $FriendlyName = null, $MailboxName = null, $IncomingLogin = null,
 			$IncomingPassword = null, $Server = null, $UseThreading = null, $SaveRepliesToCurrFolder = null)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
@@ -1101,6 +1101,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 				if ($FriendlyName !== null)
 				{
 					$oAccount->FriendlyName = $FriendlyName;
+				}
+				if ($MailboxName !== null)
+				{
+					$oAccount->MailboxName = $MailboxName;
 				}
 				if (!empty($IncomingLogin))
 				{

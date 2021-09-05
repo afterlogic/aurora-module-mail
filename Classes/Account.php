@@ -25,6 +25,7 @@ class Account extends \Aurora\System\Classes\AbstractAccount
 		'UseToAuthorize'			=> array('bool', false, true),
 		'Email'						=> array('string', '', true),
 		'FriendlyName'				=> array('string', ''),
+		'MailboxName'				=> array('string', ''),
 		'IncomingLogin'				=> array('string', ''),
 		'IncomingPassword'			=> array('encrypted', ''),
 		'UseSignature'				=> array('bool', false),
