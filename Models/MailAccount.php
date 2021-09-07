@@ -127,6 +127,10 @@ class MailAccount extends Model
         $aResponse['AllowForward'] = false;
         $aResponse['AllowAutoresponder'] = false;
 
+        if ($aResponse['Signature'] === null) {
+            $aResponse['Signature'] = '';
+        }
+
         $oServer = $this->getServer();
         if ($oServer instanceof \Aurora\System\Classes\Model)
         {
