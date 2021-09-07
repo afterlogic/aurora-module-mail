@@ -50,8 +50,9 @@ class MailAccount extends Model
         'IsDisabled' => 'boolean',
         'UseToAuthorize' => 'boolean',
         'IncludeInUnifiedMailbox' => 'boolean',
-        'UseSignature' => 'boolean'
-
+        'UseSignature' => 'boolean',
+        'ShowUnifiedMailboxLabel' => 'boolean',
+        'UseThreading' => 'boolean'
     ];
 
     protected $attributes = [
