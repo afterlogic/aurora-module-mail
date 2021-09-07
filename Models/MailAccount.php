@@ -52,7 +52,8 @@ class MailAccount extends Model
         'IncludeInUnifiedMailbox' => 'boolean',
         'UseSignature' => 'boolean',
         'ShowUnifiedMailboxLabel' => 'boolean',
-        'UseThreading' => 'boolean'
+        'UseThreading' => 'boolean',
+        'SaveRepliesToCurrFolder' => 'boolean'
     ];
 
     protected $attributes = [
