@@ -470,7 +470,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 	public function GetEntitySpaceLimits($Type, $UserId = null, $TenantId = null)
 	{
-		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::TenantAdmin);
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		$oAuthenticatedUser = \Aurora\System\Api::getAuthenticatedUser();
 
 		if ($Type === 'User' && is_int($UserId) && $UserId > 0)
@@ -492,7 +492,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$oTenant = \Aurora\System\Api::getTenantById($TenantId);
 			if ($oTenant instanceof \Aurora\Modules\Core\Classes\Tenant && $oAuthenticatedUser instanceof \Aurora\Modules\Core\Classes\User &&
 					($oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin ||
-					$oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::TenantAdmin && $oAuthenticatedUser->IdTenant === $TenantId))
+					$oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::TenantAdmin && $oAuthenticatedUser->IdTenant === $TenantId ||
+					$oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::NormalUser && $oAuthenticatedUser->IdTenant === $TenantId))
 			{
 				return [
 					'TenantSpaceLimitMb' => $oTenant->{self::GetName() . '::TenantSpaceLimitMb'},
