@@ -869,6 +869,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		self::checkAccess(null, $UserId);
 
 		$oAccount = $this->GetAccountByEmail($Email, $UserId);
+		$oServer = false;
 
 		if ($oAccount instanceof \Aurora\Modules\Mail\Models\MailAccount)
 		{
@@ -900,7 +901,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 				if ($Server === null)
 				{
-					$aServerResult = self::Decorator()->GetMailServerByDomain($sDomain);
+					$aServerResult = self::Decorator()->GetMailServerByDomain($sDomain, /*AllowWildcardDomain*/true);
 					if (isset($aServerResult['Server']))
 					{
 						$oServer = $aServerResult['Server'];
@@ -918,9 +919,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 				if ($iServerId > 0) {
                     $oServer = $this->getServersManager()->getServer($iServerId);
                 }
-                $oAccount->Server()->associate($oServer);
+
 				if ($oServer)
 				{
+					$oAccount->Server()->associate($oServer);
 					$oAccount->UseThreading = $oServer->EnableThreading;
 				}
 
