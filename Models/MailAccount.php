@@ -127,7 +127,7 @@ class MailAccount extends Model
         $aResponse['AllowForward'] = false;
         $aResponse['AllowAutoresponder'] = false;
 
-        if ($aResponse['Signature'] === null) {
+        if (!isset($aResponse['Signature']) || $aResponse['Signature'] === null) {
             $aResponse['Signature'] = '';
         }
 
