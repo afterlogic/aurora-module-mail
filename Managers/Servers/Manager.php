@@ -9,7 +9,7 @@ namespace Aurora\Modules\Mail\Managers\Servers;
 
 use Aurora\Modules\Mail\Models\Server;
 use Aurora\System\Enums\SortOrder;
-use Illuminate\Database\Query\Builder;
+use Illuminate\Database\Eloquent\Builder;
 
 /**
  * @license https://www.gnu.org/licenses/agpl-3.0.html AGPL-3.0
