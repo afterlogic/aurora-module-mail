@@ -162,10 +162,14 @@ class MailAccount extends Model
         return $this->Server;
     }
 
-    public function getLogin()
-    {
-        return $this->IncomingLogin;
-    }
+	public function getLogin()
+	{
+		$oServer = $this->getServer();
+		if ($oServer && !$oServer->UseFullEmailAddressAsLogin) {
+			return $this->Email;
+		}
+		return $this->IncomingLogin;
+	}
 
     public function Server() {
         return $this->belongsTo(Server::class, 'ServerId', 'Id');
