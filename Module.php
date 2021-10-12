@@ -6881,6 +6881,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$sContentTypeIn = (string) (isset($aValues['MimeType']) ? $aValues['MimeType'] : '');
 		$sFileNameIn = (string) (isset($aValues['FileName']) ? $aValues['FileName'] : '');
 
+		// SVG files should not be viewed because they may contain JS
+		if (!$bDownload && strtolower(pathinfo($sFileNameIn, PATHINFO_EXTENSION)) === 'svg')
+		{
+			$this->oHttp->StatusHeader(403);
+			exit();
+		}
+
 		$bCache = true;
 		if ($bCache && 0 < \strlen($sFolder) && 0 < $iUid)
 		{
