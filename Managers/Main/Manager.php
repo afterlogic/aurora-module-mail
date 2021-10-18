@@ -556,11 +556,10 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 *
 	 * @return \Aurora\Modules\Mail\Classes\FolderCollection Collection of folders.
 	 */
-	public function getFolders($oAccount, $bCreateUnExistenSystemFolders = true)
+	public function getFolders($oAccount, $bCreateUnExistenSystemFolders = true, $sParent = '')
 	{
 		$oFolderCollection = false;
 
-		$sParent = '';
 		$sListPattern = '*';
 
 		$oImapClient =& $this->_getImapClient($oAccount);
@@ -1787,6 +1786,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			$bUseThreadingIfSupported = $oImapClient->IsSupported('THREAD=REFS') || $oImapClient->IsSupported('THREAD=REFERENCES') || $oImapClient->IsSupported('THREAD=ORDEREDSUBJECT');
 		}
 
+		$iMessageResultCount = 0;
 		if ($iMessageCount > 0)
 		{
 			$bIndexAsUid = true;
@@ -1821,7 +1821,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
 					$sCutedSearch = trim(preg_replace('/attach:([^\s]+)/', '', $sCutedSearch));
 
-					$fAttachmentSearchCallback = function ($oBodyStructure, $sSize, $sInternalDate, $aFlagsLower, $sUid) use ($sFolderFullNameRaw, $sAttachmentRegs) {
+					$fAttachmentSearchCallback = function ($oBodyStructure, $sSize, $sInternalDate, $aFlagsLower, $sUid) use ($sFolderName, $sAttachmentRegs) {
 
 						$bResult = false;
 						if ($oBodyStructure)
@@ -1833,7 +1833,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 								foreach ($aAttachmentsParts as /* @var $oAttachmentItem \MailSo\Imap\BodyStructure */ $oAttachmentItem)
 								{
 									$oAttachments->Add(
-										\Aurora\Modules\Mail\Classes\Attachment::createInstance($sFolderFullNameRaw, $sUid, $oAttachmentItem)
+										\Aurora\Modules\Mail\Classes\Attachment::createInstance($sFolderName, $sUid, $oAttachmentItem)
 									);
 								}
 
@@ -1897,14 +1897,14 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 					if ($bSearchAttachments && is_array($aIndexOrUids) && 0 < count($aIndexOrUids))
 					{
 						$aIndexOrUids = $this->_doSpecialUidsSearch(
-							$oImapClient, $fAttachmentSearchCallback, $sFolderFullNameRaw, $aIndexOrUids, $iOffset, $iLimit);
+							$oImapClient, $fAttachmentSearchCallback, $sFolderName, $aIndexOrUids);
 					}
 				}
 				else if ($bSearchAttachments)
 				{
 					$bIndexAsUid = true;
 					$aIndexOrUids = $this->_doSpecialIndexSearch(
-						$oImapClient, $fAttachmentSearchCallback, $sFolderFullNameRaw, $iOffset, $iLimit);
+						$oImapClient, $fAttachmentSearchCallback, $sFolderName);
 				}
 			}
 			else if ($bUseThreadingIfSupported && 1 < $iMessageCount)
@@ -3585,16 +3585,21 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 							{
 								if (isset($aFetchIndexArray[$iFUid]))
 								{
-									$oMailMessage = \Aurora\Modules\Mail\Classes\Message::createInstance(
-										$oMessageCollection->FolderName, $aFetchIndexArray[$iFUid]);
+									try {
+										$oMailMessage = \Aurora\Modules\Mail\Classes\Message::createInstance(
+											$oMessageCollection->FolderName, $aFetchIndexArray[$iFUid]
+										);
 
-									if (!$bIndexAsUid)
-									{
-										$oMessageCollection->Uids[] = $oMailMessage->getUid();
+										if (!$bIndexAsUid)
+										{
+											$oMessageCollection->Uids[] = $oMailMessage->getUid();
+										}
+
+										$oMessageCollection->Add($oMailMessage);
+										unset($oMailMessage);
+									} catch (\Exception $oEx) {
+										$oEx;
 									}
-
-									$oMessageCollection->Add($oMailMessage);
-									unset($oMailMessage);
 								}
 							}
 						}
