@@ -8,7 +8,7 @@
 namespace Aurora\Modules\Mail\Managers\Main;
 
 use Aurora\Modules\Mail\Models\RefreshFolder;
-use Aurora\Modules\Mail\Models\Sender;
+use Aurora\Modules\Mail\Models\TrustedSender;
 use Aurora\Modules\Mail\Models\SystemFolder;
 use Aurora\System\Exceptions;
 
@@ -518,7 +518,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
 	public function isSafetySender($iIdUser, $sEmail)
 	{
-        $bResult = Sender::where(array(
+        $bResult = TrustedSender::where(array(
             'IdUser' => $iIdUser,
             'Email' => $sEmail
         ))->exists();
@@ -531,7 +531,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		$bResult = true;
 		if (!$this->isSafetySender($iIdUser, $sEmail))
 		{
-			$oEntity = new Sender();
+			$oEntity = new TrustedSender();
 
 			$oEntity->IdUser = $iIdUser;
 			$oEntity->Email = $sEmail;

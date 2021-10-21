@@ -5,7 +5,7 @@ namespace Aurora\Modules\Mail\Models;
 use \Aurora\System\Classes\Model;
 use Aurora\Modules\Core\Models\User;
 
-class Sender extends Model
+class TrustedSender extends Model
 {
     protected $table = 'mail_trusted_senders';
 
