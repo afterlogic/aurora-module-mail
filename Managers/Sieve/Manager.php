@@ -128,20 +128,23 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		$sSubject = str_replace(array("\r", "\n", "\t"), ' ', trim($sSubject));
 		$sText = str_replace(array("\r"), '', trim($sText));
 
-		$sData = '#data='.($bEnabled ? '1' : '0').'~'.base64_encode($sSubject."\x0".$sText)."\n";
+		$sData = '';
+		if (!empty($sSubject) || !empty($sText)) {
+			$sData = '#data='.($bEnabled ? '1' : '0').'~'.base64_encode($sSubject."\x0".$sText)."\n";
 
-		$sSubject = addslashes($sSubject);
-		$sText = addslashes($sText);
+			$sSubject = addslashes($sSubject);
+			$sText = addslashes($sText);
 
-		$sScriptText = 'vacation :days 1 :subject "'.$this->_quoteValue($sSubject).'" "'.$this->_quoteValue($sText).'";';
+			$sScriptText = 'vacation :days 1 :subject "'.$this->_quoteValue($sSubject).'" "'.$this->_quoteValue($sText).'";';
 
-		if ($bEnabled)
-		{
-			$sData .= $sScriptText;
-		}
-		else
-		{
-			$sData .= '#'.implode("\n#", explode("\n", $sScriptText));
+			if ($bEnabled)
+			{
+				$sData .= $sScriptText;
+			}
+			else
+			{
+				$sData .= '#'.implode("\n#", explode("\n", $sScriptText));
+			}
 		}
 
 		$this->_parseSectionsData($oAccount);
@@ -211,10 +214,12 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 */
 	public function setForward($oAccount, $sForward, $bEnabled = true)
 	{
-		$sData =
-			'#data='.($bEnabled ? '1' : '0').'~'.base64_encode($sForward)."\n".
-			($bEnabled ? '' : '#').'redirect :copy "'.$this->_quoteValue($sForward).'";'."\n";
-
+		$sData = '';
+		if (!empty($sForward)) {
+			$sData =
+				'#data='.($bEnabled ? '1' : '0').'~'.base64_encode($sForward)."\n".
+				($bEnabled ? '' : '#').'redirect :copy "'.$this->_quoteValue($sForward).'";'."\n";
+		}
 		$this->_parseSectionsData($oAccount);
 		$this->_setSectionData('forward', $sData);
 

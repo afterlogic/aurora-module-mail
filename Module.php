@@ -5987,7 +5987,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		self::checkAccess($oAccount);
 
-		if ($oAccount && $Email !== "")
+		if ($oAccount)
 		{
 			$mResult = $this->getSieveManager()->setForward($oAccount, $Email, $Enable);
 		}
@@ -6136,7 +6136,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		self::checkAccess($oAccount);
 
-		if ($oAccount && ($Subject !== "" || $Message !== ""))
+		if ($oAccount)
 		{
 			$mResult = $this->getSieveManager()->setAutoresponder($oAccount, $Subject, $Message, $Enable);
 		}
