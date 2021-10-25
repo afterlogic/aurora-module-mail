@@ -4448,7 +4448,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @return boolean
 	 * @throws \System\Exceptions\AuroraApiException
 	 */
-	public function SendMessage($AccountID, $Fetcher = null, $Alias = null, $IdId = 0,
+	public function SendMessage($AccountID, $Fetcher = null, $Alias = null, $IdentityID = 0,
 			$DraftInfo = [], $DraftUid = "", $To = "", $Cc = "", $Bcc = "", $Recipients = array(),
 			$Subject = "", $Text = "", $IsHtml = false, $Importance = \MailSo\Mime\Enumerations\MessagePriority::NORMAL,
 			$SendReadingConfirmation = false, $Attachments = array(), $InReplyTo = "",
@@ -4462,7 +4462,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		self::checkAccess($oAccount);
 
-		$oIdentity = $IdId !== 0 ? $this->getIdentitiesManager()->getIdentity($IdId) : null;
+		$oIdentity = $IdentityID !== 0 ? $this->getIdentitiesManager()->getIdentity($IdentityID) : null;
 
 		$oMessage = self::Decorator()->BuildMessage($oAccount, $To, $Cc, $Bcc,
 			$Subject, $IsHtml, $Text, $Attachments, $DraftInfo, $InReplyTo, $References, $Importance,
