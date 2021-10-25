@@ -8,6 +8,7 @@
 namespace Aurora\Modules\Mail;
 
 use Aurora\System\Classes\Model;
+use Aurora\System\Notifications;
 
 /**
  * @license https://www.gnu.org/licenses/agpl-3.0.html AGPL-3.0
@@ -6135,6 +6136,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$oAccount = $this->getAccountsManager()->getAccountById((int) $AccountID);
 
 		self::checkAccess($oAccount);
+
+		if ($Enable && \trim($Subject) === "" && \trim($Message) === "")
+		{
+			throw new \Aurora\System\Exceptions\ApiException(Notifications::InvalidInputParameter);
+		}
 
 		if ($oAccount)
 		{
