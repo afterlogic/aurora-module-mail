@@ -2227,11 +2227,19 @@ class Module extends \Aurora\System\Module\AbstractModule
 				$Folder = '';
 			}
 			$oFoldersColl = $this->getMailManager()->getFolders($oAccount, false, $Folder);
-			$oFoldersColl->foreachWithSubFolders(function ($oFolder) use (&$aFolders) {
+			
+			$sAllFolderRawFullName = '';
+			$oFoldersColl->foreachWithSubFolders(function ($oFolder) use (&$aFolders, &$sAllFolderRawFullName) {
 				if ($oFolder->isSubscribed() && $oFolder->isSelectable()) {
 					$aFolders[] = $oFolder->getRawFullName();
+					if ($oFolder->getFolderXListType() === \Aurora\Modules\Mail\Enums\FolderType::All) {
+						$sAllFolderRawFullName = $oFolder->getRawFullName();
+					}
 				}
 			});
+			if (!empty($sAllFolderRawFullName)) {
+				$aFolders = [$sAllFolderRawFullName];
+			}
 		}
 
 		return $aFolders;

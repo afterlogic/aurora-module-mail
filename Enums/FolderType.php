@@ -26,6 +26,7 @@ class FolderType extends \Aurora\System\Enums\AbstractEnumeration
 	const Template = 8;
 	const System = 9;
 	const Custom = 10;
+	const All = 11;
 
 	/**
 	 * @var array
@@ -38,6 +39,7 @@ class FolderType extends \Aurora\System\Enums\AbstractEnumeration
 		'Trash' => self::Trash,
 		'Quarantine' => self::Virus,
 		'System' => self::System,
-		'Custom' => self::Custom
+		'Custom' => self::Custom,
+		'All' => self::All
 	);
 }
