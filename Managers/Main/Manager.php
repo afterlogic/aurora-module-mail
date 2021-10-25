@@ -10,6 +10,7 @@ namespace Aurora\Modules\Mail\Managers\Main;
 use Aurora\Modules\Mail\Models\RefreshFolder;
 use Aurora\Modules\Mail\Models\TrustedSender;
 use Aurora\Modules\Mail\Models\SystemFolder;
+use Aurora\Modules\Mail\Module;
 use Aurora\System\Exceptions;
 
 /**
@@ -1339,7 +1340,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 *
 	 * @throws \Aurora\System\Exceptions\InvalidArgumentException
 	 */
-	public function sendMessage($oAccount, $oMessage, $oFetcher = null, $sSentFolder = '', $sDraftFolder = '', $sDraftUid = '', $aRecipients = array())
+	public function sendMessage($oAccount, $oMessage, $oFetcher = null, $oIdentity = null, $sSentFolder = '', $sDraftFolder = '', $sDraftUid = '', $aRecipients = array())
 	{
 		if (!$oAccount || !$oMessage)
 		{
@@ -1427,7 +1428,14 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 						$oSmtpClient->Login($oServer->SmtpLogin, $oServer->SmtpPassword);
 					}
 
-					$oSmtpClient->MailFrom($oFetcher ? $oFetcher->Email : $oAccount->Email, (string) $iMessageStreamSize);
+					if ($oIdentity && Module::getInstance()->getConfig('UseIdentityEmailAsSmtpMailFrom', true)) {
+						$sMailFrom = $oIdentity->Email;
+					} else if ($oFetcher) {
+						$sMailFrom = $oFetcher->Email;
+					} else {
+						$sMailFrom = $oAccount->Email;
+					}
+					$oSmtpClient->MailFrom($sMailFrom, (string) $iMessageStreamSize);
 
 					$aRcpt =& $oRcpt->GetAsArray();
 

@@ -4470,7 +4470,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		if ($oMessage)
 		{
-			$mResult = $this->getMailManager()->sendMessage($oAccount, $oMessage, $Fetcher, $SentFolder, $DraftFolder, $DraftUid, $Recipients);
+			$mResult = $this->getMailManager()->sendMessage($oAccount, $oMessage, $Fetcher, $oIdentity, $SentFolder, $DraftFolder, $DraftUid, $Recipients);
 
 			if ($mResult)
 			{
