@@ -4237,7 +4237,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **AccountID** *int* Account identifier.<br>
 	 * &emsp; **FetcherID** *int* Fetcher identifier.<br>
 	 * &emsp; **AliasID** *int* Alias identifier.<br>
-	 * &emsp; **IdId** *int* Identity identifier.<br>
+	 * &emsp; **IdentityID** *int* Identity identifier.<br>
 	 * &emsp; **DraftInfo** *array* Contains information about the original message which is replied or forwarded: message type (reply/forward), UID and folder.<br>
 	 * &emsp; **DraftUid** *string* Uid of message to save in Drafts folder.<br>
 	 * &emsp; **To** *string* Message recipients.<br>
@@ -4259,7 +4259,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'SaveMessage',
-	 *	Parameters: '{ "AccountID": 12, "FetcherID": 0, "AliasID": 0, "IdId": 14, "DraftInfo": [], "DraftUid": "",
+	 *	Parameters: '{ "AccountID": 12, "FetcherID": 0, "AliasID": 0, "IdentityID": 14, "DraftInfo": [], "DraftUid": "",
 	 * "To": "test@email", "Cc": "", "Bcc": "", "Subject": "", "Text": "text_value", "IsHtml": true,
 	 * "Importance": 3, "SendReadingConfirmation": false, "Attachments": [], "InReplyTo": "", "References": "",
 	 * "Sensitivity": 0, "DraftFolder": "Drafts" }'
@@ -4291,7 +4291,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param int $AccountID Account identifier.
 	 * @param int $Fetcher Fetcher object is filled in by subscription. Webclient sends FetcherID parameter.
 	 * @param int $Alias Alias object is filled in by subscription. Webclient sends AliasID parameter.
-	 * @param int $IdId Identity identifier.
+	 * @param int $IdentityID Identity identifier.
 	 * @param array $DraftInfo Contains information about the original message which is replied or forwarded: message type (reply/forward), UID and folder.
 	 * @param string $DraftUid Uid of message to save in Drafts folder.
 	 * @param string $To Message recipients.
@@ -4310,7 +4310,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @return boolean
 	 * @throws \System\Exceptions\AuroraApiException
 	 */
-	public function SaveMessage($AccountID, $Fetcher = null, $Alias = null, $IdId = 0,
+	public function SaveMessage($AccountID, $Fetcher = null, $Alias = null, $IdentityID = 0,
 			$DraftInfo = [], $DraftUid = "", $To = "", $Cc = "", $Bcc = "",
 			$Subject = "", $Text = "", $IsHtml = false, $Importance = \MailSo\Mime\Enumerations\MessagePriority::NORMAL,
 			$SendReadingConfirmation = false, $Attachments = array(), $InReplyTo = "",
@@ -4329,7 +4329,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
 		}
 
-		$oIdentity = $IdId !== 0 ? $this->getIdentitiesManager()->getIdentity($IdId) : null;
+		$oIdentity = $IdentityID !== 0 ? $this->getIdentitiesManager()->getIdentity($IdentityID) : null;
 
 		$oMessage = self::Decorator()->BuildMessage($oAccount, $To, $Cc, $Bcc,
 			$Subject, $IsHtml, $Text, $Attachments, $DraftInfo, $InReplyTo, $References, $Importance,
@@ -4368,7 +4368,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **AccountID** *int* Account identifier.<br>
 	 * &emsp; **FetcherID** *int* Fetcher identifier.<br>
 	 * &emsp; **AliasID** *int* Alias identifier.<br>
-	 * &emsp; **IdId** *int* Identity identifier.<br>
+	 * &emsp; **IdentityID** *int* Identity identifier.<br>
 	 * &emsp; **DraftInfo** *array* Contains information about the original message which is replied or forwarded: message type (reply/forward), UID and folder.<br>
 	 * &emsp; **DraftUid** *string* Uid of message to save in Drafts folder.<br>
 	 * &emsp; **To** *string* Message recipients.<br>
@@ -4393,7 +4393,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'SendMessage',
-	 *	Parameters: '{ "AccountID": 12, "FetcherID": 0, "AliasID": 0, "IdId": 14, "DraftInfo": [], "DraftUid": "",
+	 *	Parameters: '{ "AccountID": 12, "FetcherID": 0, "AliasID": 0, "IdentityID": 14, "DraftInfo": [], "DraftUid": "",
 	 * "To": "test@email", "Cc": "", "Bcc": "", "Subject": "", "Text": "text_value", "IsHtml": true,
 	 * "Importance": 3, "SendReadingConfirmation": false, "Attachments": [], "InReplyTo": "", "References": "",
 	 * "Sensitivity": 0, "SentFolder": "Sent", "DraftFolder": "Drafts", "ConfirmFolder": "", "ConfirmUid": "" }'
@@ -4425,7 +4425,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param int $AccountID Account identifier.
 	 * @param int $Fetcher Fetcher object is filled in by subscription. Webclient sends FetcherID parameter.
 	 * @param int $Alias Alias object is filled in by subscription. Webclient sends AliasID parameter.
-	 * @param int $IdId Identity identifier.
+	 * @param int $IdentityID Identity identifier.
 	 * @param array $DraftInfo Contains information about the original message which is replied or forwarded: message type (reply/forward), UID and folder.
 	 * @param string $DraftUid Uid of message to save in Drafts folder.
 	 * @param string $To Message recipients.
@@ -5034,14 +5034,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * &emsp; **AccountID** *int* Account identifier.<br>
 	 * &emsp; **UseSignature** *boolean* Indicates if signature should be used in outgoing mails.<br>
 	 * &emsp; **Signature** *string* Account or identity signature.<br>
-	 * &emsp; **IdId** *int* (optional) Identity identifier.<br>
+	 * &emsp; **IdentityID** *int* (optional) Identity identifier.<br>
 	 * }
 	 *
 	 * @apiParamExample {json} Request-Example:
 	 * {
 	 *	Module: 'Mail',
 	 *	Method: 'UpdateSignature',
-	 *	Parameters: '{ "AccountID": 12, "UseSignature": true, "Signature": "signature_value", "IdId": 14 }'
+	 *	Parameters: '{ "AccountID": 12, "UseSignature": true, "Signature": "signature_value", "IdentityID": 14 }'
 	 * }
 	 *
 	 * @apiSuccess {object[]} Result Array of response objects.
@@ -5070,11 +5070,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param int $AccountID Account identifier.
 	 * @param boolean $UseSignature Indicates if signature should be used in outgoing mails.
 	 * @param string $Signature Account or identity signature.
-	 * @param int $IdId Identity identifier.
+	 * @param int $IdentityId Identity identifier.
 	 * @return boolean
 	 * @throws \Aurora\System\Exceptions\ApiException
 	 */
-	public function UpdateSignature($AccountID, $UseSignature = null, $Signature = null, $IdId = null)
+	public function UpdateSignature($AccountID, $UseSignature = null, $Signature = null, $IdentityId = null)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 
@@ -5084,9 +5084,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 			self::checkAccess($oAccount);
 
-			if ($this->getConfig('AllowIdentities', false) && $IdId !== null)
+			if ($this->getConfig('AllowIdentities', false) && $IdentityId !== null)
 			{
-				return $this->getIdentitiesManager()->updateIdentitySignature($IdId, $UseSignature, $Signature);
+				return $this->getIdentitiesManager()->updateIdentitySignature($IdentityId, $UseSignature, $Signature);
 			}
 			else
 			{
