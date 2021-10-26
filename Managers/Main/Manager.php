@@ -2028,7 +2028,9 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		}
 
 		return [
-			'Count' => $iMessageResultCount,
+			'Count' => $oCurrentFolderInformation->Exists,
+			'ResultCount' => $iMessageResultCount,
+			'UnreadCount' => $oCurrentFolderInformation->Unread,
 			'Uids' => array_values($mResult)
 		];
 	}
