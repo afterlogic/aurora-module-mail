@@ -5655,7 +5655,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 				$oUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin)
 			)
 			{
-				if ($oAccount->getPassword() !== $CurrentPassword)
+				if ($oUser->Role !== \Aurora\System\Enums\UserRole::SuperAdmin && $oAccount->getPassword() !== $CurrentPassword)
 				{
 					\Aurora\System\Api::LogEvent('password-change-failed: ' . $oAccount->Email, self::GetName());
 					throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Exceptions\Errs::UserManager_AccountOldPasswordNotCorrect);
