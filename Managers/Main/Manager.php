@@ -2045,7 +2045,13 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			'ResultCount' => $iMessageResultCount,
 			'UnreadCount' => $oCurrentFolderInformation->Unread,
 			'Uids' => array_values($mResult),
-			'Uidnext' => $sStatusUidNext
+			'Uidnext' => $sStatusUidNext,
+			'FolderHash' => \Aurora\Modules\Mail\Classes\Utils::GenerateFolderHash(
+				$sFolderName, 
+				$oCurrentFolderInformation->Exists, 
+				$oCurrentFolderInformation->Unread, 
+				$sStatusUidNext
+			)
 		];
 	}
 

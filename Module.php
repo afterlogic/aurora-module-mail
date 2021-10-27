@@ -2286,6 +2286,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$iMessagesCount = 0;
 		$iMessagesResultCount = 0;
 		$iMessagesUnseenCount = 0;
+		$aFoldersHash = [];
 
 		$sSortBy = 'ARRIVAL';
 		$sSortOrder = $SortOrder === \Aurora\System\Enums\SortOrder::DESC ? 'REVERSE' : '';
@@ -2306,6 +2307,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$iMessagesCount += $aUnifiedInfo['Count'];
 			$iMessagesResultCount += $aUnifiedInfo['ResultCount'];
 			$iMessagesUnseenCount += $aUnifiedInfo['UnreadCount'];
+			$aFoldersHash[] = $sFolder . ':' . $aUnifiedInfo['FolderHash'];
 		}
 
 		// sort by time
@@ -2357,8 +2359,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 					}
 				});
 			}
-
-			$aFoldersHash[] = $sFolder . ':' . $oMessageCollection->FolderHash;
 
 			foreach ($oMessageCollection->New as $aNew) {
 				$aNew['Folder'] = $sFolder;
@@ -2461,6 +2461,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 					$iMessagesCount += (int) $aUnifiedInfo['Count'];
 					$iMessagesResultCount += $aUnifiedInfo['ResultCount'];
 					$iMessagesUnseenCount += $aUnifiedInfo['UnreadCount'];
+					$aFoldersHash[] = $oAccount->Id . ':' . $sFolder . ':' . $aUnifiedInfo['FolderHash'];
 				}
             }
 		}
@@ -2479,7 +2480,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		$aAllMessages = [];
 		$aNextUids = [];
-		$aFoldersHash = [];
 
 		$aInboxUidsNext = [];
 		if (!empty($InboxUidnext)) {
@@ -2515,7 +2515,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 					});
 				}
 				$sPrefix = $oAccount->Id . ':' . $sFolder . ':';
-				$aFoldersHash[] = $sPrefix . $oMessageCollection->FolderHash;
 
 				foreach ($oMessageCollection->New as $aNew) {
 					$aNew['AccountId'] = $oAccount->Id;
