@@ -325,6 +325,11 @@ class Folder
 				case in_array('\trash', $aFlags):
 					$iXListType = \Aurora\Modules\Mail\Enums\FolderType::Trash;
 					break;
+				case \in_array('\all', $aFlags):
+				case \in_array('\allmail', $aFlags):
+				case \in_array('\archive', $aFlags):
+					$iXListType = \Aurora\Modules\Mail\Enums\FolderType::All;
+					break;
 			}
 		}
 
