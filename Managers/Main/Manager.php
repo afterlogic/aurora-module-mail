@@ -1774,6 +1774,11 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		$iMessageCount = $oCurrentFolderInformation->Exists;
 		$mResult = array();
 
+		$sStatusUidNext = $oCurrentFolderInformation->Uidnext;
+		if (0 === strlen($sStatusUidNext)) {
+			$sStatusUidNext = '0';
+		}
+
 		$aThreads = array();
 		$oServer = $oAccount->getServer();
 		$bUseThreadingIfSupported = $oServer->EnableThreading && $oAccount->UseThreading;
@@ -2031,7 +2036,8 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			'Count' => $oCurrentFolderInformation->Exists,
 			'ResultCount' => $iMessageResultCount,
 			'UnreadCount' => $oCurrentFolderInformation->Unread,
-			'Uids' => array_values($mResult)
+			'Uids' => array_values($mResult),
+			'Uidnext' => $sStatusUidNext
 		];
 	}
 

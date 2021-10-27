@@ -2347,7 +2347,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$oMessageCollection = $this->getMailManager()->getMessageListByUids(
 				$oAccount, $sFolder, $aFldUids, $sInboxUidnext
 			);
-			$oMessageCollection->MessageResultCount = $aFoldersCache[$sFolder]['MessageCount'];
 
 			if ($UseThreading) {
 				$oMessageCollection->ForeachList(function (/* @var $oMessage \Aurora\Modules\Mail\Classes\Message */ $oMessage) use ($aUids, $sFolder) {
@@ -2485,23 +2484,23 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$aFoldersHash = [];
 
 		$aInboxUidsNext = [];
-		// if (!empty($InboxUidnext))
-		// {
-		// 	$aInboxUids = \explode('.', $InboxUidnext);
-		// 	foreach ($aInboxUids as $aUid)
-		// 	{
-		// 		list($key, $val) = \explode(':', $aUid);
-		// 		$aInboxUidsNext[$key] = $val;
-		// 	}
-		// }
+		if (!empty($InboxUidnext)) {
+			$aInboxUids = \explode('.', $InboxUidnext);
+			foreach ($aInboxUids as $aUid) {
+				$aUidsNext = \explode(':', $aUid);
+				if (count($aUidsNext) === 3) {
+					$aInboxUidsNext[$aUidsNext[0]][$aUidsNext[1]] = $aUidsNext[2];
+				}
+			}
+		}
 
 		foreach ($aUids as $aUid) {
 			$aAccountUids[$aUid['accountid']][$aUid['folder']][] = $aUid['uid'];
 		}
 		foreach ($aAccountUids as $iAccountId => $aFolders) {
 			$oAccount = $aAccountsCache[$iAccountId]['Account'];
-			$sInboxUidnext = isset($aInboxUidsNext[$iAccountId]) ? $aInboxUidsNext[$iAccountId] : '';
 			foreach ($aFolders as $sFolder => $aFolderUids) {
+				$sInboxUidnext = isset($aInboxUidsNext[$iAccountId][$sFolder]) ? $aInboxUidsNext[$iAccountId][$sFolder] : '';
 				$oMessageCollection = $this->getMailManager()->getMessageListByUids(
 					$oAccount, $sFolder, $aFolderUids, $sInboxUidnext
 				);
