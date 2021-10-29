@@ -624,7 +624,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
 			$oFolderCollection->initialize($aMailFolders);
 
-			if ($this->_initSystemFolders($oAccount, $oFolderCollection, $bCreateUnExistenSystemFolders) && $bCreateUnExistenSystemFolders)
+			if ($bCreateUnExistenSystemFolders && $this->_initSystemFolders($oAccount, $oFolderCollection, $bCreateUnExistenSystemFolders))
 			{
 				$oFolderCollection = $this->getFolders($oAccount, false);
 			}
