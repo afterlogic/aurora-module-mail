@@ -126,7 +126,19 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 				}
 				else
 				{
-                    $oResult->Login($oAccount->IncomingLogin, $oAccount->getPassword(), '');
+					try
+					{
+						$oResult->Login($oAccount->IncomingLogin, $oAccount->getPassword(), '');
+					}
+					catch (\MailSo\Imap\Exceptions\LoginBadCredentialsException $oException)
+					{
+						// This exception is necessary so that client could display correct error message
+						throw new \Aurora\Modules\Mail\Exceptions\Exception(
+							\Aurora\Modules\Mail\Enums\ErrorCodes::CannotLoginCredentialsIncorrect,
+							$oException,
+							$oAccount->EntityId . ':' . $oException->getMessage()
+						);
+					}
 				}
 			}
 		}
