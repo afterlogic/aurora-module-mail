@@ -8,6 +8,7 @@
 namespace Aurora\Modules\Mail;
 
 use Aurora\Modules\Mail\Enums\SearchInFoldersType;
+use Aurora\System\Module\Decorator;
 
 /**
  * @license https://www.gnu.org/licenses/agpl-3.0.html AGPL-3.0
@@ -107,6 +108,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$this->subscribeEvent('System::RunEntry::before', array($this, 'onBeforeRunEntry'));
 
 		\MailSo\Config::$PreferStartTlsIfAutoDetect = !!$this->getConfig('PreferStarttls', true);
+	}
+
+	/**
+	 * @return Module
+	 */
+	public static function Decorator()
+	{
+		return parent::Decorator();
 	}
 
 	/**
@@ -2226,18 +2235,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 			}
 			$oFoldersColl = $this->getMailManager()->getFolders($oAccount, false, $Folder);
 			
-			$sAllFolderRawFullName = '';
-			$oFoldersColl->foreachWithSubFolders(function ($oFolder) use (&$aFolders, &$sAllFolderRawFullName) {
+			$oFoldersColl->foreachWithSubFolders(function ($oFolder) use (&$aFolders) {
 				if ($oFolder->isSubscribed() && $oFolder->isSelectable()) {
-					$aFolders[] = $oFolder->getRawFullName();
-					if ($oFolder->getFolderXListType() === \Aurora\Modules\Mail\Enums\FolderType::All) {
-						$sAllFolderRawFullName = $oFolder->getRawFullName();
+					if ($oFolder->getFolderXListType() !== \Aurora\Modules\Mail\Enums\FolderType::All) {
+						$aFolders[] = $oFolder->getRawFullName();
 					}
 				}
 			});
-			if (!empty($sAllFolderRawFullName)) {
-				$aFolders = [$sAllFolderRawFullName];
-			}
 		}
 
 		return $aFolders;
@@ -2292,8 +2296,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$sSortOrder = $SortOrder === \Aurora\System\Enums\SortOrder::DESC ? 'REVERSE' : '';
 
 		$aFolders = $this->getFoldersForSearch($oAccount, $Folder, $Search, $sSearch);
-		foreach ($aFolders as $sFolder) {
-			$sFolder = (string) $sFolder;
+		foreach ($aFolders as $aFolder) {
+			$sFolder = (string) $aFolder['Name'];
 			$aUnifiedInfo = $this->getMailManager()->getUnifiedMailboxMessagesInfo($oAccount, $sFolder, $sSearch, $aFilters, $UseThreading, $iOffset + $iLimit, $sSortBy, $sSortOrder);
 			if (is_array($aUnifiedInfo['Uids']) && count($aUnifiedInfo['Uids']) > 0) {
 				foreach($aUnifiedInfo['Uids'] as $iKey => $aUid) {
@@ -2437,6 +2441,7 @@ class Module extends \Aurora\System\Module\AbstractModule
                 $aAccountUids[$oAccount->Id] = [];
 				$sSearch = $Search;
 				$aFolders = $this->getFoldersForSearch($oAccount, $Folder, $Search, $sSearch);
+				$aFoldersInfo = $this->getMailManager()->getFolderListInformation($oAccount, $aFolders, true);
 				foreach ($aFolders as $sFolder) {
 					$aUnifiedInfo = $this->getMailManager()->getUnifiedMailboxMessagesInfo(
 						$oAccount, 
@@ -2458,10 +2463,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 						);
 					}
 					
-					$iMessagesCount += (int) $aUnifiedInfo['Count'];
+					$iMessagesCount += (int) $aFoldersInfo[$sFolder][0];
 					$iMessagesResultCount += $aUnifiedInfo['ResultCount'];
-					$iMessagesUnseenCount += $aUnifiedInfo['UnreadCount'];
-					$aFoldersHash[] = $oAccount->Id . ':' . $sFolder . ':' . $aUnifiedInfo['FolderHash'];
+					$iMessagesUnseenCount += $aFoldersInfo[$sFolder][1];
+					$aFoldersHash[] = $aFoldersInfo[$sFolder][3];
 				}
             }
 		}
