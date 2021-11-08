@@ -2296,8 +2296,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$sSortOrder = $SortOrder === \Aurora\System\Enums\SortOrder::DESC ? 'REVERSE' : '';
 
 		$aFolders = $this->getFoldersForSearch($oAccount, $Folder, $Search, $sSearch);
-		foreach ($aFolders as $aFolder) {
-			$sFolder = (string) $aFolder['Name'];
+		foreach ($aFolders as $sFolder) {
 			$aUnifiedInfo = $this->getMailManager()->getUnifiedMailboxMessagesInfo($oAccount, $sFolder, $sSearch, $aFilters, $UseThreading, $iOffset + $iLimit, $sSortBy, $sSortOrder);
 			if (is_array($aUnifiedInfo['Uids']) && count($aUnifiedInfo['Uids']) > 0) {
 				foreach($aUnifiedInfo['Uids'] as $iKey => $aUid) {
