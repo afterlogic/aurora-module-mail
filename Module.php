@@ -2188,7 +2188,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$iOffset = (int) $Offset;
 		$iLimit = (int) $Limit;
 
-		if (0 === \strlen(trim($Folder)) || 0 > $iOffset || 0 >= $iLimit || 200 < $iLimit)
+		if (0 === \strlen(trim($Folder)) || 0 > $iOffset || 0 >= $iLimit)
 		{
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
 		}
