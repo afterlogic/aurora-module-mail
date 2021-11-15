@@ -2004,17 +2004,20 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			);
 
 			$aFetchResponse = null;
-			try
+			if (is_array($aIndexOrUids) && 0 < count($aIndexOrUids))
 			{
-				$aFetchResponse = $oImapClient->Fetch([
-					\MailSo\Imap\Enumerations\FetchType::INDEX,
-					\MailSo\Imap\Enumerations\FetchType::UID,
-					\MailSo\Imap\Enumerations\FetchType::INTERNALDATE
-				], implode(',', $aIndexOrUids), $bIndexAsUid);
-			}
-			catch (\Exception $oEx)
-			{
+				try
+				{
+					$aFetchResponse = $oImapClient->Fetch([
+						\MailSo\Imap\Enumerations\FetchType::INDEX,
+						\MailSo\Imap\Enumerations\FetchType::UID,
+						\MailSo\Imap\Enumerations\FetchType::INTERNALDATE
+					], implode(',', $aIndexOrUids), $bIndexAsUid);
+				}
+				catch (\Exception $oEx)
+				{
 
+				}
 			}
 			if (is_array($aFetchResponse) && 0 < count($aFetchResponse))
 			{
