@@ -53,7 +53,8 @@ class MailAccount extends Model
         'UseSignature' => 'boolean',
         'ShowUnifiedMailboxLabel' => 'boolean',
         'UseThreading' => 'boolean',
-        'SaveRepliesToCurrFolder' => 'boolean'
+        'SaveRepliesToCurrFolder' => 'boolean',
+		'FoldersOrder' => 'string'
     ];
 
     protected $attributes = [

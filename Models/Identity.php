@@ -38,7 +38,8 @@ class Identity extends Model
 
     protected $casts = [
         'Default' => 'boolean',
-        'UseSignature' => 'boolean'
+        'UseSignature' => 'boolean',
+		'Signature' => 'string'
     ];
 
     protected $attributes = [
