@@ -46,6 +46,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	protected $oFilecacheManager = null;
 
+	/*
+	 * @var $oCustomMailTagsManager Managers\CustomMailTags
+	 */
+	protected $oCustomMailTagsManager = null;
+
 	/**
 	 * Initializes Mail Module.
 	 *
@@ -75,7 +80,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 			self::GetName(),
 			[
 				'AllowAutosaveInDrafts'	=> ['bool', (bool) $this->getConfig('AllowAutosaveInDrafts', false)],
-				'UserSpaceLimitMb'	=> ['int', 0],
+				'UserSpaceLimitMb'		=> ['int', 0],
+				'СustomMailTags'		=> ['string', ''],
 			]
 		);
 		\Aurora\Modules\Core\Classes\Tenant::extend(
@@ -139,6 +145,20 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 
 		return $this->oServersManager;
+	}
+
+	/**
+	 *
+	 * @return \Aurora\Modules\Mail\Managers\CustomMailTags\Manager
+	 */
+	public function getCustomMailTagsManager()
+	{
+		if ($this->oCustomMailTagsManager === null)
+		{
+			$this->oCustomMailTagsManager = new Managers\CustomMailTags\Manager($this);
+		}
+
+		return $this->oCustomMailTagsManager;
 	}
 
 	/**
@@ -374,6 +394,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			{
 				$aSettings['AllowAutosaveInDrafts'] = $oUser->{self::GetName().'::AllowAutosaveInDrafts'};
 			}
+			$aSettings['CustomMailTags'] = $this->getCustomMailTagsManager()->getTags($oUser);
 		}
 
 		return $aSettings;
@@ -466,6 +487,30 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 
 		return false;
+	}
+
+	public function GetCustomMailTags()
+	{
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
+		return $this->getCustomMailTagsManager()->getTags();
+	}
+
+	public function AddCustomMailTag($Label, $Color)
+	{
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
+		return $this->getCustomMailTagsManager()->addTag($Label, $Color);
+	}
+
+	public function UpdateCustomMailTag($Label, $NewLabel, $NewColor)
+	{
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
+		return $this->getCustomMailTagsManager()->updateTag($Label, $NewLabel, $NewColor);
+	}
+
+	public function DeleteCustomMailTag($Label)
+	{
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
+		return $this->getCustomMailTagsManager()->deleteTag($Label);
 	}
 
 	public function GetEntitySpaceLimits($Type, $UserId = null, $TenantId = null)
