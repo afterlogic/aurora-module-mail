@@ -1068,6 +1068,7 @@ class Message
 			'IsFlagged' => in_array('\\flagged', $aFlags),
 			'IsAnswered' => in_array('\\answered', $aFlags),
 			'IsForwarded' => false,
+			'AllFlags' => $this->getFlags(),
 			'HasAttachments' => $oAttachments && $oAttachments->hasNotInlineAttachments(),
 			'HasVcardAttachment' => $oAttachments && $oAttachments->hasVcardAttachment(),
 			'HasIcalAttachment' => $oAttachments && $oAttachments->hasIcalAttachment(),

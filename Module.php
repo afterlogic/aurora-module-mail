@@ -512,7 +512,17 @@ class Module extends \Aurora\System\Module\AbstractModule
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 		return $this->getCustomMailTagsManager()->deleteTag($Label);
 	}
+	
+	public function SetCustomMailTagToMessage($AccountID, $Folder, $Uids, $Tag, $SetAction)
+	{
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 
+		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
+		self::checkAccess($oAccount);
+
+		return $this->setMessageFlag($AccountID, $Folder, $Uids, $SetAction, $Tag);
+	}
+	
 	public function GetEntitySpaceLimits($Type, $UserId = null, $TenantId = null)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
