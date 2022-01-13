@@ -2376,10 +2376,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 	public function GetUnifiedRelevantFoldersInformation($AccountsData)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-        if (!$this->getConfig('AllowUnifiedInbox', false))
-        {
-            throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::AccessDenied);
-        }
+
+		// The method is also used when it is neccessary to show unseen messages for every account
+		// So no need to forbid it when AllowUnifiedInbox setting is turned off
 
 		if (!\is_array($AccountsData) || 0 === \count($AccountsData))
 		{
