@@ -994,6 +994,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 						$oUser->setExtendedProp(self::GetName() . '::UserSpaceLimitMb', $iQuota);
 						$oUser->save();
 					}
+					if ($oServer && $oServer->EnableSieve && $this->getConfig('EnableAllowBlockLists', false))
+					{
+						$this->getSieveManager()->setAllowBlockLists($oAccount, [], []);
+					}
 					return $oAccount;
 				}
 				else if ($bCustomServerCreated)
@@ -5864,7 +5868,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 				$oUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin)
 			)
 			{
-				if ($oAccount->getPassword() !== $CurrentPassword)
+				if ($oUser->Role !== \Aurora\System\Enums\UserRole::SuperAdmin && $oAccount->getPassword() !== $CurrentPassword)
 				{
 					\Aurora\System\Api::LogEvent('password-change-failed: ' . $oAccount->Email, self::GetName());
 					throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Exceptions\Errs::UserManager_AccountOldPasswordNotCorrect);
@@ -6362,6 +6366,42 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 
 		return $mResult;
+	}
+
+	public function SetAllowBlockLists($AccountID, $AllowList, $BlockList)
+	{
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
+
+		$mResult = false;
+
+		$oAccount = $this->getAccountsManager()->getAccountById((int) $AccountID);
+
+		self::checkAccess($oAccount);
+
+		if ($oAccount)
+		{
+			$mResult = $this->getSieveManager()->setAllowBlockLists($oAccount, $AllowList, $BlockList);
+		}
+
+		return $mResult;
+	}
+
+	public function GetAllowBlockLists($AccountID)
+	{
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
+
+		$mResult = false;
+
+		$oAccount = $this->getAccountsManager()->getAccountById((int) $AccountID);
+
+		self::checkAccess($oAccount);
+
+		if ($oAccount)
+		{
+			$mResult = $this->getSieveManager()->getAllowBlockLists($oAccount);
+		}
+
+		return $mResult;		
 	}
 	/***** public functions might be called with web API *****/
 

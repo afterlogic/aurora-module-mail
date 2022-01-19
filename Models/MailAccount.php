@@ -127,6 +127,7 @@ class MailAccount extends Model
         $aResponse['AllowFilters'] = false;
         $aResponse['AllowForward'] = false;
         $aResponse['AllowAutoresponder'] = false;
+		$aResponse['EnableAllowBlockLists'] = false;
 
         if (!isset($aResponse['Signature'])) {
             $aResponse['Signature'] = '';
@@ -143,6 +144,7 @@ class MailAccount extends Model
                 $aResponse['AllowFilters'] = $oMailModule->getConfig('AllowFilters', '');
                 $aResponse['AllowForward'] = $oMailModule->getConfig('AllowForward', '');
                 $aResponse['AllowAutoresponder'] = $oMailModule->getConfig('AllowAutoresponder', '');
+                $aResponse['EnableAllowBlockLists'] = $oMailModule->getConfig('EnableAllowBlockLists', false);
             }
         }
 
