@@ -543,6 +543,38 @@ if header :contains \"X-Spam-Flag\" \"YES\" {
 		return true;
 	}
 
+	public function addRowToAllowList($oAccount, $sRow)
+	{
+		$aLists = $this->getAllowBlockLists($oAccount);
+
+		$aAllowList = $aLists['AllowList'];
+		$aAllowList[] = $sRow;
+
+		$aBlockList = array_unique($aLists['BlockList']);
+		$iRowIndex = \array_search($sRow, $aBlockList, true);
+		if (is_int($iRowIndex)) {
+			\array_splice($aBlockList, $iRowIndex, 1);
+		}
+
+		return $this->setAllowBlockLists($oAccount, array_unique($aAllowList), $aBlockList);
+	}
+
+	public function addRowToBlockList($oAccount, $sRow)
+	{
+		$aLists = $this->getAllowBlockLists($oAccount);
+
+		$aAllowList = array_unique($aLists['AllowList']);
+		$iRowIndex = \array_search($sRow, $aAllowList, true);
+		if (is_int($iRowIndex)) {
+			\array_splice($aAllowList, $iRowIndex, 1);
+		}
+
+		$aBlockList = $aLists['BlockList'];
+		$aBlockList[] = $sRow;
+
+		return $this->setAllowBlockLists($oAccount, $aAllowList, array_unique($aBlockList));
+	}
+
 	/**
 	 * @depricated
 	 * 

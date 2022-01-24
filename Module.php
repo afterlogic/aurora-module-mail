@@ -6403,6 +6403,42 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		return $mResult;		
 	}
+
+	public function AddEmailToAllowList($AccountID, $Email)
+	{
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
+
+		$mResult = false;
+
+		$oAccount = $this->getAccountsManager()->getAccountById((int) $AccountID);
+
+		self::checkAccess($oAccount);
+
+		if ($oAccount)
+		{
+			$mResult = $this->getSieveManager()->addRowToAllowList($oAccount, $Email);
+		}
+
+		return $mResult;
+	}
+
+	public function AddEmailToBlockList($AccountID, $Email)
+	{
+		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
+
+		$mResult = false;
+
+		$oAccount = $this->getAccountsManager()->getAccountById((int) $AccountID);
+
+		self::checkAccess($oAccount);
+
+		if ($oAccount)
+		{
+			$mResult = $this->getSieveManager()->addRowToBlockList($oAccount, $Email);
+		}
+
+		return $mResult;
+	}
 	/***** public functions might be called with web API *****/
 
 	/***** private functions *****/
