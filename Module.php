@@ -6368,7 +6368,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		return $mResult;
 	}
 
-	public function SetAllowBlockLists($AccountID, $AllowList, $BlockList)
+	public function SetAccountSpamSettings($AccountID, $SpamScore, $AllowList, $BlockList)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 
@@ -6386,7 +6386,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		return $mResult;
 	}
 
-	public function GetAllowBlockLists($AccountID)
+	public function GetAccountSpamSettings($AccountID)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 
@@ -6401,7 +6401,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$mResult = $this->getSieveManager()->getAllowBlockLists($oAccount);
 		}
 
-		return $mResult;		
+		if (is_array($mResult)) {
+			$mResult['SpamScore'] = 5; // TODO - get value from sieve
+		}
+
+		return $mResult;
 	}
 
 	public function AddEmailToAllowList($AccountID, $Email)
