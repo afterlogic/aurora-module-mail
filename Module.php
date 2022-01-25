@@ -6380,7 +6380,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		if ($oAccount)
 		{
-			$mResult = $this->getSieveManager()->setAllowBlockLists($oAccount, $AllowList, $BlockList);
+			$mResult = $this->getSieveManager()->setAllowBlockLists($oAccount, $AllowList, $BlockList, $SpamScore);
 		}
 
 		return $mResult;
@@ -6399,10 +6399,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 		if ($oAccount)
 		{
 			$mResult = $this->getSieveManager()->getAllowBlockLists($oAccount);
-		}
-
-		if (is_array($mResult)) {
-			$mResult['SpamScore'] = 5; // TODO - get value from sieve
 		}
 
 		return $mResult;

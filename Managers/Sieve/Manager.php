@@ -455,21 +455,23 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	{
 		$mResult = [
 			'AllowList' => [],
-			'BlockList' => []
+			'BlockList' => [],
+			'SpamScore' => 0
 		];
 		$this->_parseSectionsData($oAccount);
 		$sData = $this->_getSectionData('allow_block_lists');
 
 		$aMatch = array();
-		if (!empty($sData) && preg_match('/#data=([^\n]+)~([^\n]+)/', $sData, $aMatch) && isset($aMatch[1]) && isset($aMatch[2]))
+		if (!empty($sData) && preg_match('/#data=([^\n]+)~([^\n]+)~([^\n]+)/', $sData, $aMatch) && isset($aMatch[1]) && isset($aMatch[2]) && isset($aMatch[3]))
 		{
 			$mResult['AllowList'] = \json_decode(\base64_decode($aMatch[1]));
 			$mResult['BlockList'] = \json_decode(\base64_decode($aMatch[2]));
+			$mResult['SpamScore'] = (int) $aMatch[3];
 		}
 		return $mResult;
 	}
 
-	public function setAllowBlockLists($oAccount, $aAllowList, $aBlockList)
+	public function setAllowBlockLists($oAccount, $aAllowList, $aBlockList, $iSpamScore = 5)
 	{
 		if (!is_array($aAllowList)) {
 			$aAllowList = [];
@@ -524,14 +526,12 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 }\n";
 		}
 
-		$sData = '#data=' . $sAllowList . '~' . $sBlockList . "\n" . $sAllowListScript . $sBlockListScript . "\n" .
+		$sData = '#data=' . $sAllowList . '~' . $sBlockList . '~' . $iSpamScore . "\n" . $sAllowListScript . $sBlockListScript . "\n" .
 "# copy Spamassassin-tagged email to Spam folder
 
-if header :contains \"X-Spam-Flag\" \"YES\" {
-#   setflag \"\\seen\";
-	fileinto \"Spam\";
-#   setflag \"\\seen\";
-	stop;
+if header :value \"ge\" :comparator \"i;ascii-numeric\" \"X-Spam-Score\" \"" . $iSpamScore . "\" {
+    fileinto \"Spam\";  
+    stop;  
 }";
 
 		$this->_parseSectionsData($oAccount);
@@ -824,7 +824,7 @@ if header :contains \"X-Spam-Flag\" \"YES\" {
 			}
 		}
 
-		$sResult = 'require ["fileinto", "copy", "vacation","regex","include", "envelope", "imap4flags"] ;'."\n".$sResult;
+		$sResult = 'require ["fileinto", "copy", "vacation", "regex", "include", "envelope", "imap4flags", "relational", "comparator-i;ascii-numeric"] ;'."\n".$sResult;
 		$sResult = "# Sieve filter\n".$sResult;
 		$sResult .= "keep ;\n";
 		return $sResult;
