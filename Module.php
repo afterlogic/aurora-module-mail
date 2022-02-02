@@ -1902,7 +1902,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 
 		$mPrimaryAccounts = $this->getAccountsManager()->getAccounts(['ServerId' => $ServerId, 'UseToAuthorize' => true]);
-		if (is_array($mPrimaryAccounts))
+		if ($mPrimaryAccounts)
 		{
 			foreach ($mPrimaryAccounts as $oAccount)
 			{
@@ -1911,7 +1911,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 
 		$mSecondaryAccounts = $this->getAccountsManager()->getAccounts(['ServerId' => $ServerId, 'UseToAuthorize' => false]);
-		if (is_array($mSecondaryAccounts))
+		if ($mSecondaryAccounts)
 		{
 			foreach ($mSecondaryAccounts as $oAccount)
 			{
