@@ -14,7 +14,7 @@ class AlterForeignMailAccountsTable extends Migration
     public function up()
     {
         Capsule::schema()->table('mail_accounts', function (Blueprint $table) {
-            $table->dropForeign('mail_accounts_serverid_foreign');
+            $table->dropForeign(['ServerId']);
             $table->foreign('ServerId')->references('Id')->on('mail_servers')->onDelete('cascade');
         });
     }
@@ -27,7 +27,7 @@ class AlterForeignMailAccountsTable extends Migration
     public function down()
     {
         Capsule::schema()->table('mail_accounts', function (Blueprint $table) {
-            $table->dropForeign('mail_accounts_serverid_foreign');
+            $table->dropForeign(['ServerId']);
             $table->foreign('ServerId')->references('Id')->on('mail_servers');
         });
     }
