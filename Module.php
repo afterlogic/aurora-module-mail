@@ -8,6 +8,7 @@
 namespace Aurora\Modules\Mail;
 
 use Aurora\Modules\Mail\Enums\SearchInFoldersType;
+use Aurora\Modules\Mail\Models\Identity;
 use Aurora\System\Module\Decorator;
 
 /**
@@ -6454,10 +6455,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	{
 		$mResult = $this->getIdentitiesManager()->GetIdentitiesByUserId($aArgs["UserId"]);
 
-		foreach($mResult as $oItem)
-		{
-			$this->getIdentitiesManager()->deleteIdentity($oItem->Id);
-		}
+		Identity::where('IdUser', $aArgs["UserId"])->delete();
 
 		$mResult = $this->getAccountsManager()->getUserAccounts($aArgs["UserId"]);
 
