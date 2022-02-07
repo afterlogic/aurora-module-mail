@@ -52,8 +52,8 @@
 		"bool"
 	],
 	"SieveSpamRuleCondition": [
-		"string",
-		"header :contains \"X-Soverin-Spam-Level\" \"{{Value}}\""
+		"header :value \"ge\" :comparator \"i;ascii-numeric\" \"X-Spam-Score\" \"{{Value}}\"",
+		"string"
 	],
 	"AllowInsertImage": [
 		true,
