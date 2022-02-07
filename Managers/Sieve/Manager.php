@@ -471,7 +471,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		return $mResult;
 	}
 
-	public function setAllowBlockLists($oAccount, $aAllowList, $aBlockList, $iSpamScore = 5)
+	public function setAllowBlockLists($oAccount, $aAllowList, $aBlockList, $iSpamScore = null)
 	{
 		if (!is_array($aAllowList)) {
 			$aAllowList = [];
@@ -526,10 +526,20 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 }\n";
 		}
 
+		if (!isset($iSpamScore)) {
+			$iSpamScore = $this->GetModule()->getConfig('DefaultSpamScore', 5);
+		}
+		$mSpamValue = $iSpamScore;
+		if ($this->GetModule()->getConfig('ConvertSpamScoreToSpamLevel')) {
+			$mSpamValue = str_pad('',  $iSpamScore, "*");
+		}
+		$SieveSpamRuleCondition = $this->GetModule()->getConfig('SieveSpamRuleCondition');
+		$SieveSpamRuleCondition = str_replace('{{Value}}', $mSpamValue, $SieveSpamRuleCondition);
+
 		$sData = '#data=' . $sAllowList . '~' . $sBlockList . '~' . $iSpamScore . "\n" . $sAllowListScript . $sBlockListScript . "\n" .
 "# copy Spamassassin-tagged email to Spam folder
 
-if header :value \"ge\" :comparator \"i;ascii-numeric\" \"X-Spam-Score\" \"" . $iSpamScore . "\" {
+if " . $SieveSpamRuleCondition . " {
     fileinto \"Spam\";  
     stop;  
 }";

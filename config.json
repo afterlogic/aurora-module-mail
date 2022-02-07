@@ -43,6 +43,18 @@
 		false,
 		"bool"
 	],
+	"DefaultSpamScore": [
+		5,
+		"int"
+	],
+	"ConvertSpamScoreToSpamLevel": [
+		false,
+		"bool"
+	],
+	"SieveSpamRuleCondition": [
+		"string",
+		"header :contains \"X-Soverin-Spam-Level\" \"{{Value}}\""
+	],
 	"AllowInsertImage": [
 		true,
 		"bool"
