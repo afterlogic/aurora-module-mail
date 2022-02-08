@@ -7,6 +7,8 @@
 
 namespace Aurora\Modules\Mail\Managers\Sieve;
 
+use Aurora\Api;
+
 /**
  * @license https://www.gnu.org/licenses/agpl-3.0.html AGPL-3.0
  * @license https://afterlogic.com/products/common-licensing Afterlogic Software License
@@ -536,13 +538,20 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		$SieveSpamRuleCondition = $this->GetModule()->getConfig('SieveSpamRuleCondition');
 		$SieveSpamRuleCondition = str_replace('{{Value}}', $mSpamValue, $SieveSpamRuleCondition);
 
-		$sData = '#data=' . $sAllowList . '~' . $sBlockList . '~' . $iSpamScore . "\n" . $sAllowListScript . $sBlockListScript . "\n" .
-"# copy Spamassassin-tagged email to Spam folder
+		$sData = '#data=' . $sAllowList . '~' . $sBlockList . '~' . $iSpamScore . "\n" . $sAllowListScript . $sBlockListScript . "\n";
+
+		if (!empty($SieveSpamRuleCondition)) {
+			$sData .= "
+# copy Spamassassin-tagged email to Spam folder
 
 if " . $SieveSpamRuleCondition . " {
     fileinto \"Spam\";  
     stop;  
 }";
+		}
+		else {
+			Api::Log('"SieveSpamRuleCondition" settings has not yet been set.');
+		}
 
 		$this->_parseSectionsData($oAccount);
 		$this->_setSectionData('allow_block_lists', $sData);

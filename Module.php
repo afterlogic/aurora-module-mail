@@ -7,6 +7,7 @@
 
 namespace Aurora\Modules\Mail;
 
+use Aurora\Api;
 use Aurora\Modules\Mail\Enums\SearchInFoldersType;
 use Aurora\Modules\Mail\Models\Identity;
 use Aurora\System\Module\Decorator;
@@ -997,7 +998,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 					}
 					if ($oServer && $oServer->EnableSieve && $this->getConfig('EnableAllowBlockLists', false))
 					{
-						$this->getSieveManager()->setAllowBlockLists($oAccount, [], []);
+						try {
+							$this->getSieveManager()->setAllowBlockLists($oAccount, [], []);
+						} catch (\Exception $oEx) {
+							Api::LogException($oEx);
+						}
 					}
 					return $oAccount;
 				}
