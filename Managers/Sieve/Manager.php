@@ -574,8 +574,8 @@ if " . $SieveSpamRuleCondition . " {
 		if (is_int($iRowIndex)) {
 			\array_splice($aBlockList, $iRowIndex, 1);
 		}
-
-		return $this->setAllowBlockLists($oAccount, array_unique($aAllowList), $aBlockList);
+		$iSpamScore = $aLists['SpamScore'];
+		return $this->setAllowBlockLists($oAccount, array_unique($aAllowList), $aBlockList, $iSpamScore);
 	}
 
 	public function addRowToBlockList($oAccount, $sRow)
@@ -591,7 +591,8 @@ if " . $SieveSpamRuleCondition . " {
 		$aBlockList = $aLists['BlockList'];
 		$aBlockList[] = $sRow;
 
-		return $this->setAllowBlockLists($oAccount, $aAllowList, array_unique($aBlockList));
+		$iSpamScore = $aLists['SpamScore'];
+		return $this->setAllowBlockLists($oAccount, $aAllowList, array_unique($aBlockList), $iSpamScore);
 	}
 
 	/**
