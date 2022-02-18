@@ -1295,33 +1295,33 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 			if ($oAccount)
 			{
-				$this->getIdentitiesManager()->deleteAccountIdentities($oAccount->Id);
-				$this->getMailManager()->deleteSystemFolderNames($oAccount->Id);
-				$bServerRemoved = true;
-				$oServer = $oAccount->getServer();
-				if ($oServer && $oServer->OwnerType === \Aurora\Modules\Mail\Enums\ServerOwnerType::Account)
-				{
-					$bServerRemoved = $this->getServersManager()->deleteServer($oServer->Id);
-				}
-				if ($bServerRemoved)
-				{
-					$oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserUnchecked($oAccount->IdUser);
-					if ($oUser instanceof \Aurora\Modules\Core\Models\User && $oAccount->Email === $oUser->PublicId)
-					{
-						$iQuota = $oUser->{self::GetName() . '::UserSpaceLimitMb'};
-						$this->updateAllocatedTenantSpace($oUser->IdTenant, 0, $iQuota);
-					}
+				$this->getIdentitiesManager()->deleteAccountIdentities($oAccount->EntityId);
+				$this->getMailManager()->deleteSystemFolderNames($oAccount->EntityId);
 
-					$aArgs = [
-						'Account' => $oAccount,
-						'User' => $oUser
-					];
-					$this->broadcastEvent(
-						'BeforeDeleteAccount',
-						$aArgs
-					);
-					$bResult = $this->getAccountsManager()->deleteAccount($oAccount);
+				$oServer = $oAccount->getServer();
+
+				$oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserUnchecked($oAccount->IdUser);
+				if ($oUser instanceof \Aurora\Modules\Core\Classes\User && $oAccount->Email === $oUser->PublicId)
+				{
+					$iQuota = $oUser->{self::GetName() . '::UserSpaceLimitMb'};
+					$this->updateAllocatedTenantSpace($oUser->IdTenant, 0, $iQuota);
 				}
+
+				$aArgs = [
+					'Account' => $oAccount,
+					'User' => $oUser
+				];
+				$this->broadcastEvent(
+					'BeforeDeleteAccount',
+					$aArgs
+				);
+				$bResult = $this->getAccountsManager()->deleteAccount($oAccount);
+
+				if ($bResult && $oServer && $oServer->OwnerType === \Aurora\Modules\Mail\Enums\ServerOwnerType::Account)
+				{
+					$this->getServersManager()->deleteServer($oServer->EntityId);
+				}
+
 			}
 
 			return $bResult;
