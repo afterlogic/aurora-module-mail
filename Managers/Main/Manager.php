@@ -7,11 +7,13 @@
 
 namespace Aurora\Modules\Mail\Managers\Main;
 
+use Aurora\Modules\Mail\Enums\ErrorCodes;
 use Aurora\Modules\Mail\Models\RefreshFolder;
 use Aurora\Modules\Mail\Models\TrustedSender;
 use Aurora\Modules\Mail\Models\SystemFolder;
 use Aurora\Modules\Mail\Module;
 use Aurora\System\Exceptions;
+use Aurora\System\Exceptions\ApiException;
 
 /**
  * Manager for work with ImapClient.
@@ -122,6 +124,10 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 					{
 						$sXOAuthKey = \MailSo\Imap\ImapClient::GetXOAuthKeyStatic($oAccount->Email, $sToken);
 						$oResult->LoginWithXOAuth2($sXOAuthKey);
+					} 
+					else 
+					{
+						throw new ApiException(ErrorCodes::CannotLoginCredentialsIncorrect, null, 'Try deleting your GMail account and creating it again.');
 					}
 				}
 				else
