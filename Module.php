@@ -3426,6 +3426,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			throw new \Aurora\Modules\Mail\Exceptions\Exception(Enums\ErrorCodes::CannotMoveMessageQuota, $oException,
 				$oResponse instanceof \MailSo\Imap\Response ? $oResponse->Tag.' '.$oResponse->StatusOrIndex.' '.$oResponse->HumanReadable : '');
 		}
+		catch (\MailSo\Net\Exceptions\SocketReadTimeoutException $oException) {} // catch and pass the exception
 		catch (\Exception $oException)
 		{
 			throw new \Aurora\Modules\Mail\Exceptions\Exception(Enums\ErrorCodes::CannotMoveMessage, $oException,
