@@ -3426,7 +3426,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 			throw new \Aurora\Modules\Mail\Exceptions\Exception(Enums\ErrorCodes::CannotMoveMessageQuota, $oException,
 				$oResponse instanceof \MailSo\Imap\Response ? $oResponse->Tag.' '.$oResponse->StatusOrIndex.' '.$oResponse->HumanReadable : '');
 		}
-		catch (\MailSo\Net\Exceptions\SocketReadTimeoutException $oException) {} // catch and pass the exception
+		catch (\MailSo\Net\Exceptions\SocketReadTimeoutException $oException) // catch and silent the exception
+		{
+			\Aurora\System\Api::Log('Silent SocketReadTimeoutException:');
+			\Aurora\System\Api::LogException($oException);
+		}
 		catch (\Exception $oException)
 		{
 			throw new \Aurora\Modules\Mail\Exceptions\Exception(Enums\ErrorCodes::CannotMoveMessage, $oException,
