@@ -8,6 +8,7 @@
 namespace Aurora\Modules\Mail\Managers\Main;
 
 use Aurora\System\Exceptions;
+use Aurora\System\Managers\AbstractManager;
 
 /**
  * Manager for work with ImapClient.
@@ -18,7 +19,7 @@ use Aurora\System\Exceptions;
  *
  * @package Mail
  */
-class Manager extends \Aurora\System\Managers\AbstractManager
+class Manager extends AbstractManager
 {
 	/**
 	 * @var array List of ImapClient objects.
@@ -3543,6 +3544,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 				{
 					$oMessage->setThreads($aThreads[$iUid]);
 				}
+//				$oMessage = in_array('list-subscribe', array_keys($oMessage->getHeaders()));
 			});
 		}
 

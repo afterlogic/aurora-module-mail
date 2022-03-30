@@ -6701,6 +6701,184 @@ class Module extends \Aurora\System\Module\AbstractModule
 		return $oMessage;
 	}
 
+    /**
+     * @route
+     * @param $AccountID
+     * @param $Folder
+     * @param $Uid
+     * @return Classes\Message
+     * @throws Exceptions\Exception
+     * @throws \Aurora\System\Exceptions\ApiException
+     * @throws \Aurora\System\Exceptions\BaseException
+     * @throws \MailSo\Base\Exceptions\InvalidArgumentException
+     * @throws \MailSo\Imap\Exceptions\Exception
+     * @throws \MailSo\Net\Exceptions\Exception
+     */
+    public function UnsubscribeMessage($AccountID, $Folder, $Uid)
+    {
+        \Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
+
+        $iUid = 0 < \strlen($Uid) && \is_numeric($Uid) ? (int) $Uid : 0;
+
+        if (0 === \strlen(\trim($Folder)) || 0 >= $iUid)
+        {
+            throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
+        }
+
+        $oAccount = $this->getAccountsManager()->getAccountById($AccountID);
+
+        self::checkAccess($oAccount);
+
+        if (0 === \strlen($Folder) || !\is_numeric($iUid) || 0 >= (int) $iUid)
+        {
+            throw new \CApiInvalidArgumentException();
+        }
+
+        $oImapClient =& $this->getMailManager()->_getImapClient($oAccount);
+
+        $oImapClient->FolderExamine($Folder);
+
+        $oMessage = false;
+
+        $aTextMimeIndexes = array();
+
+        if (!isset($oBody))
+        {
+            $aFetchResponse = $oImapClient->Fetch(array(
+                \MailSo\Imap\Enumerations\FetchType::BODYSTRUCTURE), $iUid, true);
+            $oBodyStructure = (0 < \count($aFetchResponse)) ? $aFetchResponse[0]->GetFetchBodyStructure($Rfc822MimeIndex) : null;
+        }
+        else
+        {
+            $oBodyStructure = $oBody->GetFetchBodyStructure($Rfc822MimeIndex);
+        }
+
+        $aCustomParts = array();
+        if ($oBodyStructure)
+        {
+            $aTextParts = $oBodyStructure->SearchHtmlOrPlainParts();
+            if (\is_array($aTextParts) && 0 < \count($aTextParts))
+            {
+                foreach ($aTextParts as $oPart)
+                {
+                    $aTextMimeIndexes[] = array($oPart->PartID(), $oPart->Size());
+                }
+            }
+
+            $aParts = $oBodyStructure->GetAllParts();
+
+            $this->broadcastEvent(
+                'GetBodyStructureParts',
+                $aParts,
+                $aCustomParts
+            );
+        }
+
+        $bTruncated = false;
+        $aFetchItems = array(
+            \MailSo\Imap\Enumerations\FetchType::INDEX,
+            \MailSo\Imap\Enumerations\FetchType::UID,
+            \MailSo\Imap\Enumerations\FetchType::RFC822_SIZE,
+            \MailSo\Imap\Enumerations\FetchType::INTERNALDATE,
+            \MailSo\Imap\Enumerations\FetchType::FLAGS,
+            0 < strlen($Rfc822MimeIndex)
+                ? \MailSo\Imap\Enumerations\FetchType::BODY_PEEK.'['.$Rfc822MimeIndex.'.HEADER]'
+                : \MailSo\Imap\Enumerations\FetchType::BODY_HEADER_PEEK
+        );
+
+        if (0 < \count($aTextMimeIndexes))
+        {
+            if (0 < \strlen($Rfc822MimeIndex) && \is_numeric($Rfc822MimeIndex))
+            {
+                $sLine = \MailSo\Imap\Enumerations\FetchType::BODY_PEEK.'['.$aTextMimeIndexes[0][0].'.1]';
+                if (\is_numeric($MessageBodyTruncationThreshold) && 0 < $MessageBodyTruncationThreshold && $MessageBodyTruncationThreshold < $aTextMimeIndexes[0][1])
+                {
+                    $sLine .= '<0.'.((int) $MessageBodyTruncationThreshold).'>';
+                    $bTruncated = true;
+                }
+
+                $aFetchItems[] = $sLine;
+            }
+            else
+            {
+                foreach ($aTextMimeIndexes as $aTextMimeIndex)
+                {
+                    $sLine = \MailSo\Imap\Enumerations\FetchType::BODY_PEEK.'['.$aTextMimeIndex[0].']';
+                    if (\is_numeric($MessageBodyTruncationThreshold) && 0 < $MessageBodyTruncationThreshold && $MessageBodyTruncationThreshold < $aTextMimeIndex[1])
+                    {
+                        $sLine .= '<0.'.((int) $MessageBodyTruncationThreshold).'>';
+                        $bTruncated = true;
+                    }
+
+                    $aFetchItems[] = $sLine;
+                }
+            }
+        }
+
+        foreach ($aCustomParts as $oCustomPart)
+        {
+            $aFetchItems[] = \MailSo\Imap\Enumerations\FetchType::BODY_PEEK.'['.$oCustomPart->PartID().']';
+        }
+
+        if (!$oBodyStructure)
+        {
+            $aFetchItems[] = \MailSo\Imap\Enumerations\FetchType::BODYSTRUCTURE;
+        }
+
+        $aFetchResponse = $oImapClient->Fetch($aFetchItems, $iUid, true);
+        if (0 < \count($aFetchResponse))
+        {
+            $oMessage = \Aurora\Modules\Mail\Classes\Message::createInstance($Folder, $aFetchResponse[0], $oBodyStructure, $Rfc822MimeIndex, $bTruncated);
+        }
+
+        if ($oMessage)
+        {
+            $sFromEmail = '';
+            $oFromCollection = $oMessage->getFrom();
+            if ($oFromCollection && 0 < $oFromCollection->Count())
+            {
+                $oFrom =& $oFromCollection->GetByIndex(0);
+                if ($oFrom)
+                {
+                    $sFromEmail = trim($oFrom->GetEmail());
+                }
+            }
+
+            if (0 < \strlen($sFromEmail))
+            {
+                $bAlwaysShowImagesInMessage = !!$this->getConfig('AlwaysShowImagesInMessage', false);
+                $oMessage->setSafety($bAlwaysShowImagesInMessage ? true :
+                    $this->getMailManager()->isSafetySender($oAccount->IdUser, $sFromEmail));
+            }
+
+            $aData = array();
+            foreach ($aCustomParts as $oCustomPart)
+            {
+                $sData = $aFetchResponse[0]->GetFetchValue(\MailSo\Imap\Enumerations\FetchType::BODY.'['.$oCustomPart->PartID().']');
+                if (!empty($sData))
+                {
+                    $sData = \MailSo\Base\Utils::DecodeEncodingValue($sData, $oCustomPart->MailEncodingName());
+                    $sData = \MailSo\Base\Utils::ConvertEncoding($sData,
+                        \MailSo\Base\Utils::NormalizeCharset($oCustomPart->Charset(), true),
+                        \MailSo\Base\Enumerations\Charset::UTF_8);
+                }
+                $aData[] = array(
+                    'Data' => $sData,
+                    'Part' => $oCustomPart
+                );
+            }
+
+            $this->broadcastEvent('ExtendMessageData', $aData, $oMessage);
+        }
+
+        if (!($oMessage instanceof \Aurora\Modules\Mail\Classes\Message))
+        {
+            throw new \Aurora\Modules\Mail\Exceptions\Exception(Enums\ErrorCodes::CannotGetMessage);
+        }
+
+        return $oMessage;
+    }
+
 	public function onAfterDeleteTenant(&$aArgs, &$mResult)
 	{
 		$TenantId = $aArgs['TenantId'];

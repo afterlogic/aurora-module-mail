@@ -410,6 +410,27 @@ class Message
 		return $this->iAccountId;
 	}
 
+    /**
+     * Get a collection of headers.
+     *
+     * @return array
+     */
+	public function getHeadersCollection()
+    {
+        return \MailSo\Mime\HeaderCollection::NewInstance()->Parse($this->getHeaders());
+    }
+
+    /**
+     * The header appears returning a Boolean value.
+     * @return bool
+     */
+	public function canUnsubscribe()
+    {
+        $headers = $this->getHeadersCollection();
+        $oHeader = $headers->GetByName('List-unsubscribe');
+        return isset($oHeader);
+    }
+
 	public function setAccountId($iAccountId)
 	{
 		$this->iAccountId = $iAccountId;
@@ -1073,7 +1094,8 @@ class Message
 			'HasIcalAttachment' => $oAttachments && $oAttachments->hasIcalAttachment(),
 			'Importance' => $this->getImportance(),
 			'DraftInfo' => $this->getDraftInfo(),
-			'Sensitivity' => $this->getSensitivity()
+			'Sensitivity' => $this->getSensitivity(),
+            'CanUnsubscribe' => $this->canUnsubscribe(),
 		));
 
 		$sLowerForwarded = strtolower(\Aurora\Modules\Mail\Module::getInstance()->getConfig('ForwardedFlagName', ''));
@@ -1195,4 +1217,11 @@ class Message
 		
 		return $mResult;
 	}
+
+//	public function canUnsubscribe()
+//	{
+//		if ($this->getHeaders('List-Unsubscribe') != null) {
+//			return true;
+//		}
+//	}
 }
