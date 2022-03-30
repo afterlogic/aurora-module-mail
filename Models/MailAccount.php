@@ -46,6 +46,7 @@ class MailAccount extends Model
     ];
 
     protected $casts = [
+		'Properties' => 'array',
         'IncomingPassword' => \Aurora\System\Casts\Encrypt::class,
         'IsDisabled' => 'boolean',
         'UseToAuthorize' => 'boolean',
