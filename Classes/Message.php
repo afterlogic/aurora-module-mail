@@ -311,7 +311,7 @@ class Message
 		return new self();
 	}
 
-	/**
+    /**
 	 * Returns block of headers of the message.
 	 * 
 	 * @return string
@@ -1217,11 +1217,4 @@ class Message
 		
 		return $mResult;
 	}
-
-//	public function canUnsubscribe()
-//	{
-//		if ($this->getHeaders('List-Unsubscribe') != null) {
-//			return true;
-//		}
-//	}
 }
