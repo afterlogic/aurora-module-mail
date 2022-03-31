@@ -3019,6 +3019,46 @@ class Module extends \Aurora\System\Module\AbstractModule
 		return $oMessage;
 	}
 
+    /**
+     * Unsubscribe button.
+     */
+	public function Unsubscribe($AccountID, $Folder, $Uid)
+    {
+//        var_dump($AccountID, $Folder, $Uid);
+//        $this->oHttp;
+        // Check $oMessage empty or not.
+        $oMessage = self::Decorator()->GetMessage($AccountID, $Folder, $Uid);
+        $headers = $oMessage->getHeadersCollection();
+        // Message.php getByName
+        $oHeader = $headers->GetByName('List-unsubscribe');
+//        var_dump($oHeader->Value()); die();
+        $data = trim($oHeader->Value(), '\n\r\t\v\x00<>');
+//        print_r($data); die();
+        $this->sendLinkUnsubstr($data);
+        // GET CURl get link inner <list-unsubscribe>.
+//        var_dump($header); die();
+    }
+
+    /**
+     * Send unsubscribe request.
+     * @param $url
+     * @return string
+     */
+    protected function sendLinkUnsubstr($url)
+    {
+        if (!$url) {
+            return 'Not found link unsubscribe !';
+        }
+//        print_r($url); die();
+        $ch = curl_init();
+//        var_dump($ch); die();
+        curl_setopt($ch, CURLOPT_HEADER, 0);
+        curl_setopt($ch, CURLOPT_URL, $url);
+        curl_setopt($ch, CURLOPT_POST, true);
+        $result = curl_exec($ch);
+//        var_dump($result); die();
+    }
+
 	public function GetMessageByMessageID($AccountID, $Folder, $UidFrom, $MessageID)
 	{
 		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
