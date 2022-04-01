@@ -7,6 +7,9 @@
 
 namespace Aurora\Modules\Mail;
 
+use Aurora\Modules\Mail\Classes\Message;
+use MailSo\Base\Validator;
+
 /**
  * @license https://www.gnu.org/licenses/agpl-3.0.html AGPL-3.0
  * @license https://afterlogic.com/products/common-licensing Afterlogic Software License
@@ -3020,23 +3023,71 @@ class Module extends \Aurora\System\Module\AbstractModule
 	}
 
     /**
-     * Unsubscribe button.
+     * Unsubscribe the Account from the mailing list.
      */
 	public function Unsubscribe($AccountID, $Folder, $Uid)
     {
-//        var_dump($AccountID, $Folder, $Uid);
-//        $this->oHttp;
-        // Check $oMessage empty or not.
+
+// //        var_dump($AccountID, $Folder, $Uid);
+// //        $this->oHttp;
+//         // Check $oMessage empty or not.
+//         $oMessage = self::Decorator()->GetMessage($AccountID, $Folder, $Uid);
+//         $headers = $oMessage->getHeadersCollection();
+//         // Message.php getByName
+//         $oHeader = $headers->GetByName('List-unsubscribe');
+// //        var_dump($oHeader->Value()); die();
+//         $data = trim($oHeader->Value(), '\n\r\t\v\x00<>');
+// //        print_r($data); die();
+//         $this->sendLinkUnsubstr($data);
+//         // GET CURl get link inner <list-unsubscribe>.
+// //        var_dump($header); die();
+
+
+		$mResult = false;
+
         $oMessage = self::Decorator()->GetMessage($AccountID, $Folder, $Uid);
-        $headers = $oMessage->getHeadersCollection();
-        // Message.php getByName
-        $oHeader = $headers->GetByName('List-unsubscribe');
-//        var_dump($oHeader->Value()); die();
-        $data = trim($oHeader->Value(), '\n\r\t\v\x00<>');
-//        print_r($data); die();
-        $this->sendLinkUnsubstr($data);
-        // GET CURl get link inner <list-unsubscribe>.
-//        var_dump($header); die();
+		if ($oMessage instanceof Message) {
+       		$oHeadersCol = $oMessage->getHeadersCollection();
+			$oHeader = $oHeadersCol->GetByName('list-unsubscribe');
+			if (isset($oHeader)) {
+				$sHeaderValue = $oHeader->Value();
+				if (!empty($sHeaderValue)) {
+					$sUrl = $sEmail = $sEmailSubject = '';
+					$aValues = explode($sHeaderValue, ',');
+					foreach ($aValues as $sValue) {
+						if(strpos(strtolower($sValue), 'mailto:')) {
+							$sEmail = str_replace('mailto:', '', \trim($sValue, '<>'));
+							$aEmailData = explode($sEmail, '?');
+							if (isset($aEmailData[0])) {
+								if (!Validator::EmailString($aEmailData[0])) {
+									$sEmail = '';
+								} else {
+									$sEmail = $aEmailData[0];
+									if (isset($aEmailData[1])) {
+										$aEmailParams = [];
+										parse_str($aEmailData[1], $aEmailParams);
+										if (isset($aEmailParams['subject'])) {
+											$sEmailSubject = $aEmailParams['subject'];
+										}
+									}
+								}
+							} else {
+								$sEmail = '';
+							}
+						} else {
+							$sUrl = \trim($sValue, '<>');
+						}
+					}
+					if (!empty($sUrl)) { // send request to url
+						$mResult = $this->oHttp->SendPostRequest($sUrl); // TODO: can use POST for the Url?
+					} elseif (!empty($sEmail)) { // send message to email
+						$mResult = self::Decorator()->SendMessage($AccountID, null, null, 0, [], "", $sEmail,  "", "", [], $sEmailSubject, "");
+					}
+				}
+			}
+		}
+
+		return $mResult;
     }
 
     /**
