@@ -3040,7 +3040,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 					$aValues = explode(',', $sHeaderValue);
 					foreach ($aValues as $sValue) {
 						if(strpos(strtolower($sValue), 'mailto:')) {
-							$sEmail = str_replace('mailto:', '', \trim($sValue, "<>"));
+							$sEmail = str_replace('mailto:', '', \trim($sValue, " \n\r\t\v\x00<>"));
 							$aEmailData = explode('?', $sEmail);
 							if (isset($aEmailData[0])) {
 								if (!Validator::EmailString($aEmailData[0])) {
@@ -3059,7 +3059,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 								$sEmail = '';
 							}
 						} else {
-							$sUrl = \trim($sValue, '<>');
+							$sUrl = \trim($sValue, " \n\r\t\v\x00<>");
 						}
 					}
 					if (!empty($sUrl)) { // send request to url
