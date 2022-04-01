@@ -3027,23 +3027,7 @@ class Module extends \Aurora\System\Module\AbstractModule
      */
 	public function Unsubscribe($AccountID, $Folder, $Uid)
     {
-
-// //        var_dump($AccountID, $Folder, $Uid);
-// //        $this->oHttp;
-//         // Check $oMessage empty or not.
-//         $oMessage = self::Decorator()->GetMessage($AccountID, $Folder, $Uid);
-//         $headers = $oMessage->getHeadersCollection();
-//         // Message.php getByName
-//         $oHeader = $headers->GetByName('List-unsubscribe');
-// //        var_dump($oHeader->Value()); die();
-//         $data = trim($oHeader->Value(), '\n\r\t\v\x00<>');
-// //        print_r($data); die();
-//         $this->sendLinkUnsubstr($data);
-//         // GET CURl get link inner <list-unsubscribe>.
-// //        var_dump($header); die();
-
-
-		$mResult = false;
+        $mResult = false;
 
         $oMessage = self::Decorator()->GetMessage($AccountID, $Folder, $Uid);
 		if ($oMessage instanceof Message) {
@@ -3053,11 +3037,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 				$sHeaderValue = $oHeader->Value();
 				if (!empty($sHeaderValue)) {
 					$sUrl = $sEmail = $sEmailSubject = '';
-					$aValues = explode($sHeaderValue, ',');
+					$aValues = explode(',', $sHeaderValue);
 					foreach ($aValues as $sValue) {
 						if(strpos(strtolower($sValue), 'mailto:')) {
-							$sEmail = str_replace('mailto:', '', \trim($sValue, '<>'));
-							$aEmailData = explode($sEmail, '?');
+							$sEmail = str_replace('mailto:', '', \trim($sValue, "<>"));
+							$aEmailData = explode('?', $sEmail);
 							if (isset($aEmailData[0])) {
 								if (!Validator::EmailString($aEmailData[0])) {
 									$sEmail = '';
@@ -3086,7 +3070,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 				}
 			}
 		}
-
 		return $mResult;
     }
 

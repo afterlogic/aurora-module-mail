@@ -200,5 +200,9 @@
 	"AllowUnifiedInbox": [
 		true,
 		"bool"
+	],
+	"AllowUnsubscribe": [
+		false,
+		"bool"
 	]
 }
