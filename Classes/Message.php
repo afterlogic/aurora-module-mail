@@ -427,7 +427,7 @@ class Message
 	public function canUnsubscribe()
     {
         $headers = $this->getHeadersCollection();
-        $oHeader = $headers->GetByName('List-unsubscribe');
+        $oHeader = $headers->GetByName('List-Unsubscribe') ?? $headers->GetByName('List-Unsubscribe-Post');
         return isset($oHeader);
     }
 
