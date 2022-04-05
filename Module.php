@@ -3023,59 +3023,48 @@ class Module extends \Aurora\System\Module\AbstractModule
 	}
 
     /**
-     * Unsubscribe the Account from the mailing list.
+     * Unsubscribe the account from the mailing list.
+     *
+     * @param $AccountID
+     * @param $Folder
+     * @param $Uid
+     * @return bool
      */
 	public function Unsubscribe($AccountID, $Folder, $Uid)
     {
         $mResult = false;
-
         $oMessage = self::Decorator()->GetMessage($AccountID, $Folder, $Uid);
         if ($oMessage instanceof Message) {
-
             $oHeadersCol = $oMessage->getHeadersCollection();
-
             $oHeaderLU = $oHeadersCol->GetByName('List-Unsubscribe');
-
             if ($oHeaderLU) {
                 $sHeaderValueLU = $oHeaderLU->Value();
                 if (!empty($sHeaderValueLU)) {
                     $sEmail = $sUrl = '';
                     $aHeaderValueLU = \explode(',', $sHeaderValueLU);
-
                     if (is_array($aHeaderValueLU)) {
                         foreach ($aHeaderValueLU as $value) {
                             $value = \trim($value, " \n\r\t\v\x00<>");
-
                             if (strpos($value, 'mailto:') !== false) {
-
                                 $sEmail = str_replace('mailto:', '', $value);
                                 $aEmailData = explode('?', $sEmail);
-                                if (isset($aEmailData[0])) {
-                                    if (!Validator::EmailString($aEmailData[0])) {
-                                        $sEmail = '';
-                                    } else {
-                                        $sEmail = $aEmailData[0];
-                                    }
-                                } else {
-                                    $sEmail = '';
+                                if (isset($aEmailData[0]) && Validator::EmailString($aEmailData[0])) {
+                                    $sEmail = $aEmailData[0];
                                 }
-
-                            } elseif (strpos($value, "http://") !== false || strpos($value, "https://") !== false) {
-                                if (is_string($value)) {
-                                    $sUrl = $value;
-                                }
+                            } elseif (filter_var($value, FILTER_VALIDATE_URL)) {
+                                $sUrl = $value;
                             }
                         }
                     }
-
                     $oHeaderLUP = $oHeadersCol->GetByName('List-Unsubscribe-Post');
-
                     if ($oHeaderLUP) {
                         $sHeaderLUP = $oHeaderLUP->Value();
-                        if (strtolower($sHeaderLUP) === strtolower('List-Unsubscribe=One-Click') && !empty($sUrl)) {
+                        if (strcasecmp($sHeaderLUP, 'List-Unsubscribe=One-Click') == 0 && !empty($sUrl)) {
                             $iCode = 0;
-                            $mResult = $this->oHttp->SendPostRequest($sUrl, [], '', $iCode); // [], '', $iCode //
-                            return ($iCode == 200);
+                            $this->oHttp->SendPostRequest($sUrl, [], '', $iCode);
+                            if ($this->oHttp->SendPostRequest($sUrl, [], '', $iCode)) {
+                                $mResult = ($iCode == 200);
+                            }
                         }
                     } elseif (!empty($sEmail)) {
                         $mResult = self::Decorator()->SendMessage($AccountID, null, null, 0, [], "", $sEmail, "", "", [], 'Unsubscribe');
@@ -3083,7 +3072,6 @@ class Module extends \Aurora\System\Module\AbstractModule
                 }
             }
         }
-
         return $mResult;
     }
 
