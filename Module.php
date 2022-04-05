@@ -3059,7 +3059,6 @@ class Module extends \Aurora\System\Module\AbstractModule
                         $sHeaderLUP = $oHeaderLUP->Value();
                         if (strcasecmp($sHeaderLUP, 'List-Unsubscribe=One-Click') == 0 && !empty($sUrl)) {
                             $iCode = 0;
-                            $this->oHttp->SendPostRequest($sUrl, [], '', $iCode);
                             if ($this->oHttp->SendPostRequest($sUrl, [], '', $iCode)) {
                                 $mResult = ($iCode == 200);
                             }
