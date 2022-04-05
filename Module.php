@@ -3044,8 +3044,8 @@ class Module extends \Aurora\System\Module\AbstractModule
                     $aHeaderValueLU = \explode(',', $sHeaderValueLU);
                     foreach ($aHeaderValueLU as $value) {
                         $value = \trim($value, " \n\r\t\v\x00<>");
-                        if (strpos($value, 'mailto:') !== false) {
-                            $sEmail = str_replace('mailto:', '', $value);
+                        if (stripos($value, 'mailto:') !== false) {
+                            $sEmail = str_ireplace('mailto:', '', $value);
                             $aEmailData = explode('?', $sEmail);
                             if (isset($aEmailData[0]) && Validator::EmailString($aEmailData[0])) {
                                 $sEmail = $aEmailData[0];
