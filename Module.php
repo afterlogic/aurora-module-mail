@@ -3030,38 +3030,61 @@ class Module extends \Aurora\System\Module\AbstractModule
         $mResult = false;
 
         $oMessage = self::Decorator()->GetMessage($AccountID, $Folder, $Uid);
-		if ($oMessage instanceof Message) {
+        if ($oMessage instanceof Message) {
 
             $oHeadersCol = $oMessage->getHeadersCollection();
 
-            // mailto
             $oHeaderLU = $oHeadersCol->GetByName('List-Unsubscribe');
 
-            // one-click
-            $oHeaderLUP = $oHeadersCol->GetByName('List-Unsubscribe-Post');
+            if ($oHeaderLU) {
+                $sHeaderValueLU = $oHeaderLU->Value();
+                if (!empty($sHeaderValueLU)) {
+                    $sEmail = $sUrl = '';
+                    $aHeaderValueLU = \explode(',', $sHeaderValueLU);
 
-            if (isset($oHeaderLUP) && isset($oHeaderLU)) {
-                if (strtolower($oHeaderLUP->Value()) === strtolower('List-Unsubscribe=One-Click')) {
-                    $sUrl = \trim($oHeaderLU->Value(), " \n\r\t\v\x00<>");
-                    $mResult = $this->oHttp->SendPostRequest($sUrl);
-                }
-            } else {
-                if (str_contains($oHeaderLU->Value(), 'mailto:') !== false) {
-                    $sHeaderLUValue = str_replace('mailto:', '', \trim($oHeaderLU->Value(), " \n\r\t\v\x00<>"));
-//                    if (!Validator::EmailString($sHeaderLUValue)) {
-//                        $mResult = false;
-//                    }
-                    list($sEmail, $sParams) = explode('?', $sHeaderLUValue);
-                    parse_str($sParams, $aParams);
-                    $sEmailBody = $aParams['body'] ?? '';
-                    $sEmailSubject = $aParams['subject'] ?? '';
-                    $mResult = self::Decorator()->SendMessage($AccountID, null, null, 0, [], "", $sEmail, "", "", [], $sEmailSubject, $sEmailBody);
-                } else {
-                    $mResult = false;
+                    if (is_array($aHeaderValueLU)) {
+                        foreach ($aHeaderValueLU as $value) {
+                            $value = \trim($value, " \n\r\t\v\x00<>");
+
+                            if (strpos($value, 'mailto:') !== false) {
+
+                                $sEmail = str_replace('mailto:', '', $value);
+                                $aEmailData = explode('?', $sEmail);
+                                if (isset($aEmailData[0])) {
+                                    if (!Validator::EmailString($aEmailData[0])) {
+                                        $sEmail = '';
+                                    } else {
+                                        $sEmail = $aEmailData[0];
+                                    }
+                                } else {
+                                    $sEmail = '';
+                                }
+
+                            } elseif (strpos($value, "http://") !== false || strpos($value, "https://") !== false) {
+                                if (is_string($value)) {
+                                    $sUrl = $value;
+                                }
+                            }
+                        }
+                    }
+
+                    $oHeaderLUP = $oHeadersCol->GetByName('List-Unsubscribe-Post');
+
+                    if ($oHeaderLUP) {
+                        $sHeaderLUP = $oHeaderLUP->Value();
+                        if (strtolower($sHeaderLUP) === strtolower('List-Unsubscribe=One-Click') && !empty($sUrl)) {
+                            $iCode = 0;
+                            $mResult = $this->oHttp->SendPostRequest($sUrl, [], '', $iCode); // [], '', $iCode //
+                            return ($iCode == 200);
+                        }
+                    } elseif (!empty($sEmail)) {
+                        $mResult = self::Decorator()->SendMessage($AccountID, null, null, 0, [], "", $sEmail, "", "", [], 'Unsubscribe');
+                    }
                 }
             }
         }
-		return $mResult;
+
+        return $mResult;
     }
 
 	public function GetMessageByMessageID($AccountID, $Folder, $UidFrom, $MessageID)
