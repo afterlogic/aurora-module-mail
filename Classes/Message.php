@@ -426,9 +426,24 @@ class Message
      */
 	public function canUnsubscribe()
     {
+        $mResult = false;
         $headers = $this->getHeadersCollection();
-        $oHeader = $headers->GetByName('List-Unsubscribe') ?? $headers->GetByName('List-Unsubscribe-Post');
-        return isset($oHeader);
+
+        $oHeaderLU = $headers->GetByName('List-Unsubscribe');
+        $oHeaderLUP = $headers->GetByName('List-Unsubscribe-Post');
+
+        if (isset($oHeaderLUP)) {
+            if (strtolower($oHeaderLUP->Value()) === strtolower('List-Unsubscribe=One-Click')) {
+                $mResult = true;
+            }
+        } else {
+            if (isset($oHeaderLU)) {
+                if (str_contains($oHeaderLU->Value(), 'mailto:') !== false) {
+                    $mResult = true;
+                }
+            }
+        }
+        return $mResult;
     }
 
 	public function setAccountId($iAccountId)
