@@ -7,6 +7,8 @@
 
 namespace Aurora\Modules\Mail\Classes;
 
+use MailSo\Base\Validator;
+
 /**
  * @license https://www.gnu.org/licenses/agpl-3.0.html AGPL-3.0
  * @license https://afterlogic.com/products/common-licensing Afterlogic Software License
@@ -413,12 +415,55 @@ class Message
     /**
      * Get a collection of headers.
      *
-     * @return array
+     * @return \MailSo\Mime\HeaderCollection
      */
 	public function getHeadersCollection()
     {
         return \MailSo\Mime\HeaderCollection::NewInstance()->Parse($this->getHeaders());
     }
+
+	/**
+	 * @return array
+	 */
+	public function parseUnsubscribeHeaders()
+	{
+		$mResult = [
+			'Url' => '',
+			'Email' => ''
+		];
+		$oHeadersCol = $this->getHeadersCollection();
+		$oHeaderLU = $oHeadersCol->GetByName('List-Unsubscribe');
+		if ($oHeaderLU) {
+			$sHeaderValueLU = $oHeaderLU->Value();
+			if (!empty($sHeaderValueLU)) {
+				$sEmail = $sUrl = '';
+				$aHeaderValueLU = \explode(',', $sHeaderValueLU);
+				foreach ($aHeaderValueLU as $value) {
+					$value = \trim($value, " \n\r\t\v\x00<>");
+					if (stripos($value, 'mailto:') !== false) {
+						$sEmail = str_ireplace('mailto:', '', $value);
+						$aEmailData = explode('?', $sEmail);
+						if (isset($aEmailData[0]) && Validator::EmailString($aEmailData[0])) {
+							$sEmail = $aEmailData[0];
+						}
+					} elseif (filter_var($value, FILTER_VALIDATE_URL)) {
+						$sUrl = $value;
+					}
+				}
+				$oHeaderLUP = $oHeadersCol->GetByName('List-Unsubscribe-Post');
+				if ($oHeaderLUP) {
+					$sHeaderLUP = $oHeaderLUP->Value();
+					if (strcasecmp($sHeaderLUP, 'List-Unsubscribe=One-Click') == 0 && !empty($sUrl)) {
+						$mResult['Url'] = $sUrl; 
+					}
+				} elseif (!empty($sEmail)) {
+					$mResult['Email'] = $sEmail; 
+				}
+			}
+		}
+
+		return $mResult;
+	}
 
     /**
      * The header appears returning a Boolean value.
@@ -426,24 +471,8 @@ class Message
      */
 	public function canUnsubscribe()
     {
-        $mResult = false;
-        $headers = $this->getHeadersCollection();
-
-        $oHeaderLU = $headers->GetByName('List-Unsubscribe');
-        $oHeaderLUP = $headers->GetByName('List-Unsubscribe-Post');
-
-        if (isset($oHeaderLUP)) {
-            if (strtolower($oHeaderLUP->Value()) === strtolower('List-Unsubscribe=One-Click')) {
-                $mResult = true;
-            }
-        } else {
-            if (isset($oHeaderLU)) {
-                if (str_contains($oHeaderLU->Value(), 'mailto:') !== false) {
-                    $mResult = true;
-                }
-            }
-        }
-        return $mResult;
+		$aParsesHeaders = $this->parseUnsubscribeHeaders();
+		return (!empty($aParsesHeaders['Url']) || !empty($aParsesHeaders['Email']));
     }
 
 	public function setAccountId($iAccountId)

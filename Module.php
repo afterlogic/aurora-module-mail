@@ -3035,39 +3035,15 @@ class Module extends \Aurora\System\Module\AbstractModule
         $mResult = false;
         $oMessage = self::Decorator()->GetMessage($AccountID, $Folder, $Uid);
         if ($oMessage instanceof Message) {
-            $oHeadersCol = $oMessage->getHeadersCollection();
-            $oHeaderLU = $oHeadersCol->GetByName('List-Unsubscribe');
-            if ($oHeaderLU) {
-                $sHeaderValueLU = $oHeaderLU->Value();
-                if (!empty($sHeaderValueLU)) {
-                    $sEmail = $sUrl = '';
-                    $aHeaderValueLU = \explode(',', $sHeaderValueLU);
-                    foreach ($aHeaderValueLU as $value) {
-                        $value = \trim($value, " \n\r\t\v\x00<>");
-                        if (stripos($value, 'mailto:') !== false) {
-                            $sEmail = str_ireplace('mailto:', '', $value);
-                            $aEmailData = explode('?', $sEmail);
-                            if (isset($aEmailData[0]) && Validator::EmailString($aEmailData[0])) {
-                                $sEmail = $aEmailData[0];
-                            }
-                        } elseif (filter_var($value, FILTER_VALIDATE_URL)) {
-                            $sUrl = $value;
-                        }
-                    }
-                    $oHeaderLUP = $oHeadersCol->GetByName('List-Unsubscribe-Post');
-                    if ($oHeaderLUP) {
-                        $sHeaderLUP = $oHeaderLUP->Value();
-                        if (strcasecmp($sHeaderLUP, 'List-Unsubscribe=One-Click') == 0 && !empty($sUrl)) {
-                            $iCode = 0;
-                            if ($this->oHttp->SendPostRequest($sUrl, [], '', $iCode)) {
-                                $mResult = ($iCode == 200);
-                            }
-                        }
-                    } elseif (!empty($sEmail)) {
-                        $mResult = self::Decorator()->SendMessage($AccountID, null, null, 0, [], "", $sEmail, "", "", [], 'Unsubscribe');
-                    }
-                }
-            }
+			$aParsedHeaders = $oMessage->parseUnsubscribeHeaders();
+			if (!empty($aParsedHeaders['Url'])) {
+				$iCode = 0;
+				if ($this->oHttp->SendPostRequest($aParsedHeaders['Url'], [], '', $iCode)) {
+					$mResult = ($iCode == 200);
+				}
+			} elseif (!empty($aParsedHeaders['Email'])) {
+				$mResult = self::Decorator()->SendMessage($AccountID, null, null, 0, [], "", $aParsedHeaders['Email'], "", "", [], 'Unsubscribe');
+			}
         }
         return $mResult;
     }
