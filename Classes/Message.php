@@ -12,7 +12,7 @@ use MailSo\Base\Validator;
 /**
  * @license https://www.gnu.org/licenses/agpl-3.0.html AGPL-3.0
  * @license https://afterlogic.com/products/common-licensing Afterlogic Software License
- * @copyright Copyright (c) 2019, Afterlogic Corp.
+ * @copyright Copyright (c) 2022, Afterlogic Corp.
  * 
  * @package Mail
  * @subpackage Classes
@@ -490,16 +490,6 @@ class Message
 
 		return $mResult;
 	}
-
-    /**
-     * The header appears returning a Boolean value.
-     * @return bool
-     */
-	public function canUnsubscribe()
-    {
-		$aParsesHeaders = $this->parseUnsubscribeHeaders();
-		return (!empty($aParsesHeaders['Url']) || !empty($aParsesHeaders['Email']));
-    }
 
 	public function setAccountId($iAccountId)
 	{
@@ -1165,7 +1155,7 @@ class Message
 			'Importance' => $this->getImportance(),
 			'DraftInfo' => $this->getDraftInfo(),
 			'Sensitivity' => $this->getSensitivity(),
-            'CanUnsubscribe' => $this->canUnsubscribe(),
+			'Unsubscribe' => $this->parseUnsubscribeHeaders()
 		));
 
 		$sLowerForwarded = strtolower(\Aurora\Modules\Mail\Module::getInstance()->getConfig('ForwardedFlagName', ''));
