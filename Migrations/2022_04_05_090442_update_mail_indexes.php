@@ -13,16 +13,6 @@ class UpdateMailIndexes extends Migration
      */
     public function up()
     {
-        Capsule::schema()->table('mail_domains', function(Blueprint $table)
-        {
-            $table->index('TenantId');
-            $table->index('MailserverId');
-        });
-        Capsule::schema()->table('mail_fetchers', function(Blueprint $table)
-        {
-            $table->index('IdUser');
-            $table->index('IdAccount');
-        });
         Capsule::schema()->table('mail_refresh_folders', function(Blueprint $table)
         {
             $table->index('IdAccount');
@@ -48,16 +38,6 @@ class UpdateMailIndexes extends Migration
      */
     public function down()
     {
-        Capsule::schema()->table('mail_domains', function (Blueprint $table)
-        {
-            $table->dropIndex(['IdTenant']);
-            $table->dropIndex(['MailserverId']);
-        });
-        Capsule::schema()->table('mail_fetchers', function(Blueprint $table)
-        {
-            $table->dropIndex(['IdUser']);
-            $table->dropIndex(['IdAccount']);
-        });
         Capsule::schema()->table('mail_refresh_folders', function(Blueprint $table)
         {
             $table->dropIndex(['IdAccount']);
