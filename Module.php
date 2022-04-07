@@ -3030,42 +3030,40 @@ class Module extends \Aurora\System\Module\AbstractModule
      * @param $Uid
      * @return bool
      */
-	public function Unsubscribe($AccountID, $Folder, $Uid)
+    public function Unsubscribe($AccountID, $Folder, $Uid)
     {
         $mResult = false;
         $oMessage = self::Decorator()->GetMessage($AccountID, $Folder, $Uid);
         if ($oMessage instanceof Message) {
-			$aParsedHeaders = $oMessage->parseUnsubscribeHeaders();
-			if (!empty($aParsedHeaders['Url'])) {
-				$iCode = 0;
-				if ($this->oHttp->SendPostRequest($aParsedHeaders['Url'], [], '', $iCode)) {
-					$mResult = ($iCode == 200);
-				}
-			} elseif (!empty($aParsedHeaders['Email'])) {
-				$mResult = self::Decorator()->SendMessage($AccountID, null, null, 0, [], "", $aParsedHeaders['Email'], "", "", [], 'Unsubscribe');
-			}
+            $aParsedHeaders = $oMessage->parseUnsubscribeHeaders();
+            $iCode = 0;
+            if ($this->oHttp->SendPostRequest($aParsedHeaders['Url'], [], '', $iCode)) {
+                $mResult = ($iCode == 200);
+            } elseif (!empty($aParsedHeaders['Email'])) {
+                $mResult = self::Decorator()->SendMessage($AccountID, null, null, 0, [], "", $aParsedHeaders['Email'], "", "", [], 'Unsubscribe');
+            }
         }
         return $mResult;
     }
 
-	public function GetMessageByMessageID($AccountID, $Folder, $UidFrom, $MessageID)
-	{
-		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
+    public function GetMessageByMessageID($AccountID, $Folder, $UidFrom, $MessageID)
+    {
+        $oAccount = $this->getAccountsManager()->getAccountById($AccountID);
 
-		self::checkAccess($oAccount);
-		$mResult = false;
-		$iUID = $this->getMailManager()->getMessageUIDByMessageID($oAccount, $Folder, $UidFrom, $MessageID);
-		if ($iUID !== false)
-		{
-			$aMessages = $this->GetMessagesBodies($AccountID, $Folder, [$iUID]);
-			if (is_array($aMessages) && count($aMessages) > 0)
-			{
-				$mResult = $aMessages[0];
-			}
-		}
+        self::checkAccess($oAccount);
+        $mResult = false;
+        $iUID = $this->getMailManager()->getMessageUIDByMessageID($oAccount, $Folder, $UidFrom, $MessageID);
+        if ($iUID !== false)
+        {
+            $aMessages = $this->GetMessagesBodies($AccountID, $Folder, [$iUID]);
+            if (is_array($aMessages) && count($aMessages) > 0)
+            {
+                $mResult = $aMessages[0];
+            }
+        }
 
-		return $mResult;
-	}
+        return $mResult;
+    }
 
 	/**
 	 * @api {post} ?/Api/ SetMessagesSeen

@@ -428,10 +428,33 @@ class Message
 	public function parseUnsubscribeHeaders()
 	{
 		$mResult = [
+		    'OneClick' => false,
 			'Url' => '',
 			'Email' => ''
 		];
+
 		$oHeadersCol = $this->getHeadersCollection();
+		$oHeaderDKIM = $oHeadersCol->GetByName('DKIM-Signature');
+        $bSignatureLU =  false;
+        $bSignatureLUP = false;
+		if ($oHeaderDKIM) {
+            $aHeaderHValue = \explode(';', $oHeaderDKIM->Value());
+            foreach ($aHeaderHValue as $val) {
+                if (strpos($val, 'h=', 0) >= 0) {
+                    $val = \trim($val);
+                    $val = \str_replace('h=', '', $val);
+                    $aVal = \explode(':', $val);
+                    foreach ($aVal as $v) {
+                        if (strtolower($v) === 'list-unsubscribe') {
+                            $bSignatureLU = true;
+                        } elseif (strtolower($v) === 'list-unsubscribe-post') {
+                            $bSignatureLUP = true;
+                        }
+                    }
+                }
+            }
+        }
+
 		$oHeaderLU = $oHeadersCol->GetByName('List-Unsubscribe');
 		if ($oHeaderLU) {
 			$sHeaderValueLU = $oHeaderLU->Value();
@@ -453,10 +476,13 @@ class Message
 				$oHeaderLUP = $oHeadersCol->GetByName('List-Unsubscribe-Post');
 				if ($oHeaderLUP) {
 					$sHeaderLUP = $oHeaderLUP->Value();
-					if (strcasecmp($sHeaderLUP, 'List-Unsubscribe=One-Click') == 0 && !empty($sUrl)) {
+					if (!empty($sUrl) && $bSignatureLU) {
 						$mResult['Url'] = $sUrl; 
 					}
-				} elseif (!empty($sEmail)) {
+                    if (strcasecmp($sHeaderLUP, 'List-Unsubscribe=One-Click') == 0 && !empty($sUrl) && $bSignatureLUP && $bSignatureLU) {
+                        $mResult['OneClick'] = true;
+                    }
+				} elseif (!empty($sEmail) && $bSignatureLU) {
 					$mResult['Email'] = $sEmail; 
 				}
 			}
