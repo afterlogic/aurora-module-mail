@@ -3037,7 +3037,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         if ($oMessage instanceof Message) {
             $aParsedHeaders = $oMessage->parseUnsubscribeHeaders();
             $iCode = 0;
-            if ($this->oHttp->SendPostRequest($aParsedHeaders['Url'], [], '', $iCode)) {
+            if ($this->oHttp->SendPostRequest($aParsedHeaders['Url'], ['List-Unsubscribe' => 'One-Click'], '', $iCode, \Aurora\Api::SystemLogger())) {
                 $mResult = ($iCode == 200);
             } elseif (!empty($aParsedHeaders['Email'])) {
                 $mResult = self::Decorator()->SendMessage($AccountID, null, null, 0, [], "", $aParsedHeaders['Email'], "", "", [], 'Unsubscribe');
