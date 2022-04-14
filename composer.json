@@ -4,7 +4,8 @@
 	"require":{
 		"php":">=5.4.0",
 		"afterlogic/aurora-framework": "~0.9.0",
-		"tijsverkoyen/css-to-inline-styles": "~1.3.0"
+		"tijsverkoyen/css-to-inline-styles": "~1.3.0",
+		"angrychimp/php-dkim": "~0.2.0"
 	},
 	"extra": {
 		"installer-name": "Mail"
