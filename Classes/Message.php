@@ -506,8 +506,8 @@ class Message
 		$bSignatureLU = false;
 		$bSignatureLUPrev = true;
 
-		$bSignatureLUP = false;
-		$bSignatureLUPPrev = true;
+		// $bSignatureLUP = false;
+		// $bSignatureLUPPrev = true;
 
 		foreach ($aDKIMHeaders as $sDKIMHeader) {
 
@@ -523,15 +523,16 @@ class Message
 							$v = \trim($v);
 							if (strtolower($v) === 'list-unsubscribe') {
 								$bSignatureLU = $bSignatureLUPrev && true;
-							} elseif (strtolower($v) === 'list-unsubscribe-post') {
-								$bSignatureLUP = $bSignatureLUPPrev && true;
-							}
+							} 
+							// elseif (strtolower($v) === 'list-unsubscribe-post') {
+							// 	$bSignatureLUP = $bSignatureLUPPrev && true;
+							// }
 						}
 					}
 				}
 
 				$bSignatureLUPrev = $bSignatureLU;
-				$bSignatureLUPPrev = $bSignatureLUP;
+				// $bSignatureLUPPrev = $bSignatureLUP;
 			}
 		}
 
@@ -561,7 +562,7 @@ class Message
                     if (!empty($sUrl) && $bSignatureLU) {
                         $mResult['Url'] = $sUrl;
                     }
-                    if (strcasecmp($sHeaderLUP, 'List-Unsubscribe=One-Click') == 0 && !empty($sUrl) && $bSignatureLUP && $bSignatureLU) {
+                    if (strcasecmp($sHeaderLUP, 'List-Unsubscribe=One-Click') == 0 && !empty($sUrl) /*&& $bSignatureLUP*/ && $bSignatureLU) {
                         $mResult['OneClick'] = true;
                     }
                 } elseif (!empty($sEmail) && $bSignatureLU) {

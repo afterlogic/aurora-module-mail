@@ -3045,8 +3045,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 			function($rResource) use (&$validate) {
 				if (\is_resource($rResource)) {
 					$rawMessage = stream_get_contents($rResource);
-					$dkimValidator = new DKIMValidator($rawMessage);
+
 					try {
+						$dkimValidator = new DKIMValidator($rawMessage);
 						$validateResult = @$dkimValidator->validate();
 
 						$validateCount = count($validateResult);
@@ -3070,30 +3071,33 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$oMessage = self::Decorator()->GetMessage($AccountID, $Folder, $Uid);
 			if ($oMessage instanceof Message) {
 				$aParsedHeaders = $oMessage->parseUnsubscribeHeaders();
-				if (!empty($aParsedHeaders['Url'])) {
-					$iCode = 0;
-					$this->oHttp->SendPostRequest(
-						$aParsedHeaders['Url'], 
-						['List-Unsubscribe' => 'One-Click'], 
-						'', 
-						$iCode, 
-						\Aurora\Api::SystemLogger()
-					);
-					$mResult = ($iCode == 200);
-				} elseif (!empty($aParsedHeaders['Email'])) {
-					$mResult = self::Decorator()->SendMessage(
-						$AccountID, 
-						null, 
-						null, 
-						0, 
-						[], 
-						"", 
-						$aParsedHeaders['Email'], 
-						"", 
-						"", 
-						[], 
-						'Unsubscribe'
-					);
+
+				if ($aParsedHeaders['OneClick']) {
+					if (!empty($aParsedHeaders['Url'])) {
+						$iCode = 0;
+						$this->oHttp->SendPostRequest(
+							$aParsedHeaders['Url'], 
+							['List-Unsubscribe' => 'One-Click'], 
+							'', 
+							$iCode, 
+							\Aurora\Api::SystemLogger()
+						);
+						$mResult = ($iCode == 200);
+					} elseif (!empty($aParsedHeaders['Email'])) {
+						$mResult = self::Decorator()->SendMessage(
+							$AccountID, 
+							null, 
+							null, 
+							0, 
+							[], 
+							"", 
+							$aParsedHeaders['Email'], 
+							"", 
+							"", 
+							[], 
+							'Unsubscribe'
+						);
+					}
 				}
 			}
 		}
