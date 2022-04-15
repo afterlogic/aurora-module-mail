@@ -2440,6 +2440,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$iMessagesCount = 0;
 		$iMessagesResultCount = 0;
 		$iMessagesUnseenCount = 0;
+		$aFoldersHash = [];
 
 		$sSortBy = 'ARRIVAL';
 		$sSortOrder = $SortOrder === \Aurora\System\Enums\SortOrder::DESC ? 'REVERSE' : '';
