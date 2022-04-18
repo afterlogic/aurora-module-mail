@@ -549,7 +549,7 @@ class Message
                             $sEmailCheck = str_ireplace('mailto:', '', $value);
                             $aEmailData = explode('?', $sEmailCheck);
                             if (filter_var($aEmailData[0], FILTER_VALIDATE_EMAIL)) {
-                                $sEmail = $aEmailData[0];
+                                $sEmail = $value;
                             }
                         } elseif (filter_var($value, FILTER_VALIDATE_URL)) {
                             $sUrl = $value;

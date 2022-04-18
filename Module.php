@@ -3084,6 +3084,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 						);
 						$mResult = ($iCode == 200);
 					} elseif (!empty($aParsedHeaders['Email'])) {
+						$sEmailCheck = str_ireplace('mailto:', '', $aParsedHeaders['Email']);
+						$aEmailData = explode('?', $sEmailCheck);
 						$mResult = self::Decorator()->SendMessage(
 							$AccountID, 
 							null, 
@@ -3091,7 +3093,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 							0, 
 							[], 
 							"", 
-							$aParsedHeaders['Email'], 
+							$aEmailData[0], 
 							"", 
 							"", 
 							[], 
