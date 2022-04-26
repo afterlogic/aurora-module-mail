@@ -4468,7 +4468,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$SendReadingConfirmation = false, $Attachments = array(), $InReplyTo = "",
 			$References = "", $Sensitivity = \MailSo\Mime\Enumerations\Sensitivity::NOTHING, $SentFolder = "",
 			$DraftFolder = "", $ConfirmFolder = "", $ConfirmUid = "",
-			$CustomHeaders = [])
+			$CustomHeaders = [], $FromEmail = '')
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 
@@ -4480,7 +4480,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		$oMessage = self::Decorator()->BuildMessage($oAccount, $To, $Cc, $Bcc,
 			$Subject, $IsHtml, $Text, $Attachments, $DraftInfo, $InReplyTo, $References, $Importance,
-			$Sensitivity, $SendReadingConfirmation, $Fetcher, $Alias, false, $oIdentity, $CustomHeaders);
+			$Sensitivity, $SendReadingConfirmation, $Fetcher, $Alias, false, $oIdentity,
+			$CustomHeaders, $FromEmail);
 
 		if ($oMessage)
 		{
@@ -6512,7 +6513,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$sSubject = '', $bTextIsHtml = false, $sText = '', $aAttachments = null,
 			$aDraftInfo = null, $sInReplyTo = '', $sReferences = '', $iImportance = '',
 			$iSensitivity = 0, $bSendReadingConfirmation = false,
-			$oFetcher = null, $oAlias = null, $bWithDraftInfo = true, $oIdentity = null, $aCustomHeaders = [])
+			$oFetcher = null, $oAlias = null, $bWithDraftInfo = true, $oIdentity = null,
+			$aCustomHeaders = [], $sFromEmail = '')
 	{
 		self::checkAccess($oAccount);
 
@@ -6537,16 +6539,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 			);
 		}
 
-		if ($oIdentity)
-		{
+		if (!empty($sFromEmail)) {
+			$oFrom = \MailSo\Mime\Email::Parse($sFromEmail);
+		} else if ($oIdentity) {
 			$oFrom = \MailSo\Mime\Email::NewInstance($oIdentity->Email, $oIdentity->FriendlyName);
-		}
-		else if ($oAlias)
-		{
+		} else if ($oAlias) {
 			$oFrom = \MailSo\Mime\Email::NewInstance($oAlias->Email, $oAlias->FriendlyName);
-		}
-		else
-		{
+		} else {
 			$oFrom = $oFetcher
 				? \MailSo\Mime\Email::NewInstance($oFetcher->Email, $oFetcher->Name)
 				: \MailSo\Mime\Email::NewInstance($oAccount->Email, $oAccount->FriendlyName);
