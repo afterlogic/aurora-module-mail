@@ -42,12 +42,15 @@ class Server extends Model
         'ExternalAccessImapServer',
         'ExternalAccessImapPort',
         'ExternalAccessImapAlterPort',
+        'ExternalAccessImapUseSsl',
         'ExternalAccessPop3Server',
         'ExternalAccessPop3Port',
         'ExternalAccessPop3AlterPort',
+        'ExternalAccessPop3UseSsl',
         'ExternalAccessSmtpServer',
         'ExternalAccessSmtpPort',
         'ExternalAccessSmtpAlterPort',
+        'ExternalAccessSmtpUseSsl',
 
         'OAuthEnable',
         'OAuthName',
@@ -72,6 +75,9 @@ class Server extends Model
         'SetExternalAccessServers' => 'boolean',
         'OAuthEnable' => 'boolean',
         'SmtpPassword' => \Aurora\System\Casts\Encrypt::class,
+        'ExternalAccessImapUseSsl' => 'boolean',
+        'ExternalAccessPop3UseSsl' => 'boolean',
+        'ExternalAccessSmtpUseSsl' => 'boolean',
     ];
 
     protected $attributes = [

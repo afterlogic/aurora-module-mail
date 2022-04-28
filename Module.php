@@ -10,6 +10,7 @@ namespace Aurora\Modules\Mail;
 use Aurora\Api;
 use Aurora\Modules\Mail\Enums\SearchInFoldersType;
 use Aurora\Modules\Mail\Models\Identity;
+use Aurora\System\Exceptions\InvalidArgumentException;
 use Aurora\System\Module\Decorator;
 
 /**
@@ -1128,7 +1129,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 					if ($Server['ServerId'] === 0)
 					{
 						$sDomains = explode('@', $oAccount->Email)[1];
-						$oNewServer = new \Aurora\Modules\Mail\Models\Server(self::GetName());
+						$oNewServer = new \Aurora\Modules\Mail\Models\Server();
 						$oNewServer->Name = $Server['IncomingServer'];
 						$oNewServer->IncomingServer = $Server['IncomingServer'];
 						$oNewServer->IncomingPort = $Server['IncomingPort'];
@@ -1588,12 +1589,15 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param string $ExternalAccessImapServer
 	 * @param int $ExternalAccessImapPort
 	 * @param int $ExternalAccessImapAlterPort
+	 * @param boolean $ExternalAccessImapUseSsl
 	 * @param string $ExternalAccessPop3Server
 	 * @param int $ExternalAccessPop3Port
 	 * @param int $ExternalAccessPop3AlterPort
+	 * @param boolean $ExternalAccessPop3UseSsl
 	 * @param string $ExternalAccessSmtpServer
 	 * @param int $ExternalAccessSmtpPort
 	 * @param int $ExternalAccessSmtpAlterPort
+	 * @param boolean $ExternalAccessSmtpUseSsl
 	 * @param boolean $OAuthEnable
 	 * @param string $OAuthName
 	 * @param string $OAuthType
@@ -1604,9 +1608,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$OutgoingServer, $OutgoingPort, $OutgoingUseSsl, $SmtpAuthType, $Domains, $EnableThreading = true, $EnableSieve = false,
 			$SievePort = 4190, $SmtpLogin = '', $SmtpPassword = '', $UseFullEmailAddressAsLogin = true, $TenantId = 0,
 			$SetExternalAccessServers = false,
-			$ExternalAccessImapServer = '', $ExternalAccessImapPort = 143, $ExternalAccessImapAlterPort = 0,
-			$ExternalAccessPop3Server = '', $ExternalAccessPop3Port = 143, $ExternalAccessPop3AlterPort = 0,
-			$ExternalAccessSmtpServer = '', $ExternalAccessSmtpPort = 25, $ExternalAccessSmtpAlterPort = 0,
+			$ExternalAccessImapServer = '', $ExternalAccessImapPort = 143, $ExternalAccessImapAlterPort = 0, $ExternalAccessImapUseSsl = false,
+			$ExternalAccessPop3Server = '', $ExternalAccessPop3Port = 143, $ExternalAccessPop3AlterPort = 0, $ExternalAccessPop3UseSsl = false,
+			$ExternalAccessSmtpServer = '', $ExternalAccessSmtpPort = 25, $ExternalAccessSmtpAlterPort = 0, $ExternalAccessImapSmtpUseSsl = false,
 			$OAuthEnable = false, $OAuthName = '', $OAuthType = '', $OAuthIconUrl = '')
 	{
 		$oAuthenticatedUser = \Aurora\System\Api::getAuthenticatedUser();
@@ -1648,12 +1652,17 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$oServer->ExternalAccessImapServer = $ExternalAccessImapServer;
 			$oServer->ExternalAccessImapPort = $ExternalAccessImapPort;
 			$oServer->ExternalAccessImapAlterPort = $ExternalAccessImapAlterPort;
+			$oServer->ExternalAccessImapUseSsl = $ExternalAccessImapUseSsl;
+
 			$oServer->ExternalAccessPop3Server = $ExternalAccessPop3Server;
 			$oServer->ExternalAccessPop3Port = $ExternalAccessPop3Port;
 			$oServer->ExternalAccessPop3AlterPort = $ExternalAccessPop3AlterPort;
+			$oServer->ExternalAccessPop3UseSsl = $ExternalAccessPop3UseSsl;
+
 			$oServer->ExternalAccessSmtpServer = $ExternalAccessSmtpServer;
 			$oServer->ExternalAccessSmtpPort = $ExternalAccessSmtpPort;
 			$oServer->ExternalAccessSmtpAlterPort = $ExternalAccessSmtpAlterPort;
+			$oServer->ExternalAccessSmtpUseSsl = $ExternalAccessImapSmtpUseSsl;
 		}
 		$oServer->OAuthEnable = $OAuthEnable;
 		if ($oServer->OAuthEnable)
@@ -1750,12 +1759,15 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param string $ExternalAccessImapServer
 	 * @param int $ExternalAccessImapPort
 	 * @param int $ExternalAccessImapAlterPort
+	 * @param boolean $ExternalAccessImapUseSsl
 	 * @param string $ExternalAccessPop3Server
 	 * @param int $ExternalAccessPop3Port
 	 * @param int $ExternalAccessPop3AlterPort
+	 * @param boolean $ExternalAccessPop3UseSsl
 	 * @param string $ExternalAccessSmtpServer
 	 * @param int $ExternalAccessSmtpPort
 	 * @param int $ExternalAccessSmtpAlterPort
+	 * @param boolean $ExternalAccessSmtpUseSsl
 	 * @param boolean $OAuthEnable
 	 * @param string $OAuthName
 	 * @param string $OAuthType
@@ -1766,9 +1778,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$OutgoingServer, $OutgoingPort, $OutgoingUseSsl, $SmtpAuthType, $Domains, $EnableThreading, $EnableSieve,
 			$SievePort, $SmtpLogin = '', $SmtpPassword = '', $UseFullEmailAddressAsLogin = true, $TenantId = 0,
 			$SetExternalAccessServers = false,
-			$ExternalAccessImapServer = '', $ExternalAccessImapPort = 143, $ExternalAccessImapAlterPort = 0,
-			$ExternalAccessPop3Server = '', $ExternalAccessPop3Port = 143, $ExternalAccessPop3AlterPort = 0,
-			$ExternalAccessSmtpServer = '', $ExternalAccessSmtpPort = 25, $ExternalAccessSmtpAlterPort = 0,
+			$ExternalAccessImapServer = '', $ExternalAccessImapPort = 143, $ExternalAccessImapAlterPort = 0, $ExternalAccessImapUseSsl = false,
+			$ExternalAccessPop3Server = '', $ExternalAccessPop3Port = 143, $ExternalAccessPop3AlterPort = 0, $ExternalAccessPop3UseSsl = false,
+			$ExternalAccessSmtpServer = '', $ExternalAccessSmtpPort = 25, $ExternalAccessSmtpAlterPort = 0, $ExternalAccessSmtpUseSsl = false,
 			$OAuthEnable = false, $OAuthName = '', $OAuthType = '', $OAuthIconUrl = '')
 	{
 		$bResult = false;
@@ -1813,12 +1825,18 @@ class Module extends \Aurora\System\Module\AbstractModule
 				$oServer->ExternalAccessImapServer = $ExternalAccessImapServer;
 				$oServer->ExternalAccessImapPort = $ExternalAccessImapPort;
 				$oServer->ExternalAccessImapAlterPort = $ExternalAccessImapAlterPort;
+				$oServer->ExternalAccessImapUseSsl = $ExternalAccessImapUseSsl;
+
 				$oServer->ExternalAccessPop3Server = $ExternalAccessPop3Server;
 				$oServer->ExternalAccessPop3Port = $ExternalAccessPop3Port;
 				$oServer->ExternalAccessPop3AlterPort = $ExternalAccessPop3AlterPort;
+				$oServer->ExternalAccessPop3UseSsl = $ExternalAccessPop3UseSsl;
+
 				$oServer->ExternalAccessSmtpServer = $ExternalAccessSmtpServer;
 				$oServer->ExternalAccessSmtpPort = $ExternalAccessSmtpPort;
 				$oServer->ExternalAccessSmtpAlterPort = $ExternalAccessSmtpAlterPort;
+				$oServer->ExternalAccessImapUseSsl = $ExternalAccessImapUseSsl;
+				$oServer->ExternalAccessSmtpUseSsl = $ExternalAccessSmtpUseSsl;
 			}
 			$oServer->OAuthEnable = $OAuthEnable;
 			if ($oServer->OAuthEnable)
@@ -3091,7 +3109,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		if (0 === \strlen($Folder) || !\is_numeric($iUid) || 0 >= (int) $iUid)
 		{
-			throw new \CApiInvalidArgumentException();
+			throw new InvalidArgumentException();
 		}
 
 		$oImapClient =& $this->getMailManager()->_getImapClient($oAccount);

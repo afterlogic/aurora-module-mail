@@ -71,7 +71,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * 
 	 * @param int $iServerId
-	 * @return boolean
+	 * @return Server
 	 */
 	public function getServer($iServerId)
 	{

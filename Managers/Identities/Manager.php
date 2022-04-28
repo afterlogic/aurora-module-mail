@@ -172,7 +172,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	/**
 	 * @param int $iUserId
 	 * @param Builder $oFilters null
-	 * @return boolean
+	 * @return Builder
 	 */
 	public function getIdentities($iUserId, Builder $oFilters = null)
 	{
