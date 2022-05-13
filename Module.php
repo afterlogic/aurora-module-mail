@@ -4320,6 +4320,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param string $References Content of References header block of the message.
 	 * @param int $Sensitivity Sensitivity header for the message, its value will be returned: 1 for "Confidential", 2 for "Private", 3 for "Personal".
 	 * @param string $DraftFolder Full name of Drafts folder.
+	 * @param array $CustomHeaders list of custom headers
 	 * @return boolean
 	 * @throws \System\Exceptions\AuroraApiException
 	 */
@@ -4327,7 +4328,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$DraftInfo = [], $DraftUid = "", $To = "", $Cc = "", $Bcc = "",
 			$Subject = "", $Text = "", $IsHtml = false, $Importance = \MailSo\Mime\Enumerations\MessagePriority::NORMAL,
 			$SendReadingConfirmation = false, $Attachments = array(), $InReplyTo = "",
-			$References = "", $Sensitivity = \MailSo\Mime\Enumerations\Sensitivity::NOTHING, $DraftFolder = "")
+			$References = "", $Sensitivity = \MailSo\Mime\Enumerations\Sensitivity::NOTHING, $DraftFolder = "",
+			$CustomHeaders = [])
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 
@@ -4346,7 +4348,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		$oMessage = self::Decorator()->BuildMessage($oAccount, $To, $Cc, $Bcc,
 			$Subject, $IsHtml, $Text, $Attachments, $DraftInfo, $InReplyTo, $References, $Importance,
-			$Sensitivity, $SendReadingConfirmation, $Fetcher, $Alias, true, $oIdentity);
+			$Sensitivity, $SendReadingConfirmation, $Fetcher, $Alias, true, $oIdentity, $CustomHeaders);
 		if ($oMessage)
 		{
 			try
