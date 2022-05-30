@@ -4487,6 +4487,17 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		if ($oMessage)
 		{
+			$senderForExternalRecipients = $this->getConfig('SenderForExternalRecipients');
+			if (strtolower($oAccount->Email) !== strtolower($FromEmail) && strtolower($senderForExternalRecipients) === strtolower($FromEmail)) {
+				$oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserByPublicId($FromEmail);
+				if ($oUser) {
+					$oFromAccount = $this->getAccountsManager()->getAccountByEmail($FromEmail, $oUser->Id);
+					if ($oFromAccount instanceof \Aurora\Modules\Mail\Classes\Account) {
+						$oAccount = $oFromAccount;
+					}
+				}
+			}	
+
 			$mResult = $this->getMailManager()->sendMessage($oAccount, $oMessage, $Fetcher, $SentFolder, $DraftFolder, $DraftUid, $Recipients);
 
 			if ($mResult)
