@@ -7,6 +7,8 @@
 
 namespace Aurora\Modules\Mail;
 
+use Aurora\System\Api;
+
 /**
  * @license https://www.gnu.org/licenses/agpl-3.0.html AGPL-3.0
  * @license https://afterlogic.com/products/common-licensing Afterlogic Software License
@@ -4487,16 +4489,22 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		if ($oMessage)
 		{
-			$senderForExternalRecipients = $this->getConfig('SenderForExternalRecipients');
-			if (strtolower($oAccount->Email) !== strtolower($FromEmail) && strtolower($senderForExternalRecipients) === strtolower($FromEmail)) {
-				$oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserByPublicId($FromEmail);
-				if ($oUser) {
-					$oFromAccount = $this->getAccountsManager()->getAccountByEmail($FromEmail, $oUser->Id);
-					if ($oFromAccount instanceof \Aurora\Modules\Mail\Classes\Account) {
-						$oAccount = $oFromAccount;
+			$InformatikProjectsModule = Api::GetModule('InformatikProjects');
+			if ($InformatikProjectsModule) {
+				$senderForExternalRecipients = $InformatikProjectsModule->getConfig('SenderForExternalRecipients');
+				if (!empty($senderForExternalRecipients)) {
+					$oEmail = \MailSo\Mime\Email::Parse($senderForExternalRecipients);
+					if (strtolower($oAccount->Email) !== strtolower($FromEmail) && strtolower($oEmail->GetEmail()) === strtolower($FromEmail)) {
+						$oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserByPublicId($FromEmail);
+						if ($oUser) {
+							$oFromAccount = $this->getAccountsManager()->getAccountByEmail($FromEmail, $oUser->Id);
+							if ($oFromAccount instanceof \Aurora\Modules\Mail\Classes\Account) {
+								$oAccount = $oFromAccount;
+							}
+						}
 					}
 				}
-			}	
+			}
 
 			$mResult = $this->getMailManager()->sendMessage($oAccount, $oMessage, $Fetcher, $SentFolder, $DraftFolder, $DraftUid, $Recipients);
 
