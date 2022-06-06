@@ -4494,10 +4494,12 @@ class Module extends \Aurora\System\Module\AbstractModule
 				$senderForExternalRecipients = $InformatikProjectsModule->getConfig('SenderForExternalRecipients');
 				if (!empty($senderForExternalRecipients)) {
 					$oEmail = \MailSo\Mime\Email::Parse($senderForExternalRecipients);
-					if (strtolower($oAccount->Email) !== strtolower($FromEmail) && strtolower($oEmail->GetEmail()) === strtolower($FromEmail)) {
-						$oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserByPublicId($FromEmail);
+					$oFromEmail = \MailSo\Mime\Email::Parse($FromEmail);
+					$sFromEmail = $oFromEmail->GetEmail();
+					if (strtolower($oAccount->Email) !== strtolower($sFromEmail) && strtolower($oEmail->GetEmail()) === strtolower($sFromEmail)) {
+						$oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserByPublicId($sFromEmail);
 						if ($oUser) {
-							$oFromAccount = $this->getAccountsManager()->getAccountByEmail($FromEmail, $oUser->Id);
+							$oFromAccount = $this->getAccountsManager()->getAccountByEmail($sFromEmail, $oUser->Id);
 							if ($oFromAccount instanceof \Aurora\Modules\Mail\Classes\Account) {
 								$oAccount = $oFromAccount;
 							}
