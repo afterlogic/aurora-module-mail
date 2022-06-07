@@ -1410,13 +1410,16 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 *
 	 * @throws \Aurora\System\Exceptions\InvalidArgumentException
 	 */
-	public function sendMessage($oAccount, $oMessage, $oFetcher = null, $sSentFolder = '', $sDraftFolder = '', $sDraftUid = '', $aRecipients = array())
+	public function sendMessage($oAccount, $oMessage, $oFetcher = null, $sSentFolder = '', $sDraftFolder = '', $sDraftUid = '', $aRecipients = array(), $oFromAccount = null)
 	{
 		if (!$oAccount || !$oMessage)
 		{
 			throw new \Aurora\System\Exceptions\InvalidArgumentException();
 		}
 
+		if (!isset($oFromAccount)) {
+			$oFromAccount = $oAccount;
+		}
 		$oImapClient =& $this->_getImapClient($oAccount);
 
 		$rMessageStream = \MailSo\Base\ResourceRegistry::CreateMemoryResource();
@@ -1479,18 +1482,18 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 					}
 					else if ($oServer->SmtpAuthType === \Aurora\Modules\Mail\Enums\SmtpAuthType::UseUserCredentials)
 					{
-						if (!empty($oAccount->XOAuth))
+						if (!empty($oFromAccount->XOAuth))
 						{
-							$sToken = \Aurora\Modules\OAuthIntegratorWebclient\Module::Decorator()->GetAccessToken($oAccount->XOAuth, $oAccount->Email);
+							$sToken = \Aurora\Modules\OAuthIntegratorWebclient\Module::Decorator()->GetAccessToken($oFromAccount->XOAuth, $oFromAccount->Email);
 							if ($sToken)
 							{
-								$sXOAuthKey = \MailSo\Imap\ImapClient::GetXOAuthKeyStatic($oAccount->Email, $sToken);
+								$sXOAuthKey = \MailSo\Imap\ImapClient::GetXOAuthKeyStatic($oFromAccount->Email, $sToken);
 								$oSmtpClient->LoginWithXOAuth2($sXOAuthKey);
 							}
 						}
 						else
 						{
-							$oSmtpClient->Login($oAccount->IncomingLogin, $oAccount->getPassword(), '');
+							$oSmtpClient->Login($oFromAccount->IncomingLogin, $oFromAccount->getPassword(), '');
 						}
 					}
 					else if ($oServer->SmtpAuthType === \Aurora\Modules\Mail\Enums\SmtpAuthType::UseSpecifiedCredentials)
@@ -1498,7 +1501,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 						$oSmtpClient->Login($oServer->SmtpLogin, $oServer->SmtpPassword);
 					}
 
-					$oSmtpClient->MailFrom($oFetcher ? $oFetcher->Email : $oAccount->Email, (string) $iMessageStreamSize);
+					$oSmtpClient->MailFrom($oFetcher ? $oFetcher->Email : $oFromAccount->Email, (string) $iMessageStreamSize);
 
 					$aRcpt =& $oRcpt->GetAsArray();
 

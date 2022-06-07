@@ -4489,26 +4489,26 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		if ($oMessage)
 		{
+			$oFromAccount = $oAccount;
 			$InformatikProjectsModule = Api::GetModule('InformatikProjects');
 			if ($InformatikProjectsModule) {
 				$senderForExternalRecipients = $InformatikProjectsModule->getConfig('SenderForExternalRecipients');
 				if (!empty($senderForExternalRecipients)) {
 					$oEmail = \MailSo\Mime\Email::Parse($senderForExternalRecipients);
-					$oFromEmail = \MailSo\Mime\Email::Parse($FromEmail);
-					$sFromEmail = $oFromEmail->GetEmail();
-					if (strtolower($oAccount->Email) !== strtolower($sFromEmail) && strtolower($oEmail->GetEmail()) === strtolower($sFromEmail)) {
-						$oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserByPublicId($sFromEmail);
-						if ($oUser) {
-							$oFromAccount = $this->getAccountsManager()->getAccountByEmail($sFromEmail, $oUser->Id);
-							if ($oFromAccount instanceof \Aurora\Modules\Mail\Classes\Account) {
-								$oAccount = $oFromAccount;
+					if (!empty($FromEmail)) {
+						$oFromEmail = \MailSo\Mime\Email::Parse($FromEmail);
+						$sFromEmail = $oFromEmail->GetEmail();
+						if (strtolower($oAccount->Email) !== strtolower($sFromEmail) && strtolower($oEmail->GetEmail()) === strtolower($sFromEmail)) {
+							$oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserByPublicId($sFromEmail);
+							if ($oUser) {
+								$oFromAccount = $this->getAccountsManager()->getAccountByEmail($sFromEmail, $oUser->Id);
 							}
 						}
 					}
 				}
 			}
 
-			$mResult = $this->getMailManager()->sendMessage($oAccount, $oMessage, $Fetcher, $SentFolder, $DraftFolder, $DraftUid, $Recipients);
+			$mResult = $this->getMailManager()->sendMessage($oAccount, $oMessage, $Fetcher, $SentFolder, $DraftFolder, $DraftUid, $Recipients, $oFromAccount);
 
 			if ($mResult)
 			{
