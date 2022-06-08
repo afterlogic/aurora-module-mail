@@ -1,220 +1,420 @@
 {
-	"Disabled": [
-		false,
-		"bool"
-	],
-	"AllowAddAccounts": [
-		true,
-		"bool"
-	],
-	"AllowAutosaveInDrafts": [
-		true,
-		"bool"
-	],
-    "AllowChangeMailQuotaOnMailServer": [
-        false,
-        "bool"
-	],
-	"AllowDefaultAccountForUser": [
-		false,
-		"bool"
-	],
-	"AllowIdentities": [
-		true,
-		"bool"
-	],
-	"OnlyUserEmailsInIdentities": [
-		false,
-		"bool"
-	],
-	"AllowFilters": [
-		true,
-		"bool"
-	],
-	"AllowForward": [
-		true,
-		"bool"
-	],
-	"AllowAutoresponder": [
-		true,
-		"bool"
-	],
-	"EnableAllowBlockLists": [
-		false,
-		"bool"
-	],
-	"DefaultSpamScore": [
-		5,
-		"int"
-	],
-	"ConvertSpamScoreToSpamLevel": [
-		false,
-		"bool"
-	],
-	"SieveSpamRuleCondition": [
-		"header :value \"ge\" :comparator \"i;ascii-numeric\" \"X-Spam-Score\" \"{{Value}}\"",
-		"string"
-	],
-	"AllowInsertImage": [
-		true,
-		"bool"
-	],
-	"AlwaysShowImagesInMessage": [
-		false,
-		"bool"
-	],
-	"AutoSaveIntervalSeconds": [
-		60,
-		"int"
-	],
-	"AllowTemplateFolders": [
-		false,
-		"bool"
-	],
-	"AllowInsertTemplateOnCompose": [
-		false,
-		"bool"
-	],
-	"MaxTemplatesCountOnCompose": [
-		100,
-		"int"
-	],
-	"AllowAlwaysRefreshFolders": [
-		false,
-		"bool"
-	],
-	"DisplayInlineCss": [
-		false,
-		"bool"
-	],
-	"CleanupOutputBeforeDownload": [
-		false,
-		"bool"
-	],
-	"IgnoreImapSubscription": [
-		false,
-		"bool"
-	],
-	"ImageUploadSizeLimit": [
-		0,
-		"int"
-	],
-	"SaveRepliesToCurrFolder": [
-		false,
-		"bool"
-	],
-    "SieveGeneralPassword": [
-        "",
-        "string"
-    ],
-    "SieveFileName": [
-        "sieve",
-        "string"
-    ],
-    "SieveFiltersFolderCharset": [
-        "utf-8",
-        "string"
-    ],
-    "OverriddenSieveHost": [
-        "",
-        "string"
-    ],
-	"SievePort": [
-		4190,
-		"int"
-	],
-	"UseBodyStructuresForHasAttachmentsSearch": [
-		false,
-		"bool"
-	],
-	"UseDateFromHeaders": [
-		false,
-		"bool"
-	],
-    "XMailerValue": [
-        "Afterlogic webmail client",
-        "string"
-    ],
-    "ForwardedFlagName": [
-        "$Forwarded",
-        "string"
-    ],
-	"PreferStarttls": [
-        true,
-        "bool"
-    ],
-	"ExternalHostNameOfLocalImap": [
-		"",
-		"string"
-	],
-	"ExternalHostNameOfLocalSmtp": [
-		"",
-		"string"
-	],
-	"AutocreateMailAccountOnNewUserFirstLogin": [
-		false,
-		"bool"
-	],
-    "SieveUseStarttls": [
-        false,
-        "bool"
-    ],
-    "DisableStarttlsForLocalhost": [
-        true,
-        "bool"
-    ],
-	"XOriginatingIPHeaderName": [
-		"X-Original-IP",
-		"string"
-	],
-	"DoImapLoginOnAccountCreate": [
-		true,
-		"bool"
-    ],
-	"MessagesSortBy": [
-		{
-			"Allow": false,
-			"List": [
-				{
-					"SortBy": "arrival",
-					"LangConst": "LABEL_SORT_BY_DATE"
-				},
-				{
-					"SortBy": "from",
-					"LangConst": "LABEL_SORT_BY_FROM"
-				},
-				{
-					"SortBy": "to",
-					"LangConst": "LABEL_SORT_BY_TO"
-				}
-			],
-			"DefaultSortBy": "arrival",
-			"DefaultSortOrder": "desc"
-		},
-		"array"
-	],
-	"CreateHtmlLinksFromTextLinksInDOM": [
-		false,
-		"bool"
-    ],
-	"SieveCheckScript": [
-		false,
-		"bool"
-	],
-	"MessagesInfoChunkSize": [
-		1000,
-		"int"
-	],
-	"ExpiredLinkLifetimeMinutes": [
-		30,
-		"int"
-	],
-	"AllowUnifiedInbox": [
-		true,
-		"bool"
-	],
-	"UseIdentityEmailAsSmtpMailFrom": [
-		true,
-		"bool"
-	]
+  "Disabled": [
+    false,
+    "bool"
+  ],
+  "Disabled_Description": [
+    "",
+    "string"
+  ],
+  "AllowAddAccounts": [
+    true,
+    "bool"
+  ],
+  "AllowAddAccounts_Description": [
+    "",
+    "string"
+  ],
+  "AllowAutosaveInDrafts": [
+    true,
+    "bool"
+  ],
+  "AllowAutosaveInDrafts_Description": [
+    "",
+    "string"
+  ],
+  "AllowChangeMailQuotaOnMailServer": [
+    false,
+    "bool"
+  ],
+  "AllowChangeMailQuotaOnMailServer_Description": [
+    "",
+    "string"
+  ],
+  "AllowDefaultAccountForUser": [
+    false,
+    "bool"
+  ],
+  "AllowDefaultAccountForUser_Description": [
+    "",
+    "string"
+  ],
+  "AllowIdentities": [
+    true,
+    "bool"
+  ],
+  "AllowIdentities_Description": [
+    "",
+    "string"
+  ],
+  "OnlyUserEmailsInIdentities": [
+    false,
+    "bool"
+  ],
+  "OnlyUserEmailsInIdentities_Description": [
+    "",
+    "string"
+  ],
+  "AllowFilters": [
+    true,
+    "bool"
+  ],
+  "AllowFilters_Description": [
+    "",
+    "string"
+  ],
+  "AllowForward": [
+    true,
+    "bool"
+  ],
+  "AllowForward_Description": [
+    "",
+    "string"
+  ],
+  "AllowAutoresponder": [
+    true,
+    "bool"
+  ],
+  "AllowAutoresponder_Description": [
+    "",
+    "string"
+  ],
+  "EnableAllowBlockLists": [
+    false,
+    "bool"
+  ],
+  "EnableAllowBlockLists_Description": [
+    "",
+    "string"
+  ],
+  "DefaultSpamScore": [
+    5,
+    "int"
+  ],
+  "DefaultSpamScore_Description": [
+    "",
+    "string"
+  ],
+  "ConvertSpamScoreToSpamLevel": [
+    false,
+    "bool"
+  ],
+  "ConvertSpamScoreToSpamLevel_Description": [
+    "",
+    "string"
+  ],
+  "SieveSpamRuleCondition": [
+    "header :value \"ge\" :comparator \"i;ascii-numeric\" \"X-Spam-Score\" \"{{Value}}\"",
+    "string"
+  ],
+  "SieveSpamRuleCondition_Description": [
+    "",
+    "string"
+  ],
+  "AllowInsertImage": [
+    true,
+    "bool"
+  ],
+  "AllowInsertImage_Description": [
+    "",
+    "string"
+  ],
+  "AlwaysShowImagesInMessage": [
+    false,
+    "bool"
+  ],
+  "AlwaysShowImagesInMessage_Description": [
+    "",
+    "string"
+  ],
+  "AutoSaveIntervalSeconds": [
+    60,
+    "int"
+  ],
+  "AutoSaveIntervalSeconds_Description": [
+    "",
+    "string"
+  ],
+  "AllowTemplateFolders": [
+    false,
+    "bool"
+  ],
+  "AllowTemplateFolders_Description": [
+    "",
+    "string"
+  ],
+  "AllowInsertTemplateOnCompose": [
+    false,
+    "bool"
+  ],
+  "AllowInsertTemplateOnCompose_Description": [
+    "",
+    "string"
+  ],
+  "MaxTemplatesCountOnCompose": [
+    100,
+    "int"
+  ],
+  "MaxTemplatesCountOnCompose_Description": [
+    "",
+    "string"
+  ],
+  "AllowAlwaysRefreshFolders": [
+    false,
+    "bool"
+  ],
+  "AllowAlwaysRefreshFolders_Description": [
+    "",
+    "string"
+  ],
+  "DisplayInlineCss": [
+    false,
+    "bool"
+  ],
+  "DisplayInlineCss_Description": [
+    "",
+    "string"
+  ],
+  "CleanupOutputBeforeDownload": [
+    false,
+    "bool"
+  ],
+  "CleanupOutputBeforeDownload_Description": [
+    "",
+    "string"
+  ],
+  "IgnoreImapSubscription": [
+    false,
+    "bool"
+  ],
+  "IgnoreImapSubscription_Description": [
+    "",
+    "string"
+  ],
+  "ImageUploadSizeLimit": [
+    0,
+    "int"
+  ],
+  "ImageUploadSizeLimit_Description": [
+    "",
+    "string"
+  ],
+  "SaveRepliesToCurrFolder": [
+    false,
+    "bool"
+  ],
+  "SaveRepliesToCurrFolder_Description": [
+    "",
+    "string"
+  ],
+  "SieveGeneralPassword": [
+    "",
+    "string"
+  ],
+  "SieveGeneralPassword_Description": [
+    "",
+    "string"
+  ],
+  "SieveFileName": [
+    "sieve",
+    "string"
+  ],
+  "SieveFileName_Description": [
+    "",
+    "string"
+  ],
+  "SieveFiltersFolderCharset": [
+    "utf-8",
+    "string"
+  ],
+  "SieveFiltersFolderCharset_Description": [
+    "",
+    "string"
+  ],
+  "OverriddenSieveHost": [
+    "",
+    "string"
+  ],
+  "OverriddenSieveHost_Description": [
+    "",
+    "string"
+  ],
+  "SievePort": [
+    4190,
+    "int"
+  ],
+  "SievePort_Description": [
+    "",
+    "string"
+  ],
+  "UseBodyStructuresForHasAttachmentsSearch": [
+    false,
+    "bool"
+  ],
+  "UseBodyStructuresForHasAttachmentsSearch_Description": [
+    "",
+    "string"
+  ],
+  "UseDateFromHeaders": [
+    false,
+    "bool"
+  ],
+  "UseDateFromHeaders_Description": [
+    "",
+    "string"
+  ],
+  "XMailerValue": [
+    "Afterlogic webmail client",
+    "string"
+  ],
+  "XMailerValue_Description": [
+    "",
+    "string"
+  ],
+  "ForwardedFlagName": [
+    "$Forwarded",
+    "string"
+  ],
+  "ForwardedFlagName_Description": [
+    "",
+    "string"
+  ],
+  "PreferStarttls": [
+    true,
+    "bool"
+  ],
+  "PreferStarttls_Description": [
+    "",
+    "string"
+  ],
+  "ExternalHostNameOfLocalImap": [
+    "",
+    "string"
+  ],
+  "ExternalHostNameOfLocalImap_Description": [
+    "",
+    "string"
+  ],
+  "ExternalHostNameOfLocalSmtp": [
+    "",
+    "string"
+  ],
+  "ExternalHostNameOfLocalSmtp_Description": [
+    "",
+    "string"
+  ],
+  "AutocreateMailAccountOnNewUserFirstLogin": [
+    false,
+    "bool"
+  ],
+  "AutocreateMailAccountOnNewUserFirstLogin_Description": [
+    "",
+    "string"
+  ],
+  "SieveUseStarttls": [
+    false,
+    "bool"
+  ],
+  "SieveUseStarttls_Description": [
+    "",
+    "string"
+  ],
+  "DisableStarttlsForLocalhost": [
+    true,
+    "bool"
+  ],
+  "DisableStarttlsForLocalhost_Description": [
+    "",
+    "string"
+  ],
+  "XOriginatingIPHeaderName": [
+    "X-Original-IP",
+    "string"
+  ],
+  "XOriginatingIPHeaderName_Description": [
+    "",
+    "string"
+  ],
+  "DoImapLoginOnAccountCreate": [
+    true,
+    "bool"
+  ],
+  "DoImapLoginOnAccountCreate_Description": [
+    "",
+    "string"
+  ],
+  "MessagesSortBy": [
+    {
+      "Allow": false,
+      "List": [
+        {
+          "SortBy": "arrival",
+          "LangConst": "LABEL_SORT_BY_DATE"
+        },
+        {
+          "SortBy": "from",
+          "LangConst": "LABEL_SORT_BY_FROM"
+        },
+        {
+          "SortBy": "to",
+          "LangConst": "LABEL_SORT_BY_TO"
+        }
+      ],
+      "DefaultSortBy": "arrival",
+      "DefaultSortOrder": "desc"
+    },
+    "array"
+  ],
+  "MessagesSortBy_Description": [
+    "",
+    "string"
+  ],
+  "CreateHtmlLinksFromTextLinksInDOM": [
+    false,
+    "bool"
+  ],
+  "CreateHtmlLinksFromTextLinksInDOM_Description": [
+    "",
+    "string"
+  ],
+  "SieveCheckScript": [
+    false,
+    "bool"
+  ],
+  "SieveCheckScript_Description": [
+    "",
+    "string"
+  ],
+  "MessagesInfoChunkSize": [
+    1000,
+    "int"
+  ],
+  "MessagesInfoChunkSize_Description": [
+    "",
+    "string"
+  ],
+  "ExpiredLinkLifetimeMinutes": [
+    30,
+    "int"
+  ],
+  "ExpiredLinkLifetimeMinutes_Description": [
+    "",
+    "string"
+  ],
+  "AllowUnifiedInbox": [
+    true,
+    "bool"
+  ],
+  "AllowUnifiedInbox_Description": [
+    "",
+    "string"
+  ],
+  "UseIdentityEmailAsSmtpMailFrom": [
+    true,
+    "bool"
+  ],
+  "UseIdentityEmailAsSmtpMailFrom_Description": [
+    "",
+    "string"
+  ]
 }
