@@ -8,10 +8,12 @@
 namespace Aurora\Modules\Mail;
 
 use Aurora\Api;
+use Aurora\Modules\Mail\Classes\Message;
 use Aurora\Modules\Mail\Enums\SearchInFoldersType;
 use Aurora\Modules\Mail\Models\Identity;
 use Aurora\System\Exceptions\InvalidArgumentException;
-use Aurora\System\Module\Decorator;
+use PHPMailer\DKIMValidator\Validator as DKIMValidator; 
+use PHPMailer\DKIMValidator\DKIMException;
 
 /**
  * @license https://www.gnu.org/licenses/agpl-3.0.html AGPL-3.0
@@ -3256,6 +3258,89 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		return $oMessage;
 	}
+
+    /**
+     * Unsubscribe the account from the mailing list.
+     *
+     * @param $AccountID
+     * @param $Folder
+     * @param $Uid
+     * @return bool
+     */
+    public function Unsubscribe($AccountID, $Folder, $Uid)
+    {
+        $mResult = false;
+
+		$oAccount = $this->getAccountsManager()->getAccountById($AccountID);
+
+		self::checkAccess($oAccount);
+		
+		$validate = false;
+		$this->getMailManager()->directMessageToStream($oAccount,
+			function($rResource) use (&$validate) {
+				if (\is_resource($rResource)) {
+					$rawMessage = stream_get_contents($rResource);
+
+					try {
+						$dkimValidator = new DKIMValidator($rawMessage);
+						$validateResult = @$dkimValidator->validate();
+
+						$validateCount = count($validateResult);
+						$validateSuccessCount = 0;
+						if ($validateCount > 0) {
+							foreach ($validateResult as $val) {
+								if ($val[0]['status'] === 'SUCCESS') {
+									$validateSuccessCount++;
+								}
+							}
+						}
+
+						$validate = $validateCount === $validateSuccessCount;
+					} catch (DKIMException $e) {
+						$validate = false;
+					}
+				}
+		}, $Folder, $Uid);
+
+		if ($validate) {
+			$oMessage = self::Decorator()->GetMessage($AccountID, $Folder, $Uid);
+			if ($oMessage instanceof Message) {
+				$aParsedHeaders = $oMessage->parseUnsubscribeHeaders();
+
+				if ($aParsedHeaders['OneClick']) {
+					if (!empty($aParsedHeaders['Url'])) {
+						$iCode = 0;
+						$this->oHttp->SendPostRequest(
+							$aParsedHeaders['Url'], 
+							['List-Unsubscribe' => 'One-Click'], 
+							'', 
+							$iCode, 
+							\Aurora\Api::SystemLogger()
+						);
+						$mResult = ($iCode == 200);
+					} elseif (!empty($aParsedHeaders['Email'])) {
+						$sEmailCheck = str_ireplace('mailto:', '', $aParsedHeaders['Email']);
+						$aEmailData = explode('?', $sEmailCheck);
+						$mResult = self::Decorator()->SendMessage(
+							$AccountID, 
+							null, 
+							null, 
+							0, 
+							[], 
+							"", 
+							$aEmailData[0], 
+							"", 
+							"", 
+							[], 
+							'Unsubscribe'
+						);
+					}
+				}
+			}
+		}
+
+        return $mResult;
+    }
 
 	public function GetMessageByMessageID($AccountID, $Folder, $UidFrom, $MessageID)
 	{

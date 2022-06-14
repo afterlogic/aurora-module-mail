@@ -712,6 +712,168 @@ class Message
 		$this->aThreads = \is_array($aThreads) ? $aThreads : array();
 	}
 
+	    /**
+     * Get a collection of headers.
+     *
+     * @return \MailSo\Mime\HeaderCollection
+     */
+	public function getHeadersCollection()
+    {
+        return \MailSo\Mime\HeaderCollection::NewInstance()->Parse($this->getHeaders());
+    }
+
+    protected function getParsedHeaders()
+    {
+        $headerLines = explode("\r\n", $this->getHeaders());
+        $headerLineCount = count($headerLines);
+        $headerLineIndex = 0;
+        $parsedHeaders = [];
+        $currentHeaderLabel = '';
+        $currentHeaderValue = '';
+        $currentRawHeaderLines = [];
+        foreach ($headerLines as $headerLine) {
+            $matches = [];
+            if (preg_match('/^([^ \t]*?)(?::[ \t]*)(.*)$/', $headerLine, $matches)) {
+                //This is a line that does not start with FWS, so it's the start of a new header
+                if ($currentHeaderLabel !== '') {
+                    $parsedHeaders[] = [
+                        'label'      => $currentHeaderLabel,
+                        'lowerlabel' => strtolower($currentHeaderLabel),
+                        'value'   => $currentHeaderValue,
+                    ];
+                }
+                $currentHeaderLabel = $matches[1];
+                $currentHeaderValue = $matches[2];
+                $currentRawHeaderLines = [$currentHeaderValue];
+            } elseif (preg_match('/^[ \t]+(.*)$/', $headerLine, $matches)) {
+                if ($headerLineIndex === 0) {
+//                    throw new DKIMException('Invalid headers starting with a folded line');
+                }
+                //This is a folded continuation of the current header
+                $currentHeaderValue .= $matches[1];
+                $currentRawHeaderLines[] = $matches[1];
+            }
+            ++$headerLineIndex;
+            if ($headerLineIndex >= $headerLineCount) {
+                //This was the last line, so finish off this header
+                $parsedHeaders[] = [
+                    'label'      => $currentHeaderLabel,
+                    'lowerlabel' => strtolower($currentHeaderLabel),
+                    'value'   => $currentHeaderValue,
+                ];
+            }
+        }
+
+        return $parsedHeaders;
+    }
+
+    /**
+     * Extract the headers from a message.
+     *
+     * @param $headerName
+     * @param string $format
+     *
+     * @return array
+     */
+    protected function getHeadersNamed(string $headerName)
+    {
+        $headerName = strtolower($headerName);
+        $matchedHeaders = [];
+		$parsedHeaders = $this->getParsedHeaders();
+        foreach ($parsedHeaders as $header) {
+            //Don't exit early in case there are multiple headers with the same name
+            if ($header['lowerlabel'] === $headerName) {
+                
+				$matchedHeaders[] = $header['value'];
+            }
+        }
+
+        return $matchedHeaders;
+    }
+
+	/**
+	 * @return array
+	 */
+	public function parseUnsubscribeHeaders()
+	{
+		$mResult = [
+		    'OneClick' => false,
+			'Url' => '',
+			'Email' => ''
+		];
+		$aDKIMHeaders = $this->getHeadersNamed('DKIM-Signature');
+		
+		$bSignatureLU = false;
+		$bSignatureLUPrev = true;
+
+		// $bSignatureLUP = false;
+		// $bSignatureLUPPrev = true;
+
+		foreach ($aDKIMHeaders as $sDKIMHeader) {
+
+			if ($sDKIMHeader) {
+
+				$aHeaders = \explode(';', $sDKIMHeader);
+				foreach ($aHeaders as $sHeaderValue) {
+
+					$aHeader = \explode('=', \trim($sHeaderValue), 2);
+					if ($aHeader[0] === 'h') {
+						$aVal = \explode(':', $aHeader[1]);
+						foreach ($aVal as $v) {
+							$v = \trim($v);
+							if (strtolower($v) === 'list-unsubscribe') {
+								$bSignatureLU = $bSignatureLUPrev && true;
+							} 
+							// elseif (strtolower($v) === 'list-unsubscribe-post') {
+							// 	$bSignatureLUP = $bSignatureLUPPrev && true;
+							// }
+						}
+					}
+				}
+
+				$bSignatureLUPrev = $bSignatureLU;
+				// $bSignatureLUPPrev = $bSignatureLUP;
+			}
+		}
+
+		$oHeadersCol = $this->getHeadersCollection();
+        $oHeaderLU = $oHeadersCol->GetByName('List-Unsubscribe');
+        if ($oHeaderLU) {
+            $sHeaderValueLU = $oHeaderLU->Value();
+            if (!empty($sHeaderValueLU)) {
+                $sEmail = $sUrl = '';
+                preg_match_all('#<(.*?)>#i', $sHeaderValueLU, $matches);
+                if (isset($matches[1])) {
+                    foreach ($matches[1] as $value) {
+                        if (stripos($value, 'mailto:') === 0) {
+                            $sEmailCheck = str_ireplace('mailto:', '', $value);
+                            $aEmailData = explode('?', $sEmailCheck);
+                            if (filter_var($aEmailData[0], FILTER_VALIDATE_EMAIL)) {
+                                $sEmail = $aEmailData[0];
+                            }
+                        } elseif (filter_var($value, FILTER_VALIDATE_URL)) {
+                            $sUrl = $value;
+                        }
+                    }
+                }
+                $oHeaderLUP = $oHeadersCol->GetByName('List-Unsubscribe-Post');
+                if ($oHeaderLUP) {
+                    $sHeaderLUP = $oHeaderLUP->Value();
+                    if (!empty($sUrl) && $bSignatureLU) {
+                        $mResult['Url'] = $sUrl;
+                    }
+                    if (strcasecmp($sHeaderLUP, 'List-Unsubscribe=One-Click') == 0 && !empty($sUrl) /*&& $bSignatureLUP*/ && $bSignatureLU) {
+                        $mResult['OneClick'] = true;
+                    }
+                } elseif (!empty($sEmail) && $bSignatureLU) {
+                    $mResult['Email'] = $sEmail;
+                }
+            }
+        }
+		return $mResult;
+	}
+
+
 	/**
 	 * Creates and initializes instance of the object.
 	 * 
@@ -1073,7 +1235,8 @@ class Message
 			'HasIcalAttachment' => $oAttachments && $oAttachments->hasIcalAttachment(),
 			'Importance' => $this->getImportance(),
 			'DraftInfo' => $this->getDraftInfo(),
-			'Sensitivity' => $this->getSensitivity()
+			'Sensitivity' => $this->getSensitivity(),
+			'Unsubscribe' => $this->parseUnsubscribeHeaders()
 		));
 
 		$sLowerForwarded = strtolower(\Aurora\Modules\Mail\Module::getInstance()->getConfig('ForwardedFlagName', ''));
