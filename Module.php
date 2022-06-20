@@ -4812,7 +4812,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 				if (\is_array($aEmails))
 				{
-					$aArgs = ['Emails' => $aEmails];
+					$aArgs = ['IdUser' => $oAccount->IdUser, 'Emails' => $aEmails];
 					$this->broadcastEvent('AfterUseEmails', $aArgs);
 				}
 			}
