@@ -172,4 +172,22 @@ class MessageCollection extends \MailSo\Base\Collection
 				)
 		);
 	}
+
+	public function RemoveMessagesByUids(array $uids) {
+		foreach ($this->aItems as $key => $oMessage) {
+			if (in_array($oMessage->getUid(), $uids)) {
+				$this->MessageCount--;
+				$this->MessageResultCount--;
+
+				$aFlags = $oMessage->getFlagsLowerCase();
+				if (!in_array('\\seen', $aFlags)) {
+					$this->MessageUnseenCount--;
+				}
+
+				unset($this->aItems[$key]);
+			}
+		}
+		$this->Uids = array_diff($this->Uids, $uids);
+		$this->New = array_diff($this->New, $uids);
+	}
 }
