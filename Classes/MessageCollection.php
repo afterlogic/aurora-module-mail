@@ -188,6 +188,10 @@ class MessageCollection extends \MailSo\Base\Collection
 			}
 		}
 		$this->Uids = array_diff($this->Uids, $uids);
-		$this->New = array_diff($this->New, $uids);
+		foreach ($this->New as $key => $oNew) {
+			if (in_array((int) $oNew->Uid, $uids)) {
+				unset($this->New[$key]);
+			}
+		}
 	}
 }
