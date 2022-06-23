@@ -4,7 +4,7 @@
 		"bool"
 	],
 	"Disabled_Description": [
-		"",
+		"Setting to true disables the module",
 		"string"
 	],
 	"AllowAddAccounts": [
@@ -12,7 +12,7 @@
 		"bool"
 	],
 	"AllowAddAccounts_Description": [
-		"",
+		"If true, Add New Account button is displayed in Email Accounts area of Settings",
 		"string"
 	],
 	"AllowAutosaveInDrafts": [
@@ -20,7 +20,7 @@
 		"bool"
 	],
 	"AllowAutosaveInDrafts_Description": [
-		"",
+		"If true, message being composed is periodically saved to Drafts folder",
 		"string"
 	],
 	"AllowChangeMailQuotaOnMailServer": [
@@ -28,7 +28,7 @@
 		"bool"
 	],
 	"AllowChangeMailQuotaOnMailServer_Description": [
-		"",
+		"If true, allows setting email account quota in admin area",
 		"string"
 	],
 	"AllowDefaultAccountForUser": [
@@ -36,7 +36,7 @@
 		"bool"
 	],
 	"AllowDefaultAccountForUser_Description": [
-		"",
+		"If true, a user has a default account and its email adress equals user's PublicId",
 		"string"
 	],
 	"AllowIdentities": [
@@ -44,7 +44,7 @@
 		"bool"
 	],
 	"AllowIdentities_Description": [
-		"",
+		"Enables using identities on composing mails and managing them in Settings area",
 		"string"
 	],
 	"OnlyUserEmailsInIdentities": [
@@ -52,7 +52,7 @@
 		"bool"
 	],
 	"OnlyUserEmailsInIdentities_Description": [
-		"",
+		"If true, email address cannot be changed when adding or editing an identity",
 		"string"
 	],
 	"AllowFilters": [
@@ -60,7 +60,7 @@
 		"bool"
 	],
 	"AllowFilters_Description": [
-		"",
+		"Enables Filters tab in account settings",
 		"string"
 	],
 	"AllowForward": [
@@ -68,7 +68,7 @@
 		"bool"
 	],
 	"AllowForward_Description": [
-		"",
+		"Enables Forward tab in account settings",
 		"string"
 	],
 	"AllowAutoresponder": [
@@ -76,7 +76,7 @@
 		"bool"
 	],
 	"AllowAutoresponder_Description": [
-		"",
+		"Enables Autoresponder tab in account settings",
 		"string"
 	],
 	"EnableAllowBlockLists": [
@@ -116,7 +116,7 @@
 		"bool"
 	],
 	"AllowInsertImage_Description": [
-		"",
+		"Enables toolbar button for inserting an image when editing message text",
 		"string"
 	],
 	"AlwaysShowImagesInMessage": [
@@ -124,7 +124,7 @@
 		"bool"
 	],
 	"AlwaysShowImagesInMessage_Description": [
-		"",
+		"If true, external images are always displayed when viewing email messages",
 		"string"
 	],
 	"AutoSaveIntervalSeconds": [
@@ -132,7 +132,7 @@
 		"int"
 	],
 	"AutoSaveIntervalSeconds_Description": [
-		"",
+		"Defines interval for saving messages to Drafts periodically, in seconds",
 		"string"
 	],
 	"AllowTemplateFolders": [
@@ -140,7 +140,7 @@
 		"bool"
 	],
 	"AllowTemplateFolders_Description": [
-		"",
+		"Allows for setting a folder as template one under Manage Folders screen",
 		"string"
 	],
 	"AllowInsertTemplateOnCompose": [
@@ -148,7 +148,7 @@
 		"bool"
 	],
 	"AllowInsertTemplateOnCompose_Description": [
-		"",
+		"If true, a tool for inserting a template is added on message compose screen",
 		"string"
 	],
 	"MaxTemplatesCountOnCompose": [
@@ -156,7 +156,7 @@
 		"int"
 	],
 	"MaxTemplatesCountOnCompose_Description": [
-		"",
+		"A limit of number of email templates available for selecting on message compose screen",
 		"string"
 	],
 	"AllowAlwaysRefreshFolders": [
@@ -172,7 +172,7 @@
 		"bool"
 	],
 	"DisplayInlineCss_Description": [
-		"",
+		"If true, CSS of a message will be converted to inline one when displaying message",
 		"string"
 	],
 	"CleanupOutputBeforeDownload": [
@@ -188,7 +188,7 @@
 		"bool"
 	],
 	"IgnoreImapSubscription_Description": [
-		"",
+		"If true, all the email folders can be accessed, regardless of their IMAP subscription status; also, a tool for hiding/showing folder is removed from Manage Folders screen",
 		"string"
 	],
 	"ImageUploadSizeLimit": [
@@ -196,7 +196,7 @@
 		"int"
 	],
 	"ImageUploadSizeLimit_Description": [
-		"",
+		"Sets a limit of image file size for upload, or 0 for unlimited",
 		"string"
 	],
 	"SaveRepliesToCurrFolder": [
@@ -204,7 +204,7 @@
 		"bool"
 	],
 	"SaveRepliesToCurrFolder_Description": [
-		"",
+		"Defines a default behavior for saving replies to the original folder of the message, can be changed in user settings",
 		"string"
 	],
 	"SieveGeneralPassword": [
@@ -212,7 +212,7 @@
 		"string"
 	],
 	"SieveGeneralPassword_Description": [
-		"",
+		"Defines ManageSieve access password if it's required by the agent",
 		"string"
 	],
 	"SieveFileName": [
@@ -220,7 +220,7 @@
 		"string"
 	],
 	"SieveFileName_Description": [
-		"",
+		"Defines default filename of Sieve rules file",
 		"string"
 	],
 	"SieveFiltersFolderCharset": [
@@ -228,7 +228,7 @@
 		"string"
 	],
 	"SieveFiltersFolderCharset_Description": [
-		"",
+		"Defines charset used in Sieve rules files",
 		"string"
 	],
 	"OverriddenSieveHost": [
@@ -236,7 +236,7 @@
 		"string"
 	],
 	"OverriddenSieveHost_Description": [
-		"",
+		"If set, this value will be used as ManageSieve host - by default, IMAP host value is used for this",
 		"string"
 	],
 	"SievePort": [
@@ -244,7 +244,7 @@
 		"int"
 	],
 	"SievePort_Description": [
-		"",
+		"Defines port number for accessing ManageSieve agent",
 		"string"
 	],
 	"UseBodyStructuresForHasAttachmentsSearch": [
@@ -252,7 +252,7 @@
 		"bool"
 	],
 	"UseBodyStructuresForHasAttachmentsSearch_Description": [
-		"",
+		"If true, attempts to use IMAP bodystructure to perform search for messages that have attachments",
 		"string"
 	],
 	"UseDateFromHeaders": [
@@ -260,7 +260,7 @@
 		"bool"
 	],
 	"UseDateFromHeaders_Description": [
-		"",
+		"If true, date and time information for displaying a message is obtained from message headers, not from IMAP envelopes",
 		"string"
 	],
 	"XMailerValue": [
@@ -268,7 +268,7 @@
 		"string"
 	],
 	"XMailerValue_Description": [
-		"",
+		"If set, defines a value for X-Mailer header added to messages sent out",
 		"string"
 	],
 	"ForwardedFlagName": [
@@ -276,7 +276,7 @@
 		"string"
 	],
 	"ForwardedFlagName_Description": [
-		"",
+		"Defines a flag used to show message as Forwarded one",
 		"string"
 	],
 	"PreferStarttls": [
@@ -284,7 +284,7 @@
 		"bool"
 	],
 	"PreferStarttls_Description": [
-		"",
+		"If true, STARTTLS will automatically be used if mail server advertises its support",
 		"string"
 	],
 	"ExternalHostNameOfLocalImap": [
@@ -292,7 +292,7 @@
 		"string"
 	],
 	"ExternalHostNameOfLocalImap_Description": [
-		"",
+		"Default external hostname for IMAP server, used by autodiscover",
 		"string"
 	],
 	"ExternalHostNameOfLocalSmtp": [
@@ -300,7 +300,7 @@
 		"string"
 	],
 	"ExternalHostNameOfLocalSmtp_Description": [
-		"",
+		"Default external hostname for SMTP server, used by autodiscover",
 		"string"
 	],
 	"AutocreateMailAccountOnNewUserFirstLogin": [
@@ -308,7 +308,7 @@
 		"bool"
 	],
 	"AutocreateMailAccountOnNewUserFirstLogin_Description": [
-		"",
+		"If true, a new account will be created in the database on first successful login",
 		"string"
 	],
 	"SieveUseStarttls": [
@@ -316,7 +316,7 @@
 		"bool"
 	],
 	"SieveUseStarttls_Description": [
-		"",
+		"If true, STARTTLS will automatically be used to communicate to Sieve server",
 		"string"
 	],
 	"DisableStarttlsForLocalhost": [
@@ -324,7 +324,7 @@
 		"bool"
 	],
 	"DisableStarttlsForLocalhost_Description": [
-		"",
+		"If true, STARTTLS will not be used for a local mailserver",
 		"string"
 	],
 	"XOriginatingIPHeaderName": [
@@ -332,7 +332,7 @@
 		"string"
 	],
 	"XOriginatingIPHeaderName_Description": [
-		"",
+		"If set, defines a name of header included into outgoing mail, header's value is IP address of the sender",
 		"string"
 	],
 	"DoImapLoginOnAccountCreate": [
@@ -340,7 +340,7 @@
 		"bool"
 	],
 	"DoImapLoginOnAccountCreate_Description": [
-		"",
+		"If true, logging onto IMAP will be performed when adding a new account in adminpanel",
 		"string"
 	],
 	"MessagesSortBy": [
@@ -366,7 +366,7 @@
 		"array"
 	],
 	"MessagesSortBy_Description": [
-		"",
+		"Defines a set of rules for sorting mail",
 		"string"
 	],
 	"CreateHtmlLinksFromTextLinksInDOM": [
@@ -382,7 +382,7 @@
 		"bool"
 	],
 	"SieveCheckScript_Description": [
-		"",
+		"If set, CHECKSCRIPT will be run prior to applying Sieve file changes",
 		"string"
 	],
 	"MessagesInfoChunkSize": [
@@ -406,7 +406,7 @@
 		"bool"
 	],
 	"AllowUnifiedInbox_Description": [
-		"",
+		"Enables Unified Inbox feature",
 		"string"
 	],
 	"UseIdentityEmailAsSmtpMailFrom": [
@@ -414,7 +414,7 @@
 		"bool"
 	],
 	"UseIdentityEmailAsSmtpMailFrom_Description": [
-		"",
+		"If true, email address of the identity will be used in MAIL FROM command to SMTP server, instead of main email address of the account",
 		"string"
 	]
 }
