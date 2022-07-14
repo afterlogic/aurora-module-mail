@@ -58,7 +58,7 @@ class Account extends \Aurora\System\Classes\AbstractAccount
 		if ($sPassword !== '' && strpos($sPassword, $this->IncomingLogin . ':') === false)
 		{
 			$this->setPassword($sPassword);
-			\Aurora\System\Api::GetModule('Mail')->getAccountsManager()->updateAccount($this);
+			$this->save();
 		}
 		else
 		{
