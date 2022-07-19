@@ -84,7 +84,7 @@
 		"bool"
 	],
 	"EnableAllowBlockLists_Description": [
-		"",
+		"Enables the feature of allow/block lists (requires advanced maiserver configuration to work)",
 		"string"
 	],
 	"DefaultSpamScore": [
@@ -92,7 +92,7 @@
 		"int"
 	],
 	"DefaultSpamScore_Description": [
-		"",
+		"Default value for per-user spam score",
 		"string"
 	],
 	"ConvertSpamScoreToSpamLevel": [
@@ -100,7 +100,7 @@
 		"bool"
 	],
 	"ConvertSpamScoreToSpamLevel_Description": [
-		"",
+		"Enables converting spamscore to spamlevel for per-user spam settings",
 		"string"
 	],
 	"SieveSpamRuleCondition": [
@@ -108,7 +108,7 @@
 		"string"
 	],
 	"SieveSpamRuleCondition_Description": [
-		"",
+		"Defines rule for moving mails to spam, used within per-user spam settings",
 		"string"
 	],
 	"AllowInsertImage": [
@@ -164,7 +164,7 @@
 		"bool"
 	],
 	"AllowAlwaysRefreshFolders_Description": [
-		"",
+		"If true, each folder in Manage Folders screen gets an option whether it should  ",
 		"string"
 	],
 	"DisplayInlineCss": [
@@ -180,7 +180,7 @@
 		"bool"
 	],
 	"CleanupOutputBeforeDownload_Description": [
-		"",
+		"Вiscard any data in the output buffer if possible, prior to downloading attachment",
 		"string"
 	],
 	"IgnoreImapSubscription": [
@@ -374,7 +374,7 @@
 		"bool"
 	],
 	"CreateHtmlLinksFromTextLinksInDOM_Description": [
-		"",
+		"If set to true, address@domain texts are replaced with links in HTML; in plaintext, they're always shown as links"
 		"string"
 	],
 	"SieveCheckScript": [
@@ -390,7 +390,7 @@
 		"int"
 	],
 	"MessagesInfoChunkSize_Description": [
-		"",
+		"No longer used",
 		"string"
 	],
 	"ExpiredLinkLifetimeMinutes": [
@@ -398,7 +398,7 @@
 		"int"
 	],
 	"ExpiredLinkLifetimeMinutes_Description": [
-		"",
+		"Lifetime of link expiration. Reserved for use by alternative frontend clients",
 		"string"
 	],
 	"AllowUnifiedInbox": [
