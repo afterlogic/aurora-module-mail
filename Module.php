@@ -2040,7 +2040,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		);
 	}
 
-	protected function getSortInfo($SortBy, $SortOrder)
+	public function getSortInfo($SortBy, $SortOrder)
 	{
 		$aMessagesSortBy = $this->getConfig('MessagesSortBy', false);
 
