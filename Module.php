@@ -8,6 +8,8 @@
 namespace Aurora\Modules\Mail;
 
 use Aurora\Api;
+use Aurora\Modules\Core\Models\Tenant;
+use Aurora\Modules\Core\Models\User;
 use Aurora\Modules\Mail\Classes\Message;
 use Aurora\Modules\Mail\Enums\SearchInFoldersType;
 use Aurora\Modules\Mail\Models\Identity;
@@ -111,6 +113,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$this->subscribeEvent('Core::GetDigestHash', array($this, 'onGetDigestHash'));
 		$this->subscribeEvent('Core::GetAccountUsedToAuthorize', array($this, 'onGetAccountUsedToAuthorize'));
 		$this->subscribeEvent('System::RunEntry::before', array($this, 'onBeforeRunEntry'));
+		$this->subscribeEvent('System::CastExtendedProp', array($this, 'onCastExtendedProp'));
 
 		\MailSo\Config::$PreferStartTlsIfAutoDetect = !!$this->getConfig('PreferStarttls', true);
 	}
@@ -7358,6 +7361,30 @@ class Module extends \Aurora\System\Module\AbstractModule
 		{
 			$mResult = $oAccount;
 			return true;
+		}
+	}
+
+	public function onCastExtendedProp($aArgs, &$mValue)
+	{
+		if ($aArgs['Model'] instanceof User) {
+			if ($aArgs['PropertyName'] === $this->GetName() . '::UserSpaceLimitMb') {
+				$mValue = (int) $mValue;
+			}
+			if ($aArgs['PropertyName'] === $this->GetName() . '::AllowAutosaveInDrafts') {
+				$mValue = (bool) $mValue;
+			}
+		}
+
+		if ($aArgs['Model'] instanceof Tenant) {
+			if ($aArgs['PropertyName'] === $this->GetName() . '::TenantSpaceLimitMb' ||
+				$aArgs['PropertyName'] === $this->GetName() . '::UserSpaceLimitMb' ||
+				$aArgs['PropertyName'] === $this->GetName() . '::AllocatedSpaceMb'
+			) {
+				$mValue = (int) $mValue;
+			}
+			if ($aArgs['PropertyName'] === $this->GetName() . '::AllowChangeUserSpaceLimit') {
+				$mValue = (bool) $mValue;
+			}
 		}
 	}
 
