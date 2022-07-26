@@ -115,7 +115,7 @@ class Server extends Model
     public function getOrphanIds()
     {
         if (!$this->foreignModel || !$this->foreignModelIdColumn) {
-            return ['status' => -1, 'message' => 'Foreign fields doesnt exist'];
+            return ['status' => -1, 'message' => 'Foreign field doesn\'t exist'];
         }
         $tableName = $this->getTable();
         $foreignObject = new $this->foreignModel;
@@ -129,7 +129,7 @@ class Server extends Model
         $orphanIds = self::where('OwnerType', '=', 'tenant')->pluck($this->primaryKey)->diff(
             self::leftJoin($foreignTable, "$tableName.$this->foreignModelIdColumn", '=', "$foreignTable.$foreignPK")->whereNotNull("$foreignTable.$foreignPK")->pluck("$tableName.$this->primaryKey")
         )->union($serversWithoutAccount)->all();
-        $message = $orphanIds ? "$tableName table has orphans." : "Orphans didnt found.";
+        $message = $orphanIds ? "$tableName table has orphans." : "Orphans were not found.";
         $oResult = ['status' => $orphanIds ? 1 : 0, 'message' => $message, 'orphansIds' => $orphanIds];
         // dd(DB::getQueryLog());
 
