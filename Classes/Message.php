@@ -843,19 +843,26 @@ class Message
             if (!empty($sHeaderValueLU)) {
                 $sEmail = $sUrl = '';
                 preg_match_all('#<(.*?)>#i', $sHeaderValueLU, $matches);
-                if (isset($matches[1])) {
-                    foreach ($matches[1] as $value) {
-                        if (stripos($value, 'mailto:') === 0) {
-                            $sEmailCheck = str_ireplace('mailto:', '', $value);
-                            $aEmailData = explode('?', $sEmailCheck);
-                            if (filter_var($aEmailData[0], FILTER_VALIDATE_EMAIL)) {
-                                $sEmail = $aEmailData[0];
-                            }
-                        } elseif (filter_var($value, FILTER_VALIDATE_URL)) {
-                            $sUrl = $value;
-                        }
-                    }
-                }
+				
+				$aValues = [];
+				if (isset($matches[1]) && count($matches[1]) > 0) {
+					$aValues = $matches[1];
+				} else {
+					$aValues = explode(',', $sHeaderValueLU);
+				}
+
+				foreach ($aValues as $value) {
+					if (stripos($value, 'mailto:') === 0) {
+						$sEmailCheck = str_ireplace('mailto:', '', $value);
+						$aEmailData = explode('?', $sEmailCheck);
+						if (filter_var($aEmailData[0], FILTER_VALIDATE_EMAIL)) {
+							$sEmail = $aEmailData[0];
+						}
+					} elseif (filter_var($value, FILTER_VALIDATE_URL)) {
+						$sUrl = $value;
+					}
+				}
+                
                 $oHeaderLUP = $oHeadersCol->GetByName('List-Unsubscribe-Post');
                 if ($oHeaderLUP) {
                     $sHeaderLUP = $oHeaderLUP->Value();
@@ -867,7 +874,11 @@ class Message
                     }
                 } elseif (!empty($sEmail) && $bSignatureLU) {
                     $mResult['Email'] = $sEmail;
-                }
+                } else {
+					if (!empty($sUrl) && $bSignatureLU) {
+                        $mResult['Url'] = $sUrl;
+                    }
+				}
             }
         }
 		return $mResult;
