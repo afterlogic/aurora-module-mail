@@ -244,6 +244,13 @@ class Message
 	private $aThreads;
 
 	/**
+	 * List of To addresses of the message.
+	 * 
+	 * @var \MailSo\Mime\EmailCollection
+	 */
+	private $oEnvelopeTo;
+
+	/**
 	 * @return void
 	 */
 	protected function __construct()
@@ -297,6 +304,8 @@ class Message
 		$this->aCustom = array();
 
 		$this->aThreads = array();
+
+		$this->oEnvelopeTo = null;
 
 		return $this;
 	}
@@ -577,7 +586,7 @@ class Message
 	 */
 	public function getTo()
 	{
-		return $this->oTo;
+		return isset($this->oTo) ? $this->oTo : $this->oEnvelopeTo;
 	}
 
 	/**
@@ -799,6 +808,7 @@ class Message
 			$this->oBcc = $oHeaders->GetAsEmailCollection(\MailSo\Mime\Enumerations\Header::BCC, $bCharsetAutoDetect);
 			$this->oSender = $oHeaders->GetAsEmailCollection(\MailSo\Mime\Enumerations\Header::SENDER, $bCharsetAutoDetect);
 			$this->oReplyTo = $oHeaders->GetAsEmailCollection(\MailSo\Mime\Enumerations\Header::REPLY_TO, $bCharsetAutoDetect);
+			$this->oEnvelopeTo = $oHeaders->GetAsEmailCollection(\MailSo\Mime\Enumerations\Header::ENVELOPE_TO, $bCharsetAutoDetect);
 
 			$this->sInReplyTo = $oHeaders->ValueByName(\MailSo\Mime\Enumerations\Header::IN_REPLY_TO);
 			$this->sReferences = \preg_replace('/[\s]+/', ' ',
