@@ -808,7 +808,7 @@ class Message
 			$this->oBcc = $oHeaders->GetAsEmailCollection(\MailSo\Mime\Enumerations\Header::BCC, $bCharsetAutoDetect);
 			$this->oSender = $oHeaders->GetAsEmailCollection(\MailSo\Mime\Enumerations\Header::SENDER, $bCharsetAutoDetect);
 			$this->oReplyTo = $oHeaders->GetAsEmailCollection(\MailSo\Mime\Enumerations\Header::REPLY_TO, $bCharsetAutoDetect);
-			$this->oEnvelopeTo = $oHeaders->GetAsEmailCollection(\MailSo\Mime\Enumerations\Header::ENVELOPE_TO, $bCharsetAutoDetect);
+			$this->oEnvelopeTo = $oHeaders->GetAsEmailCollection('Envelope-To', $bCharsetAutoDetect);
 
 			$this->sInReplyTo = $oHeaders->ValueByName(\MailSo\Mime\Enumerations\Header::IN_REPLY_TO);
 			$this->sReferences = \preg_replace('/[\s]+/', ' ',
