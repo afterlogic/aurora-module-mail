@@ -374,7 +374,7 @@
 		"bool"
 	],
 	"CreateHtmlLinksFromTextLinksInDOM_Description": [
-		"If set to true, address@domain texts are replaced with links in HTML; in plaintext, they're always shown as links"
+		"If set to true, address@domain texts are replaced with links in HTML; in plaintext, they're always shown as links",
 		"string"
 	],
 	"SieveCheckScript": [
