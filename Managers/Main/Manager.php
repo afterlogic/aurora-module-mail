@@ -2513,14 +2513,10 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 					$sValue = $this->_escapeSearchString($oImapClient, $aLines['OTHER']);
 
 					$aImapSearchResult[] = 'OR OR OR';
-					$aImapSearchResult[] = 'FROM';
-					$aImapSearchResult[] = $sValue;
-					$aImapSearchResult[] = 'TO';
-					$aImapSearchResult[] = $sValue;
-					$aImapSearchResult[] = 'CC';
-					$aImapSearchResult[] = $sValue;
-					$aImapSearchResult[] = 'SUBJECT';
-					$aImapSearchResult[] = $sValue;
+					$aImapSearchResult[] = 'FROM ' . $sValue;
+					$aImapSearchResult[] = 'TO ' . $sValue;
+					$aImapSearchResult[] = 'CC ' . $sValue;
+					$aImapSearchResult[] = 'SUBJECT ' . $sValue;
 				}
 				else
 				{
@@ -2530,8 +2526,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 					}
 					else
 					{
-						$aImapSearchResult[] = 'TEXT';
-						$aImapSearchResult[] = $this->_escapeSearchString($oImapClient, $aLines['OTHER']);
+						$aImapSearchResult[] = 'TEXT ' . $this->_escapeSearchString($oImapClient, $aLines['OTHER']);
 					}
 				}
 			}
@@ -2557,14 +2552,10 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 							$sValue = $this->_escapeSearchString($oImapClient, $sEmail);
 
 							//$aImapSearchResult[] = 'OR OR OR'; //and - all matches in message
-							$aImapSearchResult[] = 'FROM';
-							$aImapSearchResult[] = $sValue;
-							$aImapSearchResult[] = 'TO';
-							$aImapSearchResult[] = $sValue;
-							$aImapSearchResult[] = 'CC';
-							$aImapSearchResult[] = $sValue;
-							$aImapSearchResult[] = 'BCC';
-							$aImapSearchResult[] = $sValue;
+							$aImapSearchResult[] = 'FROM ' . $sValue;
+							$aImapSearchResult[] = 'TO '  . $sValue;
+							$aImapSearchResult[] = 'CC ' . $sValue;
+							$aImapSearchResult[] = 'BCC ' . $sValue;
 						}
 					}
 
@@ -2576,10 +2567,8 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 					$sValue = $this->_escapeSearchString($oImapClient, $aLines['TO']);
 
 					$aImapSearchResult[] = 'OR';
-					$aImapSearchResult[] = 'TO';
-					$aImapSearchResult[] = $sValue;
-					$aImapSearchResult[] = 'CC';
-					$aImapSearchResult[] = $sValue;
+					$aImapSearchResult[] = 'TO ' . $sValue;
+					$aImapSearchResult[] = 'CC ' . $sValue;
 
 					unset($aLines['TO']);
 				}
@@ -2596,12 +2585,16 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 					switch ($sName)
 					{
 						case 'FROM':
-							$aImapSearchResult[] = 'FROM';
-							$aImapSearchResult[] = $sValue;
+							$aValues = explode(',', $sRawValue);
+							if (count($aValues) > 1) {
+								$aImapSearchResult[] = trim(str_repeat('OR ', count($aValues) - 1));
+							}
+							foreach ($aValues as $sValue) {
+								$aImapSearchResult[] = 'FROM ' . $this->_escapeSearchString($oImapClient, $sValue);;
+							}
 							break;
 						case 'SUBJECT':
-							$aImapSearchResult[] = 'SUBJECT';
-							$aImapSearchResult[] = $sValue;
+							$aImapSearchResult[] = 'SUBJECT ' . $sValue;
 							break;
 						case 'OTHER':
 						case 'BODY':
@@ -2672,14 +2665,12 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
 							if (0 < $iDateStampFrom)
 							{
-								$aImapSearchResult[] = 'SINCE';
-								$aImapSearchResult[] = gmdate('j-M-Y', $iDateStampFrom);
+								$aImapSearchResult[] = 'SINCE ' . gmdate('j-M-Y', $iDateStampFrom);
 							}
 
 							if (0 < $iDateStampTo)
 							{
-								$aImapSearchResult[] = 'BEFORE';
-								$aImapSearchResult[] = gmdate('j-M-Y', $iDateStampTo);
+								$aImapSearchResult[] = 'BEFORE ' . gmdate('j-M-Y', $iDateStampTo);
 							}
 							break;
 					}
@@ -2694,8 +2685,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 					}
 					else
 					{
-						$aImapSearchResult[] = 'BODY';
-						$aImapSearchResult[] = $this->_escapeSearchString($oImapClient, $sMainText);
+						$aImapSearchResult[] = 'BODY ' . $this->_escapeSearchString($oImapClient, $sMainText);
 					}
 				}
 			}
@@ -2719,8 +2709,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		$sGmailRawSearch = \trim($sGmailRawSearch);
 		if ($bIsGmail && 0 < \strlen($sGmailRawSearch))
 		{
-			$aImapSearchResult[] = 'X-GM-RAW';
-			$aImapSearchResult[] = $this->_escapeSearchString($oImapClient, $sGmailRawSearch, false);
+			$aImapSearchResult[] = 'X-GM-RAW ' . $this->_escapeSearchString($oImapClient, $sGmailRawSearch, false);
 		}
 
 		$sImapSearchResult = \trim(\implode(' ', $aImapSearchResult));
