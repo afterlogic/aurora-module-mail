@@ -596,7 +596,11 @@ class Message
 	 */
 	public function getCc()
 	{
-		return $this->oCc;
+		if (isset($this->oCc)) {
+			return $this->oCc;
+		} elseif (!isset($this->oTo)) {
+			return $this->oEnvelopeTo;
+		}
 	}
 
 	/**
