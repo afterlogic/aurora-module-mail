@@ -13,6 +13,7 @@ use Aurora\Modules\Core\Models\User;
 use Aurora\Modules\Mail\Classes\Message;
 use Aurora\Modules\Mail\Enums\SearchInFoldersType;
 use Aurora\Modules\Mail\Models\Identity;
+use Aurora\Modules\Mail\Models\TrustedSender;
 use Aurora\System\Exceptions\InvalidArgumentException;
 use PHPMailer\DKIMValidator\Validator as DKIMValidator; 
 use PHPMailer\DKIMValidator\DKIMException;
@@ -1301,8 +1302,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 			if ($oAccount)
 			{
-				$this->getIdentitiesManager()->deleteAccountIdentities($oAccount->EntityId);
-				$this->getMailManager()->deleteSystemFolderNames($oAccount->EntityId);
+				$this->getIdentitiesManager()->deleteAccountIdentities($oAccount->Id);
+				$this->getMailManager()->deleteSystemFolderNames($oAccount->Id);
 
 				$oServer = $oAccount->getServer();
 
@@ -1325,7 +1326,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 				if ($bResult && $oServer && $oServer->OwnerType === \Aurora\Modules\Mail\Enums\ServerOwnerType::Account)
 				{
-					$this->getServersManager()->deleteServer($oServer->EntityId);
+					$this->getServersManager()->deleteServer($oServer->Id);
 				}
 
 			}
@@ -6567,9 +6568,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function onBeforeDeleteUser($aArgs, &$mResult)
 	{
-		$mResult = $this->getIdentitiesManager()->GetIdentitiesByUserId($aArgs["UserId"]);
-
 		Identity::where('IdUser', $aArgs["UserId"])->delete();
+        TrustedSender::where('IdUser', $aArgs["UserId"])->delete();
 
 		$mResult = $this->getAccountsManager()->getUserAccounts($aArgs["UserId"]);
 
