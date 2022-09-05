@@ -142,7 +142,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 						throw new \Aurora\Modules\Mail\Exceptions\Exception(
 							\Aurora\Modules\Mail\Enums\ErrorCodes::CannotLoginCredentialsIncorrect,
 							$oException,
-							$oAccount->EntityId . ':' . $oException->getMessage()
+							$oAccount->Id . ':' . $oException->getMessage()
 						);
 					}
 				}
