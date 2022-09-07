@@ -6171,6 +6171,12 @@ class Module extends \Aurora\System\Module\AbstractModule
 				{
 					$oFilter = $this->getSieveManager()->createFilterInstance($oAccount, $aFilterData);
 
+					$aArgs = [
+						'Account' => $oAccount,
+						'Filter' => &$oFilter,
+					];
+					$this->broadcastEvent('CreateFilterInstance', $aArgs);
+
 					if ($oFilter)
 					{
 						$aFilters[] = $oFilter;
