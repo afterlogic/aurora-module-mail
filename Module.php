@@ -2262,7 +2262,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		$aFolders = [];
 		if ($iSearchInFoldersType === SearchInFoldersType::Cur) {
-			$aFolders = [$Folder];
+			$oFoldersColl = $this->getMailManager()->getFolders($oAccount, false, $Folder);
+			$oFolder = $oFoldersColl->getFolder($Folder);
+			$aFolders = [$oFolder];
 		} else {
 			if ($iSearchInFoldersType === SearchInFoldersType::All) {
 				$Folder = '';
