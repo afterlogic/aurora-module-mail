@@ -2262,14 +2262,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		$aFolders = [];
 		if ($iSearchInFoldersType === SearchInFoldersType::Cur) {
-			$oFoldersColl = $this->getMailManager()->getFolders($oAccount, false, $Folder);
+			$oFoldersColl = $this->getMailManager()->getFolders($oAccount, true, $Folder);
 			$oFolder = $oFoldersColl->getFolder($Folder);
 			$aFolders = [$oFolder];
 		} else {
 			if ($iSearchInFoldersType === SearchInFoldersType::All) {
 				$Folder = '';
 			}
-			$oFoldersColl = $this->getMailManager()->getFolders($oAccount, false, $Folder);
+			$oFoldersColl = $this->getMailManager()->getFolders($oAccount, true, $Folder);
 			
 			$oFoldersColl->foreachWithSubFolders(function ($oFolder) use (&$aFolders) {
 				if ($oFolder->isSubscribed() && $oFolder->isSelectable()) {
