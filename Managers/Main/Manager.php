@@ -507,6 +507,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 				\Aurora\Modules\Mail\Enums\FolderType::Trash => array('Trash', 'Bin', 'Deleted', 'Deleted Items'),
 				// if array is empty, folder will not be set and/or created from folders map
 				\Aurora\Modules\Mail\Enums\FolderType::Template => array(),
+				\Aurora\Modules\Mail\Enums\FolderType::All => array(),
 			);
 
 			$oInbox = $oFolderCollection->getFolder('INBOX');
