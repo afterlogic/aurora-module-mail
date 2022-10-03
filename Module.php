@@ -82,23 +82,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 			Enums\ErrorCodes::TenantQuotaExceeded					=> $this->i18N('ERROR_TENANT_QUOTA_EXCEEDED'),
 		];
 
-		\Aurora\Modules\Core\Classes\User::extend(
-			self::GetName(),
-			[
-				'AllowAutosaveInDrafts'	=> ['bool', (bool) $this->getConfig('AllowAutosaveInDrafts', false)],
-				'UserSpaceLimitMb'	=> ['int', 0],
-			]
-		);
-		\Aurora\Modules\Core\Classes\Tenant::extend(
-			self::GetName(),
-			[
-				'TenantSpaceLimitMb' => ['int', 0],
-				'UserSpaceLimitMb'	=> ['int', 0],
-				'AllowChangeUserSpaceLimit'	=> ['bool', true],
-				'AllocatedSpaceMb' => ['int', 0],
-			]
-		);
-
 		$this->AddEntries(array(
 				'message-newtab' => 'EntryMessageNewtab',
 				'mail-attachment' => 'EntryDownloadAttachment',
