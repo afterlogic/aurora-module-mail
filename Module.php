@@ -2455,9 +2455,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$sSortOrder = $SortOrder === \Aurora\System\Enums\SortOrder::DESC ? 'REVERSE' : '';
 
 		foreach ($aAccounts as $oAccount) {
-		    if ($oAccount->IncludeInUnifiedMailbox) {
-                $aAccountsCache[$oAccount->Id]['Account'] = $oAccount;
-                $aAccountUids[$oAccount->Id] = [];
+			if ($oAccount->IncludeInUnifiedMailbox) {
+				$aAccountsCache[$oAccount->Id]['Account'] = $oAccount;
+				$aAccountUids[$oAccount->Id] = [];
 				$sSearch = $Search;
 
 				$aFolders = $this->getFoldersForSearch($oAccount, $Folder, $Search, $sSearch);
@@ -2489,7 +2489,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 					$iMessagesUnseenCount += $aFoldersInfo[$sFolder][1];
 					$aFoldersHash[] = $aFoldersInfo[$sFolder][3];
 				}
-            }
+			}
 		}
 
 		// sort by time
