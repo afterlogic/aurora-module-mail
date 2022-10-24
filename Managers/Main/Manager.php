@@ -351,8 +351,6 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	{
 		$bResult = true;
 
-		$iOffset = 0;
-		$iLimit = 0;
 		$aFilters = array('IdAccount' => $iAccountId);
 
         $aSystemFolders = SystemFolder::where($aFilters)->get();
@@ -400,9 +398,9 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 						$oFolder->setType($oSystemFolder->Type);
 					}
 				}
-				else
+				else if ($oFolderCollection->getCollectionFullFlag())
 				{
-                    $oSystemFolder->delete();
+					$oSystemFolder->delete();
 				}
 			}
 		}
@@ -623,6 +621,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		if (is_array($aMailFolders))
 		{
 			$oFolderCollection = \Aurora\Modules\Mail\Classes\FolderCollection::createInstance();
+			$oFolderCollection->setCollectionFullFlag($sParent === '');
 
 			if ($oNamespace)
 			{

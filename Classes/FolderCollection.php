@@ -27,6 +27,13 @@ class FolderCollection extends \MailSo\Base\Collection
 	protected $sNamespace;
 
 	/**
+	 * Marker shows if the collection contains full folders structure or it's part only
+	 * 
+	 * @var boolean
+	 */
+	protected $bFullCollection;
+
+	/**
 	 * Initializes collection property.
 	 * 
 	 * @return void
@@ -36,6 +43,8 @@ class FolderCollection extends \MailSo\Base\Collection
 		parent::__construct();
 
 		$this->sNamespace = '';
+
+		$this->bFullCollection = true;
 	}
 
 	/**
@@ -108,6 +117,26 @@ class FolderCollection extends \MailSo\Base\Collection
 		});
 
 		return $this;
+	}
+
+	/**
+	 * Returns flag if the collection contains full structure.
+	 * 
+	 * @return boolean
+	 */
+	public function getCollectionFullFlag()
+	{
+		return $this->bFullCollection;
+	}
+
+	/**
+	 * Modifies flag that shows if the collection contains full structure.
+	 * 
+	 * @param boolean $bFlag bFullCollection flag value.
+	 */
+	public function setCollectionFullFlag($bFlag)
+	{
+		return $this->bFullCollection = !!$bFlag;
 	}
 
 	/**
