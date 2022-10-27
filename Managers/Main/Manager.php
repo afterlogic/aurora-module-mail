@@ -509,7 +509,9 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			);
 
 			$oInbox = $oFolderCollection->getFolder('INBOX');
-			$oInbox->setType(\Aurora\Modules\Mail\Enums\FolderType::Inbox);
+			if ($oInbox) {
+				$oInbox->setType(\Aurora\Modules\Mail\Enums\FolderType::Inbox);
+			}
 
 			// Tries to set system folders from database data.
 			$this->_initSystemFoldersFromDb($oAccount, $oFolderCollection, $aFoldersMap);
