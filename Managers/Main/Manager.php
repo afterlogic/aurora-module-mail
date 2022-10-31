@@ -2566,12 +2566,22 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
 				if (isset($aLines['TO']))
 				{
-					$sValue = $this->_escapeSearchString($oImapClient, $aLines['TO']);
+					// $sValue = $this->_escapeSearchString($oImapClient, $aLines['TO']);
 
+					// $aImapSearchResult[] = 'OR';
+					// $aImapSearchResult[] = 'TO ' . $sValue;
+					// $aImapSearchResult[] = 'CC ' . $sValue;
+					
+					$aValues = explode(',', $aLines['TO']);
+					
 					$aImapSearchResult[] = 'OR';
-					$aImapSearchResult[] = 'TO ' . $sValue;
-					$aImapSearchResult[] = 'CC ' . $sValue;
-
+					if (count($aValues) > 1) {
+						$aImapSearchResult[] = trim(str_repeat('OR ', (count($aValues) - 1) * 2));
+					}
+					foreach ($aValues as $sValue) {
+						$aImapSearchResult[] = 'TO ' . $this->_escapeSearchString($oImapClient, $sValue);
+						$aImapSearchResult[] = 'CC ' . $this->_escapeSearchString($oImapClient, $sValue);
+					}
 					unset($aLines['TO']);
 				}
 
@@ -2715,6 +2725,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		}
 
 		$sImapSearchResult = \trim(\implode(' ', $aImapSearchResult));
+		// var_dump($sImapSearchResult);
 		if ('' === $sImapSearchResult)
 		{
 			$sImapSearchResult = 'ALL';
