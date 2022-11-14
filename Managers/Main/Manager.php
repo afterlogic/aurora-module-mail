@@ -2534,6 +2534,12 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			}
 			else
 			{
+				if (2 === count($aLines) && isset($aLines['OTHER']) && (isset($aLines['TO']) || isset($aLines['FROM'])))
+				{
+					$aLines['SUBJECT'] = $aLines['OTHER'];
+					unset($aLines['OTHER']);
+				}
+
 				if (isset($aLines['EMAIL']))
 				{
 					$aEmails = explode(',', $aLines['EMAIL']);
