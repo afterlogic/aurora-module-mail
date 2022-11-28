@@ -94,6 +94,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$this->subscribeEvent('Core::GetAccounts', array($this, 'onGetAccounts'));
 		$this->subscribeEvent('Autodiscover::GetAutodiscover::after', array($this, 'onAfterGetAutodiscover'));
 		$this->subscribeEvent('Core::DeleteTenant::after', array($this, 'onAfterDeleteTenant'));
+		$this->subscribeEvent('Core::DeleteUser::after', array($this, 'onAfterDeleteUser'));
 		$this->subscribeEvent('Core::GetDigestHash', array($this, 'onGetDigestHash'));
 		$this->subscribeEvent('Core::GetAccountUsedToAuthorize', array($this, 'onGetAccountUsedToAuthorize'));
 		$this->subscribeEvent('System::RunEntry::before', array($this, 'onBeforeRunEntry'));
@@ -1291,7 +1292,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 				$oServer = $oAccount->getServer();
 
 				$oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserUnchecked($oAccount->IdUser);
-				if ($oUser instanceof \Aurora\Modules\Core\Classes\User && $oAccount->Email === $oUser->PublicId)
+				if ($oUser instanceof \Aurora\Modules\Core\Models\User && $oAccount->Email === $oUser->PublicId)
 				{
 					$iQuota = $oUser->{self::GetName() . '::UserSpaceLimitMb'};
 					$this->updateAllocatedTenantSpace($oUser->IdTenant, 0, $iQuota);
@@ -6559,14 +6560,19 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 */
 	public function onBeforeDeleteUser($aArgs, &$mResult)
 	{
-		Identity::where('IdUser', $aArgs["UserId"])->delete();
-        TrustedSender::where('IdUser', $aArgs["UserId"])->delete();
-
 		$mResult = $this->getAccountsManager()->getUserAccounts($aArgs["UserId"]);
 
 		foreach($mResult as $oItem)
 		{
 			self::Decorator()->DeleteAccount($oItem->Id);
+		}
+	}
+
+	public function onAfterDeleteUser($aArgs, &$mResult)
+	{
+		if ($mResult) {
+			Identity::where('IdUser', $aArgs["UserId"])->delete();
+			TrustedSender::where('IdUser', $aArgs["UserId"])->delete();
 		}
 	}
 
