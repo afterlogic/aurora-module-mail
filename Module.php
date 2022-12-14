@@ -2245,15 +2245,16 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 
 		$aFolders = [];
+		$bCreateUnExistenSystemFolders = $Folder === '';
 		if ($iSearchInFoldersType === SearchInFoldersType::Cur) {
-			$oFoldersColl = $this->getMailManager()->getFolders($oAccount, true, $Folder);
+			$oFoldersColl = $this->getMailManager()->getFolders($oAccount, $bCreateUnExistenSystemFolders, $Folder);
 			$oFolder = $oFoldersColl->getFolder($Folder);
 			$aFolders = [$oFolder];
 		} else {
 			if ($iSearchInFoldersType === SearchInFoldersType::All) {
 				$Folder = '';
 			}
-			$oFoldersColl = $this->getMailManager()->getFolders($oAccount, true, $Folder);
+			$oFoldersColl = $this->getMailManager()->getFolders($oAccount, $bCreateUnExistenSystemFolders, $Folder);
 			
 			$oFoldersColl->foreachWithSubFolders(function ($oFolder) use (&$aFolders) {
 				if ($oFolder->isSubscribed() && $oFolder->isSelectable()) {
