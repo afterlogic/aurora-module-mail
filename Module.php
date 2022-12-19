@@ -58,6 +58,15 @@ class Module extends \Aurora\System\Module\AbstractModule
 	protected $oFilecacheManager = null;
 
 	/**
+	 *
+	 * @return Module
+	 */
+	public static function getInstance()
+	{
+		return \Aurora\System\Api::GetModule(self::GetName());
+	}
+
+	/**
 	 * Initializes Mail Module.
 	 *
 	 * @ignore

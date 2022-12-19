@@ -8,6 +8,7 @@
 namespace Aurora\Modules\Mail\Managers\Sieve;
 
 use Aurora\Api;
+use Aurora\Modules\Mail\Module;
 
 /**
  * @license https://www.gnu.org/licenses/agpl-3.0.html AGPL-3.0
@@ -260,7 +261,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	}
 	
 	/**
-	 * @param CAcount $oAccount
+	 * @param \Aurora\Modules\Mail\Models\MailAccount $oAccount
 	 *
 	 * @return array|false
 	 */
@@ -668,7 +669,7 @@ if " . $SieveSpamRuleCondition . " {
 	}
 
 	/**
-	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
+	 * @param \Aurora\Modules\Mail\Models\MailAccount $oAccount
 	 * 
 	 * @return \MailSo\Sieve\ManageSieveClient|false
 	 */
@@ -682,23 +683,25 @@ if " . $SieveSpamRuleCondition . " {
 			if (!$oSieve->IsConnected())
 			{
 				$oMailModule = \Aurora\System\Api::GetModule('Mail');
-				$sGeneralPassword = $oMailModule->getConfig('SieveGeneralPassword', '');
-				
-				$oServer = $oMailModule->getServersManager()->getServer($oAccount->ServerId);
-				
-				$sHost = $oMailModule->getConfig('OverriddenSieveHost', '');
-				if (empty($sHost))
-				{
-					$sHost = $oServer->IncomingServer;
-				}
+				if ($oMailModule instanceof Module) {
+					$sGeneralPassword = $oMailModule->getConfig('SieveGeneralPassword', '');
+					
+					$oServer = $oMailModule->getServersManager()->getServer($oAccount->ServerId);
+					
+					$sHost = $oMailModule->getConfig('OverriddenSieveHost', '');
+					if (empty($sHost))
+					{
+						$sHost = $oServer->IncomingServer;
+					}
 
-				$iPort = $oServer->SievePort;
-				$sPassword = 0 === strlen($sGeneralPassword) ? $oAccount->getPassword() : $sGeneralPassword;
-				$bUseStarttls = $this->GetModule()->getConfig('SieveUseStarttls', false);
-				$bResult = $oSieve
-					->Connect($sHost, $iPort, $bUseStarttls ? \MailSo\Net\Enumerations\ConnectionSecurityType::STARTTLS : \MailSo\Net\Enumerations\ConnectionSecurityType::NONE)
-					->Login($oAccount->IncomingLogin, $sPassword)
-				;
+					$iPort = $oServer->SievePort;
+					$sPassword = 0 === strlen($sGeneralPassword) ? $oAccount->getPassword() : $sGeneralPassword;
+					$bUseStarttls = $this->GetModule()->getConfig('SieveUseStarttls', false);
+					$bResult = $oSieve
+						->Connect($sHost, $iPort, $bUseStarttls ? \MailSo\Net\Enumerations\ConnectionSecurityType::STARTTLS : \MailSo\Net\Enumerations\ConnectionSecurityType::NONE)
+						->Login($oAccount->IncomingLogin, $sPassword)
+					;
+				}
 			}
 			else
 			{

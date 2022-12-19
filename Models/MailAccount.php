@@ -5,6 +5,7 @@ namespace Aurora\Modules\Mail\Models;
 use Aurora\Modules\Contacts\Models\Group;
 use \Aurora\System\Classes\Model;
 use Aurora\Modules\Core\Models\User;
+use Aurora\Modules\Mail\Module;
 
 class MailAccount extends Model
 {
@@ -113,7 +114,11 @@ class MailAccount extends Model
     private function canBeUsedToAuthorize()
     {
         $oMailModule = \Aurora\System\Api::GetModule('Mail');
-        return !$oMailModule->getAccountsManager()->useToAuthorizeAccountExists($this->Email, $this->Id);
+        if ($oMailModule instanceof Module) {
+            return !$oMailModule->getAccountsManager()->useToAuthorizeAccountExists($this->Email, $this->Id);
+        } else {
+            return false;
+        }
     }
 
     public function getDefaultTimeOffset()
