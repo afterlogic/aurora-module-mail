@@ -164,7 +164,7 @@
 		"bool"
 	],
 	"AllowAlwaysRefreshFolders_Description": [
-		"If true, each folder in Manage Folders screen gets an option whether it should  ",
+		"If true, each folder in Manage Folders screen gets an option whether it should ",
 		"string"
 	],
 	"DisplayInlineCss": [
@@ -180,7 +180,7 @@
 		"bool"
 	],
 	"CleanupOutputBeforeDownload_Description": [
-		"Вiscard any data in the output buffer if possible, prior to downloading attachment",
+		"Discard any data in the output buffer if possible, prior to downloading attachment",
 		"string"
 	],
 	"IgnoreImapSubscription": [
