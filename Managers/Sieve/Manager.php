@@ -58,6 +58,16 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	protected $bSieveCheckScript;
 
 	/**
+	 * @var string
+	 */
+	protected $sSieveFolderCharset;
+
+	/**
+	 * @var bool
+	 */
+	protected $bSectionsParsed;
+
+	/**
 	 * @param \Aurora\System\Module\AbstractModule $oModule
 	 */
 	public function __construct(\Aurora\System\Module\AbstractModule $oModule)

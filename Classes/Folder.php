@@ -69,6 +69,11 @@ class Folder
 	public $bAlwaysRefresh;
 
 	/**
+	 * @var int
+	 */
+	protected $iDeep;
+
+	/**
 	 * Fills in the required data first.
 	 * 
 	 * @param \MailSo\Imap\Folder $oImapFolder ImapFolder object.

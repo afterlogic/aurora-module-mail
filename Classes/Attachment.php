@@ -313,7 +313,7 @@ class Attachment
 
 		$sCid = \trim(\trim($this->getCid()), '<>');
 
-		$bIsPdfAttach = isset($mResult['MimeType']) && $mResult['MimeType'] === 'application/pdf';
+		$bIsPdfAttach = $sMimeType === 'application/pdf';
 		$bCidFoundInHtml = !empty($sCid) && is_array($mFoundedCIDs) && in_array($sCid, $mFoundedCIDs) ||
 			is_array($mFoundedContentLocationUrls) && in_array(trim($this->getContentLocation()), $mFoundedContentLocationUrls);
 

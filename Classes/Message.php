@@ -244,6 +244,11 @@ class Message
 	private $aThreads;
 
 	/**
+	 * @var string
+	 */
+	private $sHeaders;
+
+	/**
 	 * @return void
 	 */
 	protected function __construct()

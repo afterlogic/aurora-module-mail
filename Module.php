@@ -2256,7 +2256,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 		$aFolders = [];
 		$bCreateUnExistenSystemFolders = $Folder === '';
 		if ($iSearchInFoldersType === SearchInFoldersType::Cur) {
-			$oFoldersColl = $this->getMailManager()->getFolders($oAccount, $bCreateUnExistenSystemFolders, $Folder);
+			$oFoldersColl = $this->getMailManager()->getFolders($oAccount, $bCreateUnExistenSystemFolders);
 			$oFolder = $oFoldersColl->getFolder($Folder);
 			$aFolders = [$oFolder];
 		} else {
@@ -2472,9 +2472,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 				$sSearch = $Search;
 
 				$aFolders = $this->getFoldersForSearch($oAccount, $Folder, $Search, $sSearch);
-				$aFoldersInfo = $this->getMailManager()->getFolderListInformation($oAccount, $aFolders, true);
-				foreach ($aFolders as $oFolder) {
-					$sFolder = $oFolder->getRawFullName();
+
+				$aFolderFullNamesRaw = array_map(function($oFolder) { 
+					return $oFolder->getRawFullName();
+				}, $aFolders);
+
+				$aFoldersInfo = $this->getMailManager()->getFolderListInformation($oAccount, $aFolderFullNamesRaw, true);
+				foreach ($aFolderFullNamesRaw as $sFolder) {
 					$aUnifiedInfo = $this->getMailManager()->getUnifiedMailboxMessagesInfo(
 						$oAccount, 
 						$sFolder, 
