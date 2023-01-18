@@ -1322,11 +1322,7 @@ class Message
 			$bCreateHtmlLinksFromTextLinksInDOM = \Aurora\Modules\Mail\Module::getInstance()->getConfig('CreateHtmlLinksFromTextLinksInDOM', false);
 			if (0 < \strlen($sHtml) && $oSettings->GetValue('DisplayInlineCss', false))
 			{
-				$oCssToInlineStyles = new \TijsVerkoyen\CssToInlineStyles\CssToInlineStyles($sHtml);
-				$oCssToInlineStyles->setEncoding('utf-8');
-				$oCssToInlineStyles->setUseInlineStylesBlock(true);
-
-				$mResult['Html'] = \MailSo\Base\HtmlUtils::ClearHtml($oCssToInlineStyles->convert(), $bHasExternals, $aFoundedCIDs,
+				$mResult['Html'] = \MailSo\Base\HtmlUtils::ClearHtml(\Aurora\System\Utils::ConvertCssToInlineStyles($sHtml), $bHasExternals, $aFoundedCIDs,
 					$aContentLocationUrls, $aFoundedContentLocationUrls, false, $bCreateHtmlLinksFromTextLinksInDOM);
 			}
 			else
