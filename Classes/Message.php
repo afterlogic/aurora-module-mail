@@ -1320,7 +1320,7 @@ class Message
 
 			$oSettings =& \Aurora\System\Api::GetSettings();
 			$bCreateHtmlLinksFromTextLinksInDOM = \Aurora\Modules\Mail\Module::getInstance()->getConfig('CreateHtmlLinksFromTextLinksInDOM', false);
-			if (0 < \strlen($sHtml) && $oSettings->GetValue('DisplayInlineCss', false))
+			if (0 < \strlen($sHtml) && \Aurora\Modules\Mail\Module::getInstance()->getConfig('DisplayInlineCss', false))
 			{
 				$mResult['Html'] = \MailSo\Base\HtmlUtils::ClearHtml(\Aurora\System\Utils::ConvertCssToInlineStyles($sHtml), $bHasExternals, $aFoundedCIDs,
 					$aContentLocationUrls, $aFoundedContentLocationUrls, false, $bCreateHtmlLinksFromTextLinksInDOM);
