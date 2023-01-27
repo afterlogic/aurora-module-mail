@@ -17,9 +17,9 @@ namespace Aurora\Modules\Mail\Enums;
  */
 class MessageListSortType extends \Aurora\System\Enums\AbstractEnumeration
 {
-	const Date = 0;
-	const From_ = 1;
-	const To_ = 2;
-	const Subject = 3;
-	const Size = 4;
+    public const Date = 0;
+    public const From_ = 1;
+    public const To_ = 2;
+    public const Subject = 3;
+    public const Size = 4;
 }

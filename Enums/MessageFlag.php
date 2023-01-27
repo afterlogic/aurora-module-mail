@@ -17,10 +17,10 @@ namespace Aurora\Modules\Mail\Enums;
  */
 class MessageFlag extends \Aurora\System\Enums\AbstractEnumeration
 {
-	const Recent = '\Recent';
-	const Seen = '\Seen';
-	const Deleted = '\Deleted';
-	const Flagged = '\Flagged';
-	const Answered = '\Answered';
-	const Draft = '\Draft';
+    public const Recent = '\Recent';
+    public const Seen = '\Seen';
+    public const Deleted = '\Deleted';
+    public const Flagged = '\Flagged';
+    public const Answered = '\Answered';
+    public const Draft = '\Draft';
 }

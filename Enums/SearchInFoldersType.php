@@ -17,16 +17,16 @@ namespace Aurora\Modules\Mail\Enums;
  */
 class SearchInFoldersType extends \Aurora\System\Enums\AbstractEnumeration
 {
-	const Cur = 0;
-	const Sub = 1;
-	const All = 2;
+    public const Cur = 0;
+    public const Sub = 1;
+    public const All = 2;
 
-	/**
-	 * @var array
-	 */
-	protected $aConsts = [
-		'Cur' => self::Cur,
-		'Sub' => self::Sub,
-		'All' => self::All
-	];
+    /**
+     * @var array
+     */
+    protected $aConsts = [
+        'Cur' => self::Cur,
+        'Sub' => self::Sub,
+        'All' => self::All
+    ];
 }

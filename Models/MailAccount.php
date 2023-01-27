@@ -3,7 +3,7 @@
 namespace Aurora\Modules\Mail\Models;
 
 use Aurora\Modules\Contacts\Models\Group;
-use \Aurora\System\Classes\Model;
+use Aurora\System\Classes\Model;
 use Aurora\Modules\Core\Models\User;
 use Aurora\Modules\Mail\Module;
 
@@ -47,7 +47,7 @@ class MailAccount extends Model
     ];
 
     protected $casts = [
-		'Properties' => 'array',
+        'Properties' => 'array',
         'IncomingPassword' => \Aurora\System\Casts\Encrypt::class,
         'IsDisabled' => 'boolean',
         'UseToAuthorize' => 'boolean',
@@ -56,7 +56,7 @@ class MailAccount extends Model
         'ShowUnifiedMailboxLabel' => 'boolean',
         'UseThreading' => 'boolean',
         'SaveRepliesToCurrFolder' => 'boolean',
-		'FoldersOrder' => 'string'
+        'FoldersOrder' => 'string'
     ];
 
     protected $attributes = [
@@ -133,20 +133,18 @@ class MailAccount extends Model
         $aResponse['AllowFilters'] = false;
         $aResponse['AllowForward'] = false;
         $aResponse['AllowAutoresponder'] = false;
-		$aResponse['EnableAllowBlockLists'] = false;
+        $aResponse['EnableAllowBlockLists'] = false;
 
         if (!isset($aResponse['Signature'])) {
             $aResponse['Signature'] = '';
         }
 
         $oServer = $this->getServer();
-        if ($oServer instanceof \Aurora\System\Classes\Model)
-        {
+        if ($oServer instanceof \Aurora\System\Classes\Model) {
             $aResponse['Server'] = $oServer->toResponseArray();
 
             $oMailModule = \Aurora\System\Api::GetModule('Mail');
-            if ($oServer->EnableSieve && $oMailModule)
-            {
+            if ($oServer->EnableSieve && $oMailModule) {
                 $aResponse['AllowFilters'] = $oMailModule->getConfig('AllowFilters', '');
                 $aResponse['AllowForward'] = $oMailModule->getConfig('AllowForward', '');
                 $aResponse['AllowAutoresponder'] = $oMailModule->getConfig('AllowAutoresponder', '');
@@ -155,7 +153,7 @@ class MailAccount extends Model
         }
 
         $aResponse['CanBeUsedToAuthorize'] = $this->canBeUsedToAuthorize();
-//		unset($aResponse['IncomingPassword']);
+        //		unset($aResponse['IncomingPassword']);
 
         $aArgs = ['Account' => $this];
         \Aurora\System\Api::GetModule('Core')->broadcastEvent(
@@ -167,21 +165,22 @@ class MailAccount extends Model
         return $aResponse;
     }
 
-    public function getServer() {
+    public function getServer()
+    {
         return $this->Server;
     }
 
-	public function getLogin()
-	{
-		$oServer = $this->getServer();
-		if ($oServer && !$oServer->UseFullEmailAddressAsLogin) {
-			return $this->Email;
-		}
-		return $this->IncomingLogin;
-	}
-
-    public function Server() {
-        return $this->belongsTo(Server::class, 'ServerId', 'Id');
+    public function getLogin()
+    {
+        $oServer = $this->getServer();
+        if ($oServer && !$oServer->UseFullEmailAddressAsLogin) {
+            return $this->Email;
+        }
+        return $this->IncomingLogin;
     }
 
+    public function Server()
+    {
+        return $this->belongsTo(Server::class, 'ServerId', 'Id');
+    }
 }

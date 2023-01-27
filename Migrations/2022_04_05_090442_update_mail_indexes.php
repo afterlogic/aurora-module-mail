@@ -13,20 +13,16 @@ class UpdateMailIndexes extends Migration
      */
     public function up()
     {
-        Capsule::schema()->table('mail_refresh_folders', function(Blueprint $table)
-        {
+        Capsule::schema()->table('mail_refresh_folders', function (Blueprint $table) {
             $table->index('IdAccount');
         });
-        Capsule::schema()->table('mail_servers', function(Blueprint $table)
-        {
+        Capsule::schema()->table('mail_servers', function (Blueprint $table) {
             $table->index('TenantId');
         });
-        Capsule::schema()->table('mail_system_folders', function(Blueprint $table)
-        {
+        Capsule::schema()->table('mail_system_folders', function (Blueprint $table) {
             $table->index('IdAccount');
         });
-        Capsule::schema()->table('mail_trusted_senders', function(Blueprint $table)
-        {
+        Capsule::schema()->table('mail_trusted_senders', function (Blueprint $table) {
             $table->index('IdUser');
         });
     }
@@ -38,20 +34,16 @@ class UpdateMailIndexes extends Migration
      */
     public function down()
     {
-        Capsule::schema()->table('mail_refresh_folders', function(Blueprint $table)
-        {
+        Capsule::schema()->table('mail_refresh_folders', function (Blueprint $table) {
             $table->dropIndex(['IdAccount']);
         });
-        Capsule::schema()->table('mail_servers', function(Blueprint $table)
-        {
+        Capsule::schema()->table('mail_servers', function (Blueprint $table) {
             $table->dropIndex(['TenantId']);
         });
-        Capsule::schema()->table('mail_system_folders', function(Blueprint $table)
-        {
+        Capsule::schema()->table('mail_system_folders', function (Blueprint $table) {
             $table->dropIndex(['IdAccount']);
         });
-        Capsule::schema()->table('mail_trusted_senders', function(Blueprint $table)
-        {
+        Capsule::schema()->table('mail_trusted_senders', function (Blueprint $table) {
             $table->dropIndex(['IdUser']);
         });
     }

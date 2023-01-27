@@ -13,13 +13,11 @@ class CreateMailIndexes extends Migration
      */
     public function up()
     {
-        Capsule::schema()->table('mail_accounts', function(Blueprint $table)
-        {
+        Capsule::schema()->table('mail_accounts', function (Blueprint $table) {
             $table->index('IdUser');
         });
 
-        Capsule::schema()->table('mail_identities', function(Blueprint $table)
-        {
+        Capsule::schema()->table('mail_identities', function (Blueprint $table) {
             $table->index('IdUser');
             $table->index('IdAccount');
         });
@@ -32,13 +30,11 @@ class CreateMailIndexes extends Migration
      */
     public function down()
     {
-        Capsule::schema()->table('mail_accounts', function (Blueprint $table)
-        {
+        Capsule::schema()->table('mail_accounts', function (Blueprint $table) {
             $table->dropIndex(['IdUser']);
         });
 
-        Capsule::schema()->table('mail_identities', function (Blueprint $table)
-        {
+        Capsule::schema()->table('mail_identities', function (Blueprint $table) {
             $table->dropIndex(['IdUser']);
             $table->dropIndex(['IdAccount']);
         });

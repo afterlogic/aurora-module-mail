@@ -17,8 +17,8 @@ namespace Aurora\Modules\Mail\Enums;
  */
 class FilterCondition extends \Aurora\System\Enums\AbstractEnumeration
 {
-	const ContainSubstring = 0;
-	const ContainExactPhrase = 1;
-	const NotContainSubstring = 2;
-	const StartFrom = 3;
+    public const ContainSubstring = 0;
+    public const ContainExactPhrase = 1;
+    public const NotContainSubstring = 2;
+    public const StartFrom = 3;
 }

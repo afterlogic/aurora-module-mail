@@ -19,157 +19,158 @@ namespace Aurora\Modules\Mail\Classes;
  */
 class MessageCollection extends \MailSo\Base\Collection
 {
-	/**
-	 * Number of messages in the folder.
-	 *
-	 * @var int
-	 */
-	public $MessageCount;
+    /**
+     * Number of messages in the folder.
+     *
+     * @var int
+     */
+    public $MessageCount;
 
-	/**
-	 * Number of unread mails in the folder.
-	 *
-	 * @var int
-	 */
-	public $MessageUnseenCount;
+    /**
+     * Number of unread mails in the folder.
+     *
+     * @var int
+     */
+    public $MessageUnseenCount;
 
-	/**
-	 * Number of messages returned upon running search.
-	 *
-	 * @var int
-	 */
-	public $MessageResultCount;
+    /**
+     * Number of messages returned upon running search.
+     *
+     * @var int
+     */
+    public $MessageResultCount;
 
-	/**
-	 * Full name of the folder.
-	 *
-	 * @var string
-	 */
-	public $FolderName;
+    /**
+     * Full name of the folder.
+     *
+     * @var string
+     */
+    public $FolderName;
 
-	/**
-	 * Along with **Limit**, denotes a range of message list to retrieve.
-	 *
-	 * @var int
-	 */
-	public $Offset;
+    /**
+     * Along with **Limit**, denotes a range of message list to retrieve.
+     *
+     * @var int
+     */
+    public $Offset;
 
-	/**
-	 * Along with **Offset**, denotes a range of message list to retrieve.
-	 *
-	 * @var int
-	 */
-	public $Limit;
+    /**
+     * Along with **Offset**, denotes a range of message list to retrieve.
+     *
+     * @var int
+     */
+    public $Limit;
 
-	/**
-	 * Denotes search string.
-	 *
-	 * @var string
-	 */
-	public $Search;
+    /**
+     * Denotes search string.
+     *
+     * @var string
+     */
+    public $Search;
 
-	/**
-	 * Denotes message lookup type. Typical use case is search in Starred folder.
-	 *
-	 * @var string
-	 */
-	public $Filters;
+    /**
+     * Denotes message lookup type. Typical use case is search in Starred folder.
+     *
+     * @var string
+     */
+    public $Filters;
 
-	/**
-	 * List of message UIDs.
-	 *
-	 * @var array
-	 */
-	public $Uids;
+    /**
+     * List of message UIDs.
+     *
+     * @var array
+     */
+    public $Uids;
 
-	/**
-	 * UIDNEXT value for the current folder.
-	 *
-	 * @var string
-	 */
-	public $UidNext;
+    /**
+     * UIDNEXT value for the current folder.
+     *
+     * @var string
+     */
+    public $UidNext;
 
-	/**
-	 * Value which changes if any folder parameter, such as message count, was changed.
-	 *
-	 * @var string
-	 */
-	public $FolderHash;
+    /**
+     * Value which changes if any folder parameter, such as message count, was changed.
+     *
+     * @var string
+     */
+    public $FolderHash;
 
-	/**
-	 * List of information about new messages. $UidNext is used for obtaining this information.
-	 *
-	 * @var array
-	 */
-	public $New;
+    /**
+     * List of information about new messages. $UidNext is used for obtaining this information.
+     *
+     * @var array
+     */
+    public $New;
 
-	/**
-	 * Initializes collection properties.
-	 *
-	 * @return void
-	 */
-	protected function __construct()
-	{
-		parent::__construct();
+    /**
+     * Initializes collection properties.
+     *
+     * @return void
+     */
+    protected function __construct()
+    {
+        parent::__construct();
 
-		$this->clear();
-	}
+        $this->clear();
+    }
 
-	/**
-	 * Removes all messages from the collection.
-	 *
-	 * @return MessageCollection
-	 */
-	public function clear()
-	{
-		parent::clear();
+    /**
+     * Removes all messages from the collection.
+     *
+     * @return MessageCollection
+     */
+    public function clear()
+    {
+        parent::clear();
 
-		$this->MessageCount = 0;
-		$this->MessageUnseenCount = 0;
-		$this->MessageResultCount = 0;
+        $this->MessageCount = 0;
+        $this->MessageUnseenCount = 0;
+        $this->MessageResultCount = 0;
 
-		$this->FolderName = '';
-		$this->Offset = 0;
-		$this->Limit = 0;
-		$this->Search = '';
-		$this->Filters = '';
+        $this->FolderName = '';
+        $this->Offset = 0;
+        $this->Limit = 0;
+        $this->Search = '';
+        $this->Filters = '';
 
-		$this->UidNext = '';
-		$this->FolderHash = '';
-		$this->Uids = array();
+        $this->UidNext = '';
+        $this->FolderHash = '';
+        $this->Uids = array();
 
-		$this->New = array();
+        $this->New = array();
 
-		return $this;
-	}
+        return $this;
+    }
 
-	/**
-	 * Creates new instance of the object.
-	 *
-	 * @return MessageCollection
-	 */
-	public static function createInstance()
-	{
-		return new self();
-	}
+    /**
+     * Creates new instance of the object.
+     *
+     * @return MessageCollection
+     */
+    public static function createInstance()
+    {
+        return new self();
+    }
 
-	public function toResponseArray($aParameters = array()) {
-		return array_merge(
-				\Aurora\System\Managers\Response::CollectionToResponseArray($this, $aParameters),
-				array(
-					'Uids' => $this->Uids,
-					'UidNext' => $this->UidNext,
-					'FolderHash' => $this->FolderHash,
-					'MessageCount' => $this->MessageCount,
-					'MessageUnseenCount' => $this->MessageUnseenCount,
-					'MessageResultCount' => $this->MessageResultCount,
-					'FolderName' => $this->FolderName,
-					'Offset' => $this->Offset,
-					'Limit' => $this->Limit,
-					'Search' => $this->Search,
-					'Filters' => $this->Filters,
-					'New' => $this->New
-				)
-		);
-	}
+    public function toResponseArray($aParameters = array())
+    {
+        return array_merge(
+            \Aurora\System\Managers\Response::CollectionToResponseArray($this, $aParameters),
+            array(
+                'Uids' => $this->Uids,
+                'UidNext' => $this->UidNext,
+                'FolderHash' => $this->FolderHash,
+                'MessageCount' => $this->MessageCount,
+                'MessageUnseenCount' => $this->MessageUnseenCount,
+                'MessageResultCount' => $this->MessageResultCount,
+                'FolderName' => $this->FolderName,
+                'Offset' => $this->Offset,
+                'Limit' => $this->Limit,
+                'Search' => $this->Search,
+                'Filters' => $this->Filters,
+                'New' => $this->New
+            )
+        );
+    }
 }

@@ -17,7 +17,7 @@ namespace Aurora\Modules\Mail\Enums;
  */
 class ServerOwnerType extends \Aurora\System\Enums\AbstractEnumeration
 {
-	const Account = 'account';
-	const Tenant = 'tenant';
-	const SuperAdmin = 'superadmin';
+    public const Account = 'account';
+    public const Tenant = 'tenant';
+    public const SuperAdmin = 'superadmin';
 }

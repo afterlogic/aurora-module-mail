@@ -26,60 +26,60 @@ namespace Aurora\Modules\Mail\Classes;
  */
 class SieveFilter extends \Aurora\System\AbstractContainer
 {
-	/**
-	 * @param CAccount $oAccount
-	 */
-	public function __construct(\Aurora\Modules\Mail\Models\MailAccount $oAccount)
-	{
-		parent::__construct(get_class($this));
+    /**
+     * @param CAccount $oAccount
+     */
+    public function __construct(\Aurora\Modules\Mail\Models\MailAccount $oAccount)
+    {
+        parent::__construct(get_class($this));
 
-		$this->SetDefaults(array(
-			'IdAccount'	=> $oAccount->Id,
-			'Enable'	=> true,
-			'Field'		=> \Aurora\Modules\Mail\Enums\FilterFields::From,
-			'Filter'	=> '',
-			'Condition'	=> \Aurora\Modules\Mail\Enums\FilterCondition::ContainSubstring,
-			'Action'	=> \Aurora\Modules\Mail\Enums\FilterAction::DoNothing,
-			'FolderFullName' => '',
-			'Email' => ''
-		));
-	}
-	
-	/**
-	 * @return array
-	 */
-	public function getMap()
-	{
-		return self::getStaticMap();
-	}
+        $this->SetDefaults(array(
+            'IdAccount'	=> $oAccount->Id,
+            'Enable'	=> true,
+            'Field'		=> \Aurora\Modules\Mail\Enums\FilterFields::From,
+            'Filter'	=> '',
+            'Condition'	=> \Aurora\Modules\Mail\Enums\FilterCondition::ContainSubstring,
+            'Action'	=> \Aurora\Modules\Mail\Enums\FilterAction::DoNothing,
+            'FolderFullName' => '',
+            'Email' => ''
+        ));
+    }
 
-	/**
-	 * @return array
-	 */
-	public static function getStaticMap()
-	{
-		return array(
-			'IdAccount'	=> array('int'),
-			'Enable'	=> array('bool'),
-			'Field'		=> array('int'),
-			'Filter'	=> array('string'),
-			'Condition'	=> array('int'),
-			'Action'	=> array('int'),
-			'FolderFullName' => array('string'),
-			'Email' => array('string')
-		);
-	}
-	
-	public function toResponseArray($aParameters = array())
-	{
-		return array(
-			'Enable' => $this->Enable,
-			'Field' => $this->Field,
-			'Filter' => $this->Filter,
-			'Condition' => $this->Condition,
-			'Action' => $this->Action,
-			'FolderFullName' => $this->FolderFullName,
-			'Email' => $this->Email,
-		);		
-	}
+    /**
+     * @return array
+     */
+    public function getMap()
+    {
+        return self::getStaticMap();
+    }
+
+    /**
+     * @return array
+     */
+    public static function getStaticMap()
+    {
+        return array(
+            'IdAccount'	=> array('int'),
+            'Enable'	=> array('bool'),
+            'Field'		=> array('int'),
+            'Filter'	=> array('string'),
+            'Condition'	=> array('int'),
+            'Action'	=> array('int'),
+            'FolderFullName' => array('string'),
+            'Email' => array('string')
+        );
+    }
+
+    public function toResponseArray($aParameters = array())
+    {
+        return array(
+            'Enable' => $this->Enable,
+            'Field' => $this->Field,
+            'Filter' => $this->Filter,
+            'Condition' => $this->Condition,
+            'Action' => $this->Action,
+            'FolderFullName' => $this->FolderFullName,
+            'Email' => $this->Email,
+        );
+    }
 }

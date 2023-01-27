@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use \Illuminate\Database\Capsule\Manager as Capsule;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
 class CreateMailAccountsTable extends Migration
 {
@@ -14,7 +14,6 @@ class CreateMailAccountsTable extends Migration
     public function up()
     {
         Capsule::schema()->create('mail_accounts', function (Blueprint $table) {
-
             $table->increments('Id');
 
             $table->boolean('IsDisabled')->default(false);

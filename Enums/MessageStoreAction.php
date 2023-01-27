@@ -17,8 +17,7 @@ namespace Aurora\Modules\Mail\Enums;
  */
 class MessageStoreAction extends \Aurora\System\Enums\AbstractEnumeration
 {
-	const Add = 0;
-	const Remove = 1;
-	const Set = 2;
+    public const Add = 0;
+    public const Remove = 1;
+    public const Set = 2;
 }
-

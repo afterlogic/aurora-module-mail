@@ -17,10 +17,10 @@ namespace Aurora\Modules\Mail\Enums;
  */
 class FilterFields extends \Aurora\System\Enums\AbstractEnumeration
 {
-	const From = 0;
-	const To = 1;
-	const Subject = 2;
-	const XSpam = 3;
-	const XVirus = 4;
-	const CustomHeader = 5;
+    public const From = 0;
+    public const To = 1;
+    public const Subject = 2;
+    public const XSpam = 3;
+    public const XVirus = 4;
+    public const CustomHeader = 5;
 }

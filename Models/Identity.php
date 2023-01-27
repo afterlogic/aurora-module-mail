@@ -2,7 +2,7 @@
 
 namespace Aurora\Modules\Mail\Models;
 
-use \Aurora\System\Classes\Model;
+use Aurora\System\Classes\Model;
 use Aurora\Modules\Mail\Models\MailAccount;
 
 class Identity extends Model
@@ -10,7 +10,7 @@ class Identity extends Model
     protected $table = 'mail_identities';
 
     protected $foreignModel = MailAccount::class;
-	protected $foreignModelIdColumn = 'IdAccount'; // Column that refers to an external table
+    protected $foreignModelIdColumn = 'IdAccount'; // Column that refers to an external table
 
     /**
      * The attributes that are mass assignable.
@@ -39,7 +39,7 @@ class Identity extends Model
     protected $casts = [
         'Default' => 'boolean',
         'UseSignature' => 'boolean',
-		'Signature' => 'string'
+        'Signature' => 'string'
     ];
 
     protected $attributes = [
@@ -49,7 +49,8 @@ class Identity extends Model
         'EntityId'
     ];
 
-    public function getEntityIdAttribute() {
+    public function getEntityIdAttribute()
+    {
         return $this->Id;
     }
 

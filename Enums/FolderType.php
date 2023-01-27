@@ -17,29 +17,29 @@ namespace Aurora\Modules\Mail\Enums;
  */
 class FolderType extends \Aurora\System\Enums\AbstractEnumeration
 {
-	const Inbox = 1;
-	const Sent = 2;
-	const Drafts = 3;
-	const Spam = 4;
-	const Trash = 5;
-	const Virus = 6;
-	const Template = 8;
-	const System = 9;
-	const Custom = 10;
-	const All = 11;
+    public const Inbox = 1;
+    public const Sent = 2;
+    public const Drafts = 3;
+    public const Spam = 4;
+    public const Trash = 5;
+    public const Virus = 6;
+    public const Template = 8;
+    public const System = 9;
+    public const Custom = 10;
+    public const All = 11;
 
-	/**
-	 * @var array
-	 */
-	protected $aConsts = array(
-		'Inbox' => self::Inbox,
-		'Sent' => self::Sent,
-		'Drafts' => self::Drafts,
-		'Spam' => self::Spam,
-		'Trash' => self::Trash,
-		'Quarantine' => self::Virus,
-		'System' => self::System,
-		'Custom' => self::Custom,
-		'All' => self::All
-	);
+    /**
+     * @var array
+     */
+    protected $aConsts = array(
+        'Inbox' => self::Inbox,
+        'Sent' => self::Sent,
+        'Drafts' => self::Drafts,
+        'Spam' => self::Spam,
+        'Trash' => self::Trash,
+        'Quarantine' => self::Virus,
+        'System' => self::System,
+        'Custom' => self::Custom,
+        'All' => self::All
+    );
 }

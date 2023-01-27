@@ -17,12 +17,12 @@ namespace Aurora\Modules\Mail\Enums;
  */
 class FilterAction extends \Aurora\System\Enums\AbstractEnumeration
 {
-	const DoNothing = 0;
-	const DeleteFromServerImmediately = 1;
-	const MarkGrey = 2;
-	const MoveToFolder = 3;
-	const MoveToSpamFolder = 4;
-	const SpamDetect = 5;
-	const VirusDetect = 6;
-	const Redirect = 7;
+    public const DoNothing = 0;
+    public const DeleteFromServerImmediately = 1;
+    public const MarkGrey = 2;
+    public const MoveToFolder = 3;
+    public const MoveToSpamFolder = 4;
+    public const SpamDetect = 5;
+    public const VirusDetect = 6;
+    public const Redirect = 7;
 }

@@ -14,46 +14,46 @@ namespace Aurora\Modules\Mail\Enums;
  */
 class ErrorCodes
 {
-	const CannotConnectToMailServer = 4001;
-	const CannotLoginCredentialsIncorrect = 4002;
-	const FolderAlreadyExists = 4003;
-	const FolderNameContainsDelimiter = 4004;
-	const CannotRenameNonExistenFolder = 4005;
-	const CannotGetMessage = 4006;
-	const CannotMoveMessage = 4007;
-	const CannotMoveMessageQuota = 4008; // is used on client side
-	const CannotSendMessage = 4009;
-	const CannotSendMessageInvalidRecipients = 4010;
-	const CannotSendMessageToRecipients = 4011;
-	const CannotSendMessageToExternalRecipients = 4012;
-	const CannotSaveMessage = 4013;
-	const CannotSaveMessageToSentItems = 4014;
-	const CannotUploadMessage = 4015;
-	const CannotUploadMessageFileNotEml = 4016;
-	const DomainIsNotAllowedForLoggingIn = 4017;
-	const TenantQuotaExceeded = 4018;
+    public const CannotConnectToMailServer = 4001;
+    public const CannotLoginCredentialsIncorrect = 4002;
+    public const FolderAlreadyExists = 4003;
+    public const FolderNameContainsDelimiter = 4004;
+    public const CannotRenameNonExistenFolder = 4005;
+    public const CannotGetMessage = 4006;
+    public const CannotMoveMessage = 4007;
+    public const CannotMoveMessageQuota = 4008; // is used on client side
+    public const CannotSendMessage = 4009;
+    public const CannotSendMessageInvalidRecipients = 4010;
+    public const CannotSendMessageToRecipients = 4011;
+    public const CannotSendMessageToExternalRecipients = 4012;
+    public const CannotSaveMessage = 4013;
+    public const CannotSaveMessageToSentItems = 4014;
+    public const CannotUploadMessage = 4015;
+    public const CannotUploadMessageFileNotEml = 4016;
+    public const DomainIsNotAllowedForLoggingIn = 4017;
+    public const TenantQuotaExceeded = 4018;
 
-	/**
-	 * @var array
-	 */
-	protected $aConsts = [
-		'CannotConnectToMailServer' => self::CannotConnectToMailServer,
-		'CannotLoginCredentialsIncorrect' => self::CannotLoginCredentialsIncorrect,
-		'FolderAlreadyExists' => self::FolderAlreadyExists,
-		'FolderNameContainsDelimiter' => self::FolderNameContainsDelimiter,
-		'CannotRenameNonExistenFolder' => self::CannotRenameNonExistenFolder,
-		'CannotGetMessage' => self::CannotGetMessage,
-		'CannotMoveMessage' => self::CannotMoveMessage,
-		'CannotMoveMessageQuota' => self::CannotMoveMessageQuota,
-		'CannotSendMessage' => self::CannotSendMessage,
-		'CannotSendMessageInvalidRecipients' => self::CannotSendMessageInvalidRecipients,
-		'CannotSendMessageToRecipients' => self::CannotSendMessageToRecipients,
-		'CannotSendMessageToExternalRecipients' => self::CannotSendMessageToExternalRecipients,
-		'CannotSaveMessage' => self::CannotSaveMessage,
-		'CannotSaveMessageToSentItems' => self::CannotSaveMessageToSentItems,
-		'CannotUploadMessage' => self::CannotUploadMessage,
-		'CannotUploadMessageFileNotEml' => self::CannotUploadMessageFileNotEml,
-		'DomainIsNotAllowedForLoggingIn' => self::DomainIsNotAllowedForLoggingIn,
-		'TenantQuotaExceeded' => self::TenantQuotaExceeded,
-	];
+    /**
+     * @var array
+     */
+    protected $aConsts = [
+        'CannotConnectToMailServer' => self::CannotConnectToMailServer,
+        'CannotLoginCredentialsIncorrect' => self::CannotLoginCredentialsIncorrect,
+        'FolderAlreadyExists' => self::FolderAlreadyExists,
+        'FolderNameContainsDelimiter' => self::FolderNameContainsDelimiter,
+        'CannotRenameNonExistenFolder' => self::CannotRenameNonExistenFolder,
+        'CannotGetMessage' => self::CannotGetMessage,
+        'CannotMoveMessage' => self::CannotMoveMessage,
+        'CannotMoveMessageQuota' => self::CannotMoveMessageQuota,
+        'CannotSendMessage' => self::CannotSendMessage,
+        'CannotSendMessageInvalidRecipients' => self::CannotSendMessageInvalidRecipients,
+        'CannotSendMessageToRecipients' => self::CannotSendMessageToRecipients,
+        'CannotSendMessageToExternalRecipients' => self::CannotSendMessageToExternalRecipients,
+        'CannotSaveMessage' => self::CannotSaveMessage,
+        'CannotSaveMessageToSentItems' => self::CannotSaveMessageToSentItems,
+        'CannotUploadMessage' => self::CannotUploadMessage,
+        'CannotUploadMessageFileNotEml' => self::CannotUploadMessageFileNotEml,
+        'DomainIsNotAllowedForLoggingIn' => self::DomainIsNotAllowedForLoggingIn,
+        'TenantQuotaExceeded' => self::TenantQuotaExceeded,
+    ];
 }

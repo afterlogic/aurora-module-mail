@@ -16,13 +16,13 @@ namespace Aurora\Modules\Mail\Enums;
  */
 class SmtpAuthType extends \Aurora\System\Enums\AbstractEnumeration
 {
-	const NoAuthentication = '0';
-	const UseSpecifiedCredentials = '1';
-	const UseUserCredentials = '2';
-	
-	protected $aConsts = array(
-		'NoAuthentication' => self::NoAuthentication,
-		'UseSpecifiedCredentials' => self::UseSpecifiedCredentials,
-		'UseUserCredentials' => self::UseUserCredentials
-	);
+    public const NoAuthentication = '0';
+    public const UseSpecifiedCredentials = '1';
+    public const UseUserCredentials = '2';
+
+    protected $aConsts = array(
+        'NoAuthentication' => self::NoAuthentication,
+        'UseSpecifiedCredentials' => self::UseSpecifiedCredentials,
+        'UseUserCredentials' => self::UseUserCredentials
+    );
 }

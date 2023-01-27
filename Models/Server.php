@@ -4,7 +4,7 @@ namespace Aurora\Modules\Mail\Models;
 
 use Aurora\Modules\Core\Models\Tenant;
 use Aurora\Modules\Mail\Models\MailAccount;
-use \Aurora\System\Classes\Model;
+use Aurora\System\Classes\Model;
 
 class Server extends Model
 {
@@ -118,12 +118,12 @@ class Server extends Model
             return ['status' => -1, 'message' => 'Foreign field doesn\'t exist'];
         }
         $tableName = $this->getTable();
-        $foreignObject = new $this->foreignModel;
+        $foreignObject = new $this->foreignModel();
         $foreignTable = $foreignObject->getTable();
         $foreignPK = $foreignObject->primaryKey;
 
         // DB::enableQueryLog();
-        $oAccount = new MailAccount;
+        $oAccount = new MailAccount();
         $accountTable = $oAccount->getTable();
         $serversWithoutAccount = self::leftJoin($accountTable, "$accountTable.ServerId", '=', "$tableName.$this->primaryKey")->where('OwnerType', '=', 'account')->whereNull("$accountTable.Id")->groupBy("$tableName.$this->primaryKey")->pluck("$tableName.$this->primaryKey")->all();
         $orphanIds = self::where('OwnerType', '=', 'tenant')->pluck($this->primaryKey)->diff(

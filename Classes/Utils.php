@@ -14,16 +14,16 @@ namespace Aurora\Modules\Mail\Classes;
  */
 class Utils
 {
-	/**
-	 * @param string $sFolder
-	 * @param int $iMessageCount
-	 * @param int $iMessageUnseenCount
-	 * @param string $sUidNext
-	 * @return string
-	 */
-	public static function GenerateFolderHash($sFolder, $iMessageCount, $iMessageUnseenCount, $sUidNext)
-	{
-		$sD = "\x0";
-		return md5($sFolder . $sD . $iMessageCount . $sD . $iMessageUnseenCount . $sD . $sUidNext);
-	}
+    /**
+     * @param string $sFolder
+     * @param int $iMessageCount
+     * @param int $iMessageUnseenCount
+     * @param string $sUidNext
+     * @return string
+     */
+    public static function GenerateFolderHash($sFolder, $iMessageCount, $iMessageUnseenCount, $sUidNext)
+    {
+        $sD = "\x0";
+        return md5($sFolder . $sD . $iMessageCount . $sD . $iMessageUnseenCount . $sD . $sUidNext);
+    }
 }

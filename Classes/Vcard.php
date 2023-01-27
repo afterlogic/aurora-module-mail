@@ -13,76 +13,76 @@ namespace Aurora\Modules\Mail\Classes;
  * @license https://www.gnu.org/licenses/agpl-3.0.html AGPL-3.0
  * @license https://afterlogic.com/products/common-licensing Afterlogic Software License
  * @copyright Copyright (c) 2023, Afterlogic Corp.
- * 
+ *
  * @internal
- * 
+ *
  * @package Mail
  * @subpackage Classes
  */
 class Vcard
 {
-	/**
-	 * Contact identifier.
-	 * 
-	 * @var string
-	 */
-	public $Uid;
+    /**
+     * Contact identifier.
+     *
+     * @var string
+     */
+    public $Uid;
 
-	/**
-	 * Temp file name of the .vcf file.
-	 * 
-	 * @var string
-	 */
-	public $File;
+    /**
+     * Temp file name of the .vcf file.
+     *
+     * @var string
+     */
+    public $File;
 
-	/**
-	 * If **true** this contact already exists in address book.
-	 * 
-	 * @var bool
-	 */
-	public $Exists;
+    /**
+     * If **true** this contact already exists in address book.
+     *
+     * @var bool
+     */
+    public $Exists;
 
-	/**
-	 * Contact name.
-	 * 
-	 * @var string
-	 */
-	public $Name;
+    /**
+     * Contact name.
+     *
+     * @var string
+     */
+    public $Name;
 
-	/**
-	 * Contact email.
-	 * 
-	 * @var string
-	 */
-	public $Email;
+    /**
+     * Contact email.
+     *
+     * @var string
+     */
+    public $Email;
 
-	private function __construct()
-	{
-		$this->Uid = '';
-		$this->File = '';
-		$this->Exists = false;
-		$this->Name = '';
-		$this->Email = '';
-	}
+    private function __construct()
+    {
+        $this->Uid = '';
+        $this->File = '';
+        $this->Exists = false;
+        $this->Name = '';
+        $this->Email = '';
+    }
 
-	/**
-	 * Creates new empty instance.
-	 * 
-	 * @return Vcard
-	 */
-	public static function createInstance()
-	{
-		return new self();
-	}
-	
-	public function toResponseArray($aParameters = array())
-	{
-		return array(
-			'Uid' => $this->Uid,
-			'File' => $this->File,
-			'Name' => $this->Name,
-			'Email' => $this->Email,
-			'Exists' => $this->Exists
-		);		
-	}
+    /**
+     * Creates new empty instance.
+     *
+     * @return Vcard
+     */
+    public static function createInstance()
+    {
+        return new self();
+    }
+
+    public function toResponseArray($aParameters = array())
+    {
+        return array(
+            'Uid' => $this->Uid,
+            'File' => $this->File,
+            'Name' => $this->Name,
+            'Email' => $this->Email,
+            'Exists' => $this->Exists
+        );
+    }
 }

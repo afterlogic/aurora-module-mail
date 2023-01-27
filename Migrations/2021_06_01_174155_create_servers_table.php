@@ -27,7 +27,7 @@ class CreateServersTable extends Migration
             $table->string('SmtpAuthType')->default(\Aurora\Modules\Mail\Enums\SmtpAuthType::NoAuthentication);
             $table->string('SmtpLogin')->default('');
             $table->string('SmtpPassword')->default(''); // field type encrypted?
-            $table->string('OwnerType')->default( \Aurora\Modules\Mail\Enums\ServerOwnerType::Account);
+            $table->string('OwnerType')->default(\Aurora\Modules\Mail\Enums\ServerOwnerType::Account);
             $table->text('Domains')->nullable();
             $table->boolean('EnableSieve')->default(false);
             $table->integer('SievePort')->default(4190);
