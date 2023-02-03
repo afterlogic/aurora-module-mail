@@ -2340,7 +2340,8 @@ class Module extends \Aurora\System\Module\AbstractModule
             $aNextUids[] = $sFolder . ':' . $oMessageCollection->UidNext;
             $aMessages = $oMessageCollection->GetAsArray();
             foreach ($aMessages as $oMessage) {
-                $oMessage->setAccountId($oAccount->Id);
+                //TODO Remove because it must be set when Message instance is created
+                // $oMessage->setAccountId($oAccount->Id);
                 $oMessage->setUnifiedUid($oAccount->Id . ':' . $sFolder . ':' . $oMessage->getUid());
             }
             $aAllMessages = array_merge($aAllMessages, $aMessages);
@@ -2509,7 +2510,8 @@ class Module extends \Aurora\System\Module\AbstractModule
                 $aNextUids[] = $sPrefix . $oMessageCollection->UidNext;
                 $aMessages = $oMessageCollection->GetAsArray();
                 foreach ($aMessages as $oMessage) {
-                    $oMessage->setAccountId($oAccount->Id);
+                    //TODO Remove because it must be set when Message instance is created
+                    // $oMessage->setAccountId($oAccount->Id);
                     $oMessage->setUnifiedUid($sPrefix . $oMessage->getUid());
                 }
                 $aAllMessages = array_merge($aAllMessages, $aMessages);
@@ -3126,6 +3128,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         }
 
         if ($oMessage) {
+            $oMessage->setAccountId($oAccount->Id);
             $sFromEmail = '';
             $oFromCollection = $oMessage->getFrom();
             if ($oFromCollection && 0 < $oFromCollection->Count()) {

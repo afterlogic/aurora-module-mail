@@ -3174,6 +3174,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                                         $oMessageCollection->FolderName,
                                         $aFetchIndexArray[$iFUid]
                                     );
+                                    $oMailMessage->setAccountId($oAccount->Id);
 
                                     if (!$bIndexAsUid) {
                                         $oMessageCollection->Uids[] = $oMailMessage->getUid();
@@ -3290,6 +3291,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                                             $oMessageCollection->FolderName,
                                             $aFetchIndexArray[$iFUid]
                                         );
+                                        $oMailMessage->setAccountId($oAccount->Id);
 
                                         if (!$bIndexAsUid) {
                                             $oMessageCollection->Uids[] = $oMailMessage->getUid();

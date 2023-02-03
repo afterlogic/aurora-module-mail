@@ -263,7 +263,7 @@ class Message
      */
     public function clear()
     {
-        $this->iAccountId = 0;
+        $this->iAccountId = null;
         $this->sFolder = '';
         $this->iUid = 0;
         $this->sUnifiedUid = '';
@@ -1173,7 +1173,9 @@ class Message
 
     public function toResponseArray($aParameters = array())
     {
-        $iAccountID = isset($aParameters['Parameters']['AccountID']) ? $aParameters['Parameters']['AccountID'] : null;
+        if (!$this->iAccountId === null) {
+            throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::UnknownError);
+        }
 
         $oAttachments = $this->getAttachments();
 
@@ -1219,7 +1221,7 @@ class Message
         }
 
         $sHash = \Aurora\System\Api::EncodeKeyValues(array(
-            'AccountID' => $iAccountID,
+            'AccountID' => $this->iAccountId,
             'Folder' => $mResult['Folder'],
             'Uid' => $mResult['Uid'],
             'MimeType' => 'message/rfc822',
@@ -1308,13 +1310,11 @@ class Message
             $mResult['Attachments'] = \Aurora\System\Managers\Response::GetResponseObject(
                 $oAttachments,
                 array(
-                    'AccountID' => $iAccountID,
+                    'AccountID' => $this->iAccountId,
                     'FoundedCIDs' => $aFoundedCIDs,
                     'FoundedContentLocationUrls' => $aFoundedContentLocationUrls
                 )
             );
-        //					$mResult['Html'] = \MailSo\Base\Utils::Utf8Clear($mResult['Html']);
-        //					$mResult['Plain'] = \MailSo\Base\Utils::Utf8Clear($mResult['Plain']);
         } else {
             $mResult['@Object'] = 'Object/MessageListItem';
             $mResult['Threads'] = $this->getThreads();
