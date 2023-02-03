@@ -832,8 +832,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         $IncomingPassword = '',
         $Server = null,
         $XAuth = null
-    )
-    {
+    ) {
         \Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 
         self::checkAccess(null, $UserId);
@@ -1035,8 +1034,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         $Server = null,
         $UseThreading = null,
         $SaveRepliesToCurrFolder = null
-    )
-    {
+    ) {
         \Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 
         if ($AccountID > 0) {
@@ -1124,8 +1122,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         $ShowUnifiedMailboxLabel,
         $UnifiedMailboxLabelText,
         $UnifiedMailboxLabelColor
-    )
-    {
+    ) {
         \Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
         if (!$this->getConfig('AllowUnifiedInbox', false)) {
             throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::AccessDenied);
@@ -1545,8 +1542,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         $OAuthName = '',
         $OAuthType = '',
         $OAuthIconUrl = ''
-    )
-    {
+    ) {
         $oAuthenticatedUser = \Aurora\System\Api::getAuthenticatedUser();
         if ($oAuthenticatedUser instanceof \Aurora\Modules\Core\Models\User && $oAuthenticatedUser->Role === \Aurora\Modules\Mail\Enums\ServerOwnerType::Tenant) {
             if ($TenantId !== $oAuthenticatedUser->IdTenant) {
@@ -1737,8 +1733,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         $OAuthName = '',
         $OAuthType = '',
         $OAuthIconUrl = ''
-    )
-    {
+    ) {
         $bResult = false;
 
         $oServer = $this->getServersManager()->getServer($ServerId);
@@ -4571,8 +4566,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         $References = "",
         $Sensitivity = \MailSo\Mime\Enumerations\Sensitivity::NOTHING,
         $DraftFolder = ""
-    )
-    {
+    ) {
         \Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 
         $mResult = false;
@@ -4743,8 +4737,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         $ConfirmFolder = "",
         $ConfirmUid = "",
         $CustomHeaders = []
-    )
-    {
+    ) {
         \Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 
         $oAccount = $this->getAccountsManager()->getAccountById($AccountID);
@@ -6776,8 +6769,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         $bWithDraftInfo = true,
         $oIdentity = null,
         $aCustomHeaders = []
-    )
-    {
+    ) {
         self::checkAccess($oAccount);
 
         $oMessage = \MailSo\Mime\Message::NewInstance();

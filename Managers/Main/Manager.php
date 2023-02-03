@@ -1558,8 +1558,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
         $iAction = \Aurora\Modules\Mail\Enums\MessageStoreAction::Add,
         $bSetToAll = false,
         $bSkipNonPermanentsFlags = false
-    )
-    {
+    ) {
         if (0 === strlen($sFolderFullNameRaw) || (!$bSetToAll && (!is_array($aUids) || 0 === count($aUids)))) {
             throw new \Aurora\System\Exceptions\InvalidArgumentException();
         }
@@ -2941,8 +2940,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
         $sInboxUidnext = '',
         $sSortBy = 'ARRIVAL',
         $sSortOrder = 'REVERSE'
-    )
-    {
+    ) {
         if (0 === strlen($sFolderFullNameRaw) || 0 > $iOffset || 0 >= $iLimit || 999 < $iLimit) {
             throw new \Aurora\System\Exceptions\InvalidArgumentException();
         }
