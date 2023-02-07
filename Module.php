@@ -6655,23 +6655,18 @@ class Module extends \Aurora\System\Module\AbstractModule
      */
     public function onGetAccounts($aArgs, &$aResult)
     {
-        $bWithPassword = $aArgs['WithPassword'];
         $aUserInfo = \Aurora\System\Api::getAuthenticatedUserInfo($aArgs['AuthToken']);
         if (isset($aUserInfo['userId'])) {
             $mResult = $this->GetAccounts($aUserInfo['userId']);
             if (\is_array($mResult)) {
                 foreach ($mResult as $oItem) {
-                    $aItem = array(
+                    $aResult[] = [
                         'Type' => $oItem->getName(),
                         'Module' => $oItem->getModule(),
                         'Id' => $oItem->Id,
                         'UUID' => $oItem->UUID,
                         'Login' => $oItem->IncomingLogin
-                    );
-                    if ($bWithPassword) {
-                        $aItem['Password'] = $oItem->getPassword();
-                    }
-                    $aResult[] = $aItem;
+                    ];
                 }
             }
         }
