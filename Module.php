@@ -109,6 +109,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         $this->subscribeEvent('Core::GetAccountUsedToAuthorize', array($this, 'onGetAccountUsedToAuthorize'));
         $this->subscribeEvent('System::RunEntry::before', array($this, 'onBeforeRunEntry'));
         $this->subscribeEvent('System::CastExtendedProp', array($this, 'onCastExtendedProp'));
+        $this->subscribeEvent('ChangePassword::after', array($this, 'onAfterChangePassword'));
 
         \MailSo\Config::$PreferStartTlsIfAutoDetect = !!$this->getConfig('PreferStarttls', true);
     }
@@ -7243,6 +7244,23 @@ class Module extends \Aurora\System\Module\AbstractModule
             }
             if ($aArgs['PropertyName'] === $this->GetName() . '::AllowChangeUserSpaceLimit') {
                 $mValue = (bool) $mValue;
+            }
+        }
+    }
+
+    public function onAfterChangePassword($aArgs, &$mResult)
+    {
+        if ($mResult instanceof Models\MailAccount && $mResult->UseToAuthorize) {
+            $oCoreModule = \Aurora\Modules\Core\Module::getInstance();
+            $oUser = \Aurora\System\Api::getAuthenticatedUser();
+            if ($oUser instanceof \Aurora\Modules\Core\Models\User &&
+                (($oUser->isNormalOrTenant() && $oUser->Id === $mResult->IdUser) ||
+                $oUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin)
+            ) {
+                $oUser = $oCoreModule->GetUserUnchecked($mResult->IdUser);
+                if ($oUser instanceof \Aurora\Modules\Core\Models\User) {
+                    $oCoreModule->UpdateTokensValidFromTimestamp($oUser);
+                }
             }
         }
     }
