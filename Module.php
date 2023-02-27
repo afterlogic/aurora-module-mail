@@ -462,7 +462,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         $oAuthenticatedUser = \Aurora\System\Api::getAuthenticatedUser();
 
         if ($Type === 'User' && is_int($UserId) && $UserId > 0) {
-            $oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserUnchecked($UserId);
+            $oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserWithoutRoleCheck($UserId);
             if ($oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin ||
                     $oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::TenantAdmin && $oAuthenticatedUser->IdTenant === $oUser->IdTenant) {
                 $oTenant = \Aurora\System\Api::getTenantById($oUser->IdTenant);
@@ -508,7 +508,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         $oAuthenticatedUser = \Aurora\System\Api::getAuthenticatedUser();
 
         if ($oAuthenticatedUser instanceof \Aurora\Modules\Core\Models\User && $Type === 'User' && is_int($UserId) && $UserId > 0) {
-            $oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserUnchecked($UserId);
+            $oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserWithoutRoleCheck($UserId);
             if ($oUser instanceof \Aurora\Modules\Core\Models\User
                     && ($oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin
                     || $oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::TenantAdmin && $oAuthenticatedUser->IdTenant === $oUser->IdTenant)) {
@@ -541,7 +541,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         }
 
         if ($Type === 'Tenant' && is_int($TenantId) && $TenantId > 0) {
-            $oTenant = \Aurora\Modules\Core\Module::Decorator()->GetTenantUnchecked($TenantId);
+            $oTenant = \Aurora\Modules\Core\Module::Decorator()->GetTenantWithoutRoleCheck($TenantId);
             if ($oTenant && ($oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin ||
                     $oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::TenantAdmin && $oAuthenticatedUser->IdTenant === $TenantId)) {
                 $oTenant->setExtendedProp(self::GetName() . '::TenantSpaceLimitMb', $TenantSpaceLimitMb);
@@ -725,7 +725,7 @@ class Module extends \Aurora\System\Module\AbstractModule
     public function GetAccountByEmail($Email, $UserId = 0)
     {
         $oAuthenticatedUser = \Aurora\System\Api::getAuthenticatedUser();
-        $oUser = $UserId !== 0 ? \Aurora\Modules\Core\Module::Decorator()->GetUserUnchecked($UserId) : null;
+        $oUser = $UserId !== 0 ? \Aurora\Modules\Core\Module::Decorator()->GetUserWithoutRoleCheck($UserId) : null;
 
         // Method has its specific access check so checkAccess method isn't used.
         if ($oAuthenticatedUser instanceof \Aurora\Modules\Core\Models\User && $oUser instanceof \Aurora\Modules\Core\Models\User) {
@@ -897,7 +897,7 @@ class Module extends \Aurora\System\Module\AbstractModule
                     $oResException = $this->getMailManager()->validateAccountConnection($oAccount, false);
                 }
 
-                $oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserUnchecked($UserId);
+                $oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserWithoutRoleCheck($UserId);
                 $aQuota = [];
                 $iQuota = 0;
 
@@ -1221,7 +1221,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
                 $oServer = $oAccount->getServer();
 
-                $oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserUnchecked($oAccount->IdUser);
+                $oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserWithoutRoleCheck($oAccount->IdUser);
                 if ($oUser instanceof \Aurora\Modules\Core\Models\User && $oAccount->Email === $oUser->PublicId) {
                     $iQuota = $oUser->{self::GetName() . '::UserSpaceLimitMb'};
                     $this->updateAllocatedTenantSpace($oUser->IdTenant, 0, $iQuota);
@@ -2757,7 +2757,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
         $aQuota = $this->getMailManager()->getQuota($oAccount);
         $iQuota = (is_array($aQuota) && isset($aQuota[1])) ? $aQuota[1] / 1024 : 0;
-        $oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserUnchecked($oAccount->IdUser);
+        $oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserWithoutRoleCheck($oAccount->IdUser);
         $iUserSpaceLimitMb = ($oUser instanceof \Aurora\Modules\Core\Models\User) ? $oUser->{self::GetName() . '::UserSpaceLimitMb'} : 0;
         if ($iQuota !== $iUserSpaceLimitMb) {
             $this->updateAllocatedTenantSpace($oUser->IdTenant, $iQuota, $iUserSpaceLimitMb);
@@ -7257,7 +7257,7 @@ class Module extends \Aurora\System\Module\AbstractModule
                 (($oUser->isNormalOrTenant() && $oUser->Id === $mResult->IdUser) ||
                 $oUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin)
             ) {
-                $oUser = $oCoreModule->GetUserUnchecked($mResult->IdUser);
+                $oUser = $oCoreModule->GetUserWithoutRoleCheck($mResult->IdUser);
                 if ($oUser instanceof \Aurora\Modules\Core\Models\User) {
                     $oCoreModule->UpdateTokensValidFromTimestamp($oUser);
                 }
