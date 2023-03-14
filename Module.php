@@ -847,7 +847,7 @@ class Module extends \Aurora\System\Module\AbstractModule
             if ($Email) {
                 $sDomain = \MailSo\Base\Utils::GetDomainFromEmail($Email);
                 $bCustomServerCreated = false;
-                $iServerId = $Server['ServerId'];
+                $iServerId = isset($Server) ? $Server['ServerId'] : 0;
                 if ($Server !== null && $iServerId === 0) {
                     $oNewServer = new \Aurora\Modules\Mail\Models\Server();
                     $oNewServer->Name = $Server['IncomingServer'];
