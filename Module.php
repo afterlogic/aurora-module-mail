@@ -4507,12 +4507,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 					}
 				}
 
-				if (in_array('X-Private-Message-Sender', $CustomHeaders)) {
-					$oUser = Api::getUserById($oAccount->UserId);
-					if ($oUser && !empty($oUser->{self::GetName().'::PrivateMessagesEmail'})) {
-						$oFromAccount = $this->getAccountsManager()->getAccountByEmail($oUser->{self::GetName().'::PrivateMessagesEmail'}, $oUser->Id);
+				if (isset($CustomHeaders['X-Private-Message-Sender'])) {
+					$oUser = Api::getUserById($oAccount->IdUser);
+					if ($oUser && !empty($oUser->{'InformatikProjects::PrivateMessagesEmail'})) {
+						$oFromAccount = $this->getAccountsManager()->getAccountByEmail($CustomHeaders['X-Private-Message-Sender'], $oAccount->UserId);
 						if ($oFromAccount) {
-							$oFromAccount->FriendlyName = $oAccount->FriendlyName;
+							$oFrom = \MailSo\Mime\Email::NewInstance($oFromAccount->Email, $oAccount->FriendlyName);
+							$oMessage->SetFrom($oFrom);
 						}
 					}
 				}
