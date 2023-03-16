@@ -4506,6 +4506,16 @@ class Module extends \Aurora\System\Module\AbstractModule
 						}
 					}
 				}
+
+				if (in_array('X-Private-Message-Sender', $CustomHeaders)) {
+					$oUser = Api::getUserById($oAccount->UserId);
+					if ($oUser && !empty($oUser->{self::GetName().'::PrivateMessagesEmail'})) {
+						$oFromAccount = $this->getAccountsManager()->getAccountByEmail($oUser->{self::GetName().'::PrivateMessagesEmail'}, $oUser->Id);
+						if ($oFromAccount) {
+							$oFromAccount->FriendlyName = $oAccount->FriendlyName;
+						}
+					}
+				}
 			}
 
 			$mResult = $this->getMailManager()->sendMessage($oAccount, $oMessage, $Fetcher, $SentFolder, $DraftFolder, $DraftUid, $Recipients, $oFromAccount);
