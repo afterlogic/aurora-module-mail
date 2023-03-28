@@ -210,11 +210,11 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 * 
 	 * @return bool
 	 */
-	public function setForward($oAccount, $sForward, $bEnabled = true)
+	public function setForward($oAccount, $sForward, $bEnabled = true, $bCopy = true)
 	{
 		$sData =
 			'#data='.($bEnabled ? '1' : '0').'~'.base64_encode($sForward)."\n".
-			($bEnabled ? '' : '#').'redirect :copy "'.$this->_quoteValue($sForward).'";'."\n";
+			($bEnabled ? '' : '#').'redirect ' . ($bCopy ? ':copy ' : '') . '"'.$this->_quoteValue($sForward).'";'."\n";
 
 		$this->_parseSectionsData($oAccount);
 		$this->_setSectionData('forward', $sData);
@@ -790,7 +790,7 @@ if header :contains \"X-Spam-Flag\" \"YES\" {
 
 		$sResult = 'require ["fileinto", "copy", "vacation","regex","include", "envelope", "imap4flags"] ;'."\n".$sResult;
 		$sResult = "# Sieve filter\n".$sResult;
-		$sResult .= "keep ;\n";
+//		$sResult .= "keep ;\n";
 		return $sResult;
 	}
 

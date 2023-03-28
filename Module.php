@@ -6026,7 +6026,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 	 * @param string $Email Email that should be used for message forward.
 	 * @return boolean
 	 */
-	public function UpdateForward($AccountID, $Enable = false, $Email = "")
+	public function UpdateForward($AccountID, $Enable = false, $Email = "", $Copy = true)
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 
@@ -6038,7 +6038,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		if ($oAccount && $Email !== "")
 		{
-			$mResult = $this->getSieveManager()->setForward($oAccount, $Email, $Enable);
+			$mResult = $this->getSieveManager()->setForward($oAccount, $Email, $Enable, $Copy);
 		}
 
 		return $mResult;
