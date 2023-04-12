@@ -774,7 +774,6 @@ class Message
      * Extract the headers from a message.
      *
      * @param $headerName
-     * @param string $format
      *
      * @return array
      */

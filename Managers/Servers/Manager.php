@@ -19,7 +19,7 @@ use Illuminate\Database\Eloquent\Builder;
 class Manager extends \Aurora\System\Managers\AbstractManager
 {
     /**
-     * @param instanceof \Aurora\Modules\Mail\Models\Server
+     * @param \Aurora\Modules\Mail\Models\Server $oServer
      * @return int|boolean
      * @throws \Aurora\System\Exceptions\ManagerException
      */
@@ -120,6 +120,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
             $aResult = $aFilters->get();
             if ($aResult->count() > 0) {
                 foreach ($aResult as $oTempServer) {
+                    /** @var Server $oTempServer */
                     $sTrimmedDomains = $this->trimDomains($oTempServer->Domains);
                     $aDomains = explode("\n", $sTrimmedDomains);
                     if (in_array($sDomain, $aDomains)) {
@@ -206,7 +207,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
     /**
      *
-     * @param instanceof \Aurora\Modules\Mail\Models\Server
+     * @param \Aurora\Modules\Mail\Models\Server $oServer
      * @return boolean
      * @throws \Aurora\System\Exceptions\ManagerException
      */

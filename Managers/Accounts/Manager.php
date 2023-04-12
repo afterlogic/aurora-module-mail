@@ -137,22 +137,15 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     /**
      * @param int $iUserId
      *
-     * @return Array | false
+     * @return int
      */
     public function getUserAccountsCount($iUserId)
     {
-        $mResult = false;
-        try {
-            $mResult = MailAccount::where(['IdUser' => $iUserId])->count();
-        } catch (\Aurora\System\Exceptions\BaseException $oException) {
-            $this->setLastException($oException);
-        }
-
-        return $mResult;
+        return MailAccount::where(['IdUser' => $iUserId])->count();
     }
 
     /**
-     * @param \Aurora\Modules\Mail\Models\MailAccount $oAccount
+     * @param int $iUserId
      *
      * @return bool
      */
@@ -170,7 +163,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     }
 
     /**
-     * @param Aurora\Modules\Mail\Classes\Account $oAccount
+     * @param \Aurora\Modules\Mail\Models\MailAccount $oAccount
      *
      * @return bool
      */
@@ -231,21 +224,12 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     }
 
     /**
-     * @param Aurora\Modules\Mail\Models\MailAccount $oAccount
-     *
-     * @throws $oException
+     * @param \Aurora\Modules\Mail\Models\MailAccount $oAccount
      *
      * @return bool
      */
     public function deleteAccount(\Aurora\Modules\Mail\Models\MailAccount $oAccount)
     {
-        $bResult = false;
-        try {
-            $bResult = $oAccount->delete();
-        } catch (\Aurora\System\Exceptions\BaseException $oException) {
-            $this->setLastException($oException);
-        }
-
-        return $bResult;
+        return $oAccount->delete();
     }
 }

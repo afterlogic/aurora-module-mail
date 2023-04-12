@@ -137,8 +137,8 @@ class Manager extends \Aurora\System\Managers\AbstractManager
      * Creates a new instance of ImapClient class.
      *
      * @param MailAccount $oAccount Account object.
-     * @param type $iForceConnectTimeOut = 0. The value overrides connection timeout value.
-     * @param type $iForceSocketTimeOut = 0. The value overrides socket timeout value.
+     * @param int $iForceConnectTimeOut = 0. The value overrides connection timeout value.
+     * @param int $iForceSocketTimeOut = 0. The value overrides socket timeout value.
      *
      * @return \MailSo\Imap\ImapClient|null
      */
@@ -159,7 +159,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
      * @param MailAccount $oAccount Account object.
      * @param boolean $bThrowException = true
      *
-     * @return void
+     * @return \Exception
      *
      * @throws \Aurora\System\Exceptions\ManagerException
      */
@@ -213,6 +213,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
         ))->get();
 
         foreach ($aEntities as $oEntity) {
+            /** @var RefreshFolder $oEntity */
             if ($oEntity->AlwaysRefresh) {
                 $aFolders[] = $oEntity->FolderFullName;
             }
@@ -677,8 +678,8 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     /**
      * Obtains folders information - total messages count, unread messages count, uidNext.
      *
-     * @param type $oImapClient ImapClient object.
-     * @param type $sFolderFullNameRaw Raw full name of the folder.
+     * @param \MailSo\Imap\ImapClient $oImapClient ImapClient object.
+     * @param string $sFolderFullNameRaw Raw full name of the folder.
      *
      * @return array [$iMessageCount, $iMessageUnseenCount, $sUidNext]
      */
@@ -1229,7 +1230,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
      *
      * @param MailAccount $oAccount Account object.
      * @param \MailSo\Mime\Message $oMessage Message to be sent out.
-     * @param \Aurora\Modules\Mail\Classes\Fetcher $oFetcher = null. Fetcher object which may override sending settings.
+     * @param \Aurora\Modules\Mail\Models\Fetcher $oFetcher = null. Fetcher object which may override sending settings.
      * @param string $sSentFolder = ''. Name of Sent folder.
      * @param string $sDraftFolder = ''. Name of Sent folder.
      * @param string $sDraftUid = ''. Last UID value of the message saved in Drafts folder.
@@ -1306,7 +1307,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                                 $oSmtpClient->LoginWithXOAuth2($sXOAuthKey);
                             }
                         } else {
-                            $oSmtpClient->Login($oAccount->IncomingLogin, $oAccount->getPassword(), '');
+                            $oSmtpClient->Login($oAccount->IncomingLogin, $oAccount->getPassword());
                         }
                     } elseif ($oServer->SmtpAuthType === \Aurora\Modules\Mail\Enums\SmtpAuthType::UseSpecifiedCredentials) {
                         $oSmtpClient->Login($oServer->SmtpLogin, $oServer->SmtpPassword);
@@ -1684,6 +1685,8 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                 $fAttachmentSearchCallback = null;
                 $aMatch = array();
 
+                $aIndexOrUids = null;
+
                 $oMailModule = \Aurora\System\Api::GetModule('Mail');
                 $bUseBodyStructuresForHasAttachmentsSearch = $oMailModule->getConfig('UseBodyStructuresForHasAttachmentsSearch', false);
                 if (($bUseBodyStructuresForHasAttachmentsSearch && \preg_match('/has[ ]?:[ ]?attachments/i', $sSearch)) ||
@@ -1742,7 +1745,6 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                     );
 
                     $bIndexAsUid = true;
-                    $aIndexOrUids = null;
 
                     if ($bUseSortIfSupported) {
                         $aIndexOrUids = $oImapClient->MessageSimpleSort(array($sSortOrder . ' ' . $sSortBy), $sSearchCriterias, $bIndexAsUid);
@@ -2258,6 +2260,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
         $bIsGmail = $oImapClient->IsSupported('X-GM-EXT-1');
         $sGmailRawSearch = '';
+        $sRawValue = '';
 
         if (0 < strlen($sSearch)) {
             $aLines = $this->_parseSearchString($sSearch);
@@ -2440,7 +2443,6 @@ class Manager extends \Aurora\System\Managers\AbstractManager
         }
 
         $sImapSearchResult = \trim(\implode(' ', $aImapSearchResult));
-        // var_dump($sImapSearchResult);
         if ('' === $sImapSearchResult) {
             $sImapSearchResult = 'ALL';
         }
@@ -2494,9 +2496,9 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     /**
      * Compares items for sorting.
      *
-     * @param type $a First item to compare.
-     * @param type $b Second item to compare.
-     * @param type $aSortUidsFlipped Array contains items to compare.
+     * @param mixed $a First item to compare.
+     * @param mixed $b Second item to compare.
+     * @param array $aSortUidsFlipped Array contains items to compare.
      *
      * @return int
      */
@@ -2559,7 +2561,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     /**
      * Breaks into chunks each thread from the list and returns the list by reference.
      *
-     * @param type $aThreads Thread list obtained by reference.
+     * @param array $aThreads Thread list obtained by reference.
      */
     private function _chunkThreadList(&$aThreads)
     {
@@ -2768,7 +2770,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
      * Searches messages uids for message list.
      *
      * @param Object $oImapClient
-     * @param function $fItemCallback
+     * @param callable $fItemCallback
      * @param string $sFolderFullNameRaw
      * @param array $aUids
      *
@@ -3083,9 +3085,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                             $oImapClient,
                             $fAttachmentSearchCallback,
                             $sFolderFullNameRaw,
-                            $aIndexOrUids,
-                            $iOffset,
-                            $iLimit
+                            $aIndexOrUids
                         );
                     }
                 } elseif ($bSearchAttachments) {
@@ -3093,9 +3093,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                     $aIndexOrUids = $this->_doSpecialIndexSearch(
                         $oImapClient,
                         $fAttachmentSearchCallback,
-                        $sFolderFullNameRaw,
-                        $iOffset,
-                        $iLimit
+                        $sFolderFullNameRaw
                     );
                 }
             } else {
@@ -3252,7 +3250,6 @@ class Manager extends \Aurora\System\Managers\AbstractManager
             if (is_array($aIndexOrUids)) {
                 $oMessageCollection->MessageCount = $iMessageRealCount;
                 $oMessageCollection->MessageUnseenCount = $iMessageUnseenCount;
-                $oMessageCollection->MessageSearchCount = $oMessageCollection->MessageCount;
                 $oMessageCollection->MessageResultCount = $oMessageCollection->MessageCount;
 
                 if (0 < count($aIndexOrUids)) {

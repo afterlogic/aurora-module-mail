@@ -6,6 +6,100 @@ use Aurora\Modules\Core\Models\Tenant;
 use Aurora\Modules\Mail\Models\MailAccount;
 use Aurora\System\Classes\Model;
 
+/**
+ * Aurora\Modules\Mail\Models\Server
+ *
+ * @property integer $Id
+ * @property integer $TenantId
+ * @property string $Name
+ * @property string $IncomingServer
+ * @property integer $IncomingPort
+ * @property boolean $IncomingUseSsl
+ * @property string $OutgoingServer
+ * @property integer $OutgoingPort
+ * @property boolean $OutgoingUseSsl
+ * @property string $SmtpAuthType
+ * @property string $SmtpLogin
+ * @property string $SmtpPassword
+ * @property string $OwnerType
+ * @property string|null $Domains
+ * @property boolean $EnableSieve
+ * @property integer $SievePort
+ * @property boolean $EnableThreading
+ * @property boolean $UseFullEmailAddressAsLogin
+ * @property boolean $SetExternalAccessServers
+ * @property string $ExternalAccessImapServer
+ * @property integer $ExternalAccessImapPort
+ * @property integer $ExternalAccessImapAlterPort
+ * @property string $ExternalAccessSmtpServer
+ * @property integer $ExternalAccessSmtpPort
+ * @property integer $ExternalAccessSmtpAlterPort
+ * @property string $ExternalAccessPop3Server
+ * @property integer $ExternalAccessPop3Port
+ * @property integer $ExternalAccessPop3AlterPort
+ * @property boolean $OAuthEnable
+ * @property string $OAuthName
+ * @property string $OAuthType
+ * @property string $OAuthIconUrl
+ * @property \Illuminate\Support\Carbon|null $CreatedAt
+ * @property \Illuminate\Support\Carbon|null $UpdatedAt
+ * @property boolean $ExternalAccessImapUseSsl
+ * @property boolean $ExternalAccessPop3UseSsl
+ * @property boolean $ExternalAccessSmtpUseSsl
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, MailAccount> $MailAccounts
+ * @property-read int|null $mail_accounts_count
+ * @property-read mixed $entity_id
+ * @property-read mixed $server_id
+ * @method static int count(string $columns = '*')
+ * @method static \Illuminate\Database\Eloquent\Builder|\Aurora\Modules\Mail\Models\Server find(int|string $id, array|string $columns = ['*'])
+ * @method static \Illuminate\Database\Eloquent\Builder|\Aurora\Modules\Mail\Models\Server findOrFail(int|string $id, mixed $id, Closure|array|string $columns = ['*'], Closure $callback = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Aurora\Modules\Mail\Models\Server first(array|string $columns = ['*'])
+ * @method static \Illuminate\Database\Eloquent\Builder|\Aurora\Modules\Mail\Models\Server firstWhere(Closure|string|array|\Illuminate\Database\Query\Expression $column, mixed $operator = null, mixed $value = null, string $boolean = 'and')
+ * @method static \Illuminate\Database\Eloquent\Builder|Server newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Server newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|Server query()
+ * @method static \Illuminate\Database\Eloquent\Builder|\Aurora\Modules\Mail\Models\Server where(Closure|string|array|\Illuminate\Database\Query\Expression $column, mixed $operator = null, mixed $value = null, string $boolean = 'and')
+ * @method static \Illuminate\Database\Eloquent\Builder|Server whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Server whereDomains($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Server whereEnableSieve($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Server whereEnableThreading($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Server whereExternalAccessImapAlterPort($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Server whereExternalAccessImapPort($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Server whereExternalAccessImapServer($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Server whereExternalAccessImapUseSsl($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Server whereExternalAccessPop3AlterPort($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Server whereExternalAccessPop3Port($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Server whereExternalAccessPop3Server($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Server whereExternalAccessPop3UseSsl($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Server whereExternalAccessSmtpAlterPort($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Server whereExternalAccessSmtpPort($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Server whereExternalAccessSmtpServer($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Server whereExternalAccessSmtpUseSsl($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Server whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Aurora\Modules\Mail\Models\Server whereIn(string $column, mixed $values, string $boolean = 'and', bool $not = false)
+ * @method static \Illuminate\Database\Eloquent\Builder|Server whereIncomingPort($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Server whereIncomingServer($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Server whereIncomingUseSsl($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Server whereName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Server whereOAuthEnable($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Server whereOAuthIconUrl($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Server whereOAuthName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Server whereOAuthType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Server whereOutgoingPort($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Server whereOutgoingServer($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Server whereOutgoingUseSsl($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Server whereOwnerType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Server whereSetExternalAccessServers($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Server whereSievePort($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Server whereSmtpAuthType($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Server whereSmtpLogin($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Server whereSmtpPassword($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Server whereTenantId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Server whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|Server whereUseFullEmailAddressAsLogin($value)
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, MailAccount> $MailAccounts
+ * @mixin \Eloquent
+ */
 class Server extends Model
 {
     protected $table = 'mail_servers';
@@ -125,8 +219,11 @@ class Server extends Model
         // DB::enableQueryLog();
         $oAccount = new MailAccount();
         $accountTable = $oAccount->getTable();
+        
+        /* @phpstan-ignore-next-line */
         $serversWithoutAccount = self::leftJoin($accountTable, "$accountTable.ServerId", '=', "$tableName.$this->primaryKey")->where('OwnerType', '=', 'account')->whereNull("$accountTable.Id")->groupBy("$tableName.$this->primaryKey")->pluck("$tableName.$this->primaryKey")->all();
         $orphanIds = self::where('OwnerType', '=', 'tenant')->pluck($this->primaryKey)->diff(
+            /* @phpstan-ignore-next-line */
             self::leftJoin($foreignTable, "$tableName.$this->foreignModelIdColumn", '=', "$foreignTable.$foreignPK")->whereNotNull("$foreignTable.$foreignPK")->pluck("$tableName.$this->primaryKey")
         )->union($serversWithoutAccount)->all();
         $message = $orphanIds ? "$tableName table has orphans." : "Orphans were not found.";

@@ -14,6 +14,7 @@ use Aurora\Modules\Mail\Classes\Message;
 use Aurora\Modules\Mail\Enums\SearchInFoldersType;
 use Aurora\Modules\Mail\Models\Identity;
 use Aurora\Modules\Mail\Models\TrustedSender;
+use Aurora\System\Application;
 use Aurora\System\Exceptions\InvalidArgumentException;
 use PHPMailer\DKIMValidator\Validator as DKIMValidator;
 use PHPMailer\DKIMValidator\DKIMException;
@@ -63,7 +64,27 @@ class Module extends \Aurora\System\Module\AbstractModule
      */
     public static function getInstance()
     {
-        return \Aurora\System\Api::GetModule(self::GetName());
+        return parent::getInstance();
+    }
+
+    /**
+     * Handle dynamic, static calls to the object.
+     *
+     * @param  string  $method
+     * @param  array  $args
+     * @return mixed
+     *
+     * @throws \RuntimeException
+     */
+    public static function __callStatic($method, $args)
+    {
+        $instance = static::Decorator();
+
+        if (!$instance) {
+            throw new \RuntimeException();
+        }
+
+        return $instance->$method(...$args);        
     }
 
     /**
@@ -1538,7 +1559,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         $ExternalAccessSmtpServer = '',
         $ExternalAccessSmtpPort = 25,
         $ExternalAccessSmtpAlterPort = 0,
-        $ExternalAccessImapSmtpUseSsl = false,
+        $ExternalAccessSmtpUseSsl = false,
         $OAuthEnable = false,
         $OAuthName = '',
         $OAuthType = '',
@@ -1588,7 +1609,7 @@ class Module extends \Aurora\System\Module\AbstractModule
             $oServer->ExternalAccessSmtpServer = $ExternalAccessSmtpServer;
             $oServer->ExternalAccessSmtpPort = $ExternalAccessSmtpPort;
             $oServer->ExternalAccessSmtpAlterPort = $ExternalAccessSmtpAlterPort;
-            $oServer->ExternalAccessSmtpUseSsl = $ExternalAccessImapSmtpUseSsl;
+            $oServer->ExternalAccessSmtpUseSsl = $ExternalAccessSmtpUseSsl;
         }
         $oServer->OAuthEnable = $OAuthEnable;
         if ($oServer->OAuthEnable) {
@@ -2120,7 +2141,7 @@ class Module extends \Aurora\System\Module\AbstractModule
      * @param int $Limit Limit says to return that many messages in the list.
      * @param string $Search Search string.
      * @param string $Filters List of conditions to obtain messages.
-     * @param int $UseThreading Indicates if it is necessary to return messages in threads.
+     * @param bool $UseThreading Indicates if it is necessary to return messages in threads.
      * @param string $InboxUidnext UIDNEXT Inbox last value that is known on client side.
      * @return array
      * @throws \Aurora\System\Exceptions\ApiException
@@ -3027,7 +3048,7 @@ class Module extends \Aurora\System\Module\AbstractModule
      * @param string $Rfc822MimeIndex If specified obtains message from attachment of another message.
      * @return \Aurora\Modules\Mail\Classes\Message
      * @throws \Aurora\System\Exceptions\ApiException
-     * @throws CApiInvalidArgumentException
+     * @throws InvalidArgumentException
      */
     public function GetMessage($AccountID, $Folder, $Uid, $Rfc822MimeIndex = '', $MessageBodyTruncationThreshold = null, $oBody = null)
     {
@@ -4548,7 +4569,7 @@ class Module extends \Aurora\System\Module\AbstractModule
      * @param int $Sensitivity Sensitivity header for the message, its value will be returned: 1 for "Confidential", 2 for "Private", 3 for "Personal".
      * @param string $DraftFolder Full name of Drafts folder.
      * @return boolean
-     * @throws \System\Exceptions\AuroraApiException
+     * @throws \Aurora\System\Exceptions\ApiException
      */
     public function SaveMessage(
         $AccountID,
@@ -4714,7 +4735,7 @@ class Module extends \Aurora\System\Module\AbstractModule
      * @param string $ConfirmUid Uid of message that should be marked as confirmed read.
      * @param array $CustomHeaders list of custom headers
      * @return boolean
-     * @throws \System\Exceptions\AuroraApiException
+     * @throws \Aurora\System\Exceptions\ApiException
      */
     public function SendMessage(
         $AccountID,
@@ -5156,7 +5177,7 @@ class Module extends \Aurora\System\Module\AbstractModule
      * Updates identity.
      * @param int $UserId User identifier.
      * @param int $AccountID Account identifier.
-     * @param int $Id Identity identifier.
+     * @param int $EntityId Identity identifier.
      * @param string $FriendlyName New value of identity friendly name.
      * @param string $Email New value of identity email.
      * @param boolean $Default Indicates if identity should be used by default.
@@ -5791,7 +5812,7 @@ class Module extends \Aurora\System\Module\AbstractModule
      * @param string $Folder Folder full name.
      * @param array $UploadData Information about uploaded .eml file.
      * @return boolean
-     * @throws \ProjectCore\Exceptions\ClientException
+     * @throws \Aurora\System\Exceptions\ApiException
      */
     public function UploadMessage($AccountID, $Folder, $UploadData)
     {
@@ -5897,6 +5918,7 @@ class Module extends \Aurora\System\Module\AbstractModule
     public function ChangePassword($AccountId, $CurrentPassword, $NewPassword)
     {
         $mResult = false;
+        $oAccount = null;
 
         if ($AccountId > 0) {
             $oAccount = $this->getAccountsManager()->getAccountById($AccountId);
@@ -6549,7 +6571,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         $bNewAccount = false;
         $bAutocreateMailAccountOnNewUserFirstLogin = $this->getConfig('AutocreateMailAccountOnNewUserFirstLogin', false);
         if (!$bAutocreateMailAccountOnNewUserFirstLogin && !$oAccount) {
-            $oUser = \Aurora\System\Api::GetModuleDecorator('Core')->GetUserByPublicId($sEmail);
+            $oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserByPublicId($sEmail);
             if ($oUser instanceof \Aurora\Modules\Core\Models\User) {
                 $bAutocreateMailAccountOnNewUserFirstLogin = true;
             }
@@ -6727,7 +6749,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
     /**
      * Builds message for further sending or saving.
-     * @param \Aurora\Modules\StandardAuth\Models\MailAccount $oAccount
+     * @param \Aurora\Modules\Mail\Models\MailAccount $oAccount
      * @param string $sTo Message recipients.
      * @param string $sCc Recipients which will get a copy of the message.
      * @param string $sBcc Recipients which will get a hidden copy of the message.
@@ -6760,7 +6782,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         $aDraftInfo = null,
         $sInReplyTo = '',
         $sReferences = '',
-        $iImportance = '',
+        $iImportance = 0,
         $iSensitivity = 0,
         $bSendReadingConfirmation = false,
         $oFetcher = null,
@@ -7023,7 +7045,7 @@ class Module extends \Aurora\System\Module\AbstractModule
                 $sResult = \file_get_contents($oCoreWebclientModule->GetPath().'/templates/Index.html');
                 if (\is_string($sResult)) {
                     return strtr($sResult, array(
-                        '{{AppVersion}}' => AU_APP_VERSION,
+                        '{{AppVersion}}' => Application::GetVersion(),
                         '{{IntegratorDir}}' => $oApiIntegrator->isRtl() ? 'rtl' : 'ltr',
                         '{{IntegratorLinks}}' => $oApiIntegrator->buildHeadersLink(),
                         '{{IntegratorBody}}' => $oApiIntegrator->buildBody($aConfig)
@@ -7176,7 +7198,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
         return $this->getMailManager()->directMessageToStream(
             $oAccount,
-            function ($rResource, $sContentType, $sFileName, $sMimeIndex = '') use ($self, $iUserId, $sHash, $bCache, $sContentTypeIn, $sFileNameIn, $bThumbnail, $bDownload) {
+            function ($rResource, $sContentType, $sFileName, $sMimeIndex = '') use ($iUserId, $sHash, $bCache, $sContentTypeIn, $sFileNameIn, $bThumbnail, $bDownload) {
                 if (\is_resource($rResource)) {
                     $sContentTypeOut = $sContentTypeIn;
                     if (empty($sContentTypeOut)) {
@@ -7290,7 +7312,7 @@ class Module extends \Aurora\System\Module\AbstractModule
             $oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin
             || $oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::TenantAdmin
         ) {
-            $oUser = \Aurora\System\Api::GetModuleDecorator('Core')->GetUserByPublicId($Email);
+            $oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserByPublicId($Email);
             if ($oUser instanceof \Aurora\Modules\Core\Models\User) {
                 return false;
             }

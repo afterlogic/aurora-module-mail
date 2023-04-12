@@ -25,7 +25,7 @@ class CreateIdentitiesTable extends Migration
         });
 
         $prefix = Capsule::connection()->getTablePrefix();
-        Capsule::statement("ALTER TABLE {$prefix}mail_identities ADD Signature MEDIUMBLOB");
+        Capsule::connection()->statement("ALTER TABLE {$prefix}mail_identities ADD Signature MEDIUMBLOB");
 
         Capsule::schema()->table('mail_identities', function (Blueprint $table) {
             $table->timestamp(\Aurora\System\Classes\Model::CREATED_AT)->nullable();

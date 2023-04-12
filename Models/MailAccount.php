@@ -7,6 +7,67 @@ use Aurora\System\Classes\Model;
 use Aurora\Modules\Core\Models\User;
 use Aurora\Modules\Mail\Module;
 
+/**
+ * Aurora\Modules\Mail\Models\MailAccount
+ *
+ * @property integer $Id
+ * @property boolean $IsDisabled
+ * @property integer $IdUser
+ * @property boolean $UseToAuthorize
+ * @property string $Email
+ * @property string $FriendlyName
+ * @property string $IncomingLogin
+ * @property string $IncomingPassword
+ * @property boolean $IncludeInUnifiedMailbox
+ * @property boolean $UseSignature
+ * @property mixed|null $Signature
+ * @property integer $ServerId
+ * @property string|null $FoldersOrder
+ * @property boolean $UseThreading
+ * @property boolean $SaveRepliesToCurrFolder
+ * @property boolean $ShowUnifiedMailboxLabel
+ * @property string $UnifiedMailboxLabelText
+ * @property string $UnifiedMailboxLabelColor
+ * @property string|null $XOAuth
+ * @property \Illuminate\Support\Carbon|null $CreatedAt
+ * @property \Illuminate\Support\Carbon|null $UpdatedAt
+ * @property array|null $Properties
+ * @property-read \Aurora\Modules\Mail\Models\Server $Server
+ * @property-read mixed $entity_id
+ * @method static int count(string $columns = '*')
+ * @method static \Illuminate\Database\Eloquent\Builder|\Aurora\Modules\Mail\Models\MailAccount find(int|string $id, array|string $columns = ['*'])
+ * @method static \Illuminate\Database\Eloquent\Builder|\Aurora\Modules\Mail\Models\MailAccount findOrFail(int|string $id, mixed $id, Closure|array|string $columns = ['*'], Closure $callback = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Aurora\Modules\Mail\Models\MailAccount first(array|string $columns = ['*'])
+ * @method static \Illuminate\Database\Eloquent\Builder|\Aurora\Modules\Mail\Models\MailAccount firstWhere(Closure|string|array|\Illuminate\Database\Query\Expression $column, mixed $operator = null, mixed $value = null, string $boolean = 'and')
+ * @method static \Illuminate\Database\Eloquent\Builder|MailAccount newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|MailAccount newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder|MailAccount query()
+ * @method static \Illuminate\Database\Eloquent\Builder|\Aurora\Modules\Mail\Models\MailAccount where(Closure|string|array|\Illuminate\Database\Query\Expression $column, mixed $operator = null, mixed $value = null, string $boolean = 'and')
+ * @method static \Illuminate\Database\Eloquent\Builder|MailAccount whereCreatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MailAccount whereEmail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MailAccount whereFoldersOrder($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MailAccount whereFriendlyName($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MailAccount whereId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MailAccount whereIdUser($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|\Aurora\Modules\Mail\Models\MailAccount whereIn(string $column, mixed $values, string $boolean = 'and', bool $not = false)
+ * @method static \Illuminate\Database\Eloquent\Builder|MailAccount whereIncludeInUnifiedMailbox($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MailAccount whereIncomingLogin($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MailAccount whereIncomingPassword($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MailAccount whereIsDisabled($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MailAccount whereProperties($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MailAccount whereSaveRepliesToCurrFolder($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MailAccount whereServerId($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MailAccount whereShowUnifiedMailboxLabel($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MailAccount whereSignature($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MailAccount whereUnifiedMailboxLabelColor($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MailAccount whereUnifiedMailboxLabelText($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MailAccount whereUpdatedAt($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MailAccount whereUseSignature($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MailAccount whereUseThreading($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MailAccount whereUseToAuthorize($value)
+ * @method static \Illuminate\Database\Eloquent\Builder|MailAccount whereXOAuth($value)
+ * @mixin \Eloquent
+ */
 class MailAccount extends Model
 {
     /**
@@ -140,7 +201,7 @@ class MailAccount extends Model
         }
 
         $oServer = $this->getServer();
-        if ($oServer instanceof \Aurora\System\Classes\Model) {
+        if ($oServer instanceof \Aurora\Modules\Mail\Models\Server) {
             $aResponse['Server'] = $oServer->toResponseArray();
 
             $oMailModule = \Aurora\System\Api::GetModule('Mail');

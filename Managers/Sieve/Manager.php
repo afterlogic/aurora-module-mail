@@ -23,11 +23,6 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     public const AutoSave = true;
 
     /**
-     * @var CApiSieveProtocol
-     */
-    protected $oSieve;
-
-    /**
      * @var string
      */
     protected $sSieveFileName;
@@ -99,7 +94,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     }
 
     /**
-     * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
+     * @param \Aurora\Modules\Mail\Models\MailAccount $oAccount
      * @return array
      */
     public function getAutoresponder($oAccount)
@@ -129,7 +124,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     }
 
     /**
-     * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
+     * @param \Aurora\Modules\Mail\Models\MailAccount $oAccount
      * @param string $sSubject
      * @param string $sText
      * @param bool $bEnabled
@@ -167,7 +162,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     }
 
     /**
-     * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
+     * @param \Aurora\Modules\Mail\Models\MailAccount $oAccount
      *
      * @return bool
      */
@@ -188,7 +183,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 //	}
 
     /**
-     * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
+     * @param \Aurora\Modules\Mail\Models\MailAccount $oAccount
      *
      * @return array
      */
@@ -213,7 +208,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     }
 
     /**
-     * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
+     * @param \Aurora\Modules\Mail\Models\MailAccount $oAccount
      * @param string $sForward
      * @param bool $bEnabled Default true
      *
@@ -313,7 +308,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     }
 
     /**
-     * @param CAcount $oAccount
+     * @param \Aurora\Modules\Mail\Models\MailAccount $oAccount
      * @param array $aFilters
      *
      * @return bool
@@ -425,9 +420,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     }
 
     /**
-     * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
-     * @param string $sForward
-     * @param bool $bEnabled = true
+     * @param  \Aurora\Modules\Mail\Models\MailAccount $oAccount
      *
      * @return bool
      */
@@ -583,7 +576,7 @@ if " . $SieveSpamRuleCondition . " {
     /**
      * @depricated
      *
-     * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
+     * @param  \Aurora\Modules\Mail\Models\MailAccount $oAccount
      * @param string $sSectionName Default ''
      * @param string $sSectionData Default ''
      *
@@ -600,7 +593,7 @@ if " . $SieveSpamRuleCondition . " {
     }
 
     /**
-     * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
+     * @param  \Aurora\Modules\Mail\Models\MailAccount $oAccount
      * @return string
      */
     public function getFiltersRawData($oAccount)
@@ -610,7 +603,7 @@ if " . $SieveSpamRuleCondition . " {
     }
 
     /**
-     * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
+     * @param  \Aurora\Modules\Mail\Models\MailAccount $oAccount
      * @param string $sFiltersRawData
      * @return bool
      */
@@ -626,7 +619,7 @@ if " . $SieveSpamRuleCondition . " {
     }
 
     /**
-     * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
+     * @param \Aurora\Modules\Mail\Models\MailAccount $oAccount
      * @return \MailSo\Sieve\ManageSieveClient|false
      */
     protected function _getSieveDriver(\Aurora\Modules\Mail\Models\MailAccount $oAccount)
@@ -690,7 +683,7 @@ if " . $SieveSpamRuleCondition . " {
     }
 
     /**
-     * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
+     * @param \Aurora\Modules\Mail\Models\MailAccount $oAccount
      *
      * @return string|false
      */
@@ -713,7 +706,7 @@ if " . $SieveSpamRuleCondition . " {
     }
 
     /**
-     * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
+     * @param \Aurora\Modules\Mail\Models\MailAccount $oAccount
      * @param string $sText
      *
      * @return bool
@@ -747,7 +740,7 @@ if " . $SieveSpamRuleCondition . " {
     }
 
     /**
-     * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
+     * @param \Aurora\Modules\Mail\Models\MailAccount $oAccount
      *
      * @return bool
      */
@@ -758,7 +751,7 @@ if " . $SieveSpamRuleCondition . " {
     }
 
     /**
-     * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount
+     * @param \Aurora\Modules\Mail\Models\MailAccount $oAccount
      *
      * @param bool $bForced Default false
      */
@@ -833,8 +826,8 @@ if " . $SieveSpamRuleCondition . " {
 
     /**
      *
-     * @param type $sSectionName
-     * @param type $bIsBeginComment Default true
+     * @param string $sSectionName
+     * @param bool $bIsBeginComment Default true
      *
      * @return string
      */

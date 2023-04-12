@@ -51,39 +51,21 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     }
 
     /**
-     * @param int $iId
-     * @return boolean
+     * @param int $Id
+     * @return Identity
      */
     public function getIdentity($Id)
     {
-        $oIdentity = false;
-
-        try {
-            $oIdentity = Identity::find($Id);
-        } catch (\Aurora\System\Exceptions\BaseException $oException) {
-            $oIdentity = false;
-            $this->setLastException($oException);
-        }
-
-        return $oIdentity;
+        return Identity::find($Id);
     }
 
         /**
-     * @param int $iId
-     * @return boolean
+     * @param int $UserId
+     * @return Identity
      */
     public function GetIdentitiesByUserId($UserId)
     {
-        $oIdentity = false;
-
-        try {
-            $oIdentity = Identity::where('IdUser', $UserId)->get();
-        } catch (\Aurora\System\Exceptions\BaseException $oException) {
-            $oIdentity = false;
-            $this->setLastException($oException);
-        }
-
-        return $oIdentity;
+        return Identity::where('IdUser', $UserId)->get();
     }
 
     /**
@@ -149,7 +131,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     /**
      * @param int $iUserId
      * @param Builder $oFilters null
-     * @return Builder
+     * @return \Illuminate\Database\Eloquent\Collection
      */
     public function getIdentities($iUserId, Builder $oFilters = null)
     {

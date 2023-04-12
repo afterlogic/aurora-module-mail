@@ -30,14 +30,14 @@ class CreateMailAccountsTable extends Migration
         });
 
         $prefix = Capsule::connection()->getTablePrefix();
-        Capsule::statement("ALTER TABLE {$prefix}mail_accounts ADD Signature MEDIUMBLOB");
+        Capsule::connection()->statement("ALTER TABLE {$prefix}mail_accounts ADD Signature MEDIUMBLOB");
 
         Capsule::schema()->table('mail_accounts', function (Blueprint $table) {
             $table->unsignedInteger('ServerId')->default(0);
             $table->foreign('ServerId')->references('Id')->on('mail_servers');
         });
 
-        Capsule::statement("ALTER TABLE {$prefix}mail_accounts ADD FoldersOrder MEDIUMBLOB");
+        Capsule::connection()->statement("ALTER TABLE {$prefix}mail_accounts ADD FoldersOrder MEDIUMBLOB");
 
         Capsule::schema()->table('mail_accounts', function (Blueprint $table) {
             $table->boolean('UseThreading')->default(false);
