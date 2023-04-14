@@ -84,7 +84,7 @@ class Module extends \Aurora\System\Module\AbstractModule
             throw new \RuntimeException();
         }
 
-        return $instance->$method(...$args);        
+        return $instance->$method(...$args);
     }
 
     /**

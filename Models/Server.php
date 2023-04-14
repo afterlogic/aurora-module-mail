@@ -219,7 +219,7 @@ class Server extends Model
         // DB::enableQueryLog();
         $oAccount = new MailAccount();
         $accountTable = $oAccount->getTable();
-        
+
         /* @phpstan-ignore-next-line */
         $serversWithoutAccount = self::leftJoin($accountTable, "$accountTable.ServerId", '=', "$tableName.$this->primaryKey")->where('OwnerType', '=', 'account')->whereNull("$accountTable.Id")->groupBy("$tableName.$this->primaryKey")->pluck("$tableName.$this->primaryKey")->all();
         $orphanIds = self::where('OwnerType', '=', 'tenant')->pluck($this->primaryKey)->diff(
