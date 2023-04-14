@@ -87,7 +87,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     /**
      *
      * @param int $sDomain
-     * @return boolean
+     * @return Server|boolean
      */
     public function getServerByDomain($sDomain)
     {
