@@ -145,6 +145,15 @@ class Module extends \Aurora\System\Module\AbstractModule
 
     /**
      *
+     * @return Settings
+     */
+    protected function GetModuleSettings()
+    {
+        return $this->oModuleSettings;
+    }
+
+    /**
+     *
      * @return \Aurora\Modules\Mail\Managers\Accounts\Manager
      */
     public function getAccountsManager()
