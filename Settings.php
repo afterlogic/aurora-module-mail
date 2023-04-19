@@ -26,7 +26,7 @@ use Aurora\System\SettingsProperty;
  * @property string $SieveSpamRuleCondition
  * @property bool $AllowInsertImage
  * @property bool $AlwaysShowImagesInMessage
- * @property int $AutoSave * @property IntervalSeconds
+ * @property int $AutoSaveIntervalSeconds
  * @property bool $AllowTemplateFolders
  * @property bool $AllowInsertTemplateOnCompose
  * @property int $MaxTemplatesCountOnCompose

@@ -24,6 +24,8 @@ use PHPMailer\DKIMValidator\DKIMException;
  * @license https://afterlogic.com/products/common-licensing Afterlogic Software License
  * @copyright Copyright (c) 2023, Afterlogic Corp.
  *
+ * @property Settings $oModuleSettings
+ *
  * @package Modules
  */
 class Module extends \Aurora\System\Module\AbstractModule
@@ -132,7 +134,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         $this->subscribeEvent('System::CastExtendedProp', array($this, 'onCastExtendedProp'));
         $this->subscribeEvent('ChangePassword::after', array($this, 'onAfterChangePassword'));
 
-        \MailSo\Config::$PreferStartTlsIfAutoDetect = !!$this->getConfig('PreferStarttls', true);
+        \MailSo\Config::$PreferStartTlsIfAutoDetect = !!$this->oModuleSettings->PreferStarttls;
     }
 
     /**
@@ -366,24 +368,24 @@ class Module extends \Aurora\System\Module\AbstractModule
 
         $aSettings = array(
             'Accounts' => array(),
-            'AllowAddAccounts' => $this->getConfig('AllowAddAccounts', false),
-            'AllowAutosaveInDrafts' => (bool)$this->getConfig('AllowAutosaveInDrafts', false),
-            'AllowChangeMailQuotaOnMailServer' => $this->getConfig('AllowChangeMailQuotaOnMailServer', false),
-            'AllowDefaultAccountForUser' => $this->getConfig('AllowDefaultAccountForUser', false),
-            'AllowIdentities' => $this->getConfig('AllowIdentities', false),
-            'OnlyUserEmailsInIdentities' => $this->getConfig('OnlyUserEmailsInIdentities', false),
-            'AllowInsertImage' => $this->getConfig('AllowInsertImage', false),
-            'AutoSaveIntervalSeconds' => $this->getConfig('AutoSaveIntervalSeconds', 60),
-            'AllowTemplateFolders' => $this->getConfig('AllowTemplateFolders', false),
-            'AllowInsertTemplateOnCompose' => $this->getConfig('AllowInsertTemplateOnCompose', false),
-            'MaxTemplatesCountOnCompose' => $this->getConfig('MaxTemplatesCountOnCompose', 100),
-            'AllowAlwaysRefreshFolders' => $this->getConfig('AllowAlwaysRefreshFolders', false),
-            'AutocreateMailAccountOnNewUserFirstLogin' => $this->getConfig('AutocreateMailAccountOnNewUserFirstLogin', false),
-            'IgnoreImapSubscription' => $this->getConfig('IgnoreImapSubscription', false),
-            'ImageUploadSizeLimit' => $this->getConfig('ImageUploadSizeLimit', 0),
-            'AllowUnifiedInbox' => $this->getConfig('AllowUnifiedInbox', false),
+            'AllowAddAccounts' => $this->oModuleSettings->AllowAddAccounts,
+            'AllowAutosaveInDrafts' => (bool)$this->oModuleSettings->AllowAutosaveInDrafts,
+            'AllowChangeMailQuotaOnMailServer' => $this->oModuleSettings->AllowChangeMailQuotaOnMailServer,
+            'AllowDefaultAccountForUser' => $this->oModuleSettings->AllowDefaultAccountForUser,
+            'AllowIdentities' => $this->oModuleSettings->AllowIdentities,
+            'OnlyUserEmailsInIdentities' => $this->oModuleSettings->OnlyUserEmailsInIdentities,
+            'AllowInsertImage' => $this->oModuleSettings->AllowInsertImage,
+            'AutoSaveIntervalSeconds' => $this->oModuleSettings->AutoSaveIntervalSeconds,
+            'AllowTemplateFolders' => $this->oModuleSettings->AllowTemplateFolders,
+            'AllowInsertTemplateOnCompose' => $this->oModuleSettings->AllowInsertTemplateOnCompose,
+            'MaxTemplatesCountOnCompose' => $this->oModuleSettings->MaxTemplatesCountOnCompose,
+            'AllowAlwaysRefreshFolders' => $this->oModuleSettings->AllowAlwaysRefreshFolders,
+            'AutocreateMailAccountOnNewUserFirstLogin' => $this->oModuleSettings->AutocreateMailAccountOnNewUserFirstLogin,
+            'IgnoreImapSubscription' => $this->oModuleSettings->IgnoreImapSubscription,
+            'ImageUploadSizeLimit' => $this->oModuleSettings->ImageUploadSizeLimit,
+            'AllowUnifiedInbox' => $this->oModuleSettings->AllowUnifiedInbox,
             'SmtpAuthType' => (new \Aurora\Modules\Mail\Enums\SmtpAuthType())->getMap(),
-            'MessagesSortBy' => $this->getConfig('MessagesSortBy', [])
+            'MessagesSortBy' => $this->oModuleSettings->MessagesSortBy
         );
 
         $oUser = \Aurora\System\Api::getAuthenticatedUser();
@@ -922,7 +924,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
                 $bAccoutResult = false;
                 $oResException = null;
-                $bDoImapLoginOnAccountCreate = $this->getConfig('DoImapLoginOnAccountCreate', true) && is_null($XAuth);
+                $bDoImapLoginOnAccountCreate = $this->oModuleSettings->DoImapLoginOnAccountCreate && is_null($XAuth);
                 if ($bDoImapLoginOnAccountCreate) {
                     $oResException = $this->getMailManager()->validateAccountConnection($oAccount, false);
                 }
@@ -965,7 +967,7 @@ class Module extends \Aurora\System\Module\AbstractModule
                         $oUser->setExtendedProp(self::GetName() . '::UserSpaceLimitMb', $iQuota);
                         $oUser->save();
                     }
-                    if ($oServer && $oServer->EnableSieve && $this->getConfig('EnableAllowBlockLists', false)) {
+                    if ($oServer && $oServer->EnableSieve && $this->oModuleSettings->EnableAllowBlockLists) {
                         try {
                             $this->getSieveManager()->setAllowBlockLists($oAccount, [], []);
                         } catch (\Exception $oEx) {
@@ -1155,7 +1157,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         $UnifiedMailboxLabelColor
     ) {
         \Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-        if (!$this->getConfig('AllowUnifiedInbox', false)) {
+        if (!$this->oModuleSettings->AllowUnifiedInbox) {
             throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::AccessDenied);
         }
         if (!is_int($AccountID) || $AccountID <= 0 || !is_bool($IncludeInUnifiedMailbox) || !is_bool($ShowUnifiedMailboxLabel) ||
@@ -2005,7 +2007,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
     public function getSortInfo($SortBy, $SortOrder)
     {
-        $aMessagesSortBy = $this->getConfig('MessagesSortBy', false);
+        $aMessagesSortBy = $this->oModuleSettings->MessagesSortBy;
 
         if ($SortOrder === null && $aMessagesSortBy !== false && isset($aMessagesSortBy['Allow']) && (bool) $aMessagesSortBy['Allow'] === true) {
             $oSortOrder = new \Aurora\System\Enums\SortOrder();
@@ -2405,7 +2407,7 @@ class Module extends \Aurora\System\Module\AbstractModule
     {
         \Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
         self::checkAccess(null, $UserId);
-        if (!$this->getConfig('AllowUnifiedInbox', false)) {
+        if (!$this->oModuleSettings->AllowUnifiedInbox) {
             throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::AccessDenied);
         }
 
@@ -2598,7 +2600,7 @@ class Module extends \Aurora\System\Module\AbstractModule
     public function GetUnifiedRelevantFoldersInformation($AccountsData)
     {
         \Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
-        if (!$this->getConfig('AllowUnifiedInbox', false)) {
+        if (!$this->oModuleSettings->AllowUnifiedInbox) {
             throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::AccessDenied);
         }
 
@@ -3170,7 +3172,7 @@ class Module extends \Aurora\System\Module\AbstractModule
             }
 
             if (0 < \strlen($sFromEmail)) {
-                $bAlwaysShowImagesInMessage = !!$this->getConfig('AlwaysShowImagesInMessage', false);
+                $bAlwaysShowImagesInMessage = !!$this->oModuleSettings->AlwaysShowImagesInMessage;
                 $oMessage->setSafety($bAlwaysShowImagesInMessage ? true :
                         $this->getMailManager()->isSafetySender($oAccount->IdUser, $sFromEmail));
             }
@@ -4129,7 +4131,7 @@ class Module extends \Aurora\System\Module\AbstractModule
     {
         \Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 
-        if ($this->getConfig('IgnoreImapSubscription', false)) {
+        if ($this->oModuleSettings->IgnoreImapSubscription) {
             throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::AccessDenied);
         }
 
@@ -4976,7 +4978,7 @@ class Module extends \Aurora\System\Module\AbstractModule
     {
         \Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 
-        if ($this->getConfig('AllowTemplateFolders', false)) {
+        if ($this->oModuleSettings->AllowTemplateFolders) {
             $oAccount = $this->getAccountsManager()->getAccountById($AccountID);
 
             self::checkAccess($oAccount);
@@ -5415,7 +5417,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
             self::checkAccess($oAccount);
 
-            if ($this->getConfig('AllowIdentities', false) && $IdentityId !== null) {
+            if ($this->oModuleSettings->AllowIdentities && $IdentityId !== null) {
                 return $this->getIdentitiesManager()->updateIdentitySignature($IdentityId, $UseSignature, $Signature);
             } else {
                 if ($oAccount) {
@@ -6578,7 +6580,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         $oAccount = $this->getAccountsManager()->getAccountUsedToAuthorize($sEmail);
 
         $bNewAccount = false;
-        $bAutocreateMailAccountOnNewUserFirstLogin = $this->getConfig('AutocreateMailAccountOnNewUserFirstLogin', false);
+        $bAutocreateMailAccountOnNewUserFirstLogin = $this->oModuleSettings->AutocreateMailAccountOnNewUserFirstLogin;
         if (!$bAutocreateMailAccountOnNewUserFirstLogin && !$oAccount) {
             $oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserByPublicId($sEmail);
             if ($oUser instanceof \Aurora\Modules\Core\Models\User) {
@@ -6807,12 +6809,12 @@ class Module extends \Aurora\System\Module\AbstractModule
 
         $sUUID = \Aurora\System\Api::getUserUUIDById($oAccount->IdUser);
 
-        $sXMailer = $this->getConfig('XMailerValue', '');
+        $sXMailer = $this->oModuleSettings->XMailerValue;
         if (0 < \strlen($sXMailer)) {
             $oMessage->SetXMailer($sXMailer);
         }
 
-        $sXOriginatingIPHeaderName = $this->getConfig('XOriginatingIPHeaderName', '');
+        $sXOriginatingIPHeaderName = $this->oModuleSettings->XOriginatingIPHeaderName;
         if (!empty($sXOriginatingIPHeaderName)) {
             $sIP = $this->oHttp->GetClientIp();
             $oMessage->SetCustomHeader(
@@ -6988,8 +6990,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 
     public function onAfterGetAutodiscover(&$aArgs, &$mResult)
     {
-        $sIncomingServer = \trim($this->getConfig('ExternalHostNameOfLocalImap'));
-        $sOutgoingServer = \trim($this->getConfig('ExternalHostNameOfLocalSmtp'));
+        $sIncomingServer = \trim($this->oModuleSettings->ExternalHostNameOfLocalImap);
+        $sOutgoingServer = \trim($this->oModuleSettings->ExternalHostNameOfLocalSmtp);
         $sEmail = $aArgs['Email'];
 
         if (0 < \strlen($sIncomingServer) && 0 < \strlen($sOutgoingServer)) {
@@ -7078,7 +7080,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
         \Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 
-        if ($this->getConfig('CleanupOutputBeforeDownload', false)) {
+        if ($this->oModuleSettings->CleanupOutputBeforeDownload) {
             @ob_clean(); // discard any data in the output buffer (if possible)
         }
 
@@ -7096,7 +7098,7 @@ class Module extends \Aurora\System\Module\AbstractModule
             if (isset($sParam3) && $sParam3 === 'get-expired-link') {
                 $sHash = (string) \Aurora\System\Router::getItemByIndex(1, '');
                 $sAction = (string) \Aurora\System\Router::getItemByIndex(2, '');
-                $iTime = $this->getConfig('ExpiredLinkLifetimeMinutes ', 30);
+                $iTime = $this->oModuleSettings->ExpiredLinkLifetimeMinutes ;
 
                 $aValues = \Aurora\System\Api::DecodeKeyValues($sHash);
 
