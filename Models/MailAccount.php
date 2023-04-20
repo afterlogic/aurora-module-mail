@@ -204,12 +204,12 @@ class MailAccount extends Model
         if ($oServer instanceof \Aurora\Modules\Mail\Models\Server) {
             $aResponse['Server'] = $oServer->toResponseArray();
 
-            $oMailModule = \Aurora\System\Api::GetModule('Mail');
+            $oMailModule = \Aurora\Modules\Mail\Module::getInstance();
             if ($oServer->EnableSieve && $oMailModule) {
-                $aResponse['AllowFilters'] = $oMailModule->getConfig('AllowFilters', '');
-                $aResponse['AllowForward'] = $oMailModule->getConfig('AllowForward', '');
-                $aResponse['AllowAutoresponder'] = $oMailModule->getConfig('AllowAutoresponder', '');
-                $aResponse['EnableAllowBlockLists'] = $oMailModule->getConfig('EnableAllowBlockLists', false);
+                $aResponse['AllowFilters'] = $oMailModule->oModuleSettings->AllowFilters;
+                $aResponse['AllowForward'] = $oMailModule->oModuleSettings->AllowForward;
+                $aResponse['AllowAutoresponder'] = $oMailModule->oModuleSettings->AllowAutoresponder;
+                $aResponse['EnableAllowBlockLists'] = $oMailModule->oModuleSettings->EnableAllowBlockLists;
             }
         }
 

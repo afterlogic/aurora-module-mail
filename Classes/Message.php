@@ -1193,7 +1193,7 @@ class Message
             'Truncated' => $this->bTruncated,
             'InternalTimeStampInUTC' => $iInternalTimeStampInUTC,
             'ReceivedOrDateTimeStampInUTC' => $iReceivedOrDateTimeStampInUTC,
-            'TimeStampInUTC' =>	\Aurora\Modules\Mail\Module::getInstance()->getConfig('UseDateFromHeaders', false) && 0 < $iReceivedOrDateTimeStampInUTC ?
+            'TimeStampInUTC' =>	\Aurora\Modules\Mail\Module::getInstance()->oModuleSettings->UseDateFromHeaders && 0 < $iReceivedOrDateTimeStampInUTC ?
                 $iReceivedOrDateTimeStampInUTC : $iInternalTimeStampInUTC,
             'From' => \Aurora\System\Managers\Response::GetResponseObject($this->getFrom()),
             'To' => \Aurora\System\Managers\Response::GetResponseObject($this->getTo()),
@@ -1214,7 +1214,7 @@ class Message
             'Unsubscribe' => $this->parseUnsubscribeHeaders()
         ));
 
-        $sLowerForwarded = strtolower(\Aurora\Modules\Mail\Module::getInstance()->getConfig('ForwardedFlagName', ''));
+        $sLowerForwarded = strtolower(\Aurora\Modules\Mail\Module::getInstance()->oModuleSettings->ForwardedFlagName);
         if (!empty($sLowerForwarded)) {
             $mResult['IsForwarded'] = in_array($sLowerForwarded, $aFlags);
         }
@@ -1267,8 +1267,8 @@ class Message
                 }
             }
 
-            $bCreateHtmlLinksFromTextLinksInDOM = \Aurora\Modules\Mail\Module::getInstance()->getConfig('CreateHtmlLinksFromTextLinksInDOM', false);
-            if (0 < \strlen($sHtml) && \Aurora\Modules\Mail\Module::getInstance()->getConfig('DisplayInlineCss', false)) {
+            $bCreateHtmlLinksFromTextLinksInDOM = \Aurora\Modules\Mail\Module::getInstance()->oModuleSettings->CreateHtmlLinksFromTextLinksInDOM;
+            if (0 < \strlen($sHtml) && \Aurora\Modules\Mail\Module::getInstance()->oModuleSettings->DisplayInlineCss) {
                 $mResult['Html'] = \MailSo\Base\HtmlUtils::ClearHtml(
                     \Aurora\System\Utils::ConvertCssToInlineStyles($sHtml),
                     $bHasExternals,

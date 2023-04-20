@@ -14,6 +14,8 @@ use Aurora\Modules\Mail\Module;
  * @license https://www.gnu.org/licenses/agpl-3.0.html AGPL-3.0
  * @license https://afterlogic.com/products/common-licensing Afterlogic Software License
  * @copyright Copyright (c) 2023, Afterlogic Corp.
+ *
+ * @property Module $oModule
  */
 class Manager extends \Aurora\System\Managers\AbstractManager
 {
@@ -63,7 +65,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     protected $bSectionsParsed;
 
     /**
-     * @param \Aurora\System\Module\AbstractModule $oModule
+     * @param \Aurora\Modules\Mail\Module $oModule
      */
     public function __construct(\Aurora\System\Module\AbstractModule $oModule)
     {
@@ -71,9 +73,9 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
         $this->aSieves = array();
         $this->sGeneralPassword = '';
-        $this->sSieveFileName = $oModule->getConfig('SieveFileName', 'sieve');
-        $this->sSieveFolderCharset = $oModule->getConfig('SieveFiltersFolderCharset', 'utf-8');
-        $this->bSieveCheckScript = $oModule->getConfig('SieveCheckScript', false);
+        $this->sSieveFileName = $oModule->oModuleSettings->SieveFileName;
+        $this->sSieveFolderCharset = $oModule->oModuleSettings->SieveFiltersFolderCharset;
+        $this->bSieveCheckScript = $oModule->oModuleSettings->SieveCheckScript;
         $this->bSectionsParsed = false;
         $this->aSectionsData = array();
         $this->aSectionsOrders = array(
@@ -509,13 +511,13 @@ class Manager extends \Aurora\System\Managers\AbstractManager
         }
 
         if (!isset($iSpamScore)) {
-            $iSpamScore = $this->GetModule()->getConfig('DefaultSpamScore', 5);
+            $iSpamScore = $this->oModule->oModuleSettings->DefaultSpamScore;
         }
         $mSpamValue = $iSpamScore;
-        if ($this->GetModule()->getConfig('ConvertSpamScoreToSpamLevel')) {
+        if ($this->oModule->oModuleSettings->ConvertSpamScoreToSpamLevel) {
             $mSpamValue = str_pad('', $iSpamScore, "*");
         }
-        $SieveSpamRuleCondition = $this->GetModule()->getConfig('SieveSpamRuleCondition');
+        $SieveSpamRuleCondition = $this->oModule->oModuleSettings->SieveSpamRuleCondition;
         $SieveSpamRuleCondition = str_replace('{{Value}}', $mSpamValue, $SieveSpamRuleCondition);
 
         $sData = '#data=' . $sAllowList . '~' . $sBlockList . '~' . $iSpamScore . "\n" . $sAllowListScript . $sBlockListScript . "\n";
@@ -651,25 +653,25 @@ if " . $SieveSpamRuleCondition . " {
 
         if ($oSieve) {
             if (!$oSieve->IsConnected()) {
-                $oMailModule = \Aurora\System\Api::GetModule('Mail');
-                if ($oMailModule instanceof Module) {
-                    $sGeneralPassword = $oMailModule->getConfig('SieveGeneralPassword', '');
+                // $oMailModule = \Aurora\System\Api::GetModule('Mail');
+                // if ($oMailModule instanceof Module) {
+                    $sGeneralPassword = $this->oModule->oModuleSettings->SieveGeneralPassword;
 
-                    $oServer = $oMailModule->getServersManager()->getServer($oAccount->ServerId);
+                    $oServer = $this->oModule->getServersManager()->getServer($oAccount->ServerId);
 
-                    $sHost = $oMailModule->getConfig('OverriddenSieveHost', '');
+                    $sHost = $this->oModule->oModuleSettings->OverriddenSieveHost;
                     if (empty($sHost)) {
                         $sHost = $oServer->IncomingServer;
                     }
 
                     $iPort = $oServer->SievePort;
                     $sPassword = 0 === strlen($sGeneralPassword) ? $oAccount->getPassword() : $sGeneralPassword;
-                    $bUseStarttls = $this->GetModule()->getConfig('SieveUseStarttls', false);
+                    $bUseStarttls = $this->oModule->oModuleSettings->SieveUseStarttls;
                     $bResult = $oSieve
                         ->Connect($sHost, $iPort, $bUseStarttls ? \MailSo\Net\Enumerations\ConnectionSecurityType::STARTTLS : \MailSo\Net\Enumerations\ConnectionSecurityType::NONE)
                         ->Login($oAccount->IncomingLogin, $sPassword)
                     ;
-                }
+                // }
             } else {
                 $bResult = true;
             }

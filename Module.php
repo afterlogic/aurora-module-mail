@@ -61,15 +61,6 @@ class Module extends \Aurora\System\Module\AbstractModule
     protected $oFilecacheManager = null;
 
     /**
-     *
-     * @return Module
-     */
-    public static function getInstance()
-    {
-        return parent::getInstance();
-    }
-
-    /**
      * Handle dynamic, static calls to the object.
      *
      * @param  string  $method
@@ -140,13 +131,20 @@ class Module extends \Aurora\System\Module\AbstractModule
     /**
      * @return Module
      */
+    public static function getInstance()
+    {
+        return parent::getInstance();
+    }
+
+    /**
+     * @return Module
+     */
     public static function Decorator()
     {
         return parent::Decorator();
     }
 
     /**
-     *
      * @return Settings
      */
     public function getModuleSettings()

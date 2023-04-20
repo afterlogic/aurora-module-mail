@@ -24,6 +24,8 @@ use Aurora\System\Exceptions\ApiException;
  * @copyright Copyright (c) 2023, Afterlogic Corp.
  *
  * @package Mail
+ *
+ * @property Module $oModule
  */
 class Manager extends \Aurora\System\Managers\AbstractManager
 {
@@ -86,7 +88,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                 if ($oServer instanceof \Aurora\Modules\Mail\Models\Server) {
                     try {
                         //disable STARTTLS for localhost
-                        if ($this->GetModule()->getConfig('DisableStarttlsForLocalhost', false) &&
+                        if ($this->oModule->oModuleSettings->DisableStarttlsForLocalhost &&
                             (strtolower($oServer->IncomingServer) === 'localhost' || strtolower($oServer->IncomingServer) === '127.0.0.1')) {
                             \MailSo\Config::$PreferStartTlsIfAutoDetect = false;
                         }
@@ -1313,7 +1315,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                         $oSmtpClient->Login($oServer->SmtpLogin, $oServer->SmtpPassword);
                     }
 
-                    if ($oIdentity && Module::getInstance()->getConfig('UseIdentityEmailAsSmtpMailFrom', true)) {
+                    if ($oIdentity && $this->oModule->oModuleSettings->UseIdentityEmailAsSmtpMailFrom) {
                         $sMailFrom = $oIdentity->Email;
                     } elseif ($oFetcher) {
                         $sMailFrom = $oFetcher->Email;
@@ -1687,8 +1689,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
                 $aIndexOrUids = null;
 
-                $oMailModule = \Aurora\System\Api::GetModule('Mail');
-                $bUseBodyStructuresForHasAttachmentsSearch = $oMailModule->getConfig('UseBodyStructuresForHasAttachmentsSearch', false);
+                $bUseBodyStructuresForHasAttachmentsSearch = $this->oModule->oModuleSettings->UseBodyStructuresForHasAttachmentsSearch;
                 if (($bUseBodyStructuresForHasAttachmentsSearch && \preg_match('/has[ ]?:[ ]?attachments/i', $sSearch)) ||
                     \preg_match('/attach:([^\s]+)/i', $sSearch, $aMatch)) {
                     $bSearchAttachments = true;
@@ -1905,7 +1906,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
         if ($oCurrentFolderInformation->Exists > 0) {
             $bUseSortIfSupported = false;
-            $aMessagesSortBy = $this->GetModule()->getConfig('MessagesSortBy', false);
+            $aMessagesSortBy = $this->oModule->oModuleSettings->MessagesSortBy;
             if ($aMessagesSortBy !== false && is_array($aMessagesSortBy) && isset($aMessagesSortBy['Allow']) && (bool) $aMessagesSortBy['Allow'] !== false && !empty($sSortBy)) {
                 $bUseSortIfSupported = $oImapClient->IsSupported('SORT');
             }
@@ -1944,7 +1945,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
             $aIndexOrUidsChunk = array_chunk(
                 $aUids,
-                $this->GetModule()->getConfig('MessagesInfoChunkSize', 1000)
+                $this->oModule->oModuleSettings->MessagesInfoChunkSize
             );
 
             $mResult = array_flip($aUids);
@@ -2984,7 +2985,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
             $aIndexOrUids = array();
 
             $bUseSortIfSupported = false;
-            $aMessagesSortBy = $this->GetModule()->getConfig('MessagesSortBy', false);
+            $aMessagesSortBy = $this->oModule->oModuleSettings->MessagesSortBy;
             if ($aMessagesSortBy !== false && is_array($aMessagesSortBy) && isset($aMessagesSortBy['Allow']) && (bool) $aMessagesSortBy['Allow'] !== false && !empty($sSortBy)) {
                 $bUseSortIfSupported = $oImapClient->IsSupported('SORT');
             }
@@ -3003,8 +3004,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                 $fAttachmentSearchCallback = null;
                 $aMatch = array();
 
-                $oMailModule = \Aurora\System\Api::GetModule('Mail');
-                $bUseBodyStructuresForHasAttachmentsSearch = $oMailModule->getConfig('UseBodyStructuresForHasAttachmentsSearch', false);
+                $bUseBodyStructuresForHasAttachmentsSearch = $this->oModule->oModuleSettings->UseBodyStructuresForHasAttachmentsSearch;
                 if (($bUseBodyStructuresForHasAttachmentsSearch && \preg_match('/has[ ]?:[ ]?attachments/i', $sSearch)) ||
                     \preg_match('/attach:([^\s]+)/i', $sSearch, $aMatch)) {
                     $bSearchAttachments = true;
