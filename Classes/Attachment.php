@@ -296,7 +296,7 @@ class Attachment
         $iEstimatedSize = $this->getEstimatedSize();
 
         $oSettings =& \Aurora\System\Api::GetSettings();
-        $iThumbnailLimit = ((int) $oSettings->GetValue('ThumbnailMaxFileSizeMb', 5)) * 1024 * 1024;
+        $iThumbnailLimit = ((int) $oSettings->ThumbnailMaxFileSizeMb) * 1024 * 1024;
 
         if (in_array($sMimeType, array('application/octet-stream'))) {
             $sMimeType = \MailSo\Base\Utils::MimeContentType($sFileName);
@@ -339,8 +339,10 @@ class Attachment
         ];
 
         $oSettings =& \Aurora\System\Api::GetSettings();
-        if ($oSettings->GetValue('AllowThumbnail', true) &&
-                $iEstimatedSize < $iThumbnailLimit && \Aurora\System\Utils::IsGDImageMimeTypeSuppoted($sMimeType, $sFileName)) {
+        if ($oSettings->AllowThumbnail
+            && $iEstimatedSize < $iThumbnailLimit
+            && \Aurora\System\Utils::IsGDImageMimeTypeSuppoted($sMimeType, $sFileName)
+        ) {
             $mResult['ThumbnailUrl'] = '?mail-attachment/' . $sHash . '/thumb';
         }
 
