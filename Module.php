@@ -4507,16 +4507,16 @@ class Module extends \Aurora\System\Module\AbstractModule
 					}
 				}
 
-				if (isset($CustomHeaders['X-Private-Message-Sender'])) {
-					$oUser = Api::getUserById($oAccount->IdUser);
-					if ($oUser && !empty($oUser->{'InformatikProjects::PrivateMessagesEmail'})) {
-						$oFromAccount = $this->getAccountsManager()->getAccountByEmail($CustomHeaders['X-Private-Message-Sender'], $oAccount->UserId);
-						if ($oFromAccount) {
-							$oFrom = \MailSo\Mime\Email::NewInstance($oFromAccount->Email, $oAccount->FriendlyName);
-							$oMessage->SetFrom($oFrom);
-						}
-					}
-				}
+				// if (isset($CustomHeaders['X-Private-Message-Sender'])) {
+				// 	$oUser = Api::getUserById($oAccount->IdUser);
+				// 	if ($oUser && !empty($oUser->{'InformatikProjects::PrivateMessagesEmail'})) {
+				// 		$oFromAccount = $this->getAccountsManager()->getAccountByEmail($CustomHeaders['X-Private-Message-Sender'], $oAccount->UserId);
+				// 		if ($oFromAccount) {
+				// 			$oFrom = \MailSo\Mime\Email::NewInstance($oFromAccount->Email, $oAccount->FriendlyName);
+				// 			$oMessage->SetFrom($oFrom);
+				// 		}
+				// 	}
+				// }
 			}
 
 			$mResult = $this->getMailManager()->sendMessage($oAccount, $oMessage, $Fetcher, $SentFolder, $DraftFolder, $DraftUid, $Recipients, $oFromAccount);
