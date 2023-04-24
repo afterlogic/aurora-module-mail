@@ -760,6 +760,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 	public function GetAccountByEmail($Email, $UserId = 0)
 	{
+		$mResult = false;
 		$oAuthenticatedUser = \Aurora\System\Api::getAuthenticatedUser();
 		$oUser = $UserId !== 0 ? \Aurora\Modules\Core\Module::Decorator()->GetUserUnchecked($UserId) : null;
 
@@ -774,17 +775,17 @@ class Module extends \Aurora\System\Module\AbstractModule
 			{
 				\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::TenantAdmin);
 			}
-		}
-		else
-		{
-			\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::SuperAdmin);
-		}
-
-		$mResult = false;
-		$oAccount = $this->getAccountsManager()->getAccountByEmail($Email, $UserId);
-		if ($oAccount instanceof \Aurora\Modules\Mail\Classes\Account && $UserId === $oAccount->IdUser)
-		{
-			$mResult = $oAccount;
+			else if ($oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin)
+			{
+				\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::SuperAdmin);
+			} else {
+				throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::AccessDenied);
+			}
+			$oAccount = $this->getAccountsManager()->getAccountByEmail($Email, $UserId);
+			if ($oAccount instanceof \Aurora\Modules\Mail\Classes\Account && $UserId === $oAccount->IdUser)
+			{
+				$mResult = $oAccount;
+			}
 		}
 
 		return $mResult;
