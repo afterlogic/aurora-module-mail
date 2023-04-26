@@ -655,23 +655,23 @@ if " . $SieveSpamRuleCondition . " {
             if (!$oSieve->IsConnected()) {
                 // $oMailModule = \Aurora\System\Api::GetModule('Mail');
                 // if ($oMailModule instanceof Module) {
-                    $sGeneralPassword = $this->oModule->oModuleSettings->SieveGeneralPassword;
+                $sGeneralPassword = $this->oModule->oModuleSettings->SieveGeneralPassword;
 
-                    $oServer = $this->oModule->getServersManager()->getServer($oAccount->ServerId);
+                $oServer = $this->oModule->getServersManager()->getServer($oAccount->ServerId);
 
-                    $sHost = $this->oModule->oModuleSettings->OverriddenSieveHost;
-                    if (empty($sHost)) {
-                        $sHost = $oServer->IncomingServer;
-                    }
+                $sHost = $this->oModule->oModuleSettings->OverriddenSieveHost;
+                if (empty($sHost)) {
+                    $sHost = $oServer->IncomingServer;
+                }
 
-                    $iPort = $oServer->SievePort;
-                    $sPassword = 0 === strlen($sGeneralPassword) ? $oAccount->getPassword() : $sGeneralPassword;
-                    $bUseStarttls = $this->oModule->oModuleSettings->SieveUseStarttls;
-                    $bResult = $oSieve
-                        ->Connect($sHost, $iPort, $bUseStarttls ? \MailSo\Net\Enumerations\ConnectionSecurityType::STARTTLS : \MailSo\Net\Enumerations\ConnectionSecurityType::NONE)
-                        ->Login($oAccount->IncomingLogin, $sPassword)
-                    ;
-                // }
+                $iPort = $oServer->SievePort;
+                $sPassword = 0 === strlen($sGeneralPassword) ? $oAccount->getPassword() : $sGeneralPassword;
+                $bUseStarttls = $this->oModule->oModuleSettings->SieveUseStarttls;
+                $bResult = $oSieve
+                    ->Connect($sHost, $iPort, $bUseStarttls ? \MailSo\Net\Enumerations\ConnectionSecurityType::STARTTLS : \MailSo\Net\Enumerations\ConnectionSecurityType::NONE)
+                    ->Login($oAccount->IncomingLogin, $sPassword)
+                ;
+            // }
             } else {
                 $bResult = true;
             }

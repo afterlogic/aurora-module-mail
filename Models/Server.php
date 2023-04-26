@@ -51,14 +51,17 @@ use Aurora\System\Classes\Model;
  * @property-read mixed $entity_id
  * @property-read mixed $server_id
  * @method static int count(string $columns = '*')
- * @method static \Illuminate\Database\Eloquent\Builder|\Aurora\Modules\Mail\Models\Server find(int|string $id, array|string $columns = ['*'])
- * @method static \Illuminate\Database\Eloquent\Builder|\Aurora\Modules\Mail\Models\Server findOrFail(int|string $id, mixed $id, Closure|array|string $columns = ['*'], Closure $callback = null)
- * @method static \Illuminate\Database\Eloquent\Builder|\Aurora\Modules\Mail\Models\Server first(array|string $columns = ['*'])
- * @method static \Illuminate\Database\Eloquent\Builder|\Aurora\Modules\Mail\Models\Server firstWhere(Closure|string|array|\Illuminate\Database\Query\Expression $column, mixed $operator = null, mixed $value = null, string $boolean = 'and')
+ * @method static \Illuminate\Database\Eloquent\Builder|Server find(int|string $id, array|string $columns = ['*'])
+ * @method static \Illuminate\Database\Eloquent\Builder|Server findOrFail(int|string $id, mixed $id, Closure|array|string $columns = ['*'], Closure $callback = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Server first(array|string $columns = ['*'])
+ * @method static \Illuminate\Database\Eloquent\Builder|Server firstWhere(Closure|string|array|\Illuminate\Database\Query\Expression $column, mixed $operator = null, mixed $value = null, string $boolean = 'and')
  * @method static \Illuminate\Database\Eloquent\Builder|Server newModelQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Server newQuery()
  * @method static \Illuminate\Database\Eloquent\Builder|Server query()
- * @method static \Illuminate\Database\Eloquent\Builder|\Aurora\Modules\Mail\Models\Server where(Closure|string|array|\Illuminate\Database\Query\Expression $column, mixed $operator = null, mixed $value = null, string $boolean = 'and')
+ * @method static \Illuminate\Database\Eloquent\Builder|Server leftJoin(string $table, \Closure|string $first, string|null $operator = null, string|null $second = null)
+ * @method static \Illuminate\Database\Eloquent\Builder|Server where(Closure|string|array|\Illuminate\Database\Query\Expression $column, mixed $operator = null, mixed $value = null, string $boolean = 'and')
+ * @method static \Illuminate\Database\Eloquent\Builder|Server whereIn(string $column, mixed $values, string $boolean = 'and', bool $not = false)
+ * @method static \Illuminate\Database\Eloquent\Builder|Server orWhere(\Closure|array|string|\Illuminate\Database\Query\Expression $column, mixed $operator = null, mixed $value = null)
  * @method static \Illuminate\Database\Eloquent\Builder|Server whereCreatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Server whereDomains($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Server whereEnableSieve($value)
@@ -76,7 +79,6 @@ use Aurora\System\Classes\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|Server whereExternalAccessSmtpServer($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Server whereExternalAccessSmtpUseSsl($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Server whereId($value)
- * @method static \Illuminate\Database\Eloquent\Builder|\Aurora\Modules\Mail\Models\Server whereIn(string $column, mixed $values, string $boolean = 'and', bool $not = false)
  * @method static \Illuminate\Database\Eloquent\Builder|Server whereIncomingPort($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Server whereIncomingServer($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Server whereIncomingUseSsl($value)
@@ -97,7 +99,6 @@ use Aurora\System\Classes\Model;
  * @method static \Illuminate\Database\Eloquent\Builder|Server whereTenantId($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Server whereUpdatedAt($value)
  * @method static \Illuminate\Database\Eloquent\Builder|Server whereUseFullEmailAddressAsLogin($value)
- * @property-read \Illuminate\Database\Eloquent\Collection<int, MailAccount> $MailAccounts
  * @mixin \Eloquent
  */
 class Server extends Model
@@ -220,10 +221,8 @@ class Server extends Model
         $oAccount = new MailAccount();
         $accountTable = $oAccount->getTable();
 
-        /* @phpstan-ignore-next-line */
         $serversWithoutAccount = self::leftJoin($accountTable, "$accountTable.ServerId", '=', "$tableName.$this->primaryKey")->where('OwnerType', '=', 'account')->whereNull("$accountTable.Id")->groupBy("$tableName.$this->primaryKey")->pluck("$tableName.$this->primaryKey")->all();
         $orphanIds = self::where('OwnerType', '=', 'tenant')->pluck($this->primaryKey)->diff(
-            /* @phpstan-ignore-next-line */
             self::leftJoin($foreignTable, "$tableName.$this->foreignModelIdColumn", '=', "$foreignTable.$foreignPK")->whereNotNull("$foreignTable.$foreignPK")->pluck("$tableName.$this->primaryKey")
         )->union($serversWithoutAccount)->all();
         $message = $orphanIds ? "$tableName table has orphans." : "Orphans were not found.";
