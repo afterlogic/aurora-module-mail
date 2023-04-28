@@ -868,6 +868,9 @@ class Module extends \Aurora\System\Module\AbstractModule
 
         self::checkAccess(null, $UserId);
 
+        $Email = \strtolower($Email);
+        $IncomingLogin = strtolower($IncomingLogin);
+
         $oAccount = $this->GetAccountByEmail($Email, $UserId);
         $oServer = false;
 
@@ -6573,8 +6576,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         $bResult = false;
         $iUserId = 0;
 
-        $sEmail = $aArgs['Login'];
-        $sMailLogin = $aArgs['Login'];
+        $sEmail = $sMailLogin = $aArgs['Login'];
         $oAccount = $this->getAccountsManager()->getAccountUsedToAuthorize($sEmail);
 
         $bNewAccount = false;
@@ -6588,6 +6590,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
         $oServer = null;
         if ($bAutocreateMailAccountOnNewUserFirstLogin && !$oAccount) {
+            $sEmail = \strtolower($sEmail);
             $sDomain = \MailSo\Base\Utils::GetDomainFromEmail($sEmail);
             if (!empty(trim($sDomain))) {
                 $aGetMailServerResult = self::Decorator()->GetMailServerByDomain($sDomain, /*AllowWildcardDomain*/true);
