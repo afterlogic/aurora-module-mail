@@ -2531,7 +2531,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 				{
 					$sValue = $this->_escapeSearchString($oImapClient, $aLines['OTHER']);
 
-					$aImapSearchResult[] = 'OR OR OR OR OR OR OR OR';
+					$aImapSearchResult[] = 'OR OR OR OR OR OR OR OR OR';
 
 					$aImapSearchResult[] = 'FROM';
 					$aImapSearchResult[] = $sValue;
@@ -2560,6 +2560,9 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
 					$aImapSearchResult[] = 'HEADER "X-Generated-Mail-Id"';
 					$aImapSearchResult[] = $sValue;
+
+					$aImapSearchResult[] = 'TEXT';
+					$aImapSearchResult[] = $this->_escapeSearchString($oImapClient, $aLines['OTHER']);
 				}
 				else
 				{
