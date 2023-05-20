@@ -2545,10 +2545,14 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 					$aImapSearchResult[] = 'SUBJECT';
 					$aImapSearchResult[] = $sValue;
 
-					// REPLY-TO
+					// Additionally search in BODY and reply-to header
+					$aImapSearchResult[] = 'BODY';
+					$aImapSearchResult[] = $sValue;
+
 					$aImapSearchResult[] = 'HEADER "reply-to"';
 					$aImapSearchResult[] = $sValue;
 
+					// Searching in Informatik special headers
 					$aImapSearchResult[] = 'HEADER "X-Project-Name"';
 					$aImapSearchResult[] = $sValue;
 
@@ -2560,9 +2564,6 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
 					$aImapSearchResult[] = 'HEADER "X-Generated-Mail-Id"';
 					$aImapSearchResult[] = $sValue;
-
-					$aImapSearchResult[] = 'TEXT';
-					$aImapSearchResult[] = $this->_escapeSearchString($oImapClient, $aLines['OTHER']);
 				}
 				else
 				{
@@ -2749,6 +2750,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 						$aImapSearchResult[] = 'BODY';
 						$aImapSearchResult[] = $this->_escapeSearchString($oImapClient, $sMainText);
 
+						// Searching in Informatik special headers
 						$aImapSearchResult[] = 'HEADER "X-Project-Name"';
 						$aImapSearchResult[] = $this->_escapeSearchString($oImapClient, $sMainText);
 
