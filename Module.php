@@ -2311,7 +2311,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 
         $aAllMessages = [];
         $aNextUids = [];
-        $aFoldersHash = [];
 
         $aInboxUidsNext = [];
         if (!empty($InboxUidnext)) {
@@ -2360,7 +2359,7 @@ class Module extends \Aurora\System\Module\AbstractModule
             foreach ($aMessages as $oMessage) {
                 //TODO Remove because it must be set when Message instance is created
                 // $oMessage->setAccountId($oAccount->Id);
-                $oMessage->setUnifiedUid($oAccount->Id . ':' . $sFolder . ':' . $oMessage->getUid());
+                $oMessage->setUnifiedUid($oAccount->EntityId . ':' . $sFolder . ':' . $oMessage->getUid());
             }
             $aAllMessages = array_merge($aAllMessages, $aMessages);
         }
