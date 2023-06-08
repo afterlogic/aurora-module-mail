@@ -395,8 +395,8 @@ class Module extends \Aurora\System\Module\AbstractModule
             }
             $aSettings['Accounts'] = $aResponseAcc;
 
-            if (isset($oUser->{self::GetName().'::AllowAutosaveInDrafts'})) {
-                $aSettings['AllowAutosaveInDrafts'] = $oUser->{self::GetName().'::AllowAutosaveInDrafts'};
+            if (null !== $oUser->getExtendedProp(self::GetName().'::AllowAutosaveInDrafts')) {
+                $aSettings['AllowAutosaveInDrafts'] = $oUser->getExtendedProp(self::GetName().'::AllowAutosaveInDrafts');
             }
         }
 
@@ -497,8 +497,8 @@ class Module extends \Aurora\System\Module\AbstractModule
                     $oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::TenantAdmin && $oAuthenticatedUser->IdTenant === $oUser->IdTenant) {
                 $oTenant = \Aurora\System\Api::getTenantById($oUser->IdTenant);
                 return [
-                    'UserSpaceLimitMb' => $oUser->{self::GetName() . '::UserSpaceLimitMb'},
-                    'AllowChangeUserSpaceLimit' => $oTenant->{self::GetName() . '::AllowChangeUserSpaceLimit'},
+                    'UserSpaceLimitMb' => $oUser->getExtendedProp(self::GetName() . '::UserSpaceLimitMb'),
+                    'AllowChangeUserSpaceLimit' => $oTenant->getExtendedProp(self::GetName() . '::AllowChangeUserSpaceLimit'),
                 ];
             }
         }
@@ -509,10 +509,10 @@ class Module extends \Aurora\System\Module\AbstractModule
                     ($oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin ||
                     $oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::TenantAdmin && $oAuthenticatedUser->IdTenant === $TenantId)) {
                 return [
-                    'TenantSpaceLimitMb' => $oTenant->{self::GetName() . '::TenantSpaceLimitMb'},
-                    'UserSpaceLimitMb' => $oTenant->{self::GetName() . '::UserSpaceLimitMb'},
-                    'AllowChangeUserSpaceLimit' => $oTenant->{self::GetName() . '::AllowChangeUserSpaceLimit'},
-                    'AllocatedSpaceMb' => $oTenant->{self::GetName() . '::AllocatedSpaceMb'},
+                    'TenantSpaceLimitMb' => $oTenant->getExtendedProp(self::GetName() . '::TenantSpaceLimitMb'),
+                    'UserSpaceLimitMb' => $oTenant->getExtendedProp(self::GetName() . '::UserSpaceLimitMb'),
+                    'AllowChangeUserSpaceLimit' => $oTenant->getExtendedProp(self::GetName() . '::AllowChangeUserSpaceLimit'),
+                    'AllocatedSpaceMb' => $oTenant->getExtendedProp(self::GetName() . '::AllocatedSpaceMb'),
                 ];
             }
         }
@@ -523,7 +523,7 @@ class Module extends \Aurora\System\Module\AbstractModule
     protected function updateAllocatedTenantSpace($iTenantId, $iNewUserQuota, $iPrevUserQuota)
     {
         $oTenant = \Aurora\System\Api::getTenantById($iTenantId);
-        $iAllocatedSpaceMb = $oTenant->{self::GetName() . '::AllocatedSpaceMb'};
+        $iAllocatedSpaceMb = $oTenant->getExtendedProp(self::GetName() . '::AllocatedSpaceMb');
         $iAllocatedSpaceMb += $iNewUserQuota - $iPrevUserQuota;
         if ($iAllocatedSpaceMb < 0) {
             $iAllocatedSpaceMb = 0;
@@ -1256,7 +1256,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
                 $oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserWithoutRoleCheck($oAccount->IdUser);
                 if ($oUser instanceof \Aurora\Modules\Core\Models\User && $oAccount->Email === $oUser->PublicId) {
-                    $iQuota = $oUser->{self::GetName() . '::UserSpaceLimitMb'};
+                    $iQuota = $oUser->getExtendedProp(self::GetName() . '::UserSpaceLimitMb');
                     $this->updateAllocatedTenantSpace($oUser->IdTenant, 0, $iQuota);
                 }
 
@@ -2791,7 +2791,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         $aQuota = $this->getMailManager()->getQuota($oAccount);
         $iQuota = (is_array($aQuota) && isset($aQuota[1])) ? $aQuota[1] / 1024 : 0;
         $oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserWithoutRoleCheck($oAccount->IdUser);
-        $iUserSpaceLimitMb = ($oUser instanceof \Aurora\Modules\Core\Models\User) ? $oUser->{self::GetName() . '::UserSpaceLimitMb'} : 0;
+        $iUserSpaceLimitMb = ($oUser instanceof \Aurora\Modules\Core\Models\User) ? $oUser->getExtendedProp(self::GetName() . '::UserSpaceLimitMb') : 0;
         if ($iQuota !== $iUserSpaceLimitMb) {
             $this->updateAllocatedTenantSpace($oUser->IdTenant, $iQuota, $iUserSpaceLimitMb);
             $oUser->setExtendedProp(self::GetName() . '::UserSpaceLimitMb', $iQuota);
