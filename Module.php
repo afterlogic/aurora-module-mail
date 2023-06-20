@@ -15,6 +15,7 @@ use Aurora\Modules\Mail\Enums\SearchInFoldersType;
 use Aurora\Modules\Mail\Models\Identity;
 use Aurora\Modules\Mail\Models\TrustedSender;
 use Aurora\System\Application;
+use Aurora\System\Enums\LogLevel;
 use Aurora\System\Exceptions\InvalidArgumentException;
 use PHPMailer\DKIMValidator\Validator as DKIMValidator;
 use PHPMailer\DKIMValidator\DKIMException;
@@ -4813,7 +4814,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
                 $aEmails = array();
                 $aCollection->ForeachList(function ($oEmail) use (&$aEmails) {
-                    $aEmails[strtolower($oEmail->GetEmail())] = trim($oEmail->GetDisplayName());
+                    $aEmails[strtolower($oEmail->GetEmail(true))] = trim($oEmail->GetDisplayName());
                 });
 
                 if (\is_array($aEmails)) {
