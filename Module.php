@@ -524,13 +524,15 @@ class Module extends \Aurora\System\Module\AbstractModule
     protected function updateAllocatedTenantSpace($iTenantId, $iNewUserQuota, $iPrevUserQuota)
     {
         $oTenant = \Aurora\System\Api::getTenantById($iTenantId);
-        $iAllocatedSpaceMb = $oTenant->getExtendedProp(self::GetName() . '::AllocatedSpaceMb');
-        $iAllocatedSpaceMb += $iNewUserQuota - $iPrevUserQuota;
-        if ($iAllocatedSpaceMb < 0) {
-            $iAllocatedSpaceMb = 0;
+        if ($oTenant) {
+            $iAllocatedSpaceMb = $oTenant->getExtendedProp(self::GetName() . '::AllocatedSpaceMb');
+            $iAllocatedSpaceMb += $iNewUserQuota - $iPrevUserQuota;
+            if ($iAllocatedSpaceMb < 0) {
+                $iAllocatedSpaceMb = 0;
+            }
+            $oTenant->setExtendedProp(self::GetName() . '::AllocatedSpaceMb', $iAllocatedSpaceMb);
+            \Aurora\Modules\Core\Module::Decorator()->getTenantsManager()->updateTenant($oTenant);
         }
-        $oTenant->setExtendedProp(self::GetName() . '::AllocatedSpaceMb', $iAllocatedSpaceMb);
-        \Aurora\Modules\Core\Module::Decorator()->getTenantsManager()->updateTenant($oTenant);
     }
 
     public function UpdateEntitySpaceLimits($Type, $UserId, $TenantId, $TenantSpaceLimitMb, $UserSpaceLimitMb = null)
