@@ -15,6 +15,7 @@ use Aurora\Modules\Mail\Models\SystemFolder;
 use Aurora\Modules\Mail\Module;
 use Aurora\System\Exceptions;
 use Aurora\System\Exceptions\ApiException;
+use MailSo\Mime\Email;
 
 /**
  * Manager for work with ImapClient.
@@ -2237,6 +2238,18 @@ class Manager extends \Aurora\System\Managers\AbstractManager
         return $aResult;
     }
 
+    protected function getIdnEmailValue($value)
+    {
+        $parts = explode('@', $value);
+        if (isset($parts[1])) {
+            $value = $parts[0] . '@' . idn_to_ascii($parts[1]);
+        } else if (isset($parts[0])) {
+            $value = idn_to_ascii($parts[0]);
+        }
+
+        return $value;
+    }
+
     /**
      * Prepares search string for searching on IMAP.
      *
@@ -2268,12 +2281,15 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
             if (1 === count($aLines) && isset($aLines['OTHER'])) {
                 if (true) { // TODO
+                    $sIdnValue = $this->getIdnEmailValue($aLines['OTHER']);
+                    $sIdnValue = $this->_escapeSearchString($oImapClient, $sIdnValue);
+
                     $sValue = $this->_escapeSearchString($oImapClient, $aLines['OTHER']);
 
                     $aImapSearchResult[] = 'OR OR OR';
-                    $aImapSearchResult[] = 'FROM ' . $sValue;
-                    $aImapSearchResult[] = 'TO ' . $sValue;
-                    $aImapSearchResult[] = 'CC ' . $sValue;
+                    $aImapSearchResult[] = 'FROM ' . $sIdnValue;
+                    $aImapSearchResult[] = 'TO ' . $sIdnValue;
+                    $aImapSearchResult[] = 'CC ' . $sIdnValue;
                     $aImapSearchResult[] = 'SUBJECT ' . $sValue;
                 } else {
                     if ($bIsGmail) {
@@ -2300,9 +2316,10 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                     foreach ($aEmails as $sEmail) {
                         $sEmail = trim($sEmail);
                         if (0 < strlen($sEmail)) {
-                            $sValue = $this->_escapeSearchString($oImapClient, $sEmail);
+                            $sValue = $this->getIdnEmailValue($sEmail);
 
-                            //$aImapSearchResult[] = 'OR OR OR'; //and - all matches in message
+                            $sValue = $this->_escapeSearchString($oImapClient, $sValue);
+
                             $aImapSearchResult[] = 'FROM ' . $sValue;
                             $aImapSearchResult[] = 'TO '  . $sValue;
                             $aImapSearchResult[] = 'CC ' . $sValue;
@@ -2314,12 +2331,6 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                 }
 
                 if (isset($aLines['TO'])) {
-                    // $sValue = $this->_escapeSearchString($oImapClient, $aLines['TO']);
-
-                    // $aImapSearchResult[] = 'OR';
-                    // $aImapSearchResult[] = 'TO ' . $sValue;
-                    // $aImapSearchResult[] = 'CC ' . $sValue;
-
                     $aValues = explode(',', $aLines['TO']);
 
                     $aImapSearchResult[] = 'OR';
@@ -2327,8 +2338,10 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                         $aImapSearchResult[] = trim(str_repeat('OR ', (count($aValues) - 1) * 2));
                     }
                     foreach ($aValues as $sValue) {
-                        $aImapSearchResult[] = 'TO ' . $this->_escapeSearchString($oImapClient, $sValue);
-                        $aImapSearchResult[] = 'CC ' . $this->_escapeSearchString($oImapClient, $sValue);
+                        $sValue = $this->getIdnEmailValue($sValue);
+                        $sValue = $this->_escapeSearchString($oImapClient, $sValue);
+                        $aImapSearchResult[] = 'TO ' . $sValue;
+                        $aImapSearchResult[] = 'CC ' . $sValue;
                     }
                     unset($aLines['TO']);
                 }
@@ -2347,8 +2360,9 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                                 $aImapSearchResult[] = trim(str_repeat('OR ', count($aValues) - 1));
                             }
                             foreach ($aValues as $sValue) {
-                                $aImapSearchResult[] = 'FROM ' . $this->_escapeSearchString($oImapClient, $sValue);
-                                ;
+                                $sValue = $this->getIdnEmailValue($sValue);
+                                $sValue = $this->_escapeSearchString($oImapClient, $sValue);
+                                $aImapSearchResult[] = 'FROM ' . $sValue;
                             }
                             break;
                         case 'SUBJECT':
