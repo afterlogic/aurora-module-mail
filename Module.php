@@ -6354,6 +6354,14 @@ class Module extends \Aurora\System\Module\AbstractModule
 
         if ($oAccount) {
             $mResult = $this->getSieveManager()->getAutoresponder($oAccount);
+            if ($mResult) {
+                $mResult['Scheduled'] = $oAccount->getExtendedProp(self::GetName() . '::' . 'Scheduled', false);
+                $mResult['Start'] = $oAccount->getExtendedProp(self::GetName() . '::' . 'Start');
+                $mResult['End'] = $oAccount->getExtendedProp(self::GetName() . '::' . 'End');
+                if ($mResult['Scheduled'] && $mResult['Enable']) {
+                    $mResult['Enable'] = true;
+                }
+            }
         }
 
         return $mResult;
@@ -6417,7 +6425,7 @@ class Module extends \Aurora\System\Module\AbstractModule
      * @param string $Message Text of auto-respond message.
      * @return boolean
      */
-    public function UpdateAutoresponder($AccountID, $Enable = false, $Subject = "", $Message = "")
+    public function UpdateAutoresponder($AccountID, $Enable = false, $Subject = "", $Message = "", $Scheduled = false, $Start = null, $End = null)
     {
         \Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 
@@ -6432,7 +6440,15 @@ class Module extends \Aurora\System\Module\AbstractModule
         }
 
         if ($oAccount) {
+            if ($Scheduled) {
+                $Enable = false;
+            }
             $mResult = $this->getSieveManager()->setAutoresponder($oAccount, $Subject, $Message, $Enable);
+
+            $oAccount->setExtendedProp(self::GetName() . '::' . 'Scheduled', $Scheduled);
+            $oAccount->setExtendedProp(self::GetName() . '::' . 'Start', $Start);
+            $oAccount->setExtendedProp(self::GetName() . '::' . 'End', $End);
+            $oAccount->save();
         }
 
         return $mResult;
