@@ -384,7 +384,8 @@ class Module extends \Aurora\System\Module\AbstractModule
             'ImageUploadSizeLimit' => $this->oModuleSettings->ImageUploadSizeLimit,
             'AllowUnifiedInbox' => $this->oModuleSettings->AllowUnifiedInbox,
             'SmtpAuthType' => (new \Aurora\Modules\Mail\Enums\SmtpAuthType())->getMap(),
-            'MessagesSortBy' => $this->oModuleSettings->MessagesSortBy
+            'MessagesSortBy' => $this->oModuleSettings->MessagesSortBy,
+            'AllowScheduledAutoresponder' => $this->oModuleSettings->AllowScheduledAutoresponder,
         );
 
         $oUser = \Aurora\System\Api::getAuthenticatedUser();
@@ -6355,11 +6356,13 @@ class Module extends \Aurora\System\Module\AbstractModule
         if ($oAccount) {
             $mResult = $this->getSieveManager()->getAutoresponder($oAccount);
             if ($mResult) {
-                $mResult['Scheduled'] = $oAccount->getExtendedProp(self::GetName() . '::' . 'Scheduled', false);
-                $mResult['Start'] = $oAccount->getExtendedProp(self::GetName() . '::' . 'Start');
-                $mResult['End'] = $oAccount->getExtendedProp(self::GetName() . '::' . 'End');
-                if ($mResult['Scheduled'] && $mResult['Enable']) {
-                    $mResult['Enable'] = true;
+                if ($this->oModuleSettings->AllowScheduledAutoresponder) {
+                    $mResult['Scheduled'] = $oAccount->getExtendedProp(self::GetName() . '::' . 'Scheduled', false);
+                    $mResult['Start'] = $oAccount->getExtendedProp(self::GetName() . '::' . 'Start');
+                    $mResult['End'] = $oAccount->getExtendedProp(self::GetName() . '::' . 'End');
+                    if ($mResult['Scheduled'] && !$mResult['Enable']) {
+                        $mResult['Enable'] = true;
+                    }
                 }
             }
         }
@@ -6440,15 +6443,16 @@ class Module extends \Aurora\System\Module\AbstractModule
         }
 
         if ($oAccount) {
-            if ($Scheduled) {
-                $Enable = false;
+            if ($Scheduled && $this->oModuleSettings->AllowScheduledAutoresponder) {
+                if ($Start > time()) {
+                    $Enable = false;
+                }
+                $oAccount->setExtendedProp(self::GetName() . '::' . 'Scheduled', $Scheduled);
+                $oAccount->setExtendedProp(self::GetName() . '::' . 'Start', $Start);
+                $oAccount->setExtendedProp(self::GetName() . '::' . 'End', $End);
+                $oAccount->save();
             }
             $mResult = $this->getSieveManager()->setAutoresponder($oAccount, $Subject, $Message, $Enable);
-
-            $oAccount->setExtendedProp(self::GetName() . '::' . 'Scheduled', $Scheduled);
-            $oAccount->setExtendedProp(self::GetName() . '::' . 'Start', $Start);
-            $oAccount->setExtendedProp(self::GetName() . '::' . 'End', $End);
-            $oAccount->save();
         }
 
         return $mResult;

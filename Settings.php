@@ -60,6 +60,7 @@ use Aurora\System\SettingsProperty;
  * @property int $ExpiredLinkLifetimeMinutes
  * @property bool $AllowUnifiedInbox
  * @property bool $UseIdentityEmailAsSmtpMailFrom
+ * @property bool AllowScheduledAutoresponder
  */
 
 class Settings extends \Aurora\System\Module\Settings
@@ -126,6 +127,12 @@ class Settings extends \Aurora\System\Module\Settings
                 "bool",
                 null,
                 "Enables Autoresponder tab in account settings",
+            ),
+            "AllowScheduledAutoresponder" => new SettingsProperty(
+                false,
+                "bool",
+                null,
+                "Enables scheduled Autoresponder",
             ),
             "EnableAllowBlockLists" => new SettingsProperty(
                 false,
