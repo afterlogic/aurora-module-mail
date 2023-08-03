@@ -2243,7 +2243,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
         $parts = explode('@', $value);
         if (isset($parts[1])) {
             $value = $parts[0] . '@' . idn_to_ascii($parts[1]);
-        } else if (isset($parts[0])) {
+        } elseif (isset($parts[0])) {
             $value = idn_to_ascii($parts[0]);
         }
 
