@@ -6442,15 +6442,14 @@ class Module extends \Aurora\System\Module\AbstractModule
             throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
         }
 
-        if ($oAccount) {
-            if ($Scheduled && $this->oModuleSettings->AllowScheduledAutoresponder) {
-                if ($Start > time()) {
-                    $Enable = false;
-                }
-                $oAccount->setExtendedProp(self::GetName() . '::' . 'Scheduled', $Scheduled);
-                $oAccount->setExtendedProp(self::GetName() . '::' . 'Start', $Start);
-                $oAccount->setExtendedProp(self::GetName() . '::' . 'End', $End);
-                $oAccount->save();
+        if ($oAccount && $this->oModuleSettings->AllowScheduledAutoresponder) {
+            $oAccount->setExtendedProp(self::GetName() . '::' . 'Scheduled', $Scheduled);
+            $oAccount->setExtendedProp(self::GetName() . '::' . 'Start', $Start);
+            $oAccount->setExtendedProp(self::GetName() . '::' . 'End', $End);
+            $oAccount->save();
+
+            if ($Scheduled && $Start > time()) {
+                $Enable = false;
             }
             $mResult = $this->getSieveManager()->setAutoresponder($oAccount, $Subject, $Message, $Enable);
         }

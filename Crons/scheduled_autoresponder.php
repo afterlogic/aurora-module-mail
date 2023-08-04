@@ -7,8 +7,17 @@
 
 namespace Aurora\Modules\Mail;
 
+if (PHP_SAPI !== 'cli') {
+    exit("Use the console for running this script");
+}
+
 require_once \dirname(__file__) . "/../../../system/autoload.php";
 \Aurora\System\Api::Init();
+
+function log($message) 
+{
+    \Aurora\System\Api::Log($message, \Aurora\System\Enums\LogLevel::Full, 'scheduled-autoresponder-');
+}
 
 if (Module::getInstance()->oModuleSettings->AllowScheduledAutoresponder) {
     $accounts = Models\MailAccount::where('Properties->' . 'Mail::Scheduled', true)
@@ -17,9 +26,11 @@ if (Module::getInstance()->oModuleSettings->AllowScheduledAutoresponder) {
     $sieveManager = Module::getInstance()->getSieveManager();
 
     foreach ($accounts as $account) {
+        log('Process account: ' . $account->Id);
         $end = $account->getExtendedProp('Mail::End');
         $disableAutoResponder = ($end !== null && $end < time());
         if ($disableAutoResponder) {
+            log('Disable scheduled autoresponder');
             $account->setExtendedProp('Mail::Scheduled', false);
             $account->save();
         }
@@ -27,10 +38,16 @@ if (Module::getInstance()->oModuleSettings->AllowScheduledAutoresponder) {
         $autoResponder = $sieveManager->getAutoresponder($account);
         if ($autoResponder) {
             if ($disableAutoResponder) {
+                log('Disable autoresponder');
                 $sieveManager->setAutoresponder($account, $autoResponder['Subject'], $autoResponder['Message'], false);
             } elseif (!$autoResponder['Enable']) {
+                log('Enable autoresponder');
                 $sieveManager->setAutoresponder($account, $autoResponder['Subject'], $autoResponder['Message'], true);
             }
+        } else {
+            log('Autoresponder not found');
         }
     }
+} else {
+    log('Scheduled autoresponder disabled');
 }
