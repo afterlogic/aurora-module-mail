@@ -20,18 +20,18 @@ function log($message)
 }
 
 if (Module::getInstance()->oModuleSettings->AllowScheduledAutoresponder) {
-    $accounts = Models\MailAccount::where('Properties->' . 'Mail::Scheduled', true)
-        ->where('Properties->'. 'Mail::Start', '<', time())->get();
+    $accounts = Models\MailAccount::where('Properties->' . 'Mail::AutoresponderScheduled', true)
+        ->where('Properties->'. 'Mail::AutoresponderStart', '<', time())->get();
 
     $sieveManager = Module::getInstance()->getSieveManager();
 
     foreach ($accounts as $account) {
         log('Process account: ' . $account->Id);
-        $end = $account->getExtendedProp('Mail::End');
+        $end = $account->getExtendedProp('Mail::AutoresponderEnd');
         $disableAutoResponder = ($end !== null && $end < time());
         if ($disableAutoResponder) {
             log('Disable scheduled autoresponder');
-            $account->setExtendedProp('Mail::Scheduled', false);
+            $account->setExtendedProp('Mail::AutoresponderScheduled', false);
             $account->save();
         }
 
