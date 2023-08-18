@@ -14,7 +14,7 @@ if (PHP_SAPI !== 'cli') {
 require_once \dirname(__file__) . "/../../../system/autoload.php";
 \Aurora\System\Api::Init();
 
-function log($message) 
+function log($message)
 {
     \Aurora\System\Api::Log($message, \Aurora\System\Enums\LogLevel::Full, 'scheduled-autoresponder-');
 }
