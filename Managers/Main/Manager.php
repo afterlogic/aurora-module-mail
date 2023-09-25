@@ -64,7 +64,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
         if ($oAccount) {
             $sCacheKey = $oAccount->Email;
 
-            $oSettings =& \Aurora\System\Api::GetSettings();
+            $oSettings = &\Aurora\System\Api::GetSettings();
             $iConnectTimeOut = $oSettings->SocketConnectTimeoutSeconds;
             $iSocketTimeOut = $oSettings->SocketGetTimeoutSeconds;
             $bVerifySsl = !!$oSettings->SocketVerifySsl;
@@ -83,7 +83,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                 $this->aImapClientCache[$sCacheKey]->SetLogger(\Aurora\System\Api::SystemLogger());
             }
 
-            $oResult =& $this->aImapClientCache[$sCacheKey];
+            $oResult = &$this->aImapClientCache[$sCacheKey];
             if (!$oResult->IsConnected()) {
                 $oServer = $oAccount->Server;
                 if ($oServer instanceof \Aurora\Modules\Mail\Models\Server) {
@@ -149,7 +149,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     {
         $oImap = false;
         try {
-            $oImap =& $this->_getImapClient($oAccount, $iForceConnectTimeOut, $iForceSocketTimeOut);
+            $oImap = &$this->_getImapClient($oAccount, $iForceConnectTimeOut, $iForceSocketTimeOut);
         } catch (\Exception $oException) {
         }
 
@@ -420,7 +420,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                         $mFolderName[0] : (is_string($mFolderName) && 0 < strlen($mFolderName) ? $mFolderName : '');
 
                 if (0 < strlen($sFolderFullName)) {
-                    $this->createFolderByFullName($oAccount, $sNamespace.$sFolderFullName);
+                    $this->createFolderByFullName($oAccount, $sNamespace . $sFolderFullName);
                     $bSystemFolderIsCreated = true;
                 }
             }
@@ -503,7 +503,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
     public function getFoldersNamespace($oAccount)
     {
-        $oImapClient =& $this->_getImapClient($oAccount);
+        $oImapClient = &$this->_getImapClient($oAccount);
 
         return $oImapClient->GetNamespace();
     }
@@ -522,7 +522,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
         $sListPattern = '*';
 
-        $oImapClient =& $this->_getImapClient($oAccount);
+        $oImapClient = &$this->_getImapClient($oAccount);
 
         $oNamespace = $oImapClient->GetNamespace();
 
@@ -669,7 +669,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
             throw new \Aurora\System\Exceptions\InvalidArgumentException();
         }
 
-        $oImapClient =& $this->_getImapClient($oAccount);
+        $oImapClient = &$this->_getImapClient($oAccount);
 
         $oImapClient->FolderCreate($sFolderFullNameRaw);
 
@@ -734,7 +734,8 @@ class Manager extends \Aurora\System\Managers\AbstractManager
             throw new \Aurora\System\Exceptions\InvalidArgumentException();
         }
 
-        $oImapClient =& $this->_getImapClient($oAccount);
+        $oImapClient = &$this->_getImapClient($oAccount);
+
         return $oImapClient->IsSupported($sExtensionName);
     }
 
@@ -756,7 +757,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
             throw new \Aurora\System\Exceptions\InvalidArgumentException();
         }
 
-        $oImapClient =& $this->_getImapClient($oAccount);
+        $oImapClient = &$this->_getImapClient($oAccount);
 
         return $this->_getFolderInformation($oImapClient, $sFolderFullNameRaw);
     }
@@ -780,7 +781,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
             throw new \Aurora\System\Exceptions\InvalidArgumentException();
         }
 
-        $oImapClient =& $this->_getImapClient($oAccount);
+        $oImapClient = &$this->_getImapClient($oAccount);
 
         $oImapClient->FolderExamine($sFolderFullNameRaw);
 
@@ -794,7 +795,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                     \MailSo\Mime\Enumerations\Header::SUBJECT,
                     \MailSo\Mime\Enumerations\Header::CONTENT_TYPE
                 ))
-            ), $sUidnext.':'.$sNewInboxUidnext, true);
+            ), $sUidnext . ':' . $sNewInboxUidnext, true);
 
         if (\is_array($aFetchResponse) && 0 < \count($aFetchResponse)) {
             foreach ($aFetchResponse as /* @var $oFetchResponse \MailSo\Imap\FetchResponse */ $oFetchResponse) {
@@ -843,7 +844,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
             throw new \Aurora\System\Exceptions\InvalidArgumentException();
         }
 
-        $oImapClient =& $this->_getImapClient($oAccount);
+        $oImapClient = &$this->_getImapClient($oAccount);
 
         $oImapClient->FolderExamine($sFolderFullNameRaw);
 
@@ -853,7 +854,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                 \MailSo\Imap\Enumerations\FetchType::BuildBodyCustomHeaderRequest(array(
                     \MailSo\Mime\Enumerations\Header::MESSAGE_ID
                 ))
-            ), $sUidnext.':*', true);
+            ), $sUidnext . ':*', true);
 
         if (\is_array($aFetchResponse) && 0 < \count($aFetchResponse)) {
             foreach ($aFetchResponse as /* @var $oFetchResponse \MailSo\Imap\FetchResponse */ $oFetchResponse) {
@@ -886,7 +887,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
             throw new \Aurora\System\Exceptions\InvalidArgumentException();
         }
 
-        $oImapClient =& $this->_getImapClient($oAccount);
+        $oImapClient = &$this->_getImapClient($oAccount);
 
         $aResult = array();
         if ($bUseListStatusIfPossible && $oImapClient->IsSupported('LIST-STATUS')) {
@@ -967,7 +968,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
         $this->createFolderByFullName(
             $oAccount,
-            $sFolderParentFullNameRaw.$sNameToCreate,
+            $sFolderParentFullNameRaw . $sNameToCreate,
             $bSubscribeOnCreation
         );
     }
@@ -987,7 +988,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
             throw new \Aurora\System\Exceptions\InvalidArgumentException();
         }
 
-        $oImapClient =& $this->_getImapClient($oAccount);
+        $oImapClient = &$this->_getImapClient($oAccount);
 
         if ($bUnsubscribeOnDeletion) {
             $oImapClient->FolderUnSubscribe($sFolderFullNameRaw);
@@ -1017,7 +1018,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
             throw new \Aurora\System\Exceptions\InvalidArgumentException();
         }
 
-        $oImapClient =& $this->_getImapClient($oAccount);
+        $oImapClient = &$this->_getImapClient($oAccount);
 
         $aFolders = $oImapClient->FolderList('', $sPrevFolderFullNameRaw);
         if (!is_array($aFolders) || !isset($aFolders[0])) {
@@ -1050,7 +1051,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                 $sNewFolderFullNameRaw = $sNewParentFolder . $sDelimiter . $sNewFolderFullNameRaw;
             }
         } else {
-            $sNewFolderFullNameRaw = $sFolderParentFullNameRaw.$sNewFolderFullNameRaw;
+            $sNewFolderFullNameRaw = $sFolderParentFullNameRaw . $sNewFolderFullNameRaw;
         }
 
         $oImapClient->FolderRename($sPrevFolderFullNameRaw, $sNewFolderFullNameRaw);
@@ -1059,7 +1060,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
             foreach ($aSubscribeFolders as /* @var $oFolder \MailSo\Imap\Folder */ $oFolder) {
                 $sFolderFullNameRawForResubscrine = $oFolder->FullNameRaw();
                 if (0 === strpos($sFolderFullNameRawForResubscrine, $sPrevFolderFullNameRaw)) {
-                    $sNewFolderFullNameRawForResubscrine = $sNewFolderFullNameRaw.
+                    $sNewFolderFullNameRawForResubscrine = $sNewFolderFullNameRaw .
                         substr($sFolderFullNameRawForResubscrine, strlen($sPrevFolderFullNameRaw));
 
                     $oImapClient->FolderSubscribe($sNewFolderFullNameRawForResubscrine);
@@ -1096,7 +1097,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
             throw new \Aurora\System\Exceptions\InvalidArgumentException();
         }
 
-        $oImapClient =& $this->_getImapClient($oAccount);
+        $oImapClient = &$this->_getImapClient($oAccount);
 
         if ($bSubscribeAction) {
             $oImapClient->FolderSubscribe($sFolderFullNameRaw);
@@ -1121,7 +1122,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
             throw new \Aurora\System\Exceptions\InvalidArgumentException();
         }
 
-        $oImapClient =& $this->_getImapClient($oAccount);
+        $oImapClient = &$this->_getImapClient($oAccount);
 
         $oImapClient->FolderSelect($sFolderFullNameRaw);
 
@@ -1155,7 +1156,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
             throw new \Aurora\System\Exceptions\InvalidArgumentException();
         }
 
-        $oImapClient =& $this->_getImapClient($oAccount);
+        $oImapClient = &$this->_getImapClient($oAccount);
 
         $oImapClient->FolderSelect($sFolderFullNameRaw);
 
@@ -1190,7 +1191,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
             throw new \Aurora\System\Exceptions\InvalidArgumentException();
         }
 
-        $oImapClient =& $this->_getImapClient($oAccount);
+        $oImapClient = &$this->_getImapClient($oAccount);
 
         $oImapClient->FolderSelect($sFromFolderFullNameRaw);
 
@@ -1221,7 +1222,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
             throw new \Aurora\System\Exceptions\InvalidArgumentException();
         }
 
-        $oImapClient =& $this->_getImapClient($oAccount);
+        $oImapClient = &$this->_getImapClient($oAccount);
 
         $oImapClient->FolderSelect($sFromFolderFullNameRaw);
 
@@ -1249,7 +1250,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
             throw new \Aurora\System\Exceptions\InvalidArgumentException();
         }
 
-        $oImapClient =& $this->_getImapClient($oAccount);
+        $oImapClient = &$this->_getImapClient($oAccount);
 
         $rMessageStream = \MailSo\Base\ResourceRegistry::CreateMemoryResource();
 
@@ -1271,7 +1272,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
             if ($oRcpt && 0 < $oRcpt->Count()) {
                 $oServer = null;
                 try {
-                    $oSettings =& \Aurora\System\Api::GetSettings();
+                    $oSettings = &\Aurora\System\Api::GetSettings();
                     $iConnectTimeOut = $oSettings->SocketConnectTimeoutSeconds;
                     $iSocketTimeOut = $oSettings->SocketGetTimeoutSeconds;
                     $bVerifySsl = !!$oSettings->SocketVerifySsl;
@@ -1325,7 +1326,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                     }
                     $oSmtpClient->MailFrom($sMailFrom, (string) $iMessageStreamSize);
 
-                    $aRcpt =& $oRcpt->GetAsArray();
+                    $aRcpt = &$oRcpt->GetAsArray();
 
                     foreach ($aRcpt as /* @var $oEmail \MailSo\Mime\Email */ $oEmail) {
                         $sRcptEmail = $oEmail->GetEmail();
@@ -1455,7 +1456,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
             throw new \Aurora\System\Exceptions\InvalidArgumentException();
         }
 
-        $oImapClient =& $this->_getImapClient($oAccount);
+        $oImapClient = &$this->_getImapClient($oAccount);
 
         $rMessageStream = \MailSo\Base\ResourceRegistry::CreateMemoryResource();
 
@@ -1518,7 +1519,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
      */
     public function appendMessageFromFile($oAccount, $sMessageFileName, $sFolderToAppend)
     {
-        $oImapClient =& $this->_getImapClient($oAccount);
+        $oImapClient = &$this->_getImapClient($oAccount);
         $oImapClient->MessageAppendFile($sMessageFileName, $sFolderToAppend);
     }
 
@@ -1535,7 +1536,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
      */
     public function appendMessageFromStream($oAccount, $rMessage, $sFolder, $iStreamSize, &$iUid = null)
     {
-        $oImapClient =& $this->_getImapClient($oAccount);
+        $oImapClient = &$this->_getImapClient($oAccount);
         $oImapClient->MessageAppendStream($sFolder, $rMessage, $iStreamSize, null, $iUid);
     }
 
@@ -1567,7 +1568,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
             throw new \Aurora\System\Exceptions\InvalidArgumentException();
         }
 
-        $oImapClient =& $this->_getImapClient($oAccount);
+        $oImapClient = &$this->_getImapClient($oAccount);
 
         $oImapClient->FolderSelect($sFolderFullNameRaw);
 
@@ -1635,11 +1636,11 @@ class Manager extends \Aurora\System\Managers\AbstractManager
             throw new \Aurora\System\Exceptions\InvalidArgumentException();
         }
 
-        $oImapClient =& $this->_getImapClient($oAccount);
+        $oImapClient = &$this->_getImapClient($oAccount);
 
         $oImapClient->FolderExamine($sFolderName);
 
-        $aUids = $oImapClient->MessageSimpleSearch('HEADER Message-ID '.$sMessageId, true);
+        $aUids = $oImapClient->MessageSimpleSearch('HEADER Message-ID ' . $sMessageId, true);
 
         return is_array($aUids) && 1 === count($aUids) && is_numeric($aUids[0]) ? (int) $aUids[0] : null;
     }
@@ -1650,7 +1651,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
             throw new \Aurora\System\Exceptions\InvalidArgumentException();
         }
 
-        $oImapClient =& $this->_getImapClient($oAccount);
+        $oImapClient = &$this->_getImapClient($oAccount);
         $oImapClient->FolderExamine($sFolderName);
 
         $oCurrentFolderInformation = $oImapClient->FolderCurrentInformation();
@@ -1696,7 +1697,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                     $bSearchAttachments = true;
                     $sAttachmentName = isset($aMatch[1]) ? trim($aMatch[1]) : '';
                     $sAttachmentRegs = !empty($sAttachmentName) && '*' !== $sAttachmentName ?
-                        '/[^>]*'.str_replace('\\*', '[^>]*', preg_quote(trim($sAttachmentName, '*'), '/')).'[^>]*/ui' : '';
+                        '/[^>]*' . str_replace('\\*', '[^>]*', preg_quote(trim($sAttachmentName, '*'), '/')) . '[^>]*/ui' : '';
 
                     if ($bUseBodyStructuresForHasAttachmentsSearch) {
                         $sCutedSearch = trim(preg_replace('/has[ ]?:[ ]?attachments/i', '', $sCutedSearch));
@@ -1898,7 +1899,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
             throw new \Aurora\System\Exceptions\InvalidArgumentException();
         }
 
-        $oImapClient =& $this->_getImapClient($oAccount);
+        $oImapClient = &$this->_getImapClient($oAccount);
         $oImapClient->FolderExamine($sFolderName);
 
         $oCurrentFolderInformation = $oImapClient->FolderCurrentInformation();
@@ -2007,7 +2008,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     public function getQuota($oAccount)
     {
         $iMAX_32_INT = 2147483647;
-        $oImapClient =& $this->_getImapClient($oAccount);
+        $oImapClient = &$this->_getImapClient($oAccount);
         $aQuota = $oImapClient->Quota();
         if (is_array($aQuota) && isset($aQuota[1]) && ($aQuota[1] / 1024 > $iMAX_32_INT)) {
             $aQuota[1] = 0;
@@ -2037,7 +2038,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
             throw new \MailSo\Base\Exceptions\InvalidArgumentException();
         }
 
-        $oImapClient =& $this->_getImapClient($oAccount);
+        $oImapClient = &$this->_getImapClient($oAccount);
 
         $oImapClient->FolderExamine($sFolderName);
 
@@ -2049,14 +2050,14 @@ class Manager extends \Aurora\System\Managers\AbstractManager
         $aFetchResponse = $oImapClient->Fetch(array(
             0 === strlen($sMimeIndex)
                 ? \MailSo\Imap\Enumerations\FetchType::BODY_HEADER_PEEK
-                : \MailSo\Imap\Enumerations\FetchType::BODY_PEEK.'['.$sMimeIndex.'.MIME]'
+                : \MailSo\Imap\Enumerations\FetchType::BODY_PEEK . '[' . $sMimeIndex . '.MIME]'
         ), $iUid, true);
 
         if (0 < count($aFetchResponse)) {
             $sMime = $aFetchResponse[0]->GetFetchValue(
                 0 === strlen($sMimeIndex)
                     ? \MailSo\Imap\Enumerations\FetchType::BODY_HEADER
-                    : \MailSo\Imap\Enumerations\FetchType::BODY.'['.$sMimeIndex.'.MIME]'
+                    : \MailSo\Imap\Enumerations\FetchType::BODY . '[' . $sMimeIndex . '.MIME]'
             );
 
             if (!empty($sMime)) {
@@ -2084,7 +2085,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                     );
                 } else {
                     $sSubject = trim($oHeaders->ValueByName(\MailSo\Mime\Enumerations\Header::SUBJECT));
-                    $sFileName = (empty($sSubject) ? 'message-'.$iUid : trim($sSubject)).'.eml';
+                    $sFileName = (empty($sSubject) ? 'message-' . $iUid : trim($sSubject)) . '.eml';
                     $sFileName = '.eml' === $sFileName ? 'message.eml' : $sFileName;
                     $sContentType = 'message/rfc822';
                 }
@@ -2092,7 +2093,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
         }
 
         $aFetchResponse = $oImapClient->Fetch(array(
-            array(\MailSo\Imap\Enumerations\FetchType::BODY_PEEK.'['.$sMimeIndex.']',
+            array(\MailSo\Imap\Enumerations\FetchType::BODY_PEEK . '[' . $sMimeIndex . ']',
                 function ($sParent, $sLiteralAtomUpperCase, $rImapLiteralStream) use ($mCallback, $sMimeIndex, $sMailEncodingName, $sContentType, $sFileName) {
                     if (!empty($sLiteralAtomUpperCase)) {
                         if (is_resource($rImapLiteralStream) && 'FETCH' === $sParent) {
@@ -2126,7 +2127,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     private function _escapeSearchString($oImapClient, $sSearch, $bDetectGmail = true)
     {
         return ($bDetectGmail && 'ssl://imap.gmail.com' === strtolower($oImapClient->GetConnectedHost())) // gmail
-            ? '{'.strlen($sSearch).'+}'."\r\n".$sSearch
+            ? '{' . strlen($sSearch) . '+}' . "\r\n" . $sSearch
             : $oImapClient->EscapeString($sSearch);
     }
 
@@ -2173,7 +2174,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
         if (\is_array($mMatch) && isset($mMatch[0]) && \is_array($mMatch[0]) && 0 < \count($mMatch[0])) {
             foreach ($mMatch[0] as $sItem) {
                 do {
-                    $sKey = \md5(\mt_rand(10000, 90000).\microtime(true));
+                    $sKey = \md5(\mt_rand(10000, 90000) . \microtime(true));
                 } while (isset($aCache[$sKey]));
 
                 $aCache[$sKey] = \stripcslashes($sItem);
@@ -2185,7 +2186,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
         if (\is_array($mMatch) && isset($mMatch[0]) && \is_array($mMatch[0]) && 0 < \count($mMatch[0])) {
             foreach ($mMatch[0] as $sItem) {
                 do {
-                    $sKey = \md5(\mt_rand(10000, 90000).\microtime(true));
+                    $sKey = \md5(\mt_rand(10000, 90000) . \microtime(true));
                 } while (isset($aCache[$sKey]));
 
                 $aCache[$sKey] = \stripcslashes($sItem);
@@ -2293,7 +2294,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                     $aImapSearchResult[] = 'SUBJECT ' . $sValue;
                 } else {
                     if ($bIsGmail) {
-                        $sGmailRawSearch .= ' '.$aLines['OTHER'];
+                        $sGmailRawSearch .= ' ' . $aLines['OTHER'];
                     } else {
                         $aImapSearchResult[] = 'TEXT ' . $this->_escapeSearchString($oImapClient, $aLines['OTHER']);
                     }
@@ -2321,7 +2322,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                             $sValue = $this->_escapeSearchString($oImapClient, $sValue);
 
                             $aImapSearchResult[] = 'FROM ' . $sValue;
-                            $aImapSearchResult[] = 'TO '  . $sValue;
+                            $aImapSearchResult[] = 'TO ' . $sValue;
                             $aImapSearchResult[] = 'CC ' . $sValue;
                             $aImapSearchResult[] = 'BCC ' . $sValue;
                         }
@@ -2372,9 +2373,9 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                         case 'BODY':
                         case 'TEXT':
                             if ($bIsGmail) {
-                                $sGmailRawSearch .= ' '.$sRawValue;
+                                $sGmailRawSearch .= ' ' . $sRawValue;
                             } else {
-                                $sMainText .= ' '.$sRawValue;
+                                $sMainText .= ' ' . $sRawValue;
                             }
                             break;
                         case 'HAS':
@@ -2434,7 +2435,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                 if ('' !== trim($sMainText)) {
                     $sMainText = trim(trim(preg_replace('/[\s]+/', ' ', $sMainText)), '"\'');
                     if ($bIsGmail) {
-                        $sGmailRawSearch .= ' '.$sRawValue;
+                        $sGmailRawSearch .= ' ' . $sRawValue;
                     } else {
                         $aImapSearchResult[] = 'BODY ' . $this->_escapeSearchString($oImapClient, $sMainText);
                     }
@@ -2858,7 +2859,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     public function getMessage($oAccount, $sFolderName, $iIndex, $bIndexIsUid = true)
     {
         $iBodyTextLimit = null;
-        $oImapClient =& $this->_getImapClient($oAccount);
+        $oImapClient = &$this->_getImapClient($oAccount);
 
         $oImapClient->FolderExamine($sFolderName);
 
@@ -2899,9 +2900,9 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
         if (0 < \count($aBodyPeekMimeIndexes)) {
             foreach ($aBodyPeekMimeIndexes as $aTextMimeData) {
-                $sLine = \MailSo\Imap\Enumerations\FetchType::BODY_PEEK.'['.$aTextMimeData[0].']';
+                $sLine = \MailSo\Imap\Enumerations\FetchType::BODY_PEEK . '[' . $aTextMimeData[0] . ']';
                 if (\is_numeric($iBodyTextLimit) && 0 < $iBodyTextLimit && $iBodyTextLimit < $aTextMimeData[1]) {
-                    $sLine .= '<0.'.((int) $iBodyTextLimit).'>';
+                    $sLine .= '<0.' . ((int) $iBodyTextLimit) . '>';
                 }
 
                 $aFetchItems[] = $sLine;
@@ -2910,7 +2911,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
         if (0 < \count($aSignatureMimeIndexes)) {
             foreach ($aSignatureMimeIndexes as $sTextMimeIndex) {
-                $aFetchItems[] = \MailSo\Imap\Enumerations\FetchType::BODY_PEEK.'['.$sTextMimeIndex.']';
+                $aFetchItems[] = \MailSo\Imap\Enumerations\FetchType::BODY_PEEK . '[' . $sTextMimeIndex . ']';
             }
         }
 
@@ -2964,8 +2965,8 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
         $oMessageCollection = false;
 
-        $oSettings =&\Aurora\System\Api::GetSettings();
-        $oImapClient =& $this->_getImapClient($oAccount, 20, 60 * 2);
+        $oSettings = &\Aurora\System\Api::GetSettings();
+        $oImapClient = &$this->_getImapClient($oAccount, 20, 60 * 2);
 
         $oImapClient->FolderExamine($sFolderFullNameRaw);
 
@@ -3024,7 +3025,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                     $bSearchAttachments = true;
                     $sAttachmentName = isset($aMatch[1]) ? trim($aMatch[1]) : '';
                     $sAttachmentRegs = !empty($sAttachmentName) && '*' !== $sAttachmentName ?
-                        '/[^>]*'.str_replace('\\*', '[^>]*', preg_quote(trim($sAttachmentName, '*'), '/')).'[^>]*/ui' : '';
+                        '/[^>]*' . str_replace('\\*', '[^>]*', preg_quote(trim($sAttachmentName, '*'), '/')) . '[^>]*/ui' : '';
 
                     if ($bUseBodyStructuresForHasAttachmentsSearch) {
                         $sCutedSearch = trim(preg_replace('/has[ ]?:[ ]?attachments/i', '', $sCutedSearch));
@@ -3175,7 +3176,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                             foreach ($aFetchResponse as /* @var $oFetchResponseItem \MailSo\Imap\FetchResponse */ &$oFetchResponseItem) {
                                 $aFetchIndexArray[($bIndexAsUid)
                                     ? $oFetchResponseItem->GetFetchValue(\MailSo\Imap\Enumerations\FetchType::UID)
-                                    : $oFetchResponseItem->GetFetchValue(\MailSo\Imap\Enumerations\FetchType::INDEX)] =& $oFetchResponseItem;
+                                    : $oFetchResponseItem->GetFetchValue(\MailSo\Imap\Enumerations\FetchType::INDEX)] = &$oFetchResponseItem;
 
                                 unset($oFetchResponseItem);
                             }
@@ -3239,7 +3240,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
         $oMessageCollection = false;
 
-        $oImapClient =& $this->_getImapClient($oAccount);
+        $oImapClient = &$this->_getImapClient($oAccount);
 
         $oImapClient->FolderExamine($sFolderFullNameRaw);
 
@@ -3290,7 +3291,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                             foreach ($aFetchResponse as /* @var $oFetchResponseItem \MailSo\Imap\FetchResponse */ &$oFetchResponseItem) {
                                 $aFetchIndexArray[($bIndexAsUid)
                                     ? $oFetchResponseItem->GetFetchValue(\MailSo\Imap\Enumerations\FetchType::UID)
-                                    : $oFetchResponseItem->GetFetchValue(\MailSo\Imap\Enumerations\FetchType::INDEX)] =& $oFetchResponseItem;
+                                    : $oFetchResponseItem->GetFetchValue(\MailSo\Imap\Enumerations\FetchType::INDEX)] = &$oFetchResponseItem;
 
                                 unset($oFetchResponseItem);
                             }
@@ -3354,7 +3355,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
             throw new \Aurora\System\Exceptions\InvalidArgumentException();
         }
 
-        $oImapClient =& $this->_getImapClient($oAccount);
+        $oImapClient = &$this->_getImapClient($oAccount);
 
         $oImapClient->FolderExamine($sFolderFullNameRaw);
 

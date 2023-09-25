@@ -715,7 +715,7 @@ class Message
         $this->aThreads = \is_array($aThreads) ? $aThreads : array();
     }
 
-        /**
+    /**
      * Get a collection of headers.
      *
      * @return \MailSo\Mime\HeaderCollection
@@ -750,7 +750,7 @@ class Message
                 $currentRawHeaderLines = [$currentHeaderValue];
             } elseif (preg_match('/^[ \t]+(.*)$/', $headerLine, $matches)) {
                 if ($headerLineIndex === 0) {
-//                    throw new DKIMException('Invalid headers starting with a folded line');
+                    // throw new DKIMException('Invalid headers starting with a folded line');
                 }
                 //This is a folded continuation of the current header
                 $currentHeaderValue .= $matches[1];
@@ -999,8 +999,8 @@ class Message
                     }
                 }
 
-                $sText = $oFetchResponse->GetFetchValue(\MailSo\Imap\Enumerations\FetchType::BODY.'['.$oPart->PartID().
-                    ('' !== $sRfc822SubMimeIndex && is_numeric($sRfc822SubMimeIndex) ? '.1' : '').']');
+                $sText = $oFetchResponse->GetFetchValue(\MailSo\Imap\Enumerations\FetchType::BODY . '[' . $oPart->PartID() .
+                    ('' !== $sRfc822SubMimeIndex && is_numeric($sRfc822SubMimeIndex) ? '.1' : '') . ']');
 
                 if (is_string($sText) && 0 < strlen($sText)) {
                     $sTextCharset = $oPart->Charset();
@@ -1224,7 +1224,7 @@ class Message
             'Folder' => $mResult['Folder'],
             'Uid' => $mResult['Uid'],
             'MimeType' => 'message/rfc822',
-            'FileName' => $mResult['Subject'].'.eml'
+            'FileName' => $mResult['Subject'] . '.eml'
         ));
         $mResult['DownloadAsEmlUrl'] = '?mail-attachment/' . $sHash;
 
@@ -1256,7 +1256,7 @@ class Message
             $aFoundedContentLocationUrls = array();
 
             if ($oAttachments && 0 < $oAttachments->Count()) {
-                $aList =& $oAttachments->GetAsArray();
+                $aList = &$oAttachments->GetAsArray();
                 foreach ($aList as /* @var \afterlogic\common\managers\mail\classes\attachment */ $oAttachment) {
                     if ($oAttachment) {
                         $sContentLocation = $oAttachment->getContentLocation();

@@ -21,7 +21,7 @@ function log($message)
 
 if (Module::getInstance()->oModuleSettings->AllowScheduledAutoresponder) {
     $accounts = Models\MailAccount::where('Properties->' . 'Mail::AutoresponderScheduled', true)
-        ->where('Properties->'. 'Mail::AutoresponderStart', '<', time())->get();
+        ->where('Properties->' . 'Mail::AutoresponderStart', '<', time())->get();
 
     $sieveManager = Module::getInstance()->getSieveManager();
 

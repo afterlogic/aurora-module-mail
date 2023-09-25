@@ -133,13 +133,13 @@ class Attachment
             if ($bCalculateOnEmpty && 0 === strlen(trim($sFileName))) {
                 $sMimeType = strtolower(trim($this->getMimeType()));
                 if ('message/rfc822' === $sMimeType) {
-                    $sFileName = 'message'.$this->getMimeIndex().'.eml';
+                    $sFileName = 'message' . $this->getMimeIndex() . '.eml';
                 } elseif ('text/calendar' === $sMimeType) {
-                    $sFileName = 'calendar'.$this->getMimeIndex().'.ics';
+                    $sFileName = 'calendar' . $this->getMimeIndex() . '.ics';
                 } elseif ('text/vcard' === $sMimeType || 'text/x-vcard' === $sMimeType) {
-                    $sFileName = 'contact'.$this->getMimeIndex().'.vcf';
+                    $sFileName = 'contact' . $this->getMimeIndex() . '.vcf';
                 } elseif (!empty($sMimeType)) {
-                    $sFileName = str_replace('/', $this->getMimeIndex().'.', $sMimeType);
+                    $sFileName = str_replace('/', $this->getMimeIndex() . '.', $sMimeType);
                 }
             }
         }
@@ -295,7 +295,7 @@ class Attachment
         $sFileName = $this->getFileName(true);
         $iEstimatedSize = $this->getEstimatedSize();
 
-        $oSettings =& \Aurora\System\Api::GetSettings();
+        $oSettings = &\Aurora\System\Api::GetSettings();
         $iThumbnailLimit = ((int) $oSettings->ThumbnailMaxFileSizeMb) * 1024 * 1024;
 
         if (in_array($sMimeType, array('application/octet-stream'))) {
@@ -338,7 +338,7 @@ class Attachment
             'url' => '?mail-attachment/' . $sHash
         ];
 
-        $oSettings =& \Aurora\System\Api::GetSettings();
+        $oSettings = &\Aurora\System\Api::GetSettings();
         if ($oSettings->AllowThumbnail
             && $iEstimatedSize < $iThumbnailLimit
             && \Aurora\System\Utils::IsGDImageMimeTypeSuppoted($sMimeType, $sFileName)

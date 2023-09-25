@@ -159,7 +159,7 @@ class FolderCollection extends \MailSo\Base\Collection
 
         $aSortedByLenImapFolders = array();
         foreach ($aUnsortedMailFolders as /* @var $oMailFolder \Aurora\Modules\Mail\Classes\Folder */ &$oMailFolder) {
-            $aSortedByLenImapFolders[$oMailFolder->getRawFullName()] =& $oMailFolder;
+            $aSortedByLenImapFolders[$oMailFolder->getRawFullName()] = &$oMailFolder;
             unset($oMailFolder);
         }
         unset($aUnsortedMailFolders);
@@ -175,7 +175,7 @@ class FolderCollection extends \MailSo\Base\Collection
                 $sNonExistenFolderFullNameRaw = '';
                 foreach ($aFolderExplode as $sFolderExplodeItem) {
                     $sNonExistenFolderFullNameRaw .= (0 < strlen($sNonExistenFolderFullNameRaw))
-                        ? $sDelimiter.$sFolderExplodeItem : $sFolderExplodeItem;
+                        ? $sDelimiter . $sFolderExplodeItem : $sFolderExplodeItem;
 
                     if (!isset($aSortedByLenImapFolders[$sNonExistenFolderFullNameRaw])) {
                         $aAddedFolders[$sNonExistenFolderFullNameRaw] =
@@ -225,7 +225,7 @@ class FolderCollection extends \MailSo\Base\Collection
     public function sort($fCallback)
     {
         if (is_callable($fCallback)) {
-            $aList =& $this->GetAsArray();
+            $aList = &$this->GetAsArray();
 
             usort($aList, $fCallback);
 
@@ -248,11 +248,11 @@ class FolderCollection extends \MailSo\Base\Collection
     {
         $oItemFolder = null;
         $bIsAdded = false;
-        $aList =& $this->GetAsArray();
+        $aList = &$this->GetAsArray();
 
         foreach ($aList as /* @var $oItemFolder Folder */ $oItemFolder) {
             if ($oMailFolder instanceof \Aurora\Modules\Mail\Classes\Folder &&
-                0 === strpos($oMailFolder->getRawFullName(), $oItemFolder->getRawFullName().$oItemFolder->getDelimiter())) {
+                0 === strpos($oMailFolder->getRawFullName(), $oItemFolder->getRawFullName() . $oItemFolder->getDelimiter())) {
                 if ($oItemFolder->getSubFolders(true)->addFolder($oMailFolder)) {
                     $bIsAdded = true;
                 }

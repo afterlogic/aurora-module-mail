@@ -139,17 +139,17 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
         $sData = '';
         if (!empty($sSubject) || !empty($sText)) {
-            $sData = '#data='.($bEnabled ? '1' : '0').'~'.base64_encode($sSubject."\x0".$sText)."\n";
+            $sData = '#data=' . ($bEnabled ? '1' : '0') . '~' . base64_encode($sSubject . "\x0" . $sText) . "\n";
 
             $sSubject = addslashes($sSubject);
             $sText = addslashes($sText);
 
-            $sScriptText = 'vacation :days 1 :subject "'.$this->_quoteValue($sSubject).'" "'.$this->_quoteValue($sText).'";';
+            $sScriptText = 'vacation :days 1 :subject "' . $this->_quoteValue($sSubject) . '" "' . $this->_quoteValue($sText) . '";';
 
             if ($bEnabled) {
                 $sData .= $sScriptText;
             } else {
-                $sData .= '#'.implode("\n#", explode("\n", $sScriptText));
+                $sData .= '#' . implode("\n#", explode("\n", $sScriptText));
             }
         }
 
@@ -168,21 +168,21 @@ class Manager extends \Aurora\System\Managers\AbstractManager
      *
      * @return bool
      */
-//	public function disableAutoresponder($oAccount)
-//	{
-//		$aData = $this->getAutoresponder($oAccount);
-//
-//		$sText = '';
-//		$sSubject = '';
-//
-//		if ($aData && isset($aData[1], $aData[2]))
-//		{
-//			$sText = $aData[2];
-//			$sSubject = $aData[1];
-//		}
-//
-//		return $this->setAutoresponder($oAccount, $sText, $sSubject, false);
-//	}
+    //	public function disableAutoresponder($oAccount)
+    //	{
+    //		$aData = $this->getAutoresponder($oAccount);
+    //
+    //		$sText = '';
+    //		$sSubject = '';
+    //
+    //		if ($aData && isset($aData[1], $aData[2]))
+    //		{
+    //			$sText = $aData[2];
+    //			$sSubject = $aData[1];
+    //		}
+    //
+    //		return $this->setAutoresponder($oAccount, $sText, $sSubject, false);
+    //	}
 
     /**
      * @param \Aurora\Modules\Mail\Models\MailAccount $oAccount
@@ -221,8 +221,8 @@ class Manager extends \Aurora\System\Managers\AbstractManager
         $sData = '';
         if (!empty($sForward)) {
             $sData =
-                '#data='.($bEnabled ? '1' : '0').'~'.base64_encode($sForward)."\n".
-                ($bEnabled ? '' : '#').'redirect :copy "'.$this->_quoteValue($sForward).'";'."\n";
+                '#data=' . ($bEnabled ? '1' : '0') . '~' . base64_encode($sForward) . "\n" .
+                ($bEnabled ? '' : '#') . 'redirect :copy "' . $this->_quoteValue($sForward) . '";' . "\n";
         }
         $this->_parseSectionsData($oAccount);
         $this->_setSectionData('forward', $sData);
@@ -346,20 +346,20 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
                 // condition
                 foreach ($aFields as $iIndex => $sField) {
-                    $aFields[$iIndex] = '"'.$this->_quoteValue($sField).'"';
+                    $aFields[$iIndex] = '"' . $this->_quoteValue($sField) . '"';
                 }
 
                 $sCondition = '';
                 $sFields = implode(',', $aFields);
                 switch ($oFilter->Condition) {
                     case \Aurora\Modules\Mail\Enums\FilterCondition::ContainSubstring:
-                        $sCondition = 'if header :contains ['.$sFields.'] "'.$this->_quoteValue($oFilter->Filter).'" {';
+                        $sCondition = 'if header :contains [' . $sFields . '] "' . $this->_quoteValue($oFilter->Filter) . '" {';
                         break;
                     case \Aurora\Modules\Mail\Enums\FilterCondition::ContainExactPhrase:
-                        $sCondition = 'if header :is ['.$sFields.'] "'.$this->_quoteValue($oFilter->Filter).'" {';
+                        $sCondition = 'if header :is [' . $sFields . '] "' . $this->_quoteValue($oFilter->Filter) . '" {';
                         break;
                     case \Aurora\Modules\Mail\Enums\FilterCondition::NotContainSubstring:
-                        $sCondition = 'if not header :contains ['.$sFields.'] "'.$this->_quoteValue($oFilter->Filter).'" {';
+                        $sCondition = 'if not header :contains [' . $sFields . '] "' . $this->_quoteValue($oFilter->Filter) . '" {';
                         break;
                 }
 
@@ -387,11 +387,11 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                         $sAction .= 'stop ;';
                         break;
                     case \Aurora\Modules\Mail\Enums\FilterAction::MoveToFolder:
-                        $sAction = 'fileinto "'.$this->_quoteValue($sFolderFullName).'" ;'."\n";
+                        $sAction = 'fileinto "' . $this->_quoteValue($sFolderFullName) . '" ;' . "\n";
                         $sAction .= 'stop ;';
                         break;
                     case \Aurora\Modules\Mail\Enums\FilterAction::Redirect:
-                        $sAction = 'redirect :copy "'.$this->_quoteValue($sEmail).'" ;'."\n";
+                        $sAction = 'redirect :copy "' . $this->_quoteValue($sEmail) . '" ;' . "\n";
                         $sAction .= 'stop ;';
                         break;
                 }
@@ -399,21 +399,21 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                 $sEnd = '}';
 
                 if (!$oFilter->Enable) {
-                    $sCondition = '#'.$sCondition;
-                    $sAction = '#'.$sAction;
-                    $sEnd = '#'.$sEnd;
+                    $sCondition = '#' . $sCondition;
+                    $sAction = '#' . $sAction;
+                    $sEnd = '#' . $sEnd;
                 }
 
-                $sFilters .= "\n".'#sieve_filter:'.implode(';', array(
+                $sFilters .= "\n" . '#sieve_filter:' . implode(';', array(
                     $oFilter->Enable ? '1' : '0', $oFilter->Condition, $oFilter->Field,
-                    $oFilter->Filter, $oFilter->Action, $sFolderFullName, $sEmail))."\n";
+                    $oFilter->Filter, $oFilter->Action, $sFolderFullName, $sEmail)) . "\n";
 
-                $sFilters .= $sCondition."\n";
-                $sFilters .= $sAction."\n";
-                $sFilters .= $sEnd."\n";
+                $sFilters .= $sCondition . "\n";
+                $sFilters .= $sAction . "\n";
+                $sFilters .= $sEnd . "\n";
             }
 
-            $sFilters = $sFilters."\n".'#end sieve filter'."\n";
+            $sFilters = $sFilters . "\n" . '#end sieve filter' . "\n";
 
             return $this->setFiltersRawData($oAccount, $sFilters);
         }
@@ -671,7 +671,7 @@ if " . $SieveSpamRuleCondition . " {
                     ->Connect($sHost, $iPort, $bUseStarttls ? \MailSo\Net\Enumerations\ConnectionSecurityType::STARTTLS : \MailSo\Net\Enumerations\ConnectionSecurityType::NONE)
                     ->Login($oAccount->IncomingLogin, $sPassword)
                 ;
-            // }
+                // }
             } else {
                 $bResult = true;
             }
@@ -787,16 +787,16 @@ if " . $SieveSpamRuleCondition . " {
         if (is_array($this->aSectionsOrders)) {
             foreach ($this->aSectionsOrders as $sSectionName) {
                 if (!empty($this->aSectionsData[$sSectionName])) {
-                    $sResult .= "\n".
-                        $this->_getComment($sSectionName, true)."\n".
-                        $this->aSectionsData[$sSectionName]."\n".
-                        $this->_getComment($sSectionName, false)."\n";
+                    $sResult .= "\n" .
+                        $this->_getComment($sSectionName, true) . "\n" .
+                        $this->aSectionsData[$sSectionName] . "\n" .
+                        $this->_getComment($sSectionName, false) . "\n";
                 };
             }
         }
 
-        $sResult = 'require ["fileinto", "copy", "vacation", "regex", "include", "envelope", "imap4flags", "relational", "comparator-i;ascii-numeric"] ;'."\n".$sResult;
-        $sResult = "# Sieve filter\n".$sResult;
+        $sResult = 'require ["fileinto", "copy", "vacation", "regex", "include", "envelope", "imap4flags", "relational", "comparator-i;ascii-numeric"] ;' . "\n" . $sResult;
+        $sResult = "# Sieve filter\n" . $sResult;
         $sResult .= "keep ;\n";
         return $sResult;
     }
@@ -835,7 +835,7 @@ if " . $SieveSpamRuleCondition . " {
      */
     protected function _getComment($sSectionName, $bIsBeginComment = true)
     {
-        return '#'.($bIsBeginComment ? 'begin' : 'end').' = '.$sSectionName.' =';
+        return '#' . ($bIsBeginComment ? 'begin' : 'end') . ' = ' . $sSectionName . ' =';
     }
 
     /**

@@ -397,8 +397,8 @@ class Module extends \Aurora\System\Module\AbstractModule
             }
             $aSettings['Accounts'] = $aResponseAcc;
 
-            if (null !== $oUser->getExtendedProp(self::GetName().'::AllowAutosaveInDrafts')) {
-                $aSettings['AllowAutosaveInDrafts'] = $oUser->getExtendedProp(self::GetName().'::AllowAutosaveInDrafts');
+            if (null !== $oUser->getExtendedProp(self::GetName() . '::AllowAutosaveInDrafts')) {
+                $aSettings['AllowAutosaveInDrafts'] = $oUser->getExtendedProp(self::GetName() . '::AllowAutosaveInDrafts');
             }
         }
 
@@ -469,7 +469,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         if ($oUser) {
             if ($oUser->isNormalOrTenant()) {
                 if ($AllowAutosaveInDrafts !== null) {
-                    $oUser->setExtendedProp(self::GetName().'::AllowAutosaveInDrafts', $AllowAutosaveInDrafts);
+                    $oUser->setExtendedProp(self::GetName() . '::AllowAutosaveInDrafts', $AllowAutosaveInDrafts);
                 }
                 $oCoreDecorator = \Aurora\Modules\Core\Module::Decorator();
                 return $oCoreDecorator->UpdateUserObject($oUser);
@@ -2926,7 +2926,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         }
 
         $oAccount = $this->getAccountsManager()->getAccountById($AccountID);
-        $oImapClient =& $this->getMailManager()->_getImapClient($oAccount);
+        $oImapClient = &$this->getMailManager()->_getImapClient($oAccount);
         $oImapClient->FolderExamine($Folder);
 
         $aBodystructuresFetchResponse = $oImapClient->Fetch(array(
@@ -3084,7 +3084,7 @@ class Module extends \Aurora\System\Module\AbstractModule
             throw new InvalidArgumentException();
         }
 
-        $oImapClient =& $this->getMailManager()->_getImapClient($oAccount);
+        $oImapClient = &$this->getMailManager()->_getImapClient($oAccount);
 
         $oImapClient->FolderExamine($Folder);
 
@@ -3126,24 +3126,24 @@ class Module extends \Aurora\System\Module\AbstractModule
             \MailSo\Imap\Enumerations\FetchType::INTERNALDATE,
             \MailSo\Imap\Enumerations\FetchType::FLAGS,
             0 < strlen($Rfc822MimeIndex)
-                ? \MailSo\Imap\Enumerations\FetchType::BODY_PEEK.'['.$Rfc822MimeIndex.'.HEADER]'
+                ? \MailSo\Imap\Enumerations\FetchType::BODY_PEEK . '[' . $Rfc822MimeIndex . '.HEADER]'
                 : \MailSo\Imap\Enumerations\FetchType::BODY_HEADER_PEEK
         );
 
         if (0 < \count($aTextMimeIndexes)) {
             if (0 < \strlen($Rfc822MimeIndex) && \is_numeric($Rfc822MimeIndex)) {
-                $sLine = \MailSo\Imap\Enumerations\FetchType::BODY_PEEK.'['.$aTextMimeIndexes[0][0].'.1]';
+                $sLine = \MailSo\Imap\Enumerations\FetchType::BODY_PEEK . '[' . $aTextMimeIndexes[0][0] . '.1]';
                 if (\is_numeric($MessageBodyTruncationThreshold) && 0 < $MessageBodyTruncationThreshold && $MessageBodyTruncationThreshold < $aTextMimeIndexes[0][1]) {
-                    $sLine .= '<0.'.((int) $MessageBodyTruncationThreshold).'>';
+                    $sLine .= '<0.' . ((int) $MessageBodyTruncationThreshold) . '>';
                     $bTruncated = true;
                 }
 
                 $aFetchItems[] = $sLine;
             } else {
                 foreach ($aTextMimeIndexes as $aTextMimeIndex) {
-                    $sLine = \MailSo\Imap\Enumerations\FetchType::BODY_PEEK.'['.$aTextMimeIndex[0].']';
+                    $sLine = \MailSo\Imap\Enumerations\FetchType::BODY_PEEK . '[' . $aTextMimeIndex[0] . ']';
                     if (\is_numeric($MessageBodyTruncationThreshold) && 0 < $MessageBodyTruncationThreshold && $MessageBodyTruncationThreshold < $aTextMimeIndex[1]) {
-                        $sLine .= '<0.'.((int) $MessageBodyTruncationThreshold).'>';
+                        $sLine .= '<0.' . ((int) $MessageBodyTruncationThreshold) . '>';
                         $bTruncated = true;
                     }
 
@@ -3153,7 +3153,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         }
 
         foreach ($aCustomParts as $oCustomPart) {
-            $aFetchItems[] = \MailSo\Imap\Enumerations\FetchType::BODY_PEEK.'['.$oCustomPart->PartID().']';
+            $aFetchItems[] = \MailSo\Imap\Enumerations\FetchType::BODY_PEEK . '[' . $oCustomPart->PartID() . ']';
         }
 
         if (!$oBodyStructure) {
@@ -3170,7 +3170,7 @@ class Module extends \Aurora\System\Module\AbstractModule
             $sFromEmail = '';
             $oFromCollection = $oMessage->getFrom();
             if ($oFromCollection && 0 < $oFromCollection->Count()) {
-                $oFrom =& $oFromCollection->GetByIndex(0);
+                $oFrom = &$oFromCollection->GetByIndex(0);
                 if ($oFrom) {
                     $sFromEmail = trim($oFrom->GetEmail());
                 }
@@ -3184,7 +3184,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
             $aData = array();
             foreach ($aCustomParts as $oCustomPart) {
-                $sData = $aFetchResponse[0]->GetFetchValue(\MailSo\Imap\Enumerations\FetchType::BODY.'['.$oCustomPart->PartID().']');
+                $sData = $aFetchResponse[0]->GetFetchValue(\MailSo\Imap\Enumerations\FetchType::BODY . '[' . $oCustomPart->PartID() . ']');
                 if (!empty($sData)) {
                     $sData = \MailSo\Base\Utils::DecodeEncodingValue($sData, $oCustomPart->MailEncodingName());
                     $sData = \MailSo\Base\Utils::ConvertEncoding(
@@ -3607,7 +3607,7 @@ class Module extends \Aurora\System\Module\AbstractModule
             throw new \Aurora\Modules\Mail\Exceptions\Exception(
                 Enums\ErrorCodes::CannotMoveMessageQuota,
                 $oException,
-                $oResponse instanceof \MailSo\Imap\Response ? $oResponse->Tag.' '.$oResponse->StatusOrIndex.' '.$oResponse->HumanReadable : ''
+                $oResponse instanceof \MailSo\Imap\Response ? $oResponse->Tag . ' ' . $oResponse->StatusOrIndex . ' ' . $oResponse->HumanReadable : ''
             );
         } catch (\Exception $oException) {
             throw new \Aurora\Modules\Mail\Exceptions\Exception(
@@ -3699,7 +3699,7 @@ class Module extends \Aurora\System\Module\AbstractModule
             throw new \Aurora\Modules\Mail\Exceptions\Exception(
                 Enums\ErrorCodes::CannotMoveMessageQuota,
                 $oException,
-                $oResponse instanceof \MailSo\Imap\Response ? $oResponse->Tag.' '.$oResponse->StatusOrIndex.' '.$oResponse->HumanReadable : ''
+                $oResponse instanceof \MailSo\Imap\Response ? $oResponse->Tag . ' ' . $oResponse->StatusOrIndex . ' ' . $oResponse->HumanReadable : ''
             );
         } catch (\Exception $oException) {
             throw new \Aurora\Modules\Mail\Exceptions\Exception(
@@ -3881,7 +3881,7 @@ class Module extends \Aurora\System\Module\AbstractModule
                 \MailSo\Base\Enumerations\Charset::UTF_7_IMAP
             );
 
-            $sFolderFullNameRaw = (0 < \strlen($FolderParentFullNameRaw) ? $FolderParentFullNameRaw.$Delimiter : '').
+            $sFolderFullNameRaw = (0 < \strlen($FolderParentFullNameRaw) ? $FolderParentFullNameRaw . $Delimiter : '') .
                 $sFolderNameInUtf7Imap;
 
             $sFolderFullNameUtf8 = \MailSo\Base\Utils::ConvertEncoding(
@@ -3913,7 +3913,7 @@ class Module extends \Aurora\System\Module\AbstractModule
                 ), $aFoldersOrderList, true);
 
                 if (\is_int($iUpperKey) && isset($aFoldersOrderList[$iUpperKey])) {
-                    \Aurora\System\Api::Log('insert order index:'.$iUpperKey);
+                    \Aurora\System\Api::Log('insert order index:' . $iUpperKey);
                     \array_splice($aFoldersOrderList, $iUpperKey + 1, 0, $sFolderFullNameRaw);
                     $this->getMailManager()->updateFoldersOrder($oAccount, $aFoldersOrderList);
                 }
@@ -5515,7 +5515,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
         if ($oAccount instanceof \Aurora\Modules\Mail\Models\MailAccount) {
             if (\is_array($UploadData)) {
-                $sSavedName = 'upload-post-'.\md5($UploadData['name'].$UploadData['tmp_name']);
+                $sSavedName = 'upload-post-' . \md5($UploadData['name'] . $UploadData['tmp_name']);
                 $rData = false;
                 if (\is_resource($UploadData['tmp_name'])) {
                     $rData = $UploadData['tmp_name'];
@@ -5739,7 +5739,7 @@ class Module extends \Aurora\System\Module\AbstractModule
             $sUUID = \Aurora\System\Api::getUserUUIDById($oAccount->IdUser);
             try {
                 $sMimeType = 'message/rfc822';
-                $sTempName = md5($MessageFolder.$MessageUid);
+                $sTempName = md5($MessageFolder . $MessageUid);
                 if (!$this->getFilecacheManager()->isFileExists($sUUID, $sTempName)) {
                     $this->getMailManager()->directMessageToStream(
                         $oAccount,
@@ -6606,7 +6606,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         $iUserId = 0;
 
         $sEmail = $sMailLogin = $aArgs['Login'];
-		$sEmail = str_replace(" ", "", $sEmail);
+        $sEmail = str_replace(" ", "", $sEmail);
         $oAccount = $this->getAccountsManager()->getAccountUsedToAuthorize($sEmail);
 
         $bNewAccount = false;
@@ -6962,7 +6962,7 @@ class Module extends \Aurora\System\Module\AbstractModule
                                     $iFileSize,
                                     $bIsInline,
                                     $bIsLinked,
-                                    $bIsLinked ? '<'.$sCID.'>' : '',
+                                    $bIsLinked ? '<' . $sCID . '>' : '',
                                     array(),
                                     $sContentLocation
                                 )
@@ -6978,7 +6978,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         if ($mFoundDataURL && \is_array($mFoundDataURL) && 0 < \count($mFoundDataURL)) {
             foreach ($mFoundDataURL as $sCidHash => $sDataUrlString) {
                 $aMatch = array();
-                $sCID = '<'.$sCidHash.'>';
+                $sCID = '<' . $sCidHash . '>';
                 if (\preg_match('/^data:(image\/[a-zA-Z0-9]+\+?[a-zA-Z0-9]+);base64,(.+)$/i', $sDataUrlString, $aMatch) &&
                     !empty($aMatch[1]) && !empty($aMatch[2])) {
                     $sRaw = \MailSo\Base\Utils::Base64Decode($aMatch[2]);
@@ -7047,19 +7047,19 @@ class Module extends \Aurora\System\Module\AbstractModule
 '			<Action>settings</Action>',
 '			<Protocol>',
 '				<Type>IMAP</Type>',
-'				<Server>'.$sIncomingServer.'</Server>',
-'				<LoginName>'.$sEmail.'</LoginName>',
-'				<Port>'.$iIncomingPort.'</Port>',
-'				<SSL>'.(993 === $iIncomingPort ? 'on' : 'off').'</SSL>',
+'				<Server>' . $sIncomingServer . '</Server>',
+'				<LoginName>' . $sEmail . '</LoginName>',
+'				<Port>' . $iIncomingPort . '</Port>',
+'				<SSL>' . (993 === $iIncomingPort ? 'on' : 'off') . '</SSL>',
 '				<SPA>off</SPA>',
 '				<AuthRequired>on</AuthRequired>',
 '			</Protocol>',
 '			<Protocol>',
 '				<Type>SMTP</Type>',
-'				<Server>'.$sOutgoingServer.'</Server>',
-'				<LoginName>'.$sEmail.'</LoginName>',
-'				<Port>'.$iOutgoingPort.'</Port>',
-'				<SSL>'.(465 === $iOutgoingPort ? 'on' : 'off').'</SSL>',
+'				<Server>' . $sOutgoingServer . '</Server>',
+'				<LoginName>' . $sEmail . '</LoginName>',
+'				<Port>' . $iOutgoingPort . '</Port>',
+'				<SSL>' . (465 === $iOutgoingPort ? 'on' : 'off') . '</SSL>',
 '				<SPA>off</SPA>',
 '				<AuthRequired>on</AuthRequired>',
 '			</Protocol>',
@@ -7084,7 +7084,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
             $oCoreWebclientModule = \Aurora\System\Api::GetModule('CoreWebclient');
             if ($oCoreWebclientModule instanceof \Aurora\System\Module\AbstractModule) {
-                $sResult = \file_get_contents($oCoreWebclientModule->GetPath().'/templates/Index.html');
+                $sResult = \file_get_contents($oCoreWebclientModule->GetPath() . '/templates/Index.html');
                 if (\is_string($sResult)) {
                     return strtr($sResult, array(
                         '{{AppVersion}}' => Application::GetVersion(),
@@ -7146,7 +7146,7 @@ class Module extends \Aurora\System\Module\AbstractModule
                     $sHash = \Aurora\System\Api::EncodeKeyValues($aValues);
                 }
 
-                \header('Location: ' . \MailSo\Base\Http::SingletonInstance()->GetFullUrl() . '?' . $sEntry .'/' . $sHash . '/' . $sAction);
+                \header('Location: ' . \MailSo\Base\Http::SingletonInstance()->GetFullUrl() . '?' . $sEntry . '/' . $sHash . '/' . $sAction);
             }
         }
     }
