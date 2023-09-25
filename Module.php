@@ -6606,6 +6606,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         $iUserId = 0;
 
         $sEmail = $sMailLogin = $aArgs['Login'];
+		$sEmail = str_replace(" ", "", $sEmail);
         $oAccount = $this->getAccountsManager()->getAccountUsedToAuthorize($sEmail);
 
         $bNewAccount = false;
