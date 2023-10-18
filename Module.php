@@ -6269,9 +6269,10 @@ class Module extends \Aurora\System\Module\AbstractModule
      * @param int $AccountID Account identifier.
      * @param boolean $Enable Indicates if forward is enabled.
      * @param string $Email Email that should be used for message forward.
+     * @param boolean $KeepMessageCopy Indicates if message copy should be kept in mailbox.
      * @return boolean
      */
-    public function UpdateForward($AccountID, $Enable = false, $Email = "")
+    public function UpdateForward($AccountID, $Enable = false, $Email = "", $KeepMessageCopy = true)
     {
         \Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 
@@ -6282,7 +6283,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         self::checkAccess($oAccount);
 
         if ($oAccount) {
-            $mResult = $this->getSieveManager()->setForward($oAccount, $Email, $Enable);
+            $mResult = $this->getSieveManager()->setForward($oAccount, $Email, $Enable, $KeepMessageCopy);
         }
 
         return $mResult;

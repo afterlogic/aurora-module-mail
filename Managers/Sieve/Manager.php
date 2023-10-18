@@ -195,16 +195,19 @@ class Manager extends \Aurora\System\Managers\AbstractManager
         $sData = $this->_getSectionData('forward');
 
         $bEnabled = false;
+        $bKeepMessageCopy = true;
         $sForward = '';
 
         $aMatch = array();
-        if (!empty($sData) && preg_match('/#data=([\d])~([^\n]+)/', $sData, $aMatch) && isset($aMatch[1]) && isset($aMatch[2])) {
-            $bEnabled = '1' === (string) $aMatch[1];
-            $sForward = base64_decode($aMatch[2]);
+        if (!empty($sData) && preg_match('/#data=(\d)(?:~(\d))?~([^\n]+)/', $sData, $aMatch) && isset($aMatch[1]) && isset($aMatch[3])) {
+            $bEnabled = (string) $aMatch[1] === '1';
+            $bKeepMessageCopy = (string) $aMatch[2] === '0' ? false : true;
+            $sForward = base64_decode($aMatch[3]);
         }
 
         return array(
             'Enable' => $bEnabled,
+            'KeepMessageCopy' => $bKeepMessageCopy,
             'Email' => $sForward
         );
     }
@@ -213,16 +216,17 @@ class Manager extends \Aurora\System\Managers\AbstractManager
      * @param \Aurora\Modules\Mail\Models\MailAccount $oAccount
      * @param string $sForward
      * @param bool $bEnabled Default true
+     * @param bool $bKeepMessageCopy Indicates if message should be kept after forwarding. Default true
      *
      * @return bool
      */
-    public function setForward($oAccount, $sForward, $bEnabled = true)
+    public function setForward($oAccount, $sForwardToEmail, $bEnabled = true, $bKeepMessageCopy = true)
     {
         $sData = '';
-        if (!empty($sForward)) {
+        if (!empty($sForwardToEmail)) {
             $sData =
-                '#data=' . ($bEnabled ? '1' : '0') . '~' . base64_encode($sForward) . "\n" .
-                ($bEnabled ? '' : '#') . 'redirect :copy "' . $this->_quoteValue($sForward) . '";' . "\n";
+                '#data=' . ($bEnabled ? '1' : '0') . '~' . ($bKeepMessageCopy ? '1' : '0') . '~' . base64_encode($sForwardToEmail) . "\n" .
+                ($bEnabled ? '' : '#') . 'redirect ' . ($bKeepMessageCopy ? ':copy ' : '') . '"' . $this->_quoteValue($sForwardToEmail) . '";' . "\n";
         }
         $this->_parseSectionsData($oAccount);
         $this->_setSectionData('forward', $sData);
@@ -422,20 +426,24 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     }
 
     /**
+     * @deprecated since version 9.7.5. Not used anywhere.
+     *
      * @param  \Aurora\Modules\Mail\Models\MailAccount $oAccount
      *
      * @return bool
      */
     public function disableForward($oAccount)
     {
-        $sForward = '';
+        $sForwardToEmail = '';
+        $bKeepMessageCopy = true;
         $aData = $this->getForward($oAccount);
 
-        if ($aData && isset($aData[1])) {
-            $sForward = $aData[1];
+        if ($aData) {
+            $sForwardToEmail = $aData['Email'];
+            $bKeepMessageCopy = $aData['KeepMessageCopy'];
         }
 
-        return $this->setForward($oAccount, $sForward, false);
+        return $this->setForward($oAccount, $sForwardToEmail, false, $bKeepMessageCopy);
     }
 
     public function getAllowBlockLists($oAccount)
@@ -754,7 +762,6 @@ if " . $SieveSpamRuleCondition . " {
 
     /**
      * @param \Aurora\Modules\Mail\Models\MailAccount $oAccount
-     *
      * @param bool $bForced Default false
      */
     protected function _parseSectionsData($oAccount, $bForced = false)
