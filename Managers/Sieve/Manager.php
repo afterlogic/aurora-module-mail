@@ -226,7 +226,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
         if (!empty($sForwardToEmail)) {
             $sData =
                 '#data=' . ($bEnabled ? '1' : '0') . '~' . ($bKeepMessageCopy ? '1' : '0') . '~' . base64_encode($sForwardToEmail) . "\n" .
-                ($bEnabled ? '' : '#') . 'redirect ' . ($bKeepMessageCopy ? ':copy ' : '') . '"' . $this->_quoteValue($sForwardToEmail) . '";' . "\n";
+                ($bEnabled ? '' : '#') . 'redirect ' . ($bKeepMessageCopy ? ':copy ' : '') . '"' . $this->_quoteValue($sForwardToEmail) . '";';
         }
         $this->_parseSectionsData($oAccount);
         $this->_setSectionData('forward', $sData);
@@ -724,7 +724,6 @@ if " . $SieveSpamRuleCondition . " {
     protected function _setSieveFile($oAccount, $sText)
     {
         $sText = str_replace("\r", '', $sText);
-        $sText = rtrim(str_replace("\n", "\r\n", $sText));
         $bResult = false;
 
         try {
@@ -790,7 +789,9 @@ if " . $SieveSpamRuleCondition . " {
      */
     protected function _selectionsDataToString()
     {
-        $sResult = '';
+        $sResult = "# Sieve filter\n";
+        $sResult .= 'require ["fileinto", "copy", "vacation", "regex", "include", "envelope", "imap4flags", "relational", "comparator-i;ascii-numeric"] ;' . "\n";
+
         if (is_array($this->aSectionsOrders)) {
             foreach ($this->aSectionsOrders as $sSectionName) {
                 if (!empty($this->aSectionsData[$sSectionName])) {
@@ -802,9 +803,9 @@ if " . $SieveSpamRuleCondition . " {
             }
         }
 
-        $sResult = 'require ["fileinto", "copy", "vacation", "regex", "include", "envelope", "imap4flags", "relational", "comparator-i;ascii-numeric"] ;' . "\n" . $sResult;
-        $sResult = "# Sieve filter\n" . $sResult;
-        $sResult .= "keep ;\n";
+        // Removed 'keep' because it should be controlled by a specific sieve rule.
+        // Currently, overall 'keep' doesn't work in combination with 'forward', which may not keep forwarded messages.
+        //$sResult .= "keep;\n";
         return $sResult;
     }
 
