@@ -40,6 +40,16 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     protected $aSectionsOrders;
 
     /**
+     * @var string
+     */
+    protected $aBaseRequitements;
+
+    /**
+     * @var array
+     */
+    protected $aSectionsRequitements;
+
+    /**
      * @var array
      */
     protected $aSieves;
@@ -84,6 +94,9 @@ class Manager extends \Aurora\System\Managers\AbstractManager
             'filters',
             'allow_block_lists'
         );
+        $this->aBaseRequitements = ["fileinto", "copy", "vacation", "regex", "include", "envelope", "imap4flags", "relational", "comparator-i;ascii-numeric"];
+        $this->aSectionsRequitements = array();
+
     }
 
     /**
@@ -532,11 +545,10 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
         if (!empty($SieveSpamRuleCondition)) {
             $sData .= "
-# copy Spamassassin-tagged email to Spam folder
-
+#copy email with X-Spam-Score greater than certain value to Spam folder
 if " . $SieveSpamRuleCondition . " {
-    fileinto \"Spam\";  
-    stop;  
+    fileinto \"Spam\";
+    stop;
 }";
         } else {
             Api::Log('"SieveSpamRuleCondition" settings has not yet been set.');
@@ -584,7 +596,7 @@ if " . $SieveSpamRuleCondition . " {
     }
 
     /**
-     * @depricated
+     * @depricated since version 9.7.5
      *
      * @param  \Aurora\Modules\Mail\Models\MailAccount $oAccount
      * @param string $sSectionName Default ''
@@ -603,7 +615,7 @@ if " . $SieveSpamRuleCondition . " {
     }
 
     /**
-     * @param  \Aurora\Modules\Mail\Models\MailAccount $oAccount
+     * @param \Aurora\Modules\Mail\Models\MailAccount $oAccount
      * @return string
      */
     public function getFiltersRawData($oAccount)
@@ -613,7 +625,7 @@ if " . $SieveSpamRuleCondition . " {
     }
 
     /**
-     * @param  \Aurora\Modules\Mail\Models\MailAccount $oAccount
+     * @param \Aurora\Modules\Mail\Models\MailAccount $oAccount
      * @param string $sFiltersRawData
      * @return bool
      */
@@ -790,7 +802,8 @@ if " . $SieveSpamRuleCondition . " {
     protected function _selectionsDataToString()
     {
         $sResult = "# Sieve filter\n";
-        $sResult .= 'require ["fileinto", "copy", "vacation", "regex", "include", "envelope", "imap4flags", "relational", "comparator-i;ascii-numeric"] ;' . "\n";
+        // $sResult .= 'require ["fileinto", "copy", "vacation", "regex", "include", "envelope", "imap4flags", "relational", "comparator-i;ascii-numeric"] ;' . "\n";
+        $sResult .= $this->_getRequirements();
 
         if (is_array($this->aSectionsOrders)) {
             foreach ($this->aSectionsOrders as $sSectionName) {
@@ -808,6 +821,37 @@ if " . $SieveSpamRuleCondition . " {
         //$sResult .= "keep;\n";
         return $sResult;
     }
+
+    /**
+     * @return string
+     */
+    protected function _getRequirements()
+    {
+        $aFullRequirements = $this->aBaseRequitements ? $this->aBaseRequitements : [];
+        foreach ($this->aSectionsRequitements as $aRequirements) {
+            foreach ($aRequirements as $sRequirement) {
+                $aFullRequirements[] = $sRequirement;
+            }
+        }
+
+        return "require [\"" . implode('","', $aFullRequirements) . "\"];\n";
+    }
+
+    /**
+     * @param string $sSectionName
+     * @param string $sRequirement
+     */
+    protected function _addRequirement($sSectionName, $sRequirement)
+    {
+        if (in_array($sSectionName, $this->aSectionsOrders)) {
+            if (!isset($this->aSectionsRequitements[$sSectionName]) || !is_array($this->aSectionsRequitements[$sSectionName])) {
+                $this->aSectionsRequitements[$sSectionName] = array();
+            }
+
+            $this->aSectionsRequitements[$sSectionName][] = $sRequirement;
+        }
+    }
+
 
     /**
      * @param string $sSectionName
