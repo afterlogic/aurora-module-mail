@@ -334,7 +334,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
      */
     public function updateSieveFilters($oAccount, $aFilters)
     {
-        $sFilters = "#sieve filter\n\n";
+        $sFilters = "";
 
         if ($oAccount) {
             foreach ($aFilters as /* @var $oFilter SieveFilter */ $oFilter) {
@@ -345,6 +345,8 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                 if (\Aurora\Modules\Mail\Enums\FilterAction::MoveToFolder === $oFilter->Action && '' === trim($oFilter->FolderFullName)) {
                     continue;
                 }
+
+                // $sFilters .= "#start sieve filter\n";
 
                 $aFields = array();
                 switch($oFilter->Field) {
@@ -396,20 +398,21 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                     $sEmail = $oFilter->Email;
                 }
 
-                // action
+                // Adding action
+                // !IMPORTANT Action must be a one line string! Otherwise it will not be commended out in case filter is disabled
                 $sAction = '';
                 switch($oFilter->Action) {
                     case \Aurora\Modules\Mail\Enums\FilterAction::DeleteFromServerImmediately:
-                        $sAction = 'discard ;';
-                        $sAction .= 'stop ;';
+                        $sAction = '    discard;';
+                        $sAction .= ' stop;';
                         break;
                     case \Aurora\Modules\Mail\Enums\FilterAction::MoveToFolder:
-                        $sAction = 'fileinto "' . $this->_quoteValue($sFolderFullName) . '" ;' . "\n";
-                        $sAction .= 'stop ;';
+                        $sAction = '    fileinto "' . $this->_quoteValue($sFolderFullName) . '";';
+                        $sAction .= ' stop;';
                         break;
                     case \Aurora\Modules\Mail\Enums\FilterAction::Redirect:
-                        $sAction = 'redirect :copy "' . $this->_quoteValue($sEmail) . '" ;' . "\n";
-                        $sAction .= 'stop ;';
+                        $sAction = '    redirect :copy "' . $this->_quoteValue($sEmail) . '";';
+                        $sAction .= ' stop;';
                         break;
                 }
 
@@ -421,16 +424,16 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                     $sEnd = '#' . $sEnd;
                 }
 
-                $sFilters .= "\n" . '#sieve_filter:' . implode(';', array(
+                $sFilters .= '#sieve_filter:' . implode(';', array(
                     $oFilter->Enable ? '1' : '0', $oFilter->Condition, $oFilter->Field,
                     $oFilter->Filter, $oFilter->Action, $sFolderFullName, $sEmail)) . "\n";
 
                 $sFilters .= $sCondition . "\n";
                 $sFilters .= $sAction . "\n";
                 $sFilters .= $sEnd . "\n";
-            }
 
-            $sFilters = $sFilters . "\n" . '#end sieve filter' . "\n";
+                // $sFilters .= '#end sieve filter' . "\n";
+            }
 
             return $this->setFiltersRawData($oAccount, $sFilters);
         }
