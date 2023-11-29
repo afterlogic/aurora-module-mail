@@ -153,7 +153,7 @@ class Settings extends \Aurora\System\Module\Settings
                 "Enables converting spamscore to spamlevel for per-user spam settings",
             ),
             "SieveSpamRuleCondition" => new SettingsProperty(
-                "header :value \"ge\" :comparator \"i;ascii-numeric\" \"X-Spam-Score\" \"{{Value}}\"",
+                "allof ( not header :matches \"X-Spam-Score\" \"-*\", header :value \"ge\" :comparator \"i;ascii-numeric\" \"X-Spam-Score\" \"{{Value}}\" )",
                 "string",
                 null,
                 "Defines rule for moving mails to spam, used within per-user spam settings",
