@@ -227,7 +227,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
     /**
      * @param \Aurora\Modules\Mail\Models\MailAccount $oAccount
-     * @param string $sForward
+     * @param string $sForwardToEmail
      * @param bool $bEnabled Default true
      * @param bool $bKeepMessageCopy Indicates if message should be kept after forwarding. Default true
      *

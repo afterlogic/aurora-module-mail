@@ -60,7 +60,7 @@ use Aurora\System\SettingsProperty;
  * @property int $ExpiredLinkLifetimeMinutes
  * @property bool $AllowUnifiedInbox
  * @property bool $UseIdentityEmailAsSmtpMailFrom
- * @property bool AllowScheduledAutoresponder
+ * @property bool $AllowScheduledAutoresponder
  */
 
 class Settings extends \Aurora\System\Module\Settings
