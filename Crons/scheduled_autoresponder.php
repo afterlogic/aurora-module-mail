@@ -26,6 +26,7 @@ if (Module::getInstance()->oModuleSettings->AllowScheduledAutoresponder) {
     $sieveManager = Module::getInstance()->getSieveManager();
 
     foreach ($accounts as $account) {
+        /** @var \Aurora\Modules\Mail\Models\MailAccount $account */
         log('Process account: ' . $account->Id);
         $end = $account->getExtendedProp('Mail::AutoresponderEnd');
         $disableAutoResponder = ($end !== null && $end < time());
