@@ -2,10 +2,9 @@
 
 namespace Aurora\Modules\Mail\Models;
 
-use Aurora\Modules\Contacts\Models\Group;
-use Aurora\System\Classes\Model;
 use Aurora\Modules\Core\Models\User;
 use Aurora\Modules\Mail\Module;
+use Aurora\System\Classes\Account;
 
 /**
  * Aurora\Modules\Mail\Models\MailAccount
@@ -68,7 +67,7 @@ use Aurora\Modules\Mail\Module;
  * @method static \Illuminate\Database\Eloquent\Builder|MailAccount whereXOAuth($value)
  * @mixin \Eloquent
  */
-class MailAccount extends Model
+class MailAccount extends Account
 {
     /**
      * The attributes that are mass assignable.
