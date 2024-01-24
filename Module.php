@@ -401,7 +401,8 @@ class Module extends \Aurora\System\Module\AbstractModule
                 $aSettings['AllowAutosaveInDrafts'] = $oUser->getExtendedProp(self::GetName() . '::AllowAutosaveInDrafts');
             }
         }
-
+        $aArgs = [];
+        $this->broadcastEvent('GetSettings::after', $aArgs, $aSettings); // Added for compatibility with other modules
         return $aSettings;
     }
 
