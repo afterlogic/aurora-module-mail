@@ -615,11 +615,10 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 *
 	 * @return \Aurora\Modules\Mail\Classes\FolderCollection Collection of folders.
 	 */
-	public function getFolders($oAccount, $bCreateUnExistenSystemFolders = true)
+	public function getFolders($oAccount, $bCreateUnExistenSystemFolders = true, $sParent = '')
 	{
 		$oFolderCollection = false;
 
-		$sParent = '';
 		$sListPattern = '*';
 
 		$oImapClient =& $this->_getImapClient($oAccount);
@@ -671,9 +670,11 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
 			$oFolderCollection->initialize($aMailFolders);
 
-			if ($this->_initSystemFolders($oAccount, $oFolderCollection, $bCreateUnExistenSystemFolders) && $bCreateUnExistenSystemFolders)
-			{
-				$oFolderCollection = $this->getFolders($oAccount, false);
+			if ($sParent === '') {
+				if ($this->_initSystemFolders($oAccount, $oFolderCollection, $bCreateUnExistenSystemFolders) && $bCreateUnExistenSystemFolders)
+				{
+					$oFolderCollection = $this->getFolders($oAccount, false);
+				}
 			}
 		}
 

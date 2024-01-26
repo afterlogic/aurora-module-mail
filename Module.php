@@ -8,6 +8,7 @@
 namespace Aurora\Modules\Mail;
 
 use Aurora\System\Api;
+use Aurora\Modules\Mail\Enums\SearchInFoldersType;
 
 /**
  * @license https://www.gnu.org/licenses/agpl-3.0.html AGPL-3.0
@@ -2177,16 +2178,6 @@ class Module extends \Aurora\System\Module\AbstractModule
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 
-		$oMailWebclient = Api::GetModule('MailWebclient');
-		if ($oMailWebclient) {
-			$sAllMailsFolder = $oMailWebclient->getConfig('AllMailsFolder');
-			if ($sAllMailsFolder && $sAllMailsFolder === $Folder) {
-				return self::Decorator()->GetMessagesInAllFolders($AccountID, $Folder, $Offset, $Limit, $Search, $Filters, $UseThreading, $InboxUidnext, $SortBy, $SortOrder);
-			}
-		}
-
-		$sSearch = \trim((string) $Search);
-
 		$aFilters = array();
 		$sFilters = \strtolower(\trim((string) $Filters));
 		if (0 < \strlen($sFilters))
@@ -2196,6 +2187,22 @@ class Module extends \Aurora\System\Module\AbstractModule
 			});
 		}
 
+		// checking if we need to search in subfolders
+		if (in_array('subfolders', $aFilters)) {
+			$iSearchMode = SearchInFoldersType::Sub;
+			unset($aFilters[array_search('subfolders', $aFilters)]);
+			$Filters = implode(',', $aFilters);
+			return self::Decorator()->GetMessagesInAllOrSubFolders($AccountID, $Folder, $Offset, $Limit, $Search, $Filters, $UseThreading, $InboxUidnext, $SortBy, $SortOrder, $iSearchMode);
+		}
+		
+		// checking if we need to search in all folders
+		$oMailWebclient = Api::GetModule('MailWebclient');
+		if ($oMailWebclient && $oMailWebclient->getConfig('AllMailsFolder') === $Folder) {
+			$iSearchMode = SearchInFoldersType::All;
+			return self::Decorator()->GetMessagesInAllOrSubFolders($AccountID, $Folder, $Offset, $Limit, $Search, $Filters, $UseThreading, $InboxUidnext, $SortBy, $SortOrder, $iSearchMode);
+		} 
+
+		$sSearch = \trim((string) $Search);
 		$iOffset = (int) $Offset;
 		$iLimit = (int) $Limit;
 
@@ -2217,21 +2224,71 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$oAccount, $Folder, $iOffset, $iLimit, $sSearch, $UseThreading, $aFilters, $InboxUidnext, $sSortBy, $sSortOrder);
 	}
 
-	protected function getFoldersForSearch($oAccount)
+	protected function getFoldersForSearch($oAccount, $Folder, $iSearchMode)
     {
-		$aFolders = [];
-		$oFoldersColl = $this->getMailManager()->getFolders($oAccount, true, '');
+		// $aFolders = [];
+		// $oFoldersCollection = $this->getMailManager()->getFolders($oAccount, true, '');
 
-		$oFoldersColl->foreachWithSubFolders(function ($oFolder) use (&$aFolders) {
-			if ($oFolder->isSubscribed() && $oFolder->isSelectable()) {
-				$aFolders[] = $oFolder;
-			}
-		});
+		// $oFoldersCollection->foreachWithSubFolders(function ($oFolder) use (&$aFolders) {
+		// 	if ($oFolder->isSubscribed() && $oFolder->isSelectable()) {
+		// 		$aFolders[] = $oFolder;
+		// 	}
+		// });
+
+
+
+
+		// $iSearchInFoldersType = SearchInFoldersType::Cur;
+        // if (!empty(trim($Search))) {
+        //     $aSearch = explode(' ', $Search);
+        //     if (is_array($aSearch) && count($aSearch) > 0) {
+        //         $iKey = array_search('folders:sub', $aSearch);
+        //         if ($iKey !== false) {
+        //             $iSearchInFoldersType = SearchInFoldersType::Sub;
+        //             unset($aSearch[$iKey]);
+        //         } else {
+        //             $iKey = array_search('folders:all', $aSearch);
+        //             if ($iKey !== false) {
+        //                 $iSearchInFoldersType = SearchInFoldersType::All;
+        //                 unset($aSearch[$iKey]);
+        //             }
+        //         }
+        //         $sSearch = implode(' ', $aSearch);
+        //     }
+        // }
+
+        $aFolders = [];
+        $bCreateUnExistenSystemFolders = $Folder === '';
+        if ($iSearchMode === SearchInFoldersType::Cur) {
+            $oFoldersCollection = $this->getMailManager()->getFolders($oAccount, $bCreateUnExistenSystemFolders);
+            $oFolder = $oFoldersCollection->getFolder($Folder);
+            $aFolders = [$oFolder];
+        } else {
+            if ($iSearchMode === SearchInFoldersType::All) {
+                $Folder = '';
+            }
+			
+            $oFoldersCollection = $this->getMailManager()->getFolders($oAccount, $bCreateUnExistenSystemFolders, $Folder);
+
+            $oFoldersCollection->foreachWithSubFolders(function ($oFolder) use (&$aFolders) {
+
+				if ($oFolder->isSubscribed() && $oFolder->isSelectable()) {
+					// if ($oFolder->getFolderXListType() !== \Aurora\Modules\Mail\Enums\FolderType::All) {
+					$aFolders[] = $oFolder;
+					// }
+				}
+			});
+		}
+			
 
         return $aFolders;
     }
 
-    public function GetMessagesInAllFolders($AccountID, $Folder, $Offset = 0, $Limit = 20, $Search = '', $Filters = '', $UseThreading = false, $InboxUidnext = '', $SortBy = null, $SortOrder = null)
+	/**
+	 * This method is used to obtain messages from current folder and its subfolders.
+	 * Or from all folders
+	 */
+    public function GetMessagesInAllOrSubFolders($AccountID, $Folder, $Offset = 0, $Limit = 20, $Search = '', $Filters = '', $UseThreading = false, $InboxUidnext = '', $SortBy = null, $SortOrder = null, $iSearchMode = SearchInFoldersType::All)
     {
         \Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 
@@ -2278,7 +2335,8 @@ class Module extends \Aurora\System\Module\AbstractModule
         $sSortBy = 'ARRIVAL';
         $sSortOrder = $SortOrder === \Aurora\System\Enums\SortOrder::DESC ? 'REVERSE' : '';
 
-        $aFolders = $this->getFoldersForSearch($oAccount);
+        $aFolders = $this->getFoldersForSearch($oAccount, $Folder, $iSearchMode);
+		
         foreach ($aFolders as $oFolder) {
             $sFolder = $oFolder->getRawFullName();
             $aUnifiedInfo = $this->getMailManager()->getUnifiedMailboxMessagesInfo($oAccount, $sFolder, $sSearch, $aFilters, $UseThreading, $iOffset + $iLimit, $sSortBy, $sSortOrder);
@@ -2383,6 +2441,10 @@ class Module extends \Aurora\System\Module\AbstractModule
         $oMessageCollectionResult->UidNext = implode('.', $aNextUids);
         $oMessageCollectionResult->FolderHash = implode('.', $aFoldersHash);
         $oMessageCollectionResult->AddArray($aAllMessages);
+
+		if ($iSearchMode === SearchInFoldersType::Sub) {
+			$oMessageCollectionResult->Filters = 'subfolders';
+		}
 
         return $oMessageCollectionResult;
     }
@@ -6835,18 +6897,23 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 
 		$aFoundCids = array();
-
-		if ($bTextIsHtml)
-		{
-			$sTextConverted = \MailSo\Base\HtmlUtils::ConvertHtmlToPlain($sText);
-			$oMessage->AddText($sTextConverted, false);
-		}
-
 		$mFoundDataURL = array();
 		$aFoundedContentLocationUrls = array();
 
+		// adding plain text to the message
+		if ($bTextIsHtml) {
+			$oMessage->AddText(\MailSo\Base\HtmlUtils::ConvertHtmlToPlain($sText), false);
+		}
+
 		$sTextConverted = $bTextIsHtml ?
-			\MailSo\Base\HtmlUtils::BuildHtml($sText, $aFoundCids, $mFoundDataURL, $aFoundedContentLocationUrls) : $sText;
+		\MailSo\Base\HtmlUtils::BuildHtml($sText, $aFoundCids, $mFoundDataURL, $aFoundedContentLocationUrls) : $sText;
+
+		$oDom = \MailSo\Base\HtmlUtils::GetDomFromText($sText);
+		$sResult = $oDom->saveHTML();
+		// var_dump($sResult);
+		// var_dump($sText);
+		// var_dump($sTextConverted);
+		// exit;
 
 		$oMessage->AddText($sTextConverted, $bTextIsHtml);
 
