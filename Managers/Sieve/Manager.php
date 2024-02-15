@@ -391,11 +391,11 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 						$sAction .= 'stop ;';
 						break;
 					case \Aurora\Modules\Mail\Enums\FilterAction::MoveToFolder:
-						$sAction = 'fileinto "'.$this->_quoteValue($sFolderFullName).'" ;'."\n";
+						$sAction = 'fileinto "'.$this->_quoteValue($sFolderFullName).'" ;';
 						$sAction .= 'stop ;';
 						break;
 					case \Aurora\Modules\Mail\Enums\FilterAction::Redirect:
-						$sAction = 'redirect :copy "'.$this->_quoteValue($sEmail).'" ;'."\n";
+						$sAction = 'redirect "'.$this->_quoteValue($sEmail).'" ;';
 						$sAction .= 'stop ;';
 						break;
 				}
