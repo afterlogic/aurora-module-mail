@@ -6722,9 +6722,8 @@ class Module extends \Aurora\System\Module\AbstractModule
      */
     public function onGetAccounts($aArgs, &$aResult)
     {
-        $aUserInfo = \Aurora\System\Api::getAuthenticatedUserInfo($aArgs['AuthToken']);
-        if (isset($aUserInfo['userId'])) {
-            $mResult = $this->GetAccounts($aUserInfo['userId']);
+        if (isset($aArgs['UserId'])) {
+            $mResult = $this->GetAccounts($aArgs['UserId']);
             if (\is_array($mResult)) {
                 foreach ($mResult as $oItem) {
                     $aResult[] = [
