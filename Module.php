@@ -6728,7 +6728,7 @@ class Module extends \Aurora\System\Module\AbstractModule
                 foreach ($mResult as $oItem) {
                     $aResult[] = [
                         'Type' => $oItem->getName(),
-                        'Module' => $oItem->getModule(),
+                        'Module' => $this->GetName(),
                         'Id' => $oItem->Id,
                         'UUID' => $oItem->UUID,
                         'Login' => $oItem->IncomingLogin
