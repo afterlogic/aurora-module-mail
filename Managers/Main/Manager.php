@@ -109,6 +109,9 @@ class Manager extends \Aurora\System\Managers\AbstractManager
             if (!$oResult->IsLoggined()) {
                 //				$sProxyAuthUser = !empty($oAccount->CustomFields['ProxyAuthUser'])
                 //					? $oAccount->CustomFields['ProxyAuthUser'] : '';
+                if ($this->oModule->oModuleSettings->ImapSendOriginatingIP) {
+                    $oResult->SendRequestWithCheck('ID', array('("x-originating-ip" "' . \Aurora\System\Utils::getClientIpInsecure() . '")'));
+                }
 
                 if (!empty($oAccount->XOAuth)) {
                     $sToken = \Aurora\Modules\OAuthIntegratorWebclient\Module::Decorator()->GetAccessToken($oAccount->XOAuth, $oAccount->Email);

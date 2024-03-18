@@ -61,6 +61,7 @@ use Aurora\System\SettingsProperty;
  * @property bool $AllowUnifiedInbox
  * @property bool $UseIdentityEmailAsSmtpMailFrom
  * @property bool $AllowScheduledAutoresponder
+ * @property bool $ImapSendOriginatingIP
  */
 
 class Settings extends \Aurora\System\Module\Settings
@@ -391,6 +392,12 @@ class Settings extends \Aurora\System\Module\Settings
                 "bool",
                 null,
                 "If true, email address of the identity will be used in MAIL FROM command to SMTP server, instead of main email address of the account",
+            ),
+            "ImapSendOriginatingIP" => new SettingsProperty(
+                false,
+                "bool",
+                null,
+                "If true, Aurora will send originating IP address in IMAP ID command",
             ),
         ];
     }
