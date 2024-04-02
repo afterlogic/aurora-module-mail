@@ -62,26 +62,6 @@ class Module extends \Aurora\System\Module\AbstractModule
     protected $oFilecacheManager = null;
 
     /**
-     * Handle dynamic, static calls to the object.
-     *
-     * @param  string  $method
-     * @param  array  $args
-     * @return mixed
-     *
-     * @throws \RuntimeException
-     */
-    public static function __callStatic($method, $args)
-    {
-        $instance = static::Decorator();
-
-        if (!$instance) {
-            throw new \RuntimeException();
-        }
-
-        return $instance->$method(...$args);
-    }
-
-    /**
      * Initializes Mail Module.
      *
      * @ignore
