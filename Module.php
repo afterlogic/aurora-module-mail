@@ -190,6 +190,11 @@ class Module extends \Aurora\System\Module\AbstractModule
         return $this->oMailManager;
     }
 
+    public function setMailManager($oManager)
+    {
+        $this->oMailManager = $oManager;
+    }
+
     /**
      *
      * @return \Aurora\Modules\Mail\Managers\Sieve\Manager
