@@ -2009,10 +2009,42 @@ class Module extends \Aurora\System\Module\AbstractModule
 		self::checkAccess($oAccount);
 
 		$oFolderCollection = $this->getMailManager()->getFolders($oAccount);
+
+		$this->refineFolderTypes($oFolderCollection);
+
 		return array(
 			'Folders' => $oFolderCollection,
 			'Namespace' => $oFolderCollection->GetNamespace()
 		);
+	}
+
+	protected function refineFolderTypes(&$oFolderCollection) {
+		$InformatikProjectsModule = Api::GetModule('InformatikProjects');
+		if ($InformatikProjectsModule) {
+			$aSpecialFolders = [
+				$InformatikProjectsModule->getConfig('ProcessedFolderName'),
+				$InformatikProjectsModule->getConfig('AssignedInternalFolderName'),
+				$InformatikProjectsModule->getConfig('AssignedOutgoingFolderName'),
+				$InformatikProjectsModule->getConfig('AssignedIncomingFolderName'),
+			];
+
+			foreach ($aSpecialFolders as $sFolder) {
+				// $sDelimiter = getDelimiter();
+				$aSpecialFolders = array_merge($aSpecialFolders, [explode('/', $sFolder)[0]]);
+			}
+
+			$aSpecialFolders = array_unique($aSpecialFolders);
+			
+			$oFolderCollection->foreachWithSubFolders(function ($oFolder) use (&$aSpecialFolders) {
+				if (
+					$oFolder
+					&& $oFolder->getType() === \Aurora\Modules\Mail\Enums\FolderType::Custom
+					&& in_array($oFolder->getFullName(), $aSpecialFolders)
+				) {
+					$oFolder->setType(\Aurora\Modules\Mail\Enums\FolderType::System);
+				}
+			});
+		}
 	}
 
 	protected function getSortInfo($SortBy, $SortOrder)
