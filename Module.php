@@ -6649,6 +6649,14 @@ class Module extends \Aurora\System\Module\AbstractModule
                     if ($bResult && $sNewPassword !== $sOldPassword) {
                         // Update password in DB only if account passed connection validation
                         $this->getAccountsManager()->updateAccount($oAccount);
+
+                        if (!$bNewAccount) {
+                            $oCoreModule = \Aurora\Modules\Core\Module::getInstance();
+                            $oUser = $oCoreModule->GetUserWithoutRoleCheck($oAccount->IdUser);
+                            if ($oUser instanceof User) {
+                                $oCoreModule->UpdateTokensValidFromTimestamp($oUser);
+                            }
+                        }
                     }
                 }
 
