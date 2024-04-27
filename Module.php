@@ -2364,8 +2364,8 @@ class Module extends \Aurora\System\Module\AbstractModule
         $iMessagesUnseenCount = 0;
         $aFoldersHash = [];
 
-        $sSortBy = 'ARRIVAL';
-        $sSortOrder = $SortOrder === \Aurora\System\Enums\SortOrder::DESC ? 'REVERSE' : '';
+        // $sSortBy = 'ARRIVAL';
+        // $sSortOrder = $SortOrder === \Aurora\System\Enums\SortOrder::DESC ? 'REVERSE' : '';
 
         $aFolders = $this->getFoldersForSearch($oAccount, $Folder, $iSearchMode);
 		

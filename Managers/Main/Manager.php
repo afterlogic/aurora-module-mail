@@ -2503,61 +2503,62 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		{
 			$aLines = $this->_parseSearchString($sSearch);
 
+			// simple search mode
 			if (1 === count($aLines) && isset($aLines['OTHER']))
 			{
-				if (true) // TODO
-				{
-					$sValue = $this->_escapeSearchString($oImapClient, $aLines['OTHER']);
+				//if ("Exhibition" is in Field_1 OR "Exhibition" is in Field_2 or "Exhibition" is in Field_3) AND ("2024" is in Field_1 OR "2024" is in Field_2 or "2024" is in Field_3)
+				//splitting string by spaces or the other delimiters
+				$aValues = preg_split('/ +/', $aLines['OTHER']);
 
+				foreach ($aValues as $sValue) {
+					$sValue = $this->_escapeSearchString($oImapClient, $sValue);
 					$aImapSearchResult[] = 'OR OR OR OR OR OR OR OR OR';
-
+	
 					$aImapSearchResult[] = 'FROM';
 					$aImapSearchResult[] = $sValue;
-
+	
 					$aImapSearchResult[] = 'TO';
 					$aImapSearchResult[] = $sValue;
-
+	
 					$aImapSearchResult[] = 'CC';
 					$aImapSearchResult[] = $sValue;
-
+	
 					$aImapSearchResult[] = 'SUBJECT';
 					$aImapSearchResult[] = $sValue;
-
+	
 					// Additionally search in BODY and reply-to header
 					$aImapSearchResult[] = 'BODY';
 					$aImapSearchResult[] = $sValue;
-
+	
 					$aImapSearchResult[] = 'HEADER "reply-to"';
 					$aImapSearchResult[] = $sValue;
-
+	
 					// Searching in Informatik special headers
 					$aImapSearchResult[] = 'HEADER "X-Project-Name"';
 					$aImapSearchResult[] = $sValue;
-
+	
 					$aImapSearchResult[] = 'HEADER "X-Project-ID"';
 					$aImapSearchResult[] = $sValue;
-
+	
 					$aImapSearchResult[] = 'HEADER "X-Project-Builder"';
 					$aImapSearchResult[] = $sValue;
-
+	
 					$aImapSearchResult[] = 'HEADER "X-Generated-Mail-Id"';
 					$aImapSearchResult[] = $sValue;
+	
+					// if ($bIsGmail) {
+					// 	$sGmailRawSearch .= ' '.$aLines['OTHER'];
+					// } else {
+					// 	$aImapSearchResult[] = 'TEXT';
+					// 	$aImapSearchResult[] = $sValue;
+					// }
 				}
-				else
-				{
-					if ($bIsGmail)
-					{
-						$sGmailRawSearch .= ' '.$aLines['OTHER'];
-					}
-					else
-					{
-						$aImapSearchResult[] = 'TEXT';
-						$aImapSearchResult[] = $this->_escapeSearchString($oImapClient, $aLines['OTHER']);
-					}
-				}
-			}
-			else
-			{
+
+
+				// var_dump($aImapSearchResult);
+				// exit;
+			} else { // advanced search mode
+
 				if (isset($aLines['EMAIL']))
 				{
 					$aEmails = explode(',', $aLines['EMAIL']);
