@@ -6655,6 +6655,7 @@ class Module extends \Aurora\System\Module\AbstractModule
                             $oUser = $oCoreModule->GetUserWithoutRoleCheck($oAccount->IdUser);
                             if ($oUser instanceof User) {
                                 $oCoreModule->UpdateTokensValidFromTimestamp($oUser);
+                                Api::UserSession()->DeleteAllUserSessions($oUser->Id);
                             }
                         }
                     }
@@ -7318,6 +7319,7 @@ class Module extends \Aurora\System\Module\AbstractModule
                 $oUser = $oCoreModule->GetUserWithoutRoleCheck($mResult->IdUser);
                 if ($oUser instanceof \Aurora\Modules\Core\Models\User) {
                     $oCoreModule->UpdateTokensValidFromTimestamp($oUser);
+                    Api::UserSession()->DeleteAllUserSessions($oUser->Id);
                 }
             }
         }
