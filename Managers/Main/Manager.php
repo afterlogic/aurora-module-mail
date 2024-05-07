@@ -2504,47 +2504,26 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			$aLines = $this->_parseSearchString($sSearch);
 
 			// simple search mode
-			if (1 === count($aLines) && isset($aLines['OTHER']))
-			{
-				//if ("Exhibition" is in Field_1 OR "Exhibition" is in Field_2 or "Exhibition" is in Field_3) AND ("2024" is in Field_1 OR "2024" is in Field_2 or "2024" is in Field_3)
+			if (1 === count($aLines) && isset($aLines['OTHER'])) {
 				//splitting string by spaces or the other delimiters
-				$aValues = preg_split('/ +/', $aLines['OTHER']);
+				$aWords = preg_split('/ +/', $aLines['OTHER']);
 
-				foreach ($aValues as $sValue) {
-					$sValue = $this->_escapeSearchString($oImapClient, $sValue);
+				foreach ($aWords as $sWord) {
+					$sWord = $this->_escapeSearchString($oImapClient, $sWord);
 					$aImapSearchResult[] = 'OR OR OR OR OR OR OR OR OR';
 	
-					$aImapSearchResult[] = 'FROM';
-					$aImapSearchResult[] = $sValue;
-	
-					$aImapSearchResult[] = 'TO';
-					$aImapSearchResult[] = $sValue;
-	
-					$aImapSearchResult[] = 'CC';
-					$aImapSearchResult[] = $sValue;
-	
-					$aImapSearchResult[] = 'SUBJECT';
-					$aImapSearchResult[] = $sValue;
-	
+					$aImapSearchResult[] = 'FROM ' . $sWord;
+					$aImapSearchResult[] = 'TO ' . $sWord;
+					$aImapSearchResult[] = 'CC ' . $sWord;
+					$aImapSearchResult[] = 'SUBJECT ' . $sWord;
 					// Additionally search in BODY and reply-to header
-					$aImapSearchResult[] = 'BODY';
-					$aImapSearchResult[] = $sValue;
-	
-					$aImapSearchResult[] = 'HEADER "reply-to"';
-					$aImapSearchResult[] = $sValue;
-	
+					$aImapSearchResult[] = 'BODY ' . $sWord;
+					$aImapSearchResult[] = 'HEADER "reply-to" ' . $sWord;
 					// Searching in Informatik special headers
-					$aImapSearchResult[] = 'HEADER "X-Project-Name"';
-					$aImapSearchResult[] = $sValue;
-	
-					$aImapSearchResult[] = 'HEADER "X-Project-ID"';
-					$aImapSearchResult[] = $sValue;
-	
-					$aImapSearchResult[] = 'HEADER "X-Project-Builder"';
-					$aImapSearchResult[] = $sValue;
-	
-					$aImapSearchResult[] = 'HEADER "X-Generated-Mail-Id"';
-					$aImapSearchResult[] = $sValue;
+					$aImapSearchResult[] = 'HEADER "X-Project-Name" ' . $sWord;
+					$aImapSearchResult[] = 'HEADER "X-Project-ID" ' . $sWord;	
+					$aImapSearchResult[] = 'HEADER "X-Project-Builder" ' . $sWord;
+					$aImapSearchResult[] = 'HEADER "X-Generated-Mail-Id" ' . $sWord;
 	
 					// if ($bIsGmail) {
 					// 	$sGmailRawSearch .= ' '.$aLines['OTHER'];
@@ -2553,10 +2532,6 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 					// 	$aImapSearchResult[] = $sValue;
 					// }
 				}
-
-
-				// var_dump($aImapSearchResult);
-				// exit;
 			} else { // advanced search mode
 
 				if (isset($aLines['EMAIL']))
