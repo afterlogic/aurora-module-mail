@@ -2488,8 +2488,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		$aImapSearchResult = array();
 		$sSearch = trim($sSearch);
 
-		if (0 === strlen($sSearch) && 0 === count($aFilters))
-		{
+		if (0 === strlen($sSearch) && 0 === count($aFilters)) {
 			return 'ALL';
 		}
 
@@ -2499,8 +2498,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		$bIsGmail = $oImapClient->IsSupported('X-GM-EXT-1');
 		$sGmailRawSearch = '';
 
-		if (0 < strlen($sSearch))
-		{
+		if (0 < strlen($sSearch)) {
 			$aLines = $this->_parseSearchString($sSearch);
 
 			// simple search mode
@@ -2533,102 +2531,80 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 					// }
 				}
 			} else { // advanced search mode
-
-				if (isset($aLines['EMAIL']))
-				{
+				if (isset($aLines['EMAIL'])) {
 					$aEmails = explode(',', $aLines['EMAIL']);
-
-					foreach ($aEmails as $iKey => $sEmail) //or - at least one match in message
-					{
-						if (strlen(trim($sEmail)) > 0)
-						{
+					//or - at least one match in message
+					foreach ($aEmails as $iKey => $sEmail) {
+						if (strlen(trim($sEmail)) > 0) {
 							$aImapSearchResult[] = ($iKey === 0 ? 'OR OR OR' : 'OR OR OR OR');
 						}
 					}
 
-					foreach ($aEmails as $sEmail)
-					{
+					foreach ($aEmails as $sEmail) {
 						$sEmail = trim($sEmail);
-						if (0 < strlen($sEmail))
-						{
+						if (0 < strlen($sEmail)) {
 							$sValue = $this->_escapeSearchString($oImapClient, $sEmail);
 
 							//$aImapSearchResult[] = 'OR OR OR'; //and - all matches in message
 							$aImapSearchResult[] = 'OR';
-							$aImapSearchResult[] = 'FROM';
-							$aImapSearchResult[] = $sValue;
-    						$aImapSearchResult[] = 'HEADER "reply-to"';
-							$aImapSearchResult[] = $sValue;
-
-							$aImapSearchResult[] = 'TO';
-							$aImapSearchResult[] = $sValue;
-							$aImapSearchResult[] = 'CC';
-							$aImapSearchResult[] = $sValue;
-							$aImapSearchResult[] = 'BCC';
-							$aImapSearchResult[] = $sValue;
+							$aImapSearchResult[] = 'FROM ' . $sValue;
+    						$aImapSearchResult[] = 'HEADER "reply-to" ' . $sValue;
+							$aImapSearchResult[] = 'TO ' . $sValue;
+							$aImapSearchResult[] = 'CC ' . $sValue;
+							$aImapSearchResult[] = 'BCC ' . $sValue;
 						}
 					}
 
 					unset($aLines['EMAIL']);
 				}
 
-				if (isset($aLines['TO']))
-				{
+				if (isset($aLines['TO'])) {
 					$sValue = $this->_escapeSearchString($oImapClient, $aLines['TO']);
 
 					$aImapSearchResult[] = 'OR';
-					$aImapSearchResult[] = 'TO';
-					$aImapSearchResult[] = $sValue;
-					$aImapSearchResult[] = 'CC';
-					$aImapSearchResult[] = $sValue;
+					$aImapSearchResult[] = 'TO ' . $sValue;
+					$aImapSearchResult[] = 'CC ' . $sValue;
 
 					unset($aLines['TO']);
 				}
 
 				$sMainText = '';
-				foreach ($aLines as $sName => $sRawValue)
-				{
-					if ('' === \trim($sRawValue))
-					{
+				foreach ($aLines as $sName => $sRawValue) {
+					if ('' === \trim($sRawValue)) {
 						continue;
 					}
 
-					$sValue = $this->_escapeSearchString($oImapClient, $sRawValue);
-					switch ($sName)
-					{
+					switch ($sName) {
 						case 'FROM':
-							$aImapSearchResult[] = 'OR';
-							$aImapSearchResult[] = 'FROM';
-							$aImapSearchResult[] = $sValue;
+							$sValue = $this->_escapeSearchString($oImapClient, $sRawValue);
 
-							$aImapSearchResult[] = 'HEADER "reply-to"';
-							$aImapSearchResult[] = $sValue;
+							$aImapSearchResult[] = 'OR';
+							$aImapSearchResult[] = 'FROM ' . $sValue;
+							$aImapSearchResult[] = 'HEADER "reply-to" ' . $sValue;
 							break;
 						case 'SUBJECT':
-							$aImapSearchResult[] = 'SUBJECT';
-							$aImapSearchResult[] = $sValue;
+							//splitting string by spaces or the other delimiters
+							$aWords = preg_split('/ +/', $sRawValue);
+
+							foreach ($aWords as $sWord) {
+								$sWord = $this->_escapeSearchString($oImapClient, $sWord);
+								$aImapSearchResult[] = 'SUBJECT ' . $sWord;
+							}
 							break;
 						case 'OTHER':
 						case 'BODY':
 						case 'TEXT':
-							if ($bIsGmail)
-							{
-								$sGmailRawSearch .= ' '.$sRawValue;
-							}
-							else
-							{
-								$sMainText .= ' '.$sRawValue;
+							if ($bIsGmail) {
+								$sGmailRawSearch .= ' ' . $sRawValue;
+							} else {
+								$sMainText .= ' ' . $sRawValue;
 							}
 							break;
 						case 'HAS':
-							if (false !== strpos($sRawValue, 'attach'))
-							{
-								if ($bIsGmail)
-								{
+							if (false !== strpos($sRawValue, 'attach')) {
+								if ($bIsGmail) {
 									$sGmailRawSearch .= ' has:attachment';
-								}
-								else
-								{
+								} else {
 									$aImapSearchResult[] = 'OR OR OR';
 									$aImapSearchResult[] = 'HEADER Content-Type application/';
 									$aImapSearchResult[] = 'HEADER Content-Type multipart/m';
@@ -2636,13 +2612,11 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 									$aImapSearchResult[] = 'HEADER Content-Type multipart/report';
 								}
 							}
-							if (false !== strpos($sRawValue, 'flag'))
-							{
+							if (false !== strpos($sRawValue, 'flag')) {
 								$bFilterFlagged = true;
 								$aImapSearchResult[] = 'FLAGGED';
 							}
-							if (false !== strpos($sRawValue, 'unseen'))
-							{
+							if (false !== strpos($sRawValue, 'unseen')) {
 								$bFilterUnseen = true;
 								$aImapSearchResult[] = 'UNSEEN';
 							}
@@ -2653,38 +2627,28 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 							$sDate = $sRawValue;
 							$aDate = explode('/', $sDate);
 
-							if (is_array($aDate) && 2 === count($aDate))
-							{
-								if (0 < strlen($aDate[0]))
-								{
+							if (is_array($aDate) && 2 === count($aDate)) {
+								if (0 < strlen($aDate[0])) {
 									$iDateStampFrom = $this->_convertSearchDateToTimestamp($aDate[0], $iTimeZoneOffset);
 								}
 
-								if (0 < strlen($aDate[1]))
-								{
+								if (0 < strlen($aDate[1])) {
 									$iDateStampTo = $this->_convertSearchDateToTimestamp($aDate[1], $iTimeZoneOffset);
 									$iDateStampTo += 60 * 60 * 24;
 								}
-							}
-							else
-							{
-								if (0 < strlen($sDate))
-								{
+							} else {
+								if (0 < strlen($sDate)) {
 									$iDateStampFrom = $this->_convertSearchDateToTimestamp($sDate, $iTimeZoneOffset);
 									$iDateStampTo = $iDateStampFrom + 60 * 60 * 24;
 								}
 							}
 
-							if (0 < $iDateStampFrom)
-							{
-								$aImapSearchResult[] = 'SINCE';
-								$aImapSearchResult[] = gmdate('j-M-Y', $iDateStampFrom);
+							if (0 < $iDateStampFrom) {
+								$aImapSearchResult[] = 'SINCE ' . gmdate('j-M-Y', $iDateStampFrom);
 							}
 
-							if (0 < $iDateStampTo)
-							{
-								$aImapSearchResult[] = 'BEFORE';
-								$aImapSearchResult[] = gmdate('j-M-Y', $iDateStampTo);
+							if (0 < $iDateStampTo) {
+								$aImapSearchResult[] = 'BEFORE ' . gmdate('j-M-Y', $iDateStampTo);
 							}
 							break;
 					}
@@ -2693,59 +2657,42 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 				if ('' !== trim($sMainText))
 				{
 					$sMainText = trim(trim(preg_replace('/[\s]+/', ' ', $sMainText)), '"\'');
-					if ($bIsGmail)
-					{
-						$sGmailRawSearch .= ' '.$sRawValue;
-					}
-					else
-					{
+					
+					//splitting string by spaces or the other delimiters
+					$aWords = preg_split('/ +/', $sMainText);
+
+					foreach ($aWords as $sWord) {
+						$sWord = $this->_escapeSearchString($oImapClient, $sWord);
+
 						$aImapSearchResult[] = 'OR OR OR OR';
-
-						$aImapSearchResult[] = 'BODY';
-						$aImapSearchResult[] = $this->_escapeSearchString($oImapClient, $sMainText);
-
+						$aImapSearchResult[] = 'BODY ' . $sWord;
 						// Searching in Informatik special headers
-						$aImapSearchResult[] = 'HEADER "X-Project-Name"';
-						$aImapSearchResult[] = $this->_escapeSearchString($oImapClient, $sMainText);
-
-						$aImapSearchResult[] = 'HEADER "X-Project-ID"';
-						$aImapSearchResult[] = $this->_escapeSearchString($oImapClient, $sMainText);
-
-						$aImapSearchResult[] = 'HEADER "X-Project-Builder"';
-						$aImapSearchResult[] = $this->_escapeSearchString($oImapClient, $sMainText);
-
-						$aImapSearchResult[] = 'HEADER "X-Generated-Mail-Id"';
-						$aImapSearchResult[] = $this->_escapeSearchString($oImapClient, $sMainText);
+						$aImapSearchResult[] = 'HEADER "X-Project-Name" ' . $sWord;
+						$aImapSearchResult[] = 'HEADER "X-Project-ID" ' . $sWord;
+						$aImapSearchResult[] = 'HEADER "X-Project-Builder" ' . $sWord;
+						$aImapSearchResult[] = 'HEADER "X-Generated-Mail-Id" ' . $sWord;
 					}
 				}
 			}
 		}
 
-		if (0 < count($aFilters))
-		{
-			foreach ($aFilters as $sFilter)
-			{
-				if ('flagged' === $sFilter && !$bFilterFlagged)
-				{
+		if (0 < count($aFilters)) {
+			foreach ($aFilters as $sFilter) {
+				if ('flagged' === $sFilter && !$bFilterFlagged) {
 					$aImapSearchResult[] = 'FLAGGED';
-				}
-				else if ('unseen' === $sFilter && !$bFilterUnseen)
-				{
+				} else if ('unseen' === $sFilter && !$bFilterUnseen) {
 					$aImapSearchResult[] = 'UNSEEN';
 				}
 			}
 		}
 
 		$sGmailRawSearch = \trim($sGmailRawSearch);
-		if ($bIsGmail && 0 < \strlen($sGmailRawSearch))
-		{
-			$aImapSearchResult[] = 'X-GM-RAW';
-			$aImapSearchResult[] = $this->_escapeSearchString($oImapClient, $sGmailRawSearch, false);
+		if ($bIsGmail && 0 < \strlen($sGmailRawSearch)) {
+			$aImapSearchResult[] = 'X-GM-RAW ' . $this->_escapeSearchString($oImapClient, $sGmailRawSearch, false);
 		}
 
 		$sImapSearchResult = \trim(\implode(' ', $aImapSearchResult));
-		if ('' === $sImapSearchResult)
-		{
+		if ('' === $sImapSearchResult) {
 			$sImapSearchResult = 'ALL';
 		}
 
