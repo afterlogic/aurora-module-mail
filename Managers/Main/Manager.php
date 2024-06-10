@@ -2285,16 +2285,21 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
             if (1 === count($aLines) && isset($aLines['OTHER'])) {
                 if (true) { // TODO
-                    $sIdnValue = $this->getIdnEmailValue($aLines['OTHER']);
-                    $sIdnValue = $this->_escapeSearchString($oImapClient, $sIdnValue);
+                    //splitting string by spaces or the other delimiters
+				    $aValues = preg_split('/ +/', $aLines['OTHER']);
 
-                    $sValue = $this->_escapeSearchString($oImapClient, $aLines['OTHER']);
+                    foreach ($aValues as $sValue) {
+                        $sIdnValue = $this->getIdnEmailValue($sValue);
+                        $sIdnValue = $this->_escapeSearchString($oImapClient, $sIdnValue);
+                        $sValue = $this->_escapeSearchString($oImapClient, $sValue);
 
-                    $aImapSearchResult[] = 'OR OR OR';
-                    $aImapSearchResult[] = 'FROM ' . $sIdnValue;
-                    $aImapSearchResult[] = 'TO ' . $sIdnValue;
-                    $aImapSearchResult[] = 'CC ' . $sIdnValue;
-                    $aImapSearchResult[] = 'SUBJECT ' . $sValue;
+                        $aImapSearchResult[] = 'OR OR OR OR';
+                        $aImapSearchResult[] = 'FROM ' . $sIdnValue;
+                        $aImapSearchResult[] = 'TO ' . $sIdnValue;
+                        $aImapSearchResult[] = 'CC ' . $sIdnValue;
+                        $aImapSearchResult[] = 'SUBJECT ' . $sValue;
+                        $aImapSearchResult[] = 'BODY ' . $sValue;
+                    }
                 } else {
                     if ($bIsGmail) {
                         $sGmailRawSearch .= ' ' . $aLines['OTHER'];
@@ -2321,7 +2326,6 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                         $sEmail = trim($sEmail);
                         if (0 < strlen($sEmail)) {
                             $sValue = $this->getIdnEmailValue($sEmail);
-
                             $sValue = $this->_escapeSearchString($oImapClient, $sValue);
 
                             $aImapSearchResult[] = 'FROM ' . $sValue;
