@@ -69,6 +69,13 @@ class MessageCollection extends \MailSo\Base\Collection
     public $Search;
 
     /**
+     * Denotes search string.
+     *
+     * @var string
+     */
+    public $RealSearch;
+
+    /**
      * Denotes message lookup type. Typical use case is search in Starred folder.
      *
      * @var string
@@ -168,6 +175,7 @@ class MessageCollection extends \MailSo\Base\Collection
                 'Offset' => $this->Offset,
                 'Limit' => $this->Limit,
                 'Search' => $this->Search,
+                'RealSearch' => $this->RealSearch,
                 'Filters' => $this->Filters,
                 'New' => $this->New
             )

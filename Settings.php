@@ -399,6 +399,24 @@ class Settings extends \Aurora\System\Module\Settings
                 null,
                 "If true, Aurora will send originating IP address in IMAP ID command",
             ),
+            "SearchWordMinLength" => new SettingsProperty(
+                3,
+                "int",
+                null,
+                "Minimal search word length",
+            ),
+            "SearchWordMaxLength" => new SettingsProperty(
+                50,
+                "int",
+                null,
+                "Maximum search word length",
+            ),
+            "SearchWordTrimSymbols" => new SettingsProperty(
+                "-_",
+                "string",
+                null,
+                "",
+            ),
         ];
     }
 }

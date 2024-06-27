@@ -2178,7 +2178,10 @@ class Module extends \Aurora\System\Module\AbstractModule
         $sSortBy = \strtoupper($aSortInfo[0]);
         $sSortOrder = $aSortInfo[1] === \Aurora\System\Enums\SortOrder::DESC ? 'REVERSE' : '';
 
-        return  $this->getMailManager()->getMessageList(
+        \Aurora\System\Api::Log('Mail account: ' . $oAccount->Email, \Aurora\System\Enums\LogLevel::Full, 'mail-search-');
+		\Aurora\System\Api::Log('Search string: ' . $sSearch, \Aurora\System\Enums\LogLevel::Full, 'mail-search-');
+
+        $result = $this->getMailManager()->getMessageList(
             $oAccount,
             $Folder,
             $iOffset,
@@ -2190,6 +2193,11 @@ class Module extends \Aurora\System\Module\AbstractModule
             $sSortBy,
             $sSortOrder
         );
+
+        \Aurora\System\Api::Log('Number of messages: ' . $result->MessageResultCount, \Aurora\System\Enums\LogLevel::Full, 'mail-search-');
+		\Aurora\System\Api::Log('', \Aurora\System\Enums\LogLevel::Full, 'mail-search-');
+
+        return $result;
     }
 
     protected function getFoldersForSearch($oAccount, $Folder, $Search, &$sSearch)

@@ -2286,7 +2286,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
             if (1 === count($aLines) && isset($aLines['OTHER'])) {
                 if (true) { // TODO
                     //splitting string by spaces or the other delimiters
-				    $aValues = preg_split('/ +/', $aLines['OTHER']);
+                    $aValues = $this->getClearWordsFromSearchPhrase($aLines['OTHER']);
 
                     foreach ($aValues as $sValue) {
                         $sIdnValue = $this->getIdnEmailValue($sValue);
@@ -2466,9 +2466,9 @@ class Manager extends \Aurora\System\Managers\AbstractManager
         }
 
         $sImapSearchResult = \trim(\implode(' ', $aImapSearchResult));
-        if ('' === $sImapSearchResult) {
-            $sImapSearchResult = 'ALL';
-        }
+        // if ('' === $sImapSearchResult) {
+        //     $sImapSearchResult = 'ALL';
+        // }
 
         return $sImapSearchResult;
     }
@@ -2972,7 +2972,6 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
         $oMessageCollection = false;
 
-        $oSettings = &\Aurora\System\Api::GetSettings();
         $oImapClient = &$this->_getImapClient($oAccount, 20, 60 * 2);
 
         $oImapClient->FolderExamine($sFolderFullNameRaw);
@@ -3085,20 +3084,24 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                     $bIndexAsUid = true;
                     $aIndexOrUids = null;
 
-                    if ($bUseSortIfSupported) {
-                        $aIndexOrUids = $oImapClient->MessageSimpleSort(array($sSortOrder . ' ' . $sSortBy), $sSearchCriterias, $bIndexAsUid);
-                    } else {
-                        if (!\MailSo\Base\Utils::IsAscii($sCutedSearch)) {
-                            try {
-                                $aIndexOrUids = $oImapClient->MessageSimpleSearch($sSearchCriterias, $bIndexAsUid, 'UTF-8');
-                            } catch (\MailSo\Imap\Exceptions\NegativeResponseException $oException) {
-                                // Charset is not supported. Skip and try request without charset.
-                                $aIndexOrUids = null;
+                    $oMessageCollection->RealSearch = implode(' ', $this->getClearWordsFromSearchPhrase($sCutedSearch));
+                    
+                    if (!empty($sSearchCriterias)) {
+                        if ($bUseSortIfSupported) {
+                            $aIndexOrUids = $oImapClient->MessageSimpleSort(array($sSortOrder . ' ' . $sSortBy), $sSearchCriterias, $bIndexAsUid);
+                        } else {
+                            if (!\MailSo\Base\Utils::IsAscii($sCutedSearch)) {
+                                try {
+                                    $aIndexOrUids = $oImapClient->MessageSimpleSearch($sSearchCriterias, $bIndexAsUid, 'UTF-8');
+                                } catch (\MailSo\Imap\Exceptions\NegativeResponseException $oException) {
+                                    // Charset is not supported. Skip and try request without charset.
+                                    $aIndexOrUids = null;
+                                }
                             }
-                        }
-
-                        if (null === $aIndexOrUids) {
-                            $aIndexOrUids = $oImapClient->MessageSimpleSearch($sSearchCriterias, $bIndexAsUid);
+    
+                            if (null === $aIndexOrUids) {
+                                $aIndexOrUids = $oImapClient->MessageSimpleSearch($sSearchCriterias, $bIndexAsUid);
+                            }
                         }
                     }
 
@@ -3392,4 +3395,24 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
         return $mResult;
     }
+
+    public function getClearWordsFromSearchPhrase($sSearchPhrase)
+	{
+		$iMinLength = $this->oModule->oModuleSettings->SearchWordMinLength;
+		$iMaxLength = $this->oModule->oModuleSettings->SearchWordMaxLength;
+		$sTrimSymbols = $this->oModule->oModuleSettings->SearchWordTrimSymbols;
+		$aWords = preg_split('/ +/', $sSearchPhrase);
+
+		foreach ($aWords as &$sWord) {
+			$sWord = trim($sWord, $sTrimSymbols);
+		}
+
+		$aWords = array_filter($aWords, function($sWord) use ($iMinLength, $iMaxLength) {
+			return ($iMinLength <= strlen($sWord) && $iMaxLength >= strlen($sWord));
+		});
+
+		\Aurora\System\Api::Log('Parsed words: ' . implode(' | ', $aWords), \Aurora\System\Enums\LogLevel::Full, 'mail-search-');
+		
+		return $aWords;
+	}
 }
