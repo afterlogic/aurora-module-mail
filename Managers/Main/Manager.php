@@ -2023,14 +2023,16 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                 $iMessageCount = count($aIndexOrUids);
             }
 
-            $iMessageResultCount = 0 < strlen($sSearch) || 0 < count($aFilters)
-            ? count($aIndexOrUids) : $iMessageCount;
-
-            $aIndexOrUids = array_slice(
-                $aIndexOrUids,
-                0,
-                $Limit
-            );
+			if (is_array($aIndexOrUids)) {
+				$iMessageResultCount = 0 < strlen($sSearch) || 0 < count($aFilters)
+				? count($aIndexOrUids) : $iMessageCount;
+	
+				$aIndexOrUids = array_slice(
+					$aIndexOrUids,
+					0,
+					$Limit
+				);
+			}
 
             $aFetchResponse = null;
             if (is_array($aIndexOrUids) && 0 < count($aIndexOrUids)) {
