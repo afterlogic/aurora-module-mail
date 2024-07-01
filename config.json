@@ -200,5 +200,18 @@
 	"AllowUnifiedInbox": [
 		true,
 		"bool"
+	],
+	"SearchWordMinLength": [
+		5,
+		"int"
+	],
+	"SearchWordMaxLength": [
+		50,
+		"int"
+	],
+	"SearchWordFilterPattern": [
+		"^[^a-zA-Z0-9_\\ß#ÖÜÄäüöáàúùéèôûê]+|[^a-zA-Z0-9_\\ßÖÜÄöäüáàúùéèôûê]+$",
+		"string"
+
 	]
 }

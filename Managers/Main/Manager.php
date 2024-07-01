@@ -1931,7 +1931,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                 }
 
                 if (0 < strlen($sCutedSearch) || 0 < count($aFilters)) {
-                    $bSearch = true;
+                    // $bSearch = true;
                     $sSearchCriterias = $this->_prepareImapSearchString(
                         $oImapClient,
                         $sCutedSearch,
@@ -1941,22 +1941,24 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
                     $bIndexAsUid = true;
 
-                    if ($bUseSortIfSupported) {
-                        $aIndexOrUids = $oImapClient->MessageSimpleSort(array($sSortOrder . ' ' . $sSortBy), $sSearchCriterias, $bIndexAsUid);
-                    } else {
-                        if (!\MailSo\Base\Utils::IsAscii($sCutedSearch)) {
-                            try {
-                                $aIndexOrUids = $oImapClient->MessageSimpleSearch($sSearchCriterias, $bIndexAsUid, 'UTF-8');
-                            } catch (\MailSo\Imap\Exceptions\NegativeResponseException $oException) {
-                                // Charset is not supported. Skip and try request without charset.
-                                $aIndexOrUids = null;
-                            }
-                        }
-
-                        if (null === $aIndexOrUids) {
-                            $aIndexOrUids = $oImapClient->MessageSimpleSearch($sSearchCriterias, $bIndexAsUid);
-                        }
-                    }
+					if (!empty($sSearchCriterias)) {
+						if ($bUseSortIfSupported) {
+							$aIndexOrUids = $oImapClient->MessageSimpleSort(array($sSortOrder . ' ' . $sSortBy), $sSearchCriterias, $bIndexAsUid);
+						} else {
+							if (!\MailSo\Base\Utils::IsAscii($sCutedSearch)) {
+								try {
+									$aIndexOrUids = $oImapClient->MessageSimpleSearch($sSearchCriterias, $bIndexAsUid, 'UTF-8');
+								} catch (\MailSo\Imap\Exceptions\NegativeResponseException $oException) {
+									// Charset is not supported. Skip and try request without charset.
+									$aIndexOrUids = null;
+								}
+							}
+	
+							if (null === $aIndexOrUids) {
+								$aIndexOrUids = $oImapClient->MessageSimpleSearch($sSearchCriterias, $bIndexAsUid);
+							}
+						}
+					}
 
                     if ($bSearchAttachments && is_array($aIndexOrUids) && 0 < count($aIndexOrUids)) {
                         $aIndexOrUids = $this->_doSpecialUidsSearch(
@@ -2108,14 +2110,17 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 				$bUseSortIfSupported = $oImapClient->IsSupported('SORT');
 			}
 
-			$sFilter = $this->_prepareImapSearchString($oImapClient, $Search);
-			if ($bUseSortIfSupported)
-			{
-				$aUids = $oImapClient->MessageSimpleSort(array($sSortOrder . ' ' . $sSortBy), $sFilter);
-			}
-			else
-			{
-				$aUids = $oImapClient->MessageSimpleSearch($sFilter);
+			$sSearchCriterias = $this->_prepareImapSearchString($oImapClient, $Search);
+
+			if (!empty($sSearchCriterias)) {
+				if ($bUseSortIfSupported)
+				{
+					$aUids = $oImapClient->MessageSimpleSort(array($sSortOrder . ' ' . $sSortBy), $sSearchCriterias);
+				}
+				else
+				{
+					$aUids = $oImapClient->MessageSimpleSearch($sSearchCriterias);
+				}
 			}
 
 			$bIndexAsUid = true;
@@ -2504,7 +2509,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			// simple search mode
 			if (1 === count($aLines) && isset($aLines['OTHER'])) {
 				//splitting string by spaces or the other delimiters
-				$aWords = preg_split('/ +/', $aLines['OTHER']);
+				$aWords = $this->getClearWordsFromSearchPhrase($aLines['OTHER']);
 
 				foreach ($aWords as $sWord) {
 					$sWord = $this->_escapeSearchString($oImapClient, $sWord);
@@ -2584,7 +2589,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 							break;
 						case 'SUBJECT':
 							//splitting string by spaces or the other delimiters
-							$aWords = preg_split('/ +/', $sRawValue);
+							$aWords = $this->getClearWordsFromSearchPhrase($sRawValue);
 
 							foreach ($aWords as $sWord) {
 								$sWord = $this->_escapeSearchString($oImapClient, $sWord);
@@ -2659,7 +2664,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 					$sMainText = trim(trim(preg_replace('/[\s]+/', ' ', $sMainText)), '"\'');
 					
 					//splitting string by spaces or the other delimiters
-					$aWords = preg_split('/ +/', $sMainText);
+					$aWords = $this->getClearWordsFromSearchPhrase($sMainText);
 
 					foreach ($aWords as $sWord) {
 						$sWord = $this->_escapeSearchString($oImapClient, $sWord);
@@ -2692,9 +2697,11 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		}
 
 		$sImapSearchResult = \trim(\implode(' ', $aImapSearchResult));
-		if ('' === $sImapSearchResult) {
-			$sImapSearchResult = 'ALL';
-		}
+		// if ('' === $sImapSearchResult) {
+		// 	$sImapSearchResult = 'ALL';
+		// }
+
+		\Aurora\System\Api::Log('IMAP: ' . $sImapSearchResult, \Aurora\System\Enums\LogLevel::Full, 'mail-search-');
 
 		return $sImapSearchResult;
 	}
@@ -3351,28 +3358,32 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 					$bIndexAsUid = true;
 					$aIndexOrUids = null;
 
-					if ($bUseSortIfSupported)
-					{
-						$aIndexOrUids = $oImapClient->MessageSimpleSort(array($sSortOrder . ' ' . $sSortBy), $sSearchCriterias, $bIndexAsUid);
-					}
-					else
-					{
-						if (!\MailSo\Base\Utils::IsAscii($sCutedSearch))
-						{
-							try
-							{
-								$aIndexOrUids = $oImapClient->MessageSimpleSearch($sSearchCriterias, $bIndexAsUid, 'UTF-8');
-							}
-							catch (\MailSo\Imap\Exceptions\NegativeResponseException $oException)
-							{
-								// Charset is not supported. Skip and try request without charset.
-								$aIndexOrUids = null;
-							}
-						}
+					$oMessageCollection->RealSearch = implode(' ', $this->getClearWordsFromSearchPhrase($sCutedSearch));
 
-						if (null === $aIndexOrUids)
+					if (!empty($sSearchCriterias)) {
+						if ($bUseSortIfSupported)
 						{
-							$aIndexOrUids = $oImapClient->MessageSimpleSearch($sSearchCriterias, $bIndexAsUid);
+							$aIndexOrUids = $oImapClient->MessageSimpleSort(array($sSortOrder . ' ' . $sSortBy), $sSearchCriterias, $bIndexAsUid);
+						}
+						else
+						{
+							if (!\MailSo\Base\Utils::IsAscii($sCutedSearch))
+							{
+								try
+								{
+									$aIndexOrUids = $oImapClient->MessageSimpleSearch($sSearchCriterias, $bIndexAsUid, 'UTF-8');
+								}
+								catch (\MailSo\Imap\Exceptions\NegativeResponseException $oException)
+								{
+									// Charset is not supported. Skip and try request without charset.
+									$aIndexOrUids = null;
+								}
+							}
+
+							if (null === $aIndexOrUids)
+							{
+								$aIndexOrUids = $oImapClient->MessageSimpleSearch($sSearchCriterias, $bIndexAsUid);
+							}
 						}
 					}
 
@@ -3694,5 +3705,26 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 		}
 
 		return $mResult;
+	}
+
+	public function getClearWordsFromSearchPhrase($sSearchPhrase)
+	{
+		$oMailModule = $this->GetModule();
+
+		$iMinLength = $oMailModule->getConfig('SearchWordMinLength', 5);
+		$iMaxLength = $oMailModule->getConfig('SearchWordMaxLength', 50);
+		$sPattern = $oMailModule->getConfig('SearchWordFilterPattern', '');
+        $aWords = preg_split('/ +/', $sSearchPhrase);
+		
+        foreach ($aWords as &$sWord) {
+			$sWord = preg_replace('/' . $sPattern . '/', '', $sWord);
+        }
+		$aWords = array_filter($aWords, function($sWord) use ($iMinLength, $iMaxLength) {
+			return ($iMinLength <= strlen($sWord) && $iMaxLength >= strlen($sWord));
+		});
+		
+		\Aurora\System\Api::Log('Parsed words: ' . implode(' | ', $aWords), \Aurora\System\Enums\LogLevel::Full, 'mail-search-');
+		
+		return $aWords;
 	}
 }

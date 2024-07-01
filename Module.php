@@ -359,7 +359,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 			'ImageUploadSizeLimit' => $this->getConfig('ImageUploadSizeLimit', 0),
             'AllowUnifiedInbox' => $this->getConfig('AllowUnifiedInbox', false),
 			'SmtpAuthType' => (new \Aurora\Modules\Mail\Enums\SmtpAuthType)->getMap(),
-			'MessagesSortBy' => $this->getConfig('MessagesSortBy', [])
+			'MessagesSortBy' => $this->getConfig('MessagesSortBy', []),
+			'SearchWordMinLength' => $this->getConfig('SearchWordMinLength', 3),
+            'SearchWordMaxLength' => $this->getConfig('SearchWordMaxLength', 50),
+            'SearchWordFilterPattern' => $this->getConfig('SearchWordFilterPattern', '')
 		);
 
 		$oUser = \Aurora\System\Api::getAuthenticatedUser();
@@ -2251,9 +2254,17 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		$sSortBy = \strtoupper($aSortInfo[0]);
 		$sSortOrder = $aSortInfo[1] === \Aurora\System\Enums\SortOrder::DESC ? 'REVERSE' : '';
+		
+		\Aurora\System\Api::Log('Mail account: ' . $oAccount->Email, \Aurora\System\Enums\LogLevel::Full, 'mail-search-');
+		\Aurora\System\Api::Log('Search string: ' . $sSearch, \Aurora\System\Enums\LogLevel::Full, 'mail-search-');
 
-		return $this->getMailManager()->getMessageList(
+		$result = $this->getMailManager()->getMessageList(
 			$oAccount, $Folder, $iOffset, $iLimit, $sSearch, $UseThreading, $aFilters, $InboxUidnext, $sSortBy, $sSortOrder);
+		
+		\Aurora\System\Api::Log('Number of messages: ' . $result->MessageResultCount, \Aurora\System\Enums\LogLevel::Full, 'mail-search-');
+		\Aurora\System\Api::Log('', \Aurora\System\Enums\LogLevel::Full, 'mail-search-');
+
+		return $result;
 	}
 
 	protected function getFoldersForSearch($oAccount, $Folder, $iSearchMode)
