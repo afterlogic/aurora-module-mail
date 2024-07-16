@@ -4606,7 +4606,7 @@ class Module extends \Aurora\System\Module\AbstractModule
             throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
         }
 
-        $oIdentity = $IdentityID !== 0 ? $this->getIdentitiesManager()->getIdentity($IdentityID) : null;
+        $oIdentity = $IdentityID !== 0 ? $this->getIdentitiesManager()->getIdentity($IdentityID, $AccountID) : null;
 
         $oMessage = self::Decorator()->BuildMessage(
             $oAccount,
@@ -4771,7 +4771,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
         self::checkAccess($oAccount);
 
-        $oIdentity = $IdentityID !== 0 ? $this->getIdentitiesManager()->getIdentity($IdentityID) : null;
+        $oIdentity = $IdentityID !== 0 ? $this->getIdentitiesManager()->getIdentity($IdentityID, $AccountID) : null;
 
         $oMessage = self::Decorator()->BuildMessage(
             $oAccount,
@@ -5118,6 +5118,10 @@ class Module extends \Aurora\System\Module\AbstractModule
 
         self::checkAccess($oAccount);
 
+        if ($this->oModuleSettings->OnlyUserEmailsInIdentities) {
+            $Email = $oAccount->Email;
+        }
+
         return $this->getIdentitiesManager()->createIdentity($UserId, $AccountID, $FriendlyName, $Email);
     }
 
@@ -5183,25 +5187,32 @@ class Module extends \Aurora\System\Module\AbstractModule
      * @param string $FriendlyName New value of identity friendly name.
      * @param string $Email New value of identity email.
      * @param boolean $Default Indicates if identity should be used by default.
-     * @param boolean $AccountPart Indicated if account should be updated, not any identity.
      * @return boolean
      */
-    public function UpdateIdentity($UserId, $AccountID, $EntityId, $FriendlyName, $Email, $Default = false, $AccountPart = false)
+    public function UpdateIdentity($UserId, $AccountID, $EntityId, $FriendlyName, $Email, $Default = false)
     {
         \Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 
-        $oAccount = $this->getAccountsManager()->getAccountById($AccountID);
+        if ($this->oModuleSettings->AllowIdentities) {
+            $oAccount = $this->getAccountsManager()->getAccountById($AccountID);
 
-        self::checkAccess($oAccount);
+            self::checkAccess($oAccount);
 
-        if ($Default) {
-            $this->getIdentitiesManager()->resetDefaultIdentity($UserId, $AccountID);
-        }
+            if ($Default) {
+                $this->getIdentitiesManager()->resetDefaultIdentity($UserId, $AccountID);
+            }
 
-        if ($AccountPart) {
-            return $this->UpdateAccount($AccountID, null, $Email, $FriendlyName);
+            if ($this->oModuleSettings->OnlyUserEmailsInIdentities) {
+                $Email = $oAccount->Email;
+            }
+
+            if ($EntityId === null) {
+                return !!$this->UpdateAccount($AccountID, null, $Email, $FriendlyName);
+            } else {
+                return $this->getIdentitiesManager()->updateIdentity($EntityId, $AccountID, $FriendlyName, $Email, $Default);
+            }
         } else {
-            return $this->getIdentitiesManager()->updateIdentity($EntityId, $FriendlyName, $Email, $Default);
+            return false;
         }
     }
 
@@ -5265,7 +5276,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
         self::checkAccess($oAccount);
 
-        return $this->getIdentitiesManager()->deleteIdentity($EntityId);
+        return $this->getIdentitiesManager()->deleteIdentity($EntityId, $AccountID);
     }
 
     /**
@@ -5409,7 +5420,7 @@ class Module extends \Aurora\System\Module\AbstractModule
             self::checkAccess($oAccount);
 
             if ($this->oModuleSettings->AllowIdentities && $IdentityId !== null) {
-                return $this->getIdentitiesManager()->updateIdentitySignature($IdentityId, $UseSignature, $Signature);
+                return $this->getIdentitiesManager()->updateIdentitySignature($IdentityId, $AccountID, $UseSignature, $Signature);
             } else {
                 if ($oAccount) {
                     if ($UseSignature !== null) {
@@ -5419,7 +5430,7 @@ class Module extends \Aurora\System\Module\AbstractModule
                         $oAccount->Signature = $Signature;
                     }
 
-                    return $this->getAccountsManager()->updateAccount($oAccount);
+                    return !!$this->getAccountsManager()->updateAccount($oAccount);
                 }
             }
         } else {

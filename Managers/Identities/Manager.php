@@ -56,9 +56,9 @@ class Manager extends \Aurora\System\Managers\AbstractManager
      * @param int $Id
      * @return Identity
      */
-    public function getIdentity($Id)
+    public function getIdentity($Id, $iIdAccount)
     {
-        return Identity::find($Id);
+        return Identity::where('IdAccount', $iIdAccount)->find($Id);
     }
 
     /**
@@ -77,11 +77,11 @@ class Manager extends \Aurora\System\Managers\AbstractManager
      * @param boolean $bDefault
      * @return boolean
      */
-    public function updateIdentity($iId, $sFriendlyName, $sEmail, $bDefault)
+    public function updateIdentity($iId, $iIdAccount, $sFriendlyName, $sEmail, $bDefault)
     {
         $mResult = false;
         try {
-            $oIdentity = Identity::findOrFail($iId);
+            $oIdentity = Identity::where('IdAccount', $iIdAccount)->findOrFail($iId);
             $oIdentity->FriendlyName = $sFriendlyName;
             $oIdentity->Email = $sEmail;
             $oIdentity->Default = $bDefault;
@@ -99,10 +99,10 @@ class Manager extends \Aurora\System\Managers\AbstractManager
      * @param string $sSignature
      * @return boolean
      */
-    public function updateIdentitySignature($iId, $bUseSignature, $sSignature)
+    public function updateIdentitySignature($iId, $iIdAccount, $bUseSignature, $sSignature)
     {
         try {
-            $oIdentity = Identity::find($iId);
+            $oIdentity = Identity::where('IdAccount', $iIdAccount)->findOrFail($iId);
             $oIdentity->UseSignature = $bUseSignature;
             $oIdentity->Signature = $sSignature;
             return $oIdentity->save();
@@ -117,12 +117,12 @@ class Manager extends \Aurora\System\Managers\AbstractManager
      * @param int $iId
      * @return boolean
      */
-    public function deleteIdentity($iId)
+    public function deleteIdentity($iId, $iIdAccount)
     {
         $bResult = false;
 
         try {
-            $bResult = !!Identity::find($iId)->delete();
+            $bResult = !!Identity::where('IdAccount', $iIdAccount)->find($iId)->delete();
         } catch (\Aurora\System\Exceptions\BaseException $oException) {
             $this->setLastException($oException);
         }
@@ -138,25 +138,12 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     public function getIdentities($iUserId, Builder $oFilters = null)
     {
         $aResult = false;
-        $iOffset = 0;
-        $iLimit = 0;
 
         $oQuery = isset($oFilters) ? $oFilters : Identity::query();
         $oQuery->where('IdUser', $iUserId);
 
-        $sOrderBy = 'FriendlyName';
-        $iOrderType = SortOrder::ASC;
-
         try {
-            if ($iOffset > 0) {
-                $oQuery->offset($iOffset);
-            }
-
-            if ($iLimit > 0) {
-                $oQuery->limit($iLimit);
-            }
-
-            $aResult = $oQuery->orderBy($sOrderBy, $iOrderType === SortOrder::ASC ? 'asc' : 'desc')->get();
+            $aResult = $oQuery->orderBy('FriendlyName')->get();
         } catch (\Aurora\System\Exceptions\BaseException $oException) {
             $aResult = false;
             $this->setLastException($oException);
@@ -181,13 +168,6 @@ class Manager extends \Aurora\System\Managers\AbstractManager
      */
     public function resetDefaultIdentity($iUserId, $iAccountId)
     {
-        $oFilters = Identity::query()->where('default', true);
-        $aIdentities = $this->getIdentities($iUserId, $oFilters);
-        foreach ($aIdentities as $oIdentity) {
-            if ($oIdentity->IdAccount === $iAccountId) { // TODO strange conditions. Can be refactored?
-                $oIdentity->Default = false;
-                $oIdentity->save();
-            }
-        }
+        Identity::where('IdUser', $iUserId)->where('IdAccount', $iAccountId)->where('Default', true)->update(['Default' => false]);
     }
 }
