@@ -162,6 +162,7 @@ class Server extends Model
     ];
 
     protected $casts = [
+        'Properties' => 'array',
         'IncomingUseSsl' => 'boolean',
         'OutgoingUseSsl' => 'boolean',
         'EnableSieve' => 'boolean',
