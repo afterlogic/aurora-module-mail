@@ -8,7 +8,6 @@
 namespace Aurora\Modules\Mail\Managers\Identities;
 
 use Aurora\Modules\Mail\Models\Identity;
-use Aurora\System\Enums\SortOrder;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -54,6 +53,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
     /**
      * @param int $Id
+     * @param int $iIdAccount
      * @return Identity
      */
     public function getIdentity($Id, $iIdAccount)
@@ -72,6 +72,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
     /**
      * @param int $iId
+     * @param int $iIdAccount
      * @param string $sFriendlyName
      * @param string $sEmail
      * @param boolean $bDefault
@@ -95,6 +96,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
     /**
      * @param int $iId
+     * @param int $iIdAccount
      * @param boolean $bUseSignature
      * @param string $sSignature
      * @return boolean
@@ -115,6 +117,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
     /**
      * @param int $iId
+     * @param int $iIdAccount
      * @return boolean
      */
     public function deleteIdentity($iId, $iIdAccount)
