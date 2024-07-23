@@ -17,6 +17,7 @@ use Aurora\Modules\Mail\Models\TrustedSender;
 use Aurora\System\Application;
 use Aurora\System\Enums\LogLevel;
 use Aurora\System\Exceptions\InvalidArgumentException;
+use MailSo\Base\HtmlUtils;
 use PHPMailer\DKIMValidator\Validator as DKIMValidator;
 use PHPMailer\DKIMValidator\DKIMException;
 
@@ -5422,6 +5423,10 @@ class Module extends \Aurora\System\Module\AbstractModule
             $oAccount = $this->getAccountsManager()->getAccountById($AccountID);
 
             self::checkAccess($oAccount);
+
+            if ($Signature !== null) {
+                $Signature = HtmlUtils::ClearHtml($Signature);
+            }
 
             if ($this->oModuleSettings->AllowIdentities && $IdentityId !== null) {
                 return $this->getIdentitiesManager()->updateIdentitySignature($IdentityId, $AccountID, $UseSignature, $Signature);
