@@ -5630,7 +5630,8 @@ class Module extends \Aurora\System\Module\AbstractModule
                     $mResult = array();
                     foreach ($Attachments as $sAttachment) {
                         $aValues = \Aurora\System\Api::DecodeKeyValues($sAttachment);
-                        if (is_array($aValues)) {
+                        if (is_array($aValues) && isset($aValues['AccountID']) && $aValues['AccountID'] === $AccountID) {
+
                             $sFolder = isset($aValues['Folder']) ? $aValues['Folder'] : '';
                             $iUid = (int) isset($aValues['Uid']) ? $aValues['Uid'] : 0;
                             $sMimeIndex = (string) isset($aValues['MimeIndex']) ? $aValues['MimeIndex'] : '';
@@ -5656,6 +5657,8 @@ class Module extends \Aurora\System\Module\AbstractModule
                             } else {
                                 $mResult[$sTempName] = $sAttachment;
                             }
+                        } else {
+                            Api::Log('Error: can\'t read attachment data from hash.');
                         }
                     }
                 }
