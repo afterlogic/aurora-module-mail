@@ -371,6 +371,9 @@ class Module extends \Aurora\System\Module\AbstractModule
             'SmtpAuthType' => (new \Aurora\Modules\Mail\Enums\SmtpAuthType())->getMap(),
             'MessagesSortBy' => $this->oModuleSettings->MessagesSortBy,
             'AllowScheduledAutoresponder' => $this->oModuleSettings->AllowScheduledAutoresponder,
+            'SearchWordMinLength' => $this->oModuleSettings->SearchWordMinLength,
+            'SearchWordMaxLength' => $this->oModuleSettings->SearchWordMaxLength,
+            'SearchWordFilterPattern' => $this->oModuleSettings->SearchWordFilterPattern,
         );
 
         $oUser = \Aurora\System\Api::getAuthenticatedUser();

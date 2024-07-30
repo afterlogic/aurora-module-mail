@@ -1,35 +1,35 @@
-<?php
-/**
- * This code is licensed under AGPLv3 license or Afterlogic Software License
- * if commercial version of the product was purchased.
- * For full statements of the licenses see LICENSE-AFTERLOGIC and LICENSE-AGPL3 files.
- */
+    <?php
+    /**
+     * This code is licensed under AGPLv3 license or Afterlogic Software License
+     * if commercial version of the product was purchased.
+     * For full statements of the licenses see LICENSE-AFTERLOGIC and LICENSE-AGPL3 files.
+     */
 
-namespace Aurora\Modules\Mail\Managers\Main;
+    namespace Aurora\Modules\Mail\Managers\Main;
 
-use Aurora\Modules\Mail\Enums\ErrorCodes;
-use Aurora\Modules\Mail\Models\MailAccount;
-use Aurora\Modules\Mail\Models\RefreshFolder;
-use Aurora\Modules\Mail\Models\TrustedSender;
-use Aurora\Modules\Mail\Models\SystemFolder;
-use Aurora\Modules\Mail\Module;
-use Aurora\System\Exceptions;
-use Aurora\System\Exceptions\ApiException;
-use MailSo\Mime\Email;
+    use Aurora\Modules\Mail\Enums\ErrorCodes;
+    use Aurora\Modules\Mail\Models\MailAccount;
+    use Aurora\Modules\Mail\Models\RefreshFolder;
+    use Aurora\Modules\Mail\Models\TrustedSender;
+    use Aurora\Modules\Mail\Models\SystemFolder;
+    use Aurora\Modules\Mail\Module;
+    use Aurora\System\Exceptions;
+    use Aurora\System\Exceptions\ApiException;
+    use MailSo\Mime\Email;
 
-/**
- * Manager for work with ImapClient.
- *
- * @license https://www.gnu.org/licenses/agpl-3.0.html AGPL-3.0
- * @license https://afterlogic.com/products/common-licensing Afterlogic Software License
- * @copyright Copyright (c) 2023, Afterlogic Corp.
- *
- * @package Mail
- *
- * @property Module $oModule
- */
-class Manager extends \Aurora\System\Managers\AbstractManager
-{
+    /**
+     * Manager for work with ImapClient.
+     *
+     * @license https://www.gnu.org/licenses/agpl-3.0.html AGPL-3.0
+     * @license https://afterlogic.com/products/common-licensing Afterlogic Software License
+     * @copyright Copyright (c) 2023, Afterlogic Corp.
+     *
+     * @package Mail
+     *
+     * @property Module $oModule
+     */
+    class Manager extends \Aurora\System\Managers\AbstractManager
+    {
     /**
      * @var array List of ImapClient objects.
      */
@@ -753,7 +753,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
             - number of unread messages;
             - UIDNEXT value for the folder;
             - hash string which changes its value if any of the other 3 values were changed.
-     */
+        */
     public function getFolderInformation($oAccount, $sFolderFullNameRaw)
     {
         if (0 === strlen($sFolderFullNameRaw)) {
@@ -2002,12 +2002,12 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     }
 
     /**
-     * Retrieves quota information for the account.
-     *
-     * @param MailAccount $oAccount Account object.
-     *
-     * @return array|bool Array of quota values or bool if the information is unavailable.
-     */
+    * Retrieves quota information for the account.
+    *
+    * @param MailAccount $oAccount Account object.
+    *
+    * @return array|bool Array of quota values or bool if the information is unavailable.
+    */
     public function getQuota($oAccount)
     {
         $iMAX_32_INT = 2147483647;
@@ -2021,20 +2021,20 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     }
 
     /**
-     * This is universal function for obtaining any MIME data via stream.
-     *
-     * @param MailAccount $oAccount Account object.
-     * @param mixed $mCallback This callback accepts the following parameters: $rMessageMimeIndexStream, $sContentType, $sFileName, $sMimeIndex.
-     * @param string $sFolderName Folder the message resides in.
-     * @param int $iUid UID of the message we're working with.
-     * @param string $sMimeIndex = ''. Mime index of message part.
-     *
-     * @return bool
-     *
-     * @throws \MailSo\Base\Exceptions\InvalidArgumentException
-     * @throws \MailSo\Net\Exceptions\Exception
-     * @throws \MailSo\Imap\Exceptions\Exception
-     */
+    * This is universal function for obtaining any MIME data via stream.
+    *
+    * @param MailAccount $oAccount Account object.
+    * @param mixed $mCallback This callback accepts the following parameters: $rMessageMimeIndexStream, $sContentType, $sFileName, $sMimeIndex.
+    * @param string $sFolderName Folder the message resides in.
+    * @param int $iUid UID of the message we're working with.
+    * @param string $sMimeIndex = ''. Mime index of message part.
+    *
+    * @return bool
+    *
+    * @throws \MailSo\Base\Exceptions\InvalidArgumentException
+    * @throws \MailSo\Net\Exceptions\Exception
+    * @throws \MailSo\Imap\Exceptions\Exception
+    */
     public function directMessageToStream($oAccount, $mCallback, $sFolderName, $iUid, $sMimeIndex = '')
     {
         if (!is_callable($mCallback)) {
@@ -2120,13 +2120,13 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     }
 
     /**
-     * Escapes quotes in search string.
-     *
-     * @param string $sSearch Search string for escaping.
-     * @param bool $bDetectGmail = true. If **true** function will use gmail mode for escaping.
-     *
-     * @return string
-     */
+    * Escapes quotes in search string.
+    *
+    * @param string $sSearch Search string for escaping.
+    * @param bool $bDetectGmail = true. If **true** function will use gmail mode for escaping.
+    *
+    * @return string
+    */
     private function _escapeSearchString($oImapClient, $sSearch, $bDetectGmail = true)
     {
         return ($bDetectGmail && 'ssl://imap.gmail.com' === strtolower($oImapClient->GetConnectedHost())) // gmail
@@ -2135,13 +2135,13 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     }
 
     /**
-     * Converts date from search string to Unix timestamp.
-     *
-     * @param string $sDate Date in string format.
-     * @param int $iTimeZoneOffset Time zone in which the date string should be parsed.
-     *
-     * @return int
-     */
+    * Converts date from search string to Unix timestamp.
+    *
+    * @param string $sDate Date in string format.
+    * @param int $iTimeZoneOffset Time zone in which the date string should be parsed.
+    *
+    * @return int
+    */
     private function _convertSearchDateToTimestamp($sDate, $iTimeZoneOffset)
     {
         $iResult = 0;
@@ -2155,12 +2155,12 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     }
 
     /**
-     * Parses search string to it's parts.
-     *
-     * @param string $sSearch Search string.
-     *
-     * @return array
-     */
+    * Parses search string to it's parts.
+    *
+    * @param string $sSearch Search string.
+    *
+    * @return array
+    */
     private function _parseSearchString($sSearch)
     {
         $aResult = array(
@@ -2255,15 +2255,15 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     }
 
     /**
-     * Prepares search string for searching on IMAP.
-     *
-     * @param Object $oImapClient ImapClient object.
-     * @param string $sSearch Search string.
-     * @param int $iTimeZoneOffset = 0. Time zone in which the date string should be parsed.
-     * @param array $aFilters = array(). Shows what filters must be considered when searching.
-     *
-     * @return string
-     */
+    * Prepares search string for searching on IMAP.
+    *
+    * @param Object $oImapClient ImapClient object.
+    * @param string $sSearch Search string.
+    * @param int $iTimeZoneOffset = 0. Time zone in which the date string should be parsed.
+    * @param array $aFilters = array(). Shows what filters must be considered when searching.
+    *
+    * @return string
+    */
     private function _prepareImapSearchString($oImapClient, $sSearch, $iTimeZoneOffset = 0, $aFilters = array())
     {
         $aImapSearchResult = array();
@@ -2474,12 +2474,12 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     }
 
     /**
-     * Reverses recursively thread uids and returns simple array.
-     *
-     * @param array $aThreadUids Hierarchical structure containing thread uids.
-     *
-     * @return array
-     */
+    * Reverses recursively thread uids and returns simple array.
+    *
+    * @param array $aThreadUids Hierarchical structure containing thread uids.
+    *
+    * @return array
+    */
     private function _reverseThreadUids($aThreadUids)
     {
         $aThreadUids = array_reverse($aThreadUids);
@@ -2492,12 +2492,12 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     }
 
     /**
-     * Maps recursively thread list.
-     *
-     * @param array $aThreads Thread list.
-     *
-     * @return array
-     */
+    * Maps recursively thread list.
+    *
+    * @param array $aThreads Thread list.
+    *
+    * @return array
+    */
     private function _mapThreadList($aThreads)
     {
         $aNew = array();
@@ -2517,14 +2517,14 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     }
 
     /**
-     * Compares items for sorting.
-     *
-     * @param mixed $a First item to compare.
-     * @param mixed $b Second item to compare.
-     * @param array $aSortUidsFlipped Array contains items to compare.
-     *
-     * @return int
-     */
+    * Compares items for sorting.
+    *
+    * @param mixed $a First item to compare.
+    * @param mixed $b Second item to compare.
+    * @param array $aSortUidsFlipped Array contains items to compare.
+    *
+    * @return int
+    */
     public function _sortHelper($a, $b, $aSortUidsFlipped)
     {
         if ($a === $b) {
@@ -2548,13 +2548,13 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     }
 
     /**
-     * Sorts array by array.
-     *
-     * @param array $aInput
-     * @param array $aSortUidsFlipped
-     *
-     * @return void
-     */
+    * Sorts array by array.
+    *
+    * @param array $aInput
+    * @param array $aSortUidsFlipped
+    *
+    * @return void
+    */
     private function _sortArrayByArray(&$aInput, $aSortUidsFlipped)
     {
         $self = $this;
@@ -2565,13 +2565,13 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     }
 
     /**
-     * Sorts array key by array.
-     *
-     * @param array $aThreads
-     * @param array $aSortUidsFlipped
-     *
-     * @return void
-     */
+    * Sorts array key by array.
+    *
+    * @param array $aThreads
+    * @param array $aSortUidsFlipped
+    *
+    * @return void
+    */
     private function _sortArrayKeyByArray(&$aThreads, $aSortUidsFlipped)
     {
         $self = $this;
@@ -2582,10 +2582,10 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     }
 
     /**
-     * Breaks into chunks each thread from the list and returns the list by reference.
-     *
-     * @param array $aThreads Thread list obtained by reference.
-     */
+    * Breaks into chunks each thread from the list and returns the list by reference.
+    *
+    * @param array $aThreads Thread list obtained by reference.
+    */
     private function _chunkThreadList(&$aThreads)
     {
         $iLimit = 200;
@@ -2611,13 +2611,13 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     }
 
     /**
-     * Resorts thread list.
-     *
-     * @param array $aThreads Thread list.
-     * @param array $aSortUids Sort Uids.
-     *
-     * @return array
-     */
+    * Resorts thread list.
+    *
+    * @param array $aThreads Thread list.
+    * @param array $aSortUids Sort Uids.
+    *
+    * @return array
+    */
     private function _resortThreadList($aThreads, $aSortUids)
     {
         $aSortUidsFlipped = array_flip($aSortUids);
@@ -2637,12 +2637,12 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     }
 
     /**
-     * Compiles thread list.
-     *
-     * @param array $aThreads Thread list.
-     *
-     * @return array
-     */
+    * Compiles thread list.
+    *
+    * @param array $aThreads Thread list.
+    *
+    * @return array
+    */
     private function _compileThreadList($aThreads)
     {
         $aThreads = $this->_reverseThreadUids($aThreads);
@@ -2670,17 +2670,17 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     }
 
     /**
-     * Fetches some messages data and returns it in callback.
-     *
-     * @param Object $oImapClient ImapClient object.
-     * @param string $sIndexRange
-     * @param callable $fItemCallback callback wich is used for data returning.
-     * @param bool $bRangeAsUids = false.
-     *
-     * @return array
-     *
-     * @throws \Aurora\System\Exceptions\InvalidArgumentException
-     */
+    * Fetches some messages data and returns it in callback.
+    *
+    * @param Object $oImapClient ImapClient object.
+    * @param string $sIndexRange
+    * @param callable $fItemCallback callback wich is used for data returning.
+    * @param bool $bRangeAsUids = false.
+    *
+    * @return array
+    *
+    * @throws \Aurora\System\Exceptions\InvalidArgumentException
+    */
     private function _doSpecialSubRequest($oImapClient, $sIndexRange, $fItemCallback, $bRangeAsUids = false)
     {
         $aResult = array();
@@ -2722,16 +2722,16 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     }
 
     /**
-     * Searches messages and messages data.
-     *
-     * @param Object $oImapClient
-     * @param callable $fItemCallback
-     * @param string $sFolderFullNameRaw
-     *
-     * @return array
-     *
-     * @throws \Aurora\System\Exceptions\InvalidArgumentException
-     */
+    * Searches messages and messages data.
+    *
+    * @param Object $oImapClient
+    * @param callable $fItemCallback
+    * @param string $sFolderFullNameRaw
+    *
+    * @return array
+    *
+    * @throws \Aurora\System\Exceptions\InvalidArgumentException
+    */
     private function _doSpecialIndexSearch($oImapClient, $fItemCallback, $sFolderFullNameRaw)
     {
         if (0 === strlen($sFolderFullNameRaw) ||
@@ -2790,17 +2790,17 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     }
 
     /**
-     * Searches messages uids for message list.
-     *
-     * @param Object $oImapClient
-     * @param callable $fItemCallback
-     * @param string $sFolderFullNameRaw
-     * @param array $aUids
-     *
-     * @return array
-     *
-     * @throws \Aurora\System\Exceptions\InvalidArgumentException
-     */
+    * Searches messages uids for message list.
+    *
+    * @param Object $oImapClient
+    * @param callable $fItemCallback
+    * @param string $sFolderFullNameRaw
+    * @param array $aUids
+    *
+    * @return array
+    *
+    * @throws \Aurora\System\Exceptions\InvalidArgumentException
+    */
     private function _doSpecialUidsSearch($oImapClient, $fItemCallback, $sFolderFullNameRaw, $aUids)
     {
         if (0 === strlen($sFolderFullNameRaw) || !is_callable($fItemCallback) ||
@@ -2851,18 +2851,18 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     }
 
     /**
-     * @param MailAccount $oAccount Account object.
-     * @param string $sFolderName
-     * @param int $iIndex
-     * @param bool $bIndexIsUid = true
+    * @param MailAccount $oAccount Account object.
+    * @param string $sFolderName
+    * @param int $iIndex
+    * @param bool $bIndexIsUid = true
 
-     *
-     * @return \MailSo\Mail\Message|false
-     *
-     * @throws \MailSo\Base\Exceptions\InvalidArgumentException
-     * @throws \MailSo\Net\Exceptions\Exception
-     * @throws \MailSo\Imap\Exceptions\Exception
-     */
+        *
+        * @return \MailSo\Mail\Message|false
+        *
+        * @throws \MailSo\Base\Exceptions\InvalidArgumentException
+        * @throws \MailSo\Net\Exceptions\Exception
+        * @throws \MailSo\Imap\Exceptions\Exception
+        */
     public function getMessage($oAccount, $sFolderName, $iIndex, $bIndexIsUid = true)
     {
         $iBodyTextLimit = null;
@@ -2939,21 +2939,21 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     }
 
     /**
-     * Obtains message list with messages data.
-     *
-     * @param \Aurora\Modules\Mail\Models\MailAccount $oAccount Account object.
-     * @param string $sFolderFullNameRaw Raw full name of the folder.
-     * @param int $iOffset = 0. Offset value for obtaining a partial list.
-     * @param int $iLimit = 20. Limit value for obtaining a partial list.
-     * @param string $sSearch = ''. Search text.
-     * @param bool $bUseThreading = false. If **true**, message list will be returned in threaded mode.
-     * @param array $aFilters = array(). Contains filters for searching of messages.
-     * @param string $sInboxUidnext = ''. Uidnext value of Inbox folder.
-     *
-     * @return \Aurora\Modules\Mail\Classes\MessageCollection
-     *
-     * @throws \Aurora\System\Exceptions\InvalidArgumentException
-     */
+    * Obtains message list with messages data.
+    *
+    * @param \Aurora\Modules\Mail\Models\MailAccount $oAccount Account object.
+    * @param string $sFolderFullNameRaw Raw full name of the folder.
+    * @param int $iOffset = 0. Offset value for obtaining a partial list.
+    * @param int $iLimit = 20. Limit value for obtaining a partial list.
+    * @param string $sSearch = ''. Search text.
+    * @param bool $bUseThreading = false. If **true**, message list will be returned in threaded mode.
+    * @param array $aFilters = array(). Contains filters for searching of messages.
+    * @param string $sInboxUidnext = ''. Uidnext value of Inbox folder.
+    *
+    * @return \Aurora\Modules\Mail\Classes\MessageCollection
+    *
+    * @throws \Aurora\System\Exceptions\InvalidArgumentException
+    */
     public function getMessageList(
         $oAccount,
         $sFolderFullNameRaw,
@@ -3085,7 +3085,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                     $aIndexOrUids = null;
 
                     $oMessageCollection->RealSearch = implode(' ', $this->getClearWordsFromSearchPhrase($sCutedSearch));
-                    
+
                     if (!empty($sSearchCriterias)) {
                         if ($bUseSortIfSupported) {
                             $aIndexOrUids = $oImapClient->MessageSimpleSort(array($sSortOrder . ' ' . $sSortBy), $sSearchCriterias, $bIndexAsUid);
@@ -3098,7 +3098,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                                     $aIndexOrUids = null;
                                 }
                             }
-    
+
                             if (null === $aIndexOrUids) {
                                 $aIndexOrUids = $oImapClient->MessageSimpleSearch($sSearchCriterias, $bIndexAsUid);
                             }
@@ -3232,16 +3232,16 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     }
 
     /**
-     * Obtains a list of specific messages.
-     *
-     * @param MailAccount $oAccount Account object.
-     * @param string $sFolderFullNameRaw Raw full name of the folder.
-     * @param array $aUids List of message UIDs.
-     *
-     * @return \Aurora\Modules\Mail\Classes\MessageCollection
-     *
-     * @throws \Aurora\System\Exceptions\InvalidArgumentException
-     */
+    * Obtains a list of specific messages.
+    *
+    * @param MailAccount $oAccount Account object.
+    * @param string $sFolderFullNameRaw Raw full name of the folder.
+    * @param array $aUids List of message UIDs.
+    *
+    * @return \Aurora\Modules\Mail\Classes\MessageCollection
+    *
+    * @throws \Aurora\System\Exceptions\InvalidArgumentException
+    */
     public function getMessageListByUids($oAccount, $sFolderFullNameRaw, $aUids, $sInboxUidnext = '')
     {
         if (0 === strlen($sFolderFullNameRaw) /*|| !is_array($aUids) || 0 === count($aUids)*/) {
@@ -3349,16 +3349,16 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     }
 
     /**
-     * Obtains list of flags for one or several messages.
-     *
-     * @param MailAccount $oAccount Account object.
-     * @param string $sFolderFullNameRaw Raw full name of the folder.
-     * @param array $aUids List of message UIDs.
-     *
-     * @return \Aurora\Modules\Mail\Classes\MessageCollection
-     *
-     * @throws \Aurora\System\Exceptions\InvalidArgumentException
-     */
+    * Obtains list of flags for one or several messages.
+    *
+    * @param MailAccount $oAccount Account object.
+    * @param string $sFolderFullNameRaw Raw full name of the folder.
+    * @param array $aUids List of message UIDs.
+    *
+    * @return \Aurora\Modules\Mail\Classes\MessageCollection
+    *
+    * @throws \Aurora\System\Exceptions\InvalidArgumentException
+    */
     public function getMessagesFlags($oAccount, $sFolderFullNameRaw, $aUids)
     {
         if (0 === strlen($sFolderFullNameRaw) || !is_array($aUids) || 0 === count($aUids)) {
@@ -3397,22 +3397,22 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     }
 
     public function getClearWordsFromSearchPhrase($sSearchPhrase)
-	{
-		$iMinLength = $this->oModule->oModuleSettings->SearchWordMinLength;
-		$iMaxLength = $this->oModule->oModuleSettings->SearchWordMaxLength;
-		$sTrimSymbols = $this->oModule->oModuleSettings->SearchWordTrimSymbols;
-		$aWords = preg_split('/ +/', $sSearchPhrase);
+    {
+        $iMinLength = $this->oModule->oModuleSettings->SearchWordMinLength;
+        $iMaxLength = $this->oModule->oModuleSettings->SearchWordMaxLength;
+        $sPattern = $this->oModule->oModuleSettings->SearchWordFilterPattern;
+        $aWords = preg_split('/ +/', $sSearchPhrase);
 
-		foreach ($aWords as &$sWord) {
-			$sWord = trim($sWord, $sTrimSymbols);
-		}
+        foreach ($aWords as &$sWord) {
+            $sWord = preg_replace('/' . $sPattern . '/', '', $sWord);
+        }
 
-		$aWords = array_filter($aWords, function($sWord) use ($iMinLength, $iMaxLength) {
-			return ($iMinLength <= strlen($sWord) && $iMaxLength >= strlen($sWord));
-		});
+        $aWords = array_filter($aWords, function($sWord) use ($iMinLength, $iMaxLength) {
+            return ($iMinLength <= strlen($sWord) && $iMaxLength >= strlen($sWord));
+        });
 
-		\Aurora\System\Api::Log('Parsed words: ' . implode(' | ', $aWords), \Aurora\System\Enums\LogLevel::Full, 'mail-search-');
-		
-		return $aWords;
-	}
+        \Aurora\System\Api::Log('Parsed words: ' . implode(' | ', $aWords), \Aurora\System\Enums\LogLevel::Full, 'mail-search-');
+        
+        return $aWords;
+    }
 }

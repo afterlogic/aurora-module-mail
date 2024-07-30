@@ -411,8 +411,8 @@ class Settings extends \Aurora\System\Module\Settings
                 null,
                 "Maximum search word length",
             ),
-            "SearchWordTrimSymbols" => new SettingsProperty(
-                "-_",
+            "SearchWordFilterPattern" => new SettingsProperty(
+                "^[^a-zA-Z0-9_\ß#ÖÜÄäüöáàúùéèôûê]+|[^a-zA-Z0-9_\ßÖÜÄöäüáàúùéèôûê]+$",
                 "string",
                 null,
                 "",
