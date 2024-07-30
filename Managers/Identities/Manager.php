@@ -52,22 +52,22 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     }
 
     /**
-     * @param int $Id
+     * @param int $iId
      * @param int $iIdAccount
      * @return Identity
      */
-    public function getIdentity($Id, $iIdAccount)
+    public function getIdentity($iId, $iIdAccount)
     {
-        return Identity::where('IdAccount', $iIdAccount)->find($Id);
+        return Identity::where('IdAccount', $iIdAccount)->find($iId);
     }
 
     /**
-     * @param int $UserId
+     * @param int $iUserId
      * @return Identity
      */
-    public function GetIdentitiesByUserId($UserId)
+    public function GetIdentitiesByUserId($iUserId)
     {
-        return Identity::where('IdUser', $UserId)->get();
+        return Identity::where('IdUser', $iUserId)->get();
     }
 
     /**
@@ -80,18 +80,20 @@ class Manager extends \Aurora\System\Managers\AbstractManager
      */
     public function updateIdentity($iId, $iIdAccount, $sFriendlyName, $sEmail, $bDefault)
     {
-        $mResult = false;
+        $bResult = false;
         try {
             $oIdentity = Identity::where('IdAccount', $iIdAccount)->findOrFail($iId);
-            $oIdentity->FriendlyName = $sFriendlyName;
-            $oIdentity->Email = $sEmail;
-            $oIdentity->Default = $bDefault;
-            $mResult = !!$oIdentity->save();
+            if ($oIdentity) {
+                $oIdentity->FriendlyName = $sFriendlyName;
+                $oIdentity->Email = $sEmail;
+                $oIdentity->Default = $bDefault;
+                $bResult = $oIdentity->save();
+            }
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $oException) {
             \Aurora\Api::LogException($oException);
         }
 
-        return $mResult;
+        return $bResult;
     }
 
     /**
@@ -103,16 +105,19 @@ class Manager extends \Aurora\System\Managers\AbstractManager
      */
     public function updateIdentitySignature($iId, $iIdAccount, $bUseSignature, $sSignature)
     {
+        $bResult = false;
         try {
             $oIdentity = Identity::where('IdAccount', $iIdAccount)->findOrFail($iId);
-            $oIdentity->UseSignature = $bUseSignature;
-            $oIdentity->Signature = $sSignature;
-            return $oIdentity->save();
+            if ($oIdentity) {
+                $oIdentity->UseSignature = $bUseSignature;
+                $oIdentity->Signature = $sSignature;
+                $bResult = $oIdentity->save();
+            }
         } catch (\Aurora\System\Exceptions\BaseException $oException) {
             $this->setLastException($oException);
         }
 
-        return false;
+        return $bResult;
     }
 
     /**
