@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Builder;
  * @license https://afterlogic.com/products/common-licensing Afterlogic Software License
  * @copyright Copyright (c) 2023, Afterlogic Corp.
  *
- * @property Module $oModule
+ * @property \Aurora\Modules\Mail\Module $oModule
  */
 class Manager extends \Aurora\System\Managers\AbstractManager
 {
@@ -42,7 +42,9 @@ class Manager extends \Aurora\System\Managers\AbstractManager
             $oIdentity->IdAccount = $iAccountID;
             $oIdentity->FriendlyName = $sFriendlyName;
             $oIdentity->Email = $sEmail;
+
             $oIdentity->save();
+
             return $oIdentity->Id;
         } catch (\Aurora\System\Exceptions\BaseException $oException) {
             $this->setLastException($oException);
@@ -62,15 +64,6 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     }
 
     /**
-     * @param int $iUserId
-     * @return Identity
-     */
-    public function GetIdentitiesByUserId($iUserId)
-    {
-        return Identity::where('IdUser', $iUserId)->get();
-    }
-
-    /**
      * @param int $iId
      * @param int $iIdAccount
      * @param string $sFriendlyName
@@ -83,7 +76,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
         $bResult = false;
         try {
             $oIdentity = Identity::where('IdAccount', $iIdAccount)->findOrFail($iId);
-            if ($oIdentity) {
+            if ($oIdentity instanceof Identity) {
                 $oIdentity->FriendlyName = $sFriendlyName;
                 $oIdentity->Email = $sEmail;
                 $oIdentity->Default = $bDefault;
@@ -108,7 +101,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
         $bResult = false;
         try {
             $oIdentity = Identity::where('IdAccount', $iIdAccount)->findOrFail($iId);
-            if ($oIdentity) {
+            if ($oIdentity instanceof Identity) {
                 $oIdentity->UseSignature = $bUseSignature;
                 $oIdentity->Signature = $sSignature;
                 $bResult = $oIdentity->save();
