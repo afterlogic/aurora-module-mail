@@ -123,7 +123,15 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                     }
                 } else {
                     try {
-                        $oResult->Login($oAccount->IncomingLogin, $oAccount->getPassword(), '');
+                        $password = $oAccount->getPassword();
+                        if (!$password) {
+                            throw new \Aurora\Modules\Mail\Exceptions\Exception(
+                                \Aurora\Modules\Mail\Enums\ErrorCodes::CannotLoginCredentialsIncorrect,
+                                null,
+                                $oAccount->Id . ':'
+                            );
+                        }
+                        $oResult->Login($oAccount->IncomingLogin, $password, '');
                     } catch (\MailSo\Imap\Exceptions\LoginBadCredentialsException $oException) {
                         // This exception is necessary so that client could display correct error message
                         throw new \Aurora\Modules\Mail\Exceptions\Exception(
