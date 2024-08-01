@@ -5950,10 +5950,12 @@ class Module extends \Aurora\System\Module\AbstractModule
 
             self::checkAccess($oAccount);
 
-            $oUser = \Aurora\System\Api::getAuthenticatedUser();
+            $oAuthenticatedUser = \Aurora\System\Api::getAuthenticatedUser();
+            $oUser = \Aurora\Modules\Core\Module::getInstance()->GetUser($oAccount->IdUser);
             if ($oAccount instanceof \Aurora\Modules\Mail\Models\MailAccount &&
-                $oUser instanceof User &&
+                $oUser instanceof User && $oAuthenticatedUser instanceof User &&
                 (($oUser->isNormalOrTenant() && $oUser->Id === $oAccount->IdUser) ||
+                ($oUser->Role === \Aurora\System\Enums\UserRole::TenantAdmin && $oAuthenticatedUser->IdTenant === $oUser->IdTenant) ||
                 $oUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin)
             ) {
                 if ($oUser->Role !== \Aurora\System\Enums\UserRole::SuperAdmin && $oAccount->getPassword() !== $CurrentPassword) {
