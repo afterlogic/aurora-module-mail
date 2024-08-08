@@ -1092,7 +1092,7 @@ class Module extends \Aurora\System\Module\AbstractModule
                         $oNewServer->Domains = $sDomains;
                         $oNewServer->EnableThreading = $Server['EnableThreading'];
                         $iNewServerId = $this->getServersManager()->createServer($oNewServer);
-                        $oAccount->Server = $iNewServerId;
+                        $oAccount->ServerId = $iNewServerId;
                     } elseif ($oAccount->ServerId === $Server['ServerId']) {
                         $oAccServer = $oAccount->getServer();
                         if ($oAccServer && $oAccServer->OwnerType === \Aurora\Modules\Mail\Enums\ServerOwnerType::Account) {
@@ -1112,7 +1112,7 @@ class Module extends \Aurora\System\Module\AbstractModule
                         if ($oAccServer && $oAccServer->OwnerType === \Aurora\Modules\Mail\Enums\ServerOwnerType::Account) {
                             $this->getServersManager()->deleteServer($oAccServer->Id);
                         }
-                        $oAccount->Server = $Server['ServerId'];
+                        $oAccount->ServerId = $Server['ServerId'];
                     }
                 }
 
