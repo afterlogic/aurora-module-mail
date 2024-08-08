@@ -5956,8 +5956,8 @@ class Module extends \Aurora\System\Module\AbstractModule
                     'AccountPasswordChanged' => false
                 ];
 
-                \Aurora\System\Api::GetModule('Core')->broadcastEvent(
-                    'Mail::ChangeAccountPassword',
+                $this->broadcastEvent(
+                    'ChangeAccountPassword',
                     $aArgs,
                     $aResponse
                 );
