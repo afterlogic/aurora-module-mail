@@ -24,55 +24,28 @@ namespace Aurora\Modules\Mail\Classes;
  * @package Sieve
  * @subpackage Classes
  */
-class SieveFilter extends \Aurora\System\AbstractContainer
+class SieveFilter
 {
+    public $IdAccount;
+    public $Enable = true;
+    public $Field = \Aurora\Modules\Mail\Enums\FilterFields::From;
+    public $Filter = '';
+    public $Condition = \Aurora\Modules\Mail\Enums\FilterCondition::ContainSubstring;
+    public $Action = \Aurora\Modules\Mail\Enums\FilterAction::DoNothing;
+    public $FolderFullName = '';
+    public $Email = '';
+
     /**
      * @param \Aurora\Modules\Mail\Models\MailAccount $oAccount
      */
     public function __construct(\Aurora\Modules\Mail\Models\MailAccount $oAccount)
     {
-        parent::__construct(get_class($this));
-
-        $this->SetDefaults(array(
-            'IdAccount'	=> $oAccount->Id,
-            'Enable'	=> true,
-            'Field'		=> \Aurora\Modules\Mail\Enums\FilterFields::From,
-            'Filter'	=> '',
-            'Condition'	=> \Aurora\Modules\Mail\Enums\FilterCondition::ContainSubstring,
-            'Action'	=> \Aurora\Modules\Mail\Enums\FilterAction::DoNothing,
-            'FolderFullName' => '',
-            'Email' => ''
-        ));
+        $this->IdAccount = $oAccount->Id;
     }
 
-    /**
-     * @return array
-     */
-    public function getMap()
+    public function toResponseArray($aParameters = [])
     {
-        return self::getStaticMap();
-    }
-
-    /**
-     * @return array
-     */
-    public static function getStaticMap()
-    {
-        return array(
-            'IdAccount'	=> array('int'),
-            'Enable'	=> array('bool'),
-            'Field'		=> array('int'),
-            'Filter'	=> array('string'),
-            'Condition'	=> array('int'),
-            'Action'	=> array('int'),
-            'FolderFullName' => array('string'),
-            'Email' => array('string')
-        );
-    }
-
-    public function toResponseArray($aParameters = array())
-    {
-        return array(
+        return [
             'Enable' => $this->Enable,
             'Field' => $this->Field,
             'Filter' => $this->Filter,
@@ -80,6 +53,6 @@ class SieveFilter extends \Aurora\System\AbstractContainer
             'Action' => $this->Action,
             'FolderFullName' => $this->FolderFullName,
             'Email' => $this->Email,
-        );
+        ];
     }
 }
