@@ -1,35 +1,35 @@
-    <?php
-    /**
-     * This code is licensed under AGPLv3 license or Afterlogic Software License
-     * if commercial version of the product was purchased.
-     * For full statements of the licenses see LICENSE-AFTERLOGIC and LICENSE-AGPL3 files.
-     */
+<?php
+/**
+ * This code is licensed under AGPLv3 license or Afterlogic Software License
+ * if commercial version of the product was purchased.
+ * For full statements of the licenses see LICENSE-AFTERLOGIC and LICENSE-AGPL3 files.
+ */
 
-    namespace Aurora\Modules\Mail\Managers\Main;
+namespace Aurora\Modules\Mail\Managers\Main;
 
-    use Aurora\Modules\Mail\Enums\ErrorCodes;
-    use Aurora\Modules\Mail\Models\MailAccount;
-    use Aurora\Modules\Mail\Models\RefreshFolder;
-    use Aurora\Modules\Mail\Models\TrustedSender;
-    use Aurora\Modules\Mail\Models\SystemFolder;
-    use Aurora\Modules\Mail\Module;
-    use Aurora\System\Exceptions;
-    use Aurora\System\Exceptions\ApiException;
-    use MailSo\Mime\Email;
+use Aurora\Modules\Mail\Enums\ErrorCodes;
+use Aurora\Modules\Mail\Models\MailAccount;
+use Aurora\Modules\Mail\Models\RefreshFolder;
+use Aurora\Modules\Mail\Models\TrustedSender;
+use Aurora\Modules\Mail\Models\SystemFolder;
+use Aurora\Modules\Mail\Module;
+use Aurora\System\Exceptions;
+use Aurora\System\Exceptions\ApiException;
+use MailSo\Mime\Email;
 
-    /**
-     * Manager for work with ImapClient.
-     *
-     * @license https://www.gnu.org/licenses/agpl-3.0.html AGPL-3.0
-     * @license https://afterlogic.com/products/common-licensing Afterlogic Software License
-     * @copyright Copyright (c) 2023, Afterlogic Corp.
-     *
-     * @package Mail
-     *
-     * @property Module $oModule
-     */
-    class Manager extends \Aurora\System\Managers\AbstractManager
-    {
+/**
+ * Manager for work with ImapClient.
+ *
+ * @license https://www.gnu.org/licenses/agpl-3.0.html AGPL-3.0
+ * @license https://afterlogic.com/products/common-licensing Afterlogic Software License
+ * @copyright Copyright (c) 2023, Afterlogic Corp.
+ *
+ * @package Mail
+ *
+ * @property Module $oModule
+ */
+class Manager extends \Aurora\System\Managers\AbstractManager
+{
     /**
      * @var array List of ImapClient objects.
      */
