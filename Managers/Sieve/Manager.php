@@ -599,7 +599,7 @@ if " . $SieveSpamRuleCondition . " {
     }
 
     /**
-     * @depricated since version 9.7.5
+     * @deprecated since version 9.7.5
      *
      * @param  \Aurora\Modules\Mail\Models\MailAccount $oAccount
      * @param string $sSectionName Default ''

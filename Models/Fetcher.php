@@ -107,6 +107,7 @@ class Fetcher extends \Aurora\System\Classes\Model
     ];
 
     protected $casts = [
+        'Properties' => 'array',
         'IncomingPassword' => \Aurora\System\Casts\Encrypt::class
     ];
 
