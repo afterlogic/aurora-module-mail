@@ -89,17 +89,23 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     /**
      * @param string $sEmail
      * @param int $iExceptId
-     * @return array
+     * @return bool
      */
     public function useToAuthorizeAccountExists($sEmail, $iExceptId = 0)
     {
         $bExists = false;
 
         try {
-            $bExists = MailAccount::where([
+            $query = MailAccount::where([
                 'Email' => $sEmail,
                 'UseToAuthorize' => true
-            ])->exists();
+            ]);
+
+            if ($iExceptId > 0) {
+                $query->where('Id', '!=', $iExceptId);
+            }
+
+            $bExists = $query->exists();
         } catch (\Aurora\System\Exceptions\BaseException $oException) {
             $this->setLastException($oException);
         }

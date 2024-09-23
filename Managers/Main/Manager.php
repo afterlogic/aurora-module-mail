@@ -134,6 +134,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                         $oResult->Login($oAccount->IncomingLogin, $password, '');
                     } catch (\MailSo\Imap\Exceptions\LoginBadCredentialsException $oException) {
                         // This exception is necessary so that client could display correct error message
+                        \Aurora\System\Api::UserSession()->DeleteAllAccountSessions($oAccount);
                         throw new \Aurora\Modules\Mail\Exceptions\Exception(
                             \Aurora\Modules\Mail\Enums\ErrorCodes::CannotLoginCredentialsIncorrect,
                             $oException,

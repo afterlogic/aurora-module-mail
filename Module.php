@@ -1037,7 +1037,7 @@ class Module extends \Aurora\System\Module\AbstractModule
      * @param string $FriendlyName New friendly name.
      * @param string $IncomingLogin New login for IMAP connection.
      * @param string $IncomingPassword New password for IMAP connection.
-     * @param array $Server List of settings for IMAP and SMTP connections.
+     * @param array|null $Server List of settings for IMAP and SMTP connections.
      * @param boolean $UseThreading Indicates if account uses mail threading.
      * @param boolean $SaveRepliesToCurrFolder Indicates if replies should be saved to current folder (not Sent Items)
      * @return boolean
@@ -1045,7 +1045,7 @@ class Module extends \Aurora\System\Module\AbstractModule
      */
     public function UpdateAccount(
         $AccountID,
-        $UseToAuthorize = null,
+        $UseToAuthorize = false,
         $Email = null,
         $FriendlyName = null,
         $IncomingLogin = null,
@@ -5968,7 +5968,7 @@ class Module extends \Aurora\System\Module\AbstractModule
                         $mResult = $oAccount;
                         $mResult->RefreshToken = \Aurora\System\Api::UserSession()->UpdateTimestamp(\Aurora\System\Api::getAuthToken(), time());
                         \Aurora\System\Api::LogEvent('password-change-success: ' . $oAccount->Email, self::GetName());
-                        \Aurora\System\Api::UserSession()->DeleteAllUserSessions($oUser->Id);
+                        \Aurora\System\Api::UserSession()->DeleteAllAccountSessions($oAccount);
                     }
                 }
             }
@@ -6660,12 +6660,7 @@ class Module extends \Aurora\System\Module\AbstractModule
                         $this->getAccountsManager()->updateAccount($oAccount);
 
                         if (!$bNewAccount) {
-                            $oCoreModule = \Aurora\Modules\Core\Module::getInstance();
-                            $oUser = $oCoreModule->GetUserWithoutRoleCheck($oAccount->IdUser);
-                            if ($oUser instanceof User) {
-                                $oCoreModule->UpdateTokensValidFromTimestamp($oUser);
-                                Api::UserSession()->DeleteAllUserSessions($oUser->Id);
-                            }
+                            \Aurora\System\Api::UserSession()->DeleteAllAccountSessions($oAccount);
                         }
                     }
                 }
@@ -7319,17 +7314,12 @@ class Module extends \Aurora\System\Module\AbstractModule
     public function onAfterChangePassword($aArgs, &$mResult)
     {
         if ($mResult instanceof Models\MailAccount && $mResult->UseToAuthorize) {
-            $oCoreModule = \Aurora\Modules\Core\Module::getInstance();
             $oUser = \Aurora\System\Api::getAuthenticatedUser();
             if ($oUser instanceof User &&
                 (($oUser->isNormalOrTenant() && $oUser->Id === $mResult->IdUser) ||
                 $oUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin)
             ) {
-                $oUser = $oCoreModule->GetUserWithoutRoleCheck($mResult->IdUser);
-                if ($oUser instanceof User) {
-                    $oCoreModule->UpdateTokensValidFromTimestamp($oUser);
-                    Api::UserSession()->DeleteAllUserSessions($oUser->Id);
-                }
+                Api::UserSession()->DeleteAllAccountSessions($mResult);
             }
         }
     }
