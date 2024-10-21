@@ -6648,21 +6648,18 @@ class Module extends \Aurora\System\Module\AbstractModule
 
         if ($oAccount instanceof \Aurora\Modules\Mail\Models\MailAccount) {
             try {
-                if ($bAutocreateMailAccountOnNewUserFirstLogin || !$bNewAccount) {
-                    $sOldPassword = $oAccount->getPassword();
-                    $sNewPassword = $aArgs['Password'];
+                $sOldPassword = $oAccount->getPassword();
+                $sNewPassword = $aArgs['Password'];
 
-                    $oAccount->setPassword($sNewPassword);
-                    $mValidResult = $this->getMailManager()->validateAccountConnection($oAccount, false);
-                    $bResult = !($mValidResult instanceof \Exception);
-                    if ($bResult && $sNewPassword !== $sOldPassword) {
-                        // Update password in DB only if account passed connection validation
-                        $this->getAccountsManager()->updateAccount($oAccount);
+                $oAccount->setPassword($sNewPassword);
+                $mValidResult = $this->getMailManager()->validateAccountConnection($oAccount, false);
+                $bResult = !($mValidResult instanceof \Exception);
 
-                        if (!$bNewAccount) {
-                            \Aurora\System\Api::UserSession()->DeleteAllAccountSessions($oAccount);
-                        }
-                    }
+                if (!$bNewAccount && $bResult && $sNewPassword !== $sOldPassword) {
+                    // Update password in DB only if account passed connection validation
+                    $this->getAccountsManager()->updateAccount($oAccount);
+
+                    \Aurora\System\Api::UserSession()->DeleteAllAccountSessions($oAccount);
                 }
 
                 if ($bResult && $bAutocreateMailAccountOnNewUserFirstLogin && $bNewAccount) {
