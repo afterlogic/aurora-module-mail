@@ -7097,7 +7097,7 @@ class Module extends \Aurora\System\Module\AbstractModule
     {
         $sHash = (string) \Aurora\System\Router::getItemByIndex(1, '');
         $aValues = \Aurora\System\Api::DecodeKeyValues($sHash);
-        $sAuthToken = isset($aValues['AuthToken']) ? $aValues['AuthToken'] : null;
+        $sAuthToken = $aValues[\Aurora\System\Application::AUTH_TOKEN_KEY] ?? null;
         if (isset($sAuthToken)) {
             \Aurora\System\Api::setUserId(
                 \Aurora\System\Api::getAuthenticatedUserId($sAuthToken)
@@ -7129,8 +7129,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 
                 $aValues = \Aurora\System\Api::DecodeKeyValues($sHash);
 
-                if (!isset($aValues['AuthToken'])) {
-                    $aValues['AuthToken'] = \Aurora\System\Api::UserSession()->Set(
+                if (!isset($aValues[\Aurora\System\Application::AUTH_TOKEN_KEY])) {
+                    $aValues[\Aurora\System\Application::AUTH_TOKEN_KEY] = \Aurora\System\Api::UserSession()->Set(
                         array(
                             'token' => 'auth',
                             'id' => \Aurora\System\Api::getAuthenticatedUserId(),
