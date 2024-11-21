@@ -39,7 +39,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
         $mAccount = false;
         try {
             if (is_numeric($iAccountId)) {
-                $mAccount = MailAccount::find((int) $iAccountId);
+                $mAccount = MailAccount::with('Server')->find((int) $iAccountId);
             } else {
                 throw new \Aurora\System\Exceptions\BaseException(\Aurora\System\Exceptions\Errs::Validation_InvalidParameters);
             }
@@ -65,7 +65,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
             'IdUser' => $iUserId,
         ];
 
-        $mAccount = MailAccount::where($aFilters)->first();
+        $mAccount = MailAccount::with('Server')->where($aFilters)->first();
 
         return $mAccount;
     }
@@ -122,7 +122,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     {
         $mResult = false;
         try {
-            $mResult = MailAccount::where([
+            $mResult = MailAccount::with('Server')->where([
                 'IdUser' => $iUserId,
                 'IsDisabled' => false
             ])->get();
@@ -140,7 +140,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
      */
     public function getAccounts($aFilters)
     {
-        return MailAccount::where($aFilters)->get();
+        return MailAccount::with('Server')->where($aFilters)->get();
     }
 
     /**
