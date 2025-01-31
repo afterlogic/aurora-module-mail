@@ -475,7 +475,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         $oAuthenticatedUser = \Aurora\System\Api::getAuthenticatedUser();
 
         if ($Type === 'User' && is_int($UserId) && $UserId > 0) {
-            $oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserWithoutRoleCheck($UserId);
+            $oUser = \Aurora\Api::getUserById($UserId);
             if ($oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin ||
                     $oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::TenantAdmin && $oAuthenticatedUser->IdTenant === $oUser->IdTenant) {
                 $oTenant = \Aurora\System\Api::getTenantById($oUser->IdTenant);
@@ -523,7 +523,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         $oAuthenticatedUser = \Aurora\System\Api::getAuthenticatedUser();
 
         if ($oAuthenticatedUser instanceof User && $Type === 'User' && is_int($UserId) && $UserId > 0) {
-            $oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserWithoutRoleCheck($UserId);
+            $oUser = \Aurora\Api::getUserById($UserId);
             if ($oUser instanceof User
                     && ($oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin
                     || $oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::TenantAdmin && $oAuthenticatedUser->IdTenant === $oUser->IdTenant)) {
@@ -556,7 +556,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         }
 
         if ($Type === 'Tenant' && is_int($TenantId) && $TenantId > 0) {
-            $oTenant = \Aurora\Modules\Core\Module::Decorator()->GetTenantWithoutRoleCheck($TenantId);
+            $oTenant = \Aurora\Api::getTenantById($TenantId);
             if ($oTenant && ($oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin ||
                     $oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::TenantAdmin && $oAuthenticatedUser->IdTenant === $TenantId)) {
                 $oTenant->setExtendedProp(self::GetName() . '::TenantSpaceLimitMb', $TenantSpaceLimitMb);
@@ -740,7 +740,7 @@ class Module extends \Aurora\System\Module\AbstractModule
     public function GetAccountByEmail($Email, $UserId = 0)
     {
         $oAuthenticatedUser = \Aurora\System\Api::getAuthenticatedUser();
-        $oUser = $UserId !== 0 ? \Aurora\Modules\Core\Module::Decorator()->GetUserWithoutRoleCheck($UserId) : null;
+        $oUser = $UserId !== 0 ? \Aurora\Api::getUserById($UserId) : null;
 
         // Method has its specific access check so checkAccess method isn't used.
         if ($oAuthenticatedUser instanceof User && $oUser instanceof User) {
@@ -915,7 +915,7 @@ class Module extends \Aurora\System\Module\AbstractModule
                     $oResException = $this->getMailManager()->validateAccountConnection($oAccount, false);
                 }
 
-                $oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserWithoutRoleCheck($UserId);
+                $oUser = \Aurora\Api::getUserById($UserId);
                 $aQuota = [];
                 $iQuota = 0;
 
@@ -1239,7 +1239,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
                 $oServer = $oAccount->getServer();
 
-                $oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserWithoutRoleCheck($oAccount->IdUser);
+                $oUser = \Aurora\Api::getUserById($oAccount->IdUser);
                 if ($oUser instanceof User && $oAccount->Email === $oUser->PublicId) {
                     $iQuota = $oUser->getExtendedProp(self::GetName() . '::UserSpaceLimitMb');
                     $this->updateAllocatedTenantSpace($oUser->IdTenant, 0, $iQuota);
@@ -2775,7 +2775,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
         $aQuota = $this->getMailManager()->getQuota($oAccount);
         $iQuota = (is_array($aQuota) && isset($aQuota[1])) ? $aQuota[1] / 1024 : 0;
-        $oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserWithoutRoleCheck($oAccount->IdUser);
+        $oUser = \Aurora\Api::getUserById($oAccount->IdUser);
         $iUserSpaceLimitMb = ($oUser instanceof User) ? $oUser->getExtendedProp(self::GetName() . '::UserSpaceLimitMb') : 0;
         if ($iQuota !== $iUserSpaceLimitMb) {
             $this->updateAllocatedTenantSpace($oUser->IdTenant, $iQuota, $iUserSpaceLimitMb);
