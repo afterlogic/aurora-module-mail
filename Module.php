@@ -101,7 +101,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         $this->subscribeEvent('Autodiscover::GetAutodiscover::after', array($this, 'onAfterGetAutodiscover'));
         $this->subscribeEvent('Core::DeleteTenant::after', array($this, 'onAfterDeleteTenant'));
         $this->subscribeEvent('Core::DeleteUser::after', array($this, 'onAfterDeleteUser'));
-        $this->subscribeEvent('Core::GetDigestHash', array($this, 'onGetDigestHash'));
+        $this->subscribeEvent('Dav::GetDigestHash::after', array($this, 'onAfterGetDigestHash'));
         $this->subscribeEvent('Core::GetAccountUsedToAuthorize', array($this, 'onGetAccountUsedToAuthorize'));
         $this->subscribeEvent('System::RunEntry::before', array($this, 'onBeforeRunEntry'));
         $this->subscribeEvent('System::CastExtendedProp', array($this, 'onCastExtendedProp'));
@@ -7266,7 +7266,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         );
     }
 
-    public function onGetDigestHash($aArgs, &$mResult)
+    public function onAfterGetDigestHash($aArgs, &$mResult)
     {
         $oAccount = $this->getAccountsManager()->getAccountUsedToAuthorize($aArgs['Login']);
         if (is_a($oAccount, $aArgs['Type'])) {
