@@ -7,6 +7,7 @@
 
 namespace Aurora\Modules\Mail\Managers\Servers;
 
+use Aurora\Modules\Mail\Enums\ErrorCodes;
 use Aurora\Modules\Mail\Models\Server;
 use Aurora\System\Enums\SortOrder;
 use Illuminate\Database\Eloquent\Builder;
@@ -29,7 +30,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     {
         try {
             if (!$oServer->save()) {
-                throw new \Aurora\System\Exceptions\ManagerException(\Aurora\System\Exceptions\Errs::UsersManager_UserCreateFailed);
+                throw new \Aurora\System\Exceptions\ManagerException(ErrorCodes::CannotCreateServer);
             }
             return $oServer->Id;
         } catch (\Aurora\System\Exceptions\BaseException $oException) {
@@ -219,7 +220,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 
         try {
             if (!$oServer->save()) {
-                throw new \Aurora\System\Exceptions\ManagerException(\Aurora\System\Exceptions\Errs::UsersManager_UserCreateFailed);
+                throw new \Aurora\System\Exceptions\ManagerException(ErrorCodes::CannotUpdateServer);
             }
             $bResult = true;
         } catch (\Aurora\System\Exceptions\BaseException $oException) {

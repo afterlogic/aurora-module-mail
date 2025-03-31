@@ -32,6 +32,8 @@ class ErrorCodes
     public const CannotUploadMessageFileNotEml = 4016;
     public const DomainIsNotAllowedForLoggingIn = 4017;
     public const TenantQuotaExceeded = 4018;
+    public const CannotCreateServer = 4019;
+    public const CannotUpdateServer = 4020;
 
     /**
      * @var array
@@ -55,5 +57,7 @@ class ErrorCodes
         'CannotUploadMessageFileNotEml' => self::CannotUploadMessageFileNotEml,
         'DomainIsNotAllowedForLoggingIn' => self::DomainIsNotAllowedForLoggingIn,
         'TenantQuotaExceeded' => self::TenantQuotaExceeded,
+        'CannotCreateServer' => self::CannotCreateServer,
+        'CannotUpdateServer' => self::CannotUpdateServer,
     ];
 }

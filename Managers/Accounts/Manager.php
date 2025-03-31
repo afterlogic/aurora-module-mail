@@ -8,6 +8,7 @@
 namespace Aurora\Modules\Mail\Managers\Accounts;
 
 use Aurora\Modules\Mail\Models\MailAccount;
+use Aurora\System\Notifications;
 use Illuminate\Support\Collection;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
@@ -41,7 +42,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
             if (is_numeric($iAccountId)) {
                 $mAccount = MailAccount::with('Server')->find((int) $iAccountId);
             } else {
-                throw new \Aurora\System\Exceptions\BaseException(\Aurora\System\Exceptions\Errs::Validation_InvalidParameters);
+                throw new \Aurora\System\Exceptions\ApiException(Notifications::InvalidInputParameter);
             }
         } catch (\Aurora\System\Exceptions\BaseException $oException) {
             $mAccount = false;
@@ -202,10 +203,10 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                             'IdUser' => $oAccount->IdUser
                         ])->sharedLock()->exists()) {
                         if (!$oAccount->save()) {
-                            throw new \Aurora\System\Exceptions\ManagerException(\Aurora\System\Exceptions\Errs::UserManager_AccountCreateFailed);
+                            throw new \Aurora\System\Exceptions\ManagerException(Notifications::CanNotCreateAccount);
                         }
                     } else {
-                        throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::AccountExists);
+                        throw new \Aurora\System\Exceptions\ApiException(Notifications::AccountExists);
                     }
                 }
             );
@@ -227,7 +228,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
         try {
             if ($oAccount->validate()) {
                 if (!$oAccount->save()) {
-                    throw new \Aurora\System\Exceptions\ManagerException(\Aurora\System\Exceptions\Errs::UsersManager_UserCreateFailed);
+                    throw new \Aurora\System\Exceptions\ManagerException(Notifications::CanNotUpdateAccount);
                 }
             }
 
