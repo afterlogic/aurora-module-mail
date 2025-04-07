@@ -8,6 +8,7 @@
 namespace Aurora\Modules\Mail\Managers\Sieve;
 
 use Aurora\Api;
+use Aurora\Modules\Mail\Enums\ErrorCodes;
 use Aurora\Modules\Mail\Module;
 use Aurora\System\Notifications;
 
@@ -755,7 +756,7 @@ if " . $SieveSpamRuleCondition . " {
 
                 $bResult = true;
             } else {
-                throw new \Aurora\System\Exceptions\ApiException(Notifications::CanNotChangePassword);
+                throw new \Aurora\System\Exceptions\ManagerException(ErrorCodes::CannotSetSieveFile);
             }
         } catch (\Exception $oException) {
             throw $oException;

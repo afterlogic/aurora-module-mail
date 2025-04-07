@@ -34,6 +34,7 @@ class ErrorCodes
     public const TenantQuotaExceeded = 4018;
     public const CannotCreateServer = 4019;
     public const CannotUpdateServer = 4020;
+    public const CannotSetSieveFile = 4021;
 
     /**
      * @var array
