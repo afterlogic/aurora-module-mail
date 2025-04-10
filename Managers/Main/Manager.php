@@ -553,11 +553,12 @@ class Manager extends \Aurora\System\Managers\AbstractManager
             $aMailFolders = array();
 
             $aRefreshFolders = $this->getAlwaysRefreshFolders($oAccount);
+            $bIgnoreImapSubscription = $this->oModule->oModuleSettings->IgnoreImapSubscription;
 
             foreach ($aFolders as /* @var $oImapFolder \MailSo\Imap\Folder */ $oImapFolder) {
                 $oMailFolder = \Aurora\Modules\Mail\Classes\Folder::createInstance(
                     $oImapFolder,
-                    in_array($oImapFolder->FullNameRaw(), $aImapSubscribedFoldersHelper) || $oImapFolder->IsInbox()
+                    in_array($oImapFolder->FullNameRaw(), $aImapSubscribedFoldersHelper) || $oImapFolder->IsInbox() || $bIgnoreImapSubscription
                 );
 
                 if (in_array($oMailFolder->getRawFullName(), $aRefreshFolders)) {
