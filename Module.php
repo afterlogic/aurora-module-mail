@@ -5415,7 +5415,7 @@ class Module extends \Aurora\System\Module\AbstractModule
             self::checkAccountAccess($oAccount);
 
             if ($Signature !== null) {
-                $Signature = HtmlUtils::ClearHtml($Signature);
+                $Signature = HtmlUtils::ClearHtmlSimple($Signature, true);
             }
 
             if ($this->oModuleSettings->AllowIdentities && $IdentityId !== null) {
