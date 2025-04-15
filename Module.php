@@ -5969,6 +5969,15 @@ class Module extends \Aurora\System\Module\AbstractModule
                         $mResult->RefreshToken = \Aurora\System\Api::UserSession()->UpdateTimestamp(\Aurora\System\Api::getAuthToken(), time());
                         \Aurora\System\Api::LogEvent('password-change-success: ' . $oAccount->Email, self::GetName());
                         \Aurora\System\Api::UserSession()->DeleteAllAccountSessions($oAccount);
+
+                        // removing AuthToken cookie for web client
+                        $sXClientHeader = $this->oHttp->GetHeader('X-Client');
+                        // Set cookie in browser only
+                        $bWebClient = strtolower($sXClientHeader) === 'webclient';
+
+                        if ($bWebClient) {
+                            Api::unsetAuthTokenCookie();
+                        }
                     }
                 }
             }
