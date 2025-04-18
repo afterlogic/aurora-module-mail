@@ -7092,7 +7092,6 @@ class Module extends \Aurora\System\Module\AbstractModule
                 $sResult = \file_get_contents($oCoreWebclientModule->GetPath() . '/templates/Index.html');
                 if (\is_string($sResult)) {
                     return strtr($sResult, array(
-                        '{{AppVersion}}' => Application::GetVersion(),
                         '{{IntegratorDir}}' => $oApiIntegrator->isRtl() ? 'rtl' : 'ltr',
                         '{{IntegratorLinks}}' => $oApiIntegrator->buildHeadersLink(),
                         '{{IntegratorBody}}' => $oApiIntegrator->buildBody($aConfig)
