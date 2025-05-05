@@ -911,7 +911,7 @@ class Message
     protected function initialize($sRawFolderFullName, $oFetchResponse, $oBodyStructure = null, $sRfc822SubMimeIndex = '', $bTruncated = false)
     {
         if (!$oBodyStructure) {
-            $oBodyStructure = $oFetchResponse->GetFetchBodyStructure();
+            $oBodyStructure = $oFetchResponse->GetFetchBodyStructure($sRfc822SubMimeIndex);
         }
 
         $aTextParts = $oBodyStructure ? $oBodyStructure->SearchHtmlOrPlainParts() : array();
