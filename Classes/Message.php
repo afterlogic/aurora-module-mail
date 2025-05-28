@@ -7,6 +7,8 @@
 
 namespace Aurora\Modules\Mail\Classes;
 
+use Dom\XMLDocument;
+
 /**
  * @license https://www.gnu.org/licenses/agpl-3.0.html AGPL-3.0
  * @license https://afterlogic.com/products/common-licensing Afterlogic Software License
@@ -1269,7 +1271,7 @@ class Message
 
             $bCreateHtmlLinksFromTextLinksInDOM = \Aurora\Modules\Mail\Module::getInstance()->oModuleSettings->CreateHtmlLinksFromTextLinksInDOM;
             if (0 < \strlen($sHtml) && \Aurora\Modules\Mail\Module::getInstance()->oModuleSettings->DisplayInlineCss) {
-                $mResult['Html'] = \MailSo\Base\HtmlUtils::ClearHtml(
+                $sHtml = \MailSo\Base\HtmlUtils::ClearHtml(
                     \Aurora\System\Utils::ConvertCssToInlineStyles($sHtml),
                     $bHasExternals,
                     $aFoundedCIDs,
@@ -1278,19 +1280,19 @@ class Message
                     false,
                     $bCreateHtmlLinksFromTextLinksInDOM
                 );
-            } else {
-                $mResult['Html'] = 0 === strlen($sHtml) ? '' :
-                    \MailSo\Base\HtmlUtils::ClearHtml(
-                        $sHtml,
-                        $bHasExternals,
-                        $aFoundedCIDs,
-                        $aContentLocationUrls,
-                        $aFoundedContentLocationUrls,
-                        false,
-                        $bCreateHtmlLinksFromTextLinksInDOM
-                    );
+            } elseif (strlen($sHtml) > 0) {
+                $sHtml = \MailSo\Base\HtmlUtils::ClearHtml(
+                    $sHtml,
+                    $bHasExternals,
+                    $aFoundedCIDs,
+                    $aContentLocationUrls,
+                    $aFoundedContentLocationUrls,
+                    false,
+                    $bCreateHtmlLinksFromTextLinksInDOM
+                );
             }
 
+            $mResult['Html'] = $sHtml;
             $mResult['Plain'] = 0 === strlen($sPlain) ? '' : \MailSo\Base\HtmlUtils::ConvertPlainToHtml($sPlain);
             $mResult['PlainRaw'] = \trim($sPlain);
             $mResult['Rtl'] = 0 < \strlen($mResult['Plain']) ? \MailSo\Base\Utils::IsRTL($mResult['Plain']) : false;
