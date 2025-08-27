@@ -5941,7 +5941,6 @@ class Module extends \Aurora\System\Module\AbstractModule
             self::checkAccountAccess($oAccount);
 
             if ($oAccount instanceof Models\MailAccount) {
-                $oUser = \Aurora\Modules\Core\Module::getInstance()->GetUser($oAccount->IdUser);
                 if ($oAccount->getPassword() !== $CurrentPassword) {
                     \Aurora\System\Api::LogEvent('password-change-failed: ' . $oAccount->Email, self::GetName());
                     throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::AccountOldPasswordNotCorrect);
@@ -5972,11 +5971,16 @@ class Module extends \Aurora\System\Module\AbstractModule
 
                         // removing AuthToken cookie for web client
                         $sXClientHeader = $this->oHttp->GetHeader('X-Client');
-                        // Set cookie in browser only
-                        $bWebClient = strtolower($sXClientHeader) === 'webclient';
 
-                        if ($bWebClient) {
-                            Api::unsetAuthTokenCookie();
+                        // Set cookie in browser only
+                        if (strtolower($sXClientHeader) === 'webclient') {
+                            $authUserId = \Aurora\System\Api::getAuthenticatedUserId();
+                            if ($authUserId === $oAccount->IdUser) {
+                                // we need to remove auth token cookie, because it is no longer valid
+                                // user will be logged out and should login with new password
+
+                                Api::unsetAuthTokenCookie();
+                            }
                         }
                     }
                 }
