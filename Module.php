@@ -7289,7 +7289,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
     public function onGetAccountUsedToAuthorize($aArgs, &$mResult)
     {
-        $oAccount = $this->getAccountsManager()->getAccountUsedToAuthorize($aArgs['Login']);
+        $oAccount = $this->getAccountsManager()->getAccountUsedToAuthorize($aArgs['Login'], $aArgs['Disabled']);
         if ($oAccount) {
             $mResult = $oAccount;
             return true;

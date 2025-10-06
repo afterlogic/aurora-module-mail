@@ -74,15 +74,19 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     /**
      * Obtains an account with specified email. The account must be allowed to authenticate its user.
      * @param string $sEmail Email of the account.
+     * @param bool|null $bIsDisabled Whether to include disabled accounts in the search. Optional. Default is false.
+     *
      * @return \Aurora\Modules\Mail\Models\MailAccount|boolean
      */
-    public function getAccountUsedToAuthorize($sEmail)
+    public function getAccountUsedToAuthorize($sEmail, $bIsDisabled = false)
     {
         $aFilters = [
             'Email' => $sEmail,
-            'IsDisabled' => false,
             'UseToAuthorize' => true
         ];
+        if ($bIsDisabled !== null) {
+            $aFilters['IsDisabled'] = $bIsDisabled;
+        }
         $mAccount = MailAccount::where($aFilters)->first();
 
         return $mAccount;
