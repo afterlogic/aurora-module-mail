@@ -99,6 +99,8 @@ class Manager extends \Aurora\System\Managers\AbstractManager
         try {
             $oTenant = \Aurora\System\Api::getCurrentTenant();
 
+            $sDomain = str_replace(['%', '_'], ['\%', '\_'], $sDomain);
+
             $query = Server::query();
             if ($oTenant) {
                 $aFilters = $query->where(function ($q) use ($oTenant) {
@@ -167,6 +169,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
         }
 
         if ($sSearch !== '') {
+            $sSearch = str_replace(['%', '_'], ['\%', '\_'], $sSearch);
             $aFilters = $query->where('Name', 'LIKE', '%' . $sSearch . '%');
         }
 
