@@ -2492,6 +2492,9 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 	 */
 	private function _prepareImapSearchString($oImapClient, $sSearch, $iTimeZoneOffset = 0, $aFilters = array())
 	{
+		$InformatikProjectsModule = \Aurora\System\Api::GetModule('InformatikProjects');
+		$replaceGermanUmlauts = $InformatikProjectsModule ? [$InformatikProjectsModule->getMailManager(), 'replaceGermanUmlauts'] : function($s) { return $s; };
+		
 		$aImapSearchResult = array();
 		$sSearch = trim($sSearch);
 
@@ -2514,8 +2517,10 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 				$aWords = $this->getClearWordsFromSearchPhrase($aLines['OTHER']);
 
 				foreach ($aWords as $sWord) {
+					$sWordAscii = $this->_escapeSearchString($oImapClient, $replaceGermanUmlauts($sWord));
 					$sWord = $this->_escapeSearchString($oImapClient, $sWord);
-					$aImapSearchResult[] = 'OR OR OR OR OR OR OR OR OR';
+
+					$aImapSearchResult[] = 'OR OR OR OR OR OR OR OR OR OR' . ($sWordAscii !== $sWord) ? ' OR' : '';
 	
 					$aImapSearchResult[] = 'FROM ' . $sWord;
 					$aImapSearchResult[] = 'TO ' . $sWord;
@@ -2526,6 +2531,9 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 					$aImapSearchResult[] = 'HEADER "reply-to" ' . $sWord;
 					// Searching in Informatik special headers
 					$aImapSearchResult[] = 'HEADER "X-Project-Name" ' . $sWord;
+					if ($sWordAscii !== $sWord) {
+						$aImapSearchResult[] = 'HEADER "X-Project-Name" ' . $sWordAscii;
+					}
 					$aImapSearchResult[] = 'HEADER "X-Project-ID" ' . $sWord;	
 					$aImapSearchResult[] = 'HEADER "X-Project-Builder" ' . $sWord;
 					$aImapSearchResult[] = 'HEADER "X-Generated-Mail-Id" ' . $sWord;
@@ -2667,14 +2675,18 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 					
 					//splitting string by spaces or the other delimiters
 					$aWords = $this->getClearWordsFromSearchPhrase($sMainText);
-
+					
 					foreach ($aWords as $sWord) {
+						$sWordAscii = $this->_escapeSearchString($oImapClient, $replaceGermanUmlauts($sWord));
 						$sWord = $this->_escapeSearchString($oImapClient, $sWord);
 
-						$aImapSearchResult[] = 'OR OR OR OR';
+						$aImapSearchResult[] = 'OR OR OR OR' . ($sWordAscii !== $sWord) ? ' OR' : '';
 						$aImapSearchResult[] = 'BODY ' . $sWord;
 						// Searching in Informatik special headers
 						$aImapSearchResult[] = 'HEADER "X-Project-Name" ' . $sWord;
+						if ($sWordAscii !== $sWord) {
+							$aImapSearchResult[] = 'HEADER "X-Project-Name" ' . $sWordAscii;
+						}
 						$aImapSearchResult[] = 'HEADER "X-Project-ID" ' . $sWord;
 						$aImapSearchResult[] = 'HEADER "X-Project-Builder" ' . $sWord;
 						$aImapSearchResult[] = 'HEADER "X-Generated-Mail-Id" ' . $sWord;
