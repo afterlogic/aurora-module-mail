@@ -4627,7 +4627,25 @@ class Module extends \Aurora\System\Module\AbstractModule
 
 		if (0 === \strlen($DraftFolder))
 		{
-			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
+			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter, null, 'Draft folder is not specified.');
+		}
+
+		$draftLogPrefix =  'save-to-drafts-' . $oAccount->Email . '-';
+		Api::Log('Request:', \Aurora\System\Enums\LogLevel::Full, $draftLogPrefix);
+		Api::LogObject([
+			'DraftInfo' => $DraftInfo, 
+			'DraftUid' => $DraftUid,
+			'To' => $To,
+			'Cc' => $Cc,
+			'Bcc' => $Bcc,
+			'Subject' => $Subject,
+			'TextSize' => strlen($Text),
+			'Action' => $DraftUid !== '' ? 'Update' : 'Create'
+		], \Aurora\System\Enums\LogLevel::Full, $draftLogPrefix);
+
+		if (0 === \strlen($Text))
+		{
+			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter, null, 'The message has not text.');
 		}
 
 		$oIdentity = $IdentityID !== 0 ? $this->getIdentitiesManager()->getIdentity($IdentityID) : null;
@@ -4646,6 +4664,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 				throw new \Aurora\Modules\Mail\Exceptions\Exception(Enums\ErrorCodes::CannotSaveMessage, $oException, $oException->getMessage());
 			}
 		}
+		Api::Log('Response: ', \Aurora\System\Enums\LogLevel::Full, $draftLogPrefix);
+		Api::LogObject($mResult, \Aurora\System\Enums\LogLevel::Full, $draftLogPrefix);
 
 		return $mResult;
 	}
