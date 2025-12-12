@@ -3112,24 +3112,19 @@ class Module extends \Aurora\System\Module\AbstractModule
         );
 
         if (0 < \count($aTextMimeIndexes)) {
-            if (0 < \strlen($Rfc822MimeIndex) && \is_numeric($Rfc822MimeIndex)) {
-                $sLine = \MailSo\Imap\Enumerations\FetchType::BODY_PEEK . '[' . $aTextMimeIndexes[0][0] . '.1]';
-                if (\is_numeric($MessageBodyTruncationThreshold) && 0 < $MessageBodyTruncationThreshold && $MessageBodyTruncationThreshold < $aTextMimeIndexes[0][1]) {
+
+            // if (0 < \strlen($Rfc822MimeIndex) && \is_numeric($Rfc822MimeIndex)) {
+            //     $aTextMimeIndexes = [$aTextMimeIndexes[0]]; // only first text part
+            // }
+
+            foreach ($aTextMimeIndexes as $aTextMimeIndex) {
+                $sLine = \MailSo\Imap\Enumerations\FetchType::BODY_PEEK . '[' . $aTextMimeIndex[0] . ']';
+                if (\is_numeric($MessageBodyTruncationThreshold) && 0 < $MessageBodyTruncationThreshold && $MessageBodyTruncationThreshold < $aTextMimeIndex[1]) {
                     $sLine .= '<0.' . ((int) $MessageBodyTruncationThreshold) . '>';
                     $bTruncated = true;
                 }
 
                 $aFetchItems[] = $sLine;
-            } else {
-                foreach ($aTextMimeIndexes as $aTextMimeIndex) {
-                    $sLine = \MailSo\Imap\Enumerations\FetchType::BODY_PEEK . '[' . $aTextMimeIndex[0] . ']';
-                    if (\is_numeric($MessageBodyTruncationThreshold) && 0 < $MessageBodyTruncationThreshold && $MessageBodyTruncationThreshold < $aTextMimeIndex[1]) {
-                        $sLine .= '<0.' . ((int) $MessageBodyTruncationThreshold) . '>';
-                        $bTruncated = true;
-                    }
-
-                    $aFetchItems[] = $sLine;
-                }
             }
         }
 

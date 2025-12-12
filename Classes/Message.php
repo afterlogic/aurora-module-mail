@@ -1001,8 +1001,7 @@ class Message
                     }
                 }
 
-                $sText = $oFetchResponse->GetFetchValue(\MailSo\Imap\Enumerations\FetchType::BODY . '[' . $oPart->PartID() .
-                    ('' !== $sRfc822SubMimeIndex && is_numeric($sRfc822SubMimeIndex) ? '.1' : '') . ']');
+                $sText = $oFetchResponse->GetFetchValue(\MailSo\Imap\Enumerations\FetchType::BODY . '[' . $oPart->PartID() . ']');
 
                 if (is_string($sText) && 0 < strlen($sText)) {
                     $sTextCharset = $oPart->Charset();
