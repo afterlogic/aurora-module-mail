@@ -4643,7 +4643,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 			'Action' => $DraftUid !== '' ? 'Update' : 'Create'
 		], \Aurora\System\Enums\LogLevel::Full, $draftLogPrefix);
 
-		if (0 === \strlen($Text))
+		$plainText = \MailSo\Base\HtmlUtils::ConvertHtmlToPlain($Text);
+		if (0 === \strlen(\trim($plainText)))
 		{
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter, null, 'The message has not text.');
 		}
