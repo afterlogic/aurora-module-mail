@@ -2520,7 +2520,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 					$sWordAscii = $this->_escapeSearchString($oImapClient, $replaceGermanUmlauts($sWord));
 					$sWord = $this->_escapeSearchString($oImapClient, $sWord);
 
-					$aImapSearchResult[] = 'OR OR OR OR OR OR OR OR OR OR' . ($sWordAscii !== $sWord) ? ' OR' : '';
+					$aImapSearchResult[] = 'OR OR OR OR OR OR OR OR OR' . (($sWordAscii !== $sWord) ? ' OR' : '');
 	
 					$aImapSearchResult[] = 'FROM ' . $sWord;
 					$aImapSearchResult[] = 'TO ' . $sWord;
@@ -2680,7 +2680,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 						$sWordAscii = $this->_escapeSearchString($oImapClient, $replaceGermanUmlauts($sWord));
 						$sWord = $this->_escapeSearchString($oImapClient, $sWord);
 
-						$aImapSearchResult[] = 'OR OR OR OR' . ($sWordAscii !== $sWord) ? ' OR' : '';
+						$aImapSearchResult[] = 'OR OR OR OR' . (($sWordAscii !== $sWord) ? ' OR' : '');
 						$aImapSearchResult[] = 'BODY ' . $sWord;
 						// Searching in Informatik special headers
 						$aImapSearchResult[] = 'HEADER "X-Project-Name" ' . $sWord;
