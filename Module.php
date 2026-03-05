@@ -20,6 +20,7 @@ use Aurora\System\Exceptions\InvalidArgumentException;
 use MailSo\Base\HtmlUtils;
 use PHPMailer\DKIMValidator\Validator as DKIMValidator;
 use PHPMailer\DKIMValidator\DKIMException;
+use Aurora\System\Facades\Route;
 
 /**
  * @license https://www.gnu.org/licenses/agpl-3.0.html AGPL-3.0
@@ -87,12 +88,13 @@ class Module extends \Aurora\System\Module\AbstractModule
             Enums\ErrorCodes::TenantQuotaExceeded					=> $this->i18N('ERROR_TENANT_QUOTA_EXCEEDED'),
         ];
 
-        $this->AddEntries(
-            array(
+        Route::add(
+            $this,
+            [
                 'message-newtab' => 'EntryMessageNewtab',
                 'mail-attachment' => 'EntryDownloadAttachment',
                 'mail-attachments-cookieless' => 'EntryDownloadAttachmentCookieless'
-            )
+            ]
         );
 
         $this->subscribeEvent('Login', array($this, 'onLogin'));
