@@ -4630,6 +4630,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter, null, 'Draft folder is not specified.');
 		}
 
+		$plainText = \trim(\MailSo\Base\HtmlUtils::ConvertHtmlToPlain($Text));
+
 		$draftLogPrefix =  'save-to-drafts-' . $oAccount->Email . '-';
 		Api::Log('Request:', \Aurora\System\Enums\LogLevel::Full, $draftLogPrefix);
 		Api::LogObject([
@@ -4640,11 +4642,11 @@ class Module extends \Aurora\System\Module\AbstractModule
 			'Bcc' => $Bcc,
 			'Subject' => $Subject,
 			'TextSize' => strlen($Text),
+			'PlainTextSize' => \strlen($plainText),
 			'Action' => $DraftUid !== '' ? 'Update' : 'Create'
 		], \Aurora\System\Enums\LogLevel::Full, $draftLogPrefix);
 
-		$plainText = \MailSo\Base\HtmlUtils::ConvertHtmlToPlain($Text);
-		if (0 === \strlen(\trim($plainText)))
+		if (0 === \strlen($plainText))
 		{
 			throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter, null, 'The message has not text.');
 		}
