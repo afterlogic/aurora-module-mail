@@ -443,27 +443,6 @@ class Manager extends \Aurora\System\Managers\AbstractManager
         return false;
     }
 
-    /**
-     * @deprecated since version 9.7.5. Not used anywhere.
-     *
-     * @param  \Aurora\Modules\Mail\Models\MailAccount $oAccount
-     *
-     * @return bool
-     */
-    public function disableForward($oAccount)
-    {
-        $sForwardToEmail = '';
-        $bKeepMessageCopy = true;
-        $aData = $this->getForward($oAccount);
-
-        if ($aData) {
-            $sForwardToEmail = $aData['Email'];
-            $bKeepMessageCopy = $aData['KeepMessageCopy'];
-        }
-
-        return $this->setForward($oAccount, $sForwardToEmail, false, $bKeepMessageCopy);
-    }
-
     public function getAllowBlockLists($oAccount)
     {
         $mResult = [
@@ -598,25 +577,6 @@ if " . $SieveSpamRuleCondition . " {
 
         $iSpamScore = $aLists['SpamScore'];
         return $this->setAllowBlockLists($oAccount, $aAllowList, array_unique($aBlockList), $iSpamScore);
-    }
-
-    /**
-     * @deprecated since version 9.7.5
-     *
-     * @param  \Aurora\Modules\Mail\Models\MailAccount $oAccount
-     * @param string $sSectionName Default ''
-     * @param string $sSectionData Default ''
-     *
-     * @return bool
-     */
-    public function resave($oAccount, $sSectionName = '', $sSectionData = '')
-    {
-        $this->_parseSectionsData($oAccount);
-        if (!empty($sSectionName) && !empty($sSectionData)) {
-            $this->_setSectionData($sSectionName, $sSectionData);
-        }
-
-        return $this->_resaveSectionsData($oAccount);
     }
 
     /**
