@@ -8,7 +8,9 @@
 namespace Aurora\Modules\Mail\Managers\Sieve;
 
 use Aurora\Api;
+use Aurora\Modules\Mail\Enums\ErrorCodes;
 use Aurora\Modules\Mail\Module;
+use Aurora\System\Notifications;
 
 /**
  * @license https://www.gnu.org/licenses/agpl-3.0.html AGPL-3.0
@@ -754,7 +756,7 @@ if " . $SieveSpamRuleCondition . " {
 
                 $bResult = true;
             } else {
-                throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Exceptions\Errs::UserManager_AccountUpdateFailed);
+                throw new \Aurora\System\Exceptions\ManagerException(ErrorCodes::CannotSetSieveFile);
             }
         } catch (\Exception $oException) {
             throw $oException;

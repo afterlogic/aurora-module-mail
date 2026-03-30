@@ -349,6 +349,10 @@ class Settings extends \Aurora\System\Module\Settings
                             "SortBy" => "to",
                             "LangConst" => "LABEL_SORT_BY_TO"
                         ],
+                        [
+                            "SortBy" => "size",
+                            "LangConst" => "LABEL_SORT_BY_SIZE"
+                        ],
                     ],
                     "DefaultSortBy" => "arrival",
                     "DefaultSortOrder" => "desc"

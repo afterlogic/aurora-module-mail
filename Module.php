@@ -101,7 +101,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         $this->subscribeEvent('Autodiscover::GetAutodiscover::after', array($this, 'onAfterGetAutodiscover'));
         $this->subscribeEvent('Core::DeleteTenant::after', array($this, 'onAfterDeleteTenant'));
         $this->subscribeEvent('Core::DeleteUser::after', array($this, 'onAfterDeleteUser'));
-        $this->subscribeEvent('Core::GetDigestHash', array($this, 'onGetDigestHash'));
+        $this->subscribeEvent('Dav::GetDigestHash::after', array($this, 'onAfterGetDigestHash'));
         $this->subscribeEvent('Core::GetAccountUsedToAuthorize', array($this, 'onGetAccountUsedToAuthorize'));
         $this->subscribeEvent('System::RunEntry::before', array($this, 'onBeforeRunEntry'));
         $this->subscribeEvent('System::CastExtendedProp', array($this, 'onCastExtendedProp'));
@@ -478,7 +478,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         $oAuthenticatedUser = \Aurora\System\Api::getAuthenticatedUser();
 
         if ($Type === 'User' && is_int($UserId) && $UserId > 0) {
-            $oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserWithoutRoleCheck($UserId);
+            $oUser = \Aurora\Api::getUserById($UserId);
             if ($oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin ||
                     $oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::TenantAdmin && $oAuthenticatedUser->IdTenant === $oUser->IdTenant) {
                 $oTenant = \Aurora\System\Api::getTenantById($oUser->IdTenant);
@@ -526,7 +526,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         $oAuthenticatedUser = \Aurora\System\Api::getAuthenticatedUser();
 
         if ($oAuthenticatedUser instanceof User && $Type === 'User' && is_int($UserId) && $UserId > 0) {
-            $oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserWithoutRoleCheck($UserId);
+            $oUser = \Aurora\Api::getUserById($UserId);
             if ($oUser instanceof User
                     && ($oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin
                     || $oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::TenantAdmin && $oAuthenticatedUser->IdTenant === $oUser->IdTenant)) {
@@ -559,7 +559,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         }
 
         if ($Type === 'Tenant' && is_int($TenantId) && $TenantId > 0) {
-            $oTenant = \Aurora\Modules\Core\Module::Decorator()->GetTenantWithoutRoleCheck($TenantId);
+            $oTenant = \Aurora\Api::getTenantById($TenantId);
             if ($oTenant && ($oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin ||
                     $oAuthenticatedUser->Role === \Aurora\System\Enums\UserRole::TenantAdmin && $oAuthenticatedUser->IdTenant === $TenantId)) {
                 $oTenant->setExtendedProp(self::GetName() . '::TenantSpaceLimitMb', $TenantSpaceLimitMb);
@@ -743,7 +743,7 @@ class Module extends \Aurora\System\Module\AbstractModule
     public function GetAccountByEmail($Email, $UserId = 0)
     {
         $oAuthenticatedUser = \Aurora\System\Api::getAuthenticatedUser();
-        $oUser = $UserId !== 0 ? \Aurora\Modules\Core\Module::Decorator()->GetUserWithoutRoleCheck($UserId) : null;
+        $oUser = $UserId !== 0 ? \Aurora\Api::getUserById($UserId) : null;
 
         // Method has its specific access check so checkAccess method isn't used.
         if ($oAuthenticatedUser instanceof User && $oUser instanceof User) {
@@ -918,7 +918,7 @@ class Module extends \Aurora\System\Module\AbstractModule
                     $oResException = $this->getMailManager()->validateAccountConnection($oAccount, false);
                 }
 
-                $oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserWithoutRoleCheck($UserId);
+                $oUser = \Aurora\Api::getUserById($UserId);
                 $aQuota = [];
                 $iQuota = 0;
 
@@ -1040,7 +1040,7 @@ class Module extends \Aurora\System\Module\AbstractModule
      * @param string $FriendlyName New friendly name.
      * @param string $IncomingLogin New login for IMAP connection.
      * @param string $IncomingPassword New password for IMAP connection.
-     * @param array $Server List of settings for IMAP and SMTP connections.
+     * @param array|null $Server List of settings for IMAP and SMTP connections.
      * @param boolean $UseThreading Indicates if account uses mail threading.
      * @param boolean $SaveRepliesToCurrFolder Indicates if replies should be saved to current folder (not Sent Items)
      * @return boolean
@@ -1048,7 +1048,7 @@ class Module extends \Aurora\System\Module\AbstractModule
      */
     public function UpdateAccount(
         $AccountID,
-        $UseToAuthorize = null,
+        $UseToAuthorize = false,
         $Email = null,
         $FriendlyName = null,
         $IncomingLogin = null,
@@ -1242,7 +1242,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
                 $oServer = $oAccount->getServer();
 
-                $oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserWithoutRoleCheck($oAccount->IdUser);
+                $oUser = \Aurora\Api::getUserById($oAccount->IdUser);
                 if ($oUser instanceof User && $oAccount->Email === $oUser->PublicId) {
                     $iQuota = $oUser->getExtendedProp(self::GetName() . '::UserSpaceLimitMb');
                     $this->updateAllocatedTenantSpace($oUser->IdTenant, 0, $iQuota);
@@ -2786,7 +2786,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
         $aQuota = $this->getMailManager()->getQuota($oAccount);
         $iQuota = (is_array($aQuota) && isset($aQuota[1])) ? $aQuota[1] / 1024 : 0;
-        $oUser = \Aurora\Modules\Core\Module::Decorator()->GetUserWithoutRoleCheck($oAccount->IdUser);
+        $oUser = \Aurora\Api::getUserById($oAccount->IdUser);
         $iUserSpaceLimitMb = ($oUser instanceof User) ? $oUser->getExtendedProp(self::GetName() . '::UserSpaceLimitMb') : 0;
         if ($iQuota !== $iUserSpaceLimitMb) {
             $this->updateAllocatedTenantSpace($oUser->IdTenant, $iQuota, $iUserSpaceLimitMb);
@@ -5426,7 +5426,7 @@ class Module extends \Aurora\System\Module\AbstractModule
             self::checkAccountAccess($oAccount);
 
             if ($Signature !== null) {
-                $Signature = HtmlUtils::ClearHtml($Signature);
+                $Signature = HtmlUtils::ClearHtmlSimple($Signature, true);
             }
 
             if ($this->oModuleSettings->AllowIdentities && $IdentityId !== null) {
@@ -5952,7 +5952,6 @@ class Module extends \Aurora\System\Module\AbstractModule
             self::checkAccountAccess($oAccount);
 
             if ($oAccount instanceof Models\MailAccount) {
-                $oUser = \Aurora\Modules\Core\Module::getInstance()->GetUser($oAccount->IdUser);
                 if ($oAccount->getPassword() !== $CurrentPassword) {
                     \Aurora\System\Api::LogEvent('password-change-failed: ' . $oAccount->Email, self::GetName());
                     throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::AccountOldPasswordNotCorrect);
@@ -5979,7 +5978,21 @@ class Module extends \Aurora\System\Module\AbstractModule
                         $mResult = $oAccount;
                         $mResult->RefreshToken = \Aurora\System\Api::UserSession()->UpdateTimestamp(\Aurora\System\Api::getAuthToken(), time());
                         \Aurora\System\Api::LogEvent('password-change-success: ' . $oAccount->Email, self::GetName());
-                        \Aurora\System\Api::UserSession()->DeleteAllUserSessions($oUser->Id);
+                        \Aurora\System\Api::UserSession()->DeleteAllAccountSessions($oAccount);
+
+                        // removing AuthToken cookie for web client
+                        $sXClientHeader = $this->oHttp->GetHeader('X-Client');
+
+                        // Set cookie in browser only
+                        if (strtolower($sXClientHeader) === 'webclient') {
+                            $authUserId = \Aurora\System\Api::getAuthenticatedUserId();
+                            if ($authUserId === $oAccount->IdUser) {
+                                // we need to remove auth token cookie, because it is no longer valid
+                                // user will be logged out and should login with new password
+
+                                Api::unsetAuthTokenCookie();
+                            }
+                        }
                     }
                 }
             }
@@ -6659,26 +6672,18 @@ class Module extends \Aurora\System\Module\AbstractModule
 
         if ($oAccount instanceof \Aurora\Modules\Mail\Models\MailAccount) {
             try {
-                if ($bAutocreateMailAccountOnNewUserFirstLogin || !$bNewAccount) {
-                    $sOldPassword = $oAccount->getPassword();
-                    $sNewPassword = $aArgs['Password'];
+                $sOldPassword = $oAccount->getPassword();
+                $sNewPassword = $aArgs['Password'];
 
-                    $oAccount->setPassword($sNewPassword);
-                    $mValidResult = $this->getMailManager()->validateAccountConnection($oAccount, false);
-                    $bResult = !($mValidResult instanceof \Exception);
-                    if ($bResult && $sNewPassword !== $sOldPassword) {
-                        // Update password in DB only if account passed connection validation
-                        $this->getAccountsManager()->updateAccount($oAccount);
+                $oAccount->setPassword($sNewPassword);
+                $mValidResult = $this->getMailManager()->validateAccountConnection($oAccount, false);
+                $bResult = !($mValidResult instanceof \Exception);
 
-                        if (!$bNewAccount) {
-                            $oCoreModule = \Aurora\Modules\Core\Module::getInstance();
-                            $oUser = $oCoreModule->GetUserWithoutRoleCheck($oAccount->IdUser);
-                            if ($oUser instanceof User) {
-                                $oCoreModule->UpdateTokensValidFromTimestamp($oUser);
-                                Api::UserSession()->DeleteAllUserSessions($oUser->Id);
-                            }
-                        }
-                    }
+                if (!$bNewAccount && $bResult && $sNewPassword !== $sOldPassword) {
+                    // Update password in DB only if account passed connection validation
+                    $this->getAccountsManager()->updateAccount($oAccount);
+
+                    \Aurora\System\Api::UserSession()->DeleteAllAccountSessions($oAccount);
                 }
 
                 if ($bResult && $bAutocreateMailAccountOnNewUserFirstLogin && $bNewAccount) {
@@ -7102,7 +7107,6 @@ class Module extends \Aurora\System\Module\AbstractModule
                 $sResult = \file_get_contents($oCoreWebclientModule->GetPath() . '/templates/Index.html');
                 if (\is_string($sResult)) {
                     return strtr($sResult, array(
-                        '{{AppVersion}}' => Application::GetVersion(),
                         '{{IntegratorDir}}' => $oApiIntegrator->isRtl() ? 'rtl' : 'ltr',
                         '{{IntegratorLinks}}' => $oApiIntegrator->buildHeadersLink(),
                         '{{IntegratorBody}}' => $oApiIntegrator->buildBody($aConfig)
@@ -7116,7 +7120,7 @@ class Module extends \Aurora\System\Module\AbstractModule
     {
         $sHash = (string) \Aurora\System\Router::getItemByIndex(1, '');
         $aValues = \Aurora\System\Api::DecodeKeyValues($sHash);
-        $sAuthToken = isset($aValues['AuthToken']) ? $aValues['AuthToken'] : null;
+        $sAuthToken = $aValues[\Aurora\System\Application::AUTH_TOKEN_KEY] ?? null;
         if (isset($sAuthToken)) {
             \Aurora\System\Api::setUserId(
                 \Aurora\System\Api::getAuthenticatedUserId($sAuthToken)
@@ -7148,8 +7152,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 
                 $aValues = \Aurora\System\Api::DecodeKeyValues($sHash);
 
-                if (!isset($aValues['AuthToken'])) {
-                    $aValues['AuthToken'] = \Aurora\System\Api::UserSession()->Set(
+                if (!isset($aValues[\Aurora\System\Application::AUTH_TOKEN_KEY])) {
+                    $aValues[\Aurora\System\Application::AUTH_TOKEN_KEY] = \Aurora\System\Api::UserSession()->Set(
                         array(
                             'token' => 'auth',
                             'id' => \Aurora\System\Api::getAuthenticatedUserId(),
@@ -7285,7 +7289,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         );
     }
 
-    public function onGetDigestHash($aArgs, &$mResult)
+    public function onAfterGetDigestHash($aArgs, &$mResult)
     {
         $oAccount = $this->getAccountsManager()->getAccountUsedToAuthorize($aArgs['Login']);
         if (is_a($oAccount, $aArgs['Type'])) {
@@ -7330,17 +7334,12 @@ class Module extends \Aurora\System\Module\AbstractModule
     public function onAfterChangePassword($aArgs, &$mResult)
     {
         if ($mResult instanceof Models\MailAccount && $mResult->UseToAuthorize) {
-            $oCoreModule = \Aurora\Modules\Core\Module::getInstance();
             $oUser = \Aurora\System\Api::getAuthenticatedUser();
             if ($oUser instanceof User &&
                 (($oUser->isNormalOrTenant() && $oUser->Id === $mResult->IdUser) ||
                 $oUser->Role === \Aurora\System\Enums\UserRole::SuperAdmin)
             ) {
-                $oUser = $oCoreModule->GetUserWithoutRoleCheck($mResult->IdUser);
-                if ($oUser instanceof User) {
-                    $oCoreModule->UpdateTokensValidFromTimestamp($oUser);
-                    Api::UserSession()->DeleteAllUserSessions($oUser->Id);
-                }
+                Api::UserSession()->DeleteAllAccountSessions($mResult);
             }
         }
     }

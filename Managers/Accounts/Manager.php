@@ -8,7 +8,9 @@
 namespace Aurora\Modules\Mail\Managers\Accounts;
 
 use Aurora\Modules\Mail\Models\MailAccount;
+use Aurora\System\Notifications;
 use Illuminate\Support\Collection;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
 /**
  * @license https://www.gnu.org/licenses/agpl-3.0.html AGPL-3.0
@@ -38,9 +40,9 @@ class Manager extends \Aurora\System\Managers\AbstractManager
         $mAccount = false;
         try {
             if (is_numeric($iAccountId)) {
-                $mAccount = MailAccount::find((int) $iAccountId);
+                $mAccount = MailAccount::with('Server')->find((int) $iAccountId);
             } else {
-                throw new \Aurora\System\Exceptions\BaseException(\Aurora\System\Exceptions\Errs::Validation_InvalidParameters);
+                throw new \Aurora\System\Exceptions\ApiException(Notifications::InvalidInputParameter);
             }
         } catch (\Aurora\System\Exceptions\BaseException $oException) {
             $mAccount = false;
@@ -64,7 +66,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
             'IdUser' => $iUserId,
         ];
 
-        $mAccount = MailAccount::where($aFilters)->first();
+        $mAccount = MailAccount::with('Server')->where($aFilters)->first();
 
         return $mAccount;
     }
@@ -89,17 +91,23 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     /**
      * @param string $sEmail
      * @param int $iExceptId
-     * @return array
+     * @return bool
      */
     public function useToAuthorizeAccountExists($sEmail, $iExceptId = 0)
     {
         $bExists = false;
 
         try {
-            $bExists = MailAccount::where([
+            $query = MailAccount::where([
                 'Email' => $sEmail,
                 'UseToAuthorize' => true
-            ])->exists();
+            ]);
+
+            if ($iExceptId > 0) {
+                $query->where('Id', '!=', $iExceptId);
+            }
+
+            $bExists = $query->exists();
         } catch (\Aurora\System\Exceptions\BaseException $oException) {
             $this->setLastException($oException);
         }
@@ -115,7 +123,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     {
         $mResult = false;
         try {
-            $mResult = MailAccount::where([
+            $mResult = MailAccount::with('Server')->where([
                 'IdUser' => $iUserId,
                 'IsDisabled' => false
             ])->get();
@@ -133,7 +141,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
      */
     public function getAccounts($aFilters)
     {
-        return MailAccount::where($aFilters)->get();
+        return MailAccount::with('Server')->where($aFilters)->get();
     }
 
     /**
@@ -169,7 +177,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
      *
      * @return bool
      */
-    public function isExists(\Aurora\Modules\Mail\Models\MailAccount $oAccount)
+    public function isExists(MailAccount $oAccount)
     {
         return MailAccount::where([
             'Email' => $oAccount->Email,
@@ -182,18 +190,26 @@ class Manager extends \Aurora\System\Managers\AbstractManager
      *
      * @return bool
      */
-    public function createAccount(\Aurora\Modules\Mail\Models\MailAccount &$oAccount)
+    public function createAccount(MailAccount &$oAccount)
     {
         $bResult = false;
 
         if ($oAccount->validate() && $this->canCreate($oAccount->IdUser)) {
-            if (!$this->isExists($oAccount)) {
-                if (!$oAccount->save()) {
-                    throw new \Aurora\System\Exceptions\ManagerException(\Aurora\System\Exceptions\Errs::UserManager_AccountCreateFailed);
+
+            Capsule::connection()->transaction(
+                function () use ($oAccount) {
+                    if (!MailAccount::where([
+                            'Email' => $oAccount->Email,
+                            'IdUser' => $oAccount->IdUser
+                        ])->sharedLock()->exists()) {
+                        if (!$oAccount->save()) {
+                            throw new \Aurora\System\Exceptions\ManagerException(Notifications::CanNotCreateAccount);
+                        }
+                    } else {
+                        throw new \Aurora\System\Exceptions\ApiException(Notifications::AccountExists);
+                    }
                 }
-            } else {
-                throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::AccountExists);
-            }
+            );
 
             $bResult = true;
         }
@@ -206,13 +222,13 @@ class Manager extends \Aurora\System\Managers\AbstractManager
      *
      * @return bool
      */
-    public function updateAccount(\Aurora\Modules\Mail\Models\MailAccount &$oAccount)
+    public function updateAccount(MailAccount &$oAccount)
     {
         $bResult = false;
         try {
             if ($oAccount->validate()) {
                 if (!$oAccount->save()) {
-                    throw new \Aurora\System\Exceptions\ManagerException(\Aurora\System\Exceptions\Errs::UsersManager_UserCreateFailed);
+                    throw new \Aurora\System\Exceptions\ManagerException(Notifications::CanNotUpdateAccount);
                 }
             }
 
@@ -230,7 +246,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
      *
      * @return bool
      */
-    public function deleteAccount(\Aurora\Modules\Mail\Models\MailAccount $oAccount)
+    public function deleteAccount(MailAccount $oAccount)
     {
         return $oAccount->delete();
     }

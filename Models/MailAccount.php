@@ -165,10 +165,8 @@ class MailAccount extends SystemAccount
         }
 
         $oServer = $this->getServer();
-        if ($oServer instanceof \Aurora\Modules\Mail\Models\Server) {
-            $aResponse['Server'] = $oServer->toResponseArray();
-
-            $oMailModule = \Aurora\Modules\Mail\Module::getInstance();
+        if ($oServer instanceof Server) {
+            $oMailModule = Module::getInstance();
             if ($oServer->EnableSieve && $oMailModule) {
                 $aResponse['AllowFilters'] = $oMailModule->oModuleSettings->AllowFilters;
                 $aResponse['AllowForward'] = $oMailModule->oModuleSettings->AllowForward;
