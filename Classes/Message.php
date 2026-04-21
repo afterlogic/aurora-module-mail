@@ -1269,6 +1269,9 @@ class Message
             }
 
             $bCreateHtmlLinksFromTextLinksInDOM = \Aurora\Modules\Mail\Module::getInstance()->oModuleSettings->CreateHtmlLinksFromTextLinksInDOM;
+
+            $sHtml = \MailSo\Base\HtmlUtils::ExtractBodyContent($sHtml);
+
             if (0 < \strlen($sHtml) && \Aurora\Modules\Mail\Module::getInstance()->oModuleSettings->DisplayInlineCss) {
                 $sHtml = \MailSo\Base\HtmlUtils::ClearHtml(
                     \Aurora\System\Utils::ConvertCssToInlineStyles($sHtml),
