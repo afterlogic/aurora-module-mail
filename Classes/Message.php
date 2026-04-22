@@ -1270,11 +1270,11 @@ class Message
 
             $bCreateHtmlLinksFromTextLinksInDOM = \Aurora\Modules\Mail\Module::getInstance()->oModuleSettings->CreateHtmlLinksFromTextLinksInDOM;
 
-            $sHtml = \MailSo\Base\HtmlUtils::ExtractBodyContent($sHtml);
-
             if (0 < \strlen($sHtml) && \Aurora\Modules\Mail\Module::getInstance()->oModuleSettings->DisplayInlineCss) {
                 $sHtml = \MailSo\Base\HtmlUtils::ClearHtml(
-                    \Aurora\System\Utils::ConvertCssToInlineStyles($sHtml),
+                    \MailSo\Base\HtmlUtils::ExtractBodyContent(
+                        \Aurora\System\Utils::ConvertCssToInlineStyles($sHtml)
+                    ),
                     $bHasExternals,
                     $aFoundedCIDs,
                     $aContentLocationUrls,
@@ -1283,6 +1283,7 @@ class Message
                     $bCreateHtmlLinksFromTextLinksInDOM
                 );
             } elseif (strlen($sHtml) > 0) {
+                $sHtml = \MailSo\Base\HtmlUtils::ExtractBodyContent($sHtml);
                 $sHtml = \MailSo\Base\HtmlUtils::ClearHtml(
                     $sHtml,
                     $bHasExternals,
