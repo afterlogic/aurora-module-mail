@@ -656,7 +656,7 @@ if " . $SieveSpamRuleCondition . " {
                     ->Connect($sHost, $iPort, $bUseStarttls ? \MailSo\Net\Enumerations\ConnectionSecurityType::STARTTLS : \MailSo\Net\Enumerations\ConnectionSecurityType::NONE)
                     ->Login($oAccount->IncomingLogin, $sPassword)
                 ;
-                // }
+            // }
             } else {
                 $bResult = true;
             }
