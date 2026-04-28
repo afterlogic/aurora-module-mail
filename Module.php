@@ -6663,7 +6663,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 
                 $oAccount->setPassword($sNewPassword);
                 $mValidResult = $this->getMailManager()->validateAccountConnection($oAccount, false);
-                $bResult = !($mValidResult instanceof \Exception);
+                $isExceptionResult = $mValidResult instanceof \Exception;
+                if ($isExceptionResult && $sOldPassword === $sNewPassword) {
+                    // If the account password on the mail server does not match the password stored in the database,
+                    // it means the password on the mail server has been changed and all account sessions must be deleted.
+                    Api::UserSession()->DeleteAllAccountSessions($oAccount);
+                }
+                $bResult = !$isExceptionResult;
 
                 if (!$bNewAccount && $bResult && $sNewPassword !== $sOldPassword) {
                     // Update password in DB only if account passed connection validation
