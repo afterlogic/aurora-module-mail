@@ -187,6 +187,10 @@ class MailAccount extends SystemAccount
         return $aResponse;
     }
 
+    /**
+     * Summary of getServer
+     * @return Server
+     */
     public function getServer()
     {
         return $this->Server;
