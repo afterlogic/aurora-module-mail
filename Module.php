@@ -109,10 +109,10 @@ class Module extends \Aurora\System\Module\AbstractModule
         $this->subscribeEvent('System::CastExtendedProp', array($this, 'onCastExtendedProp'));
         $this->subscribeEvent('ChangePassword::after', array($this, 'onAfterChangePassword'));
 
-        $this->aDeniedMethodsByWebApi = [
+        $this->denyMethodsCallByWebApi([
             'BuildMessage',
             'checkAccountAccess'
-        ];
+        ]);
 
         \MailSo\Config::$PreferStartTlsIfAutoDetect = !!$this->oModuleSettings->PreferStarttls;
     }
