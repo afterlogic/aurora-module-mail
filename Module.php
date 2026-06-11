@@ -67,11 +67,13 @@ class Module extends \Aurora\System\Module\AbstractModule
 			Enums\ErrorCodes::CannotSendMessageInvalidRecipients	=> $this->i18N('ERROR_SEND_MESSAGE_INVALID_RECIPIENTS'),
 			Enums\ErrorCodes::CannotSendMessageToRecipients			=> $this->i18N('ERROR_SEND_MESSAGE_TO_RECIPIENTS'),
 			Enums\ErrorCodes::CannotSendMessageToExternalRecipients	=> $this->i18N('ERROR_SEND_MESSAGE_TO_EXTERNAL_RECIPIENTS'),
+			Enums\ErrorCodes::CannotSaveMessage						=> $this->i18N('ERROR_SAVE_MESSAGE'),
 			Enums\ErrorCodes::CannotSaveMessageToSentItems			=> $this->i18N('ERROR_SEND_MESSAGE_NOT_SAVED'),
 			Enums\ErrorCodes::CannotUploadMessage					=> $this->i18N('ERROR_UPLOAD_MESSAGE'),
 			Enums\ErrorCodes::CannotUploadMessageFileNotEml			=> $this->i18N('ERROR_UPLOAD_MESSAGE_FILE_NOT_EML'),
 			Enums\ErrorCodes::DomainIsNotAllowedForLoggingIn		=> $this->i18N('DOMAIN_IS_NOT_ALLOWED_FOR_LOGGING_IN'),
 			Enums\ErrorCodes::TenantQuotaExceeded					=> $this->i18N('ERROR_TENANT_QUOTA_EXCEEDED'),
+			Enums\ErrorCodes::SuspiciousDraftContentReduction		=> $this->i18N('ERROR_SUSPICIOUS_DRAFT_CONTENT_REDUCTION'),
 		];
 
 		\Aurora\Modules\Core\Classes\User::extend(
@@ -4518,6 +4520,91 @@ class Module extends \Aurora\System\Module\AbstractModule
 	}
 
 	/**
+	 * Checks if an email is suspicious based on empty fields (To, Cc, Bcc, Subject).
+	 *
+	 * @param string $To Message recipients.
+	 * @param string $Cc Recipients which will get a copy of the message.
+	 * @param string $Bcc Recipients which will get a hidden copy of the message.
+	 * @param string $Subject Subject of the message.
+	 * @return boolean True if email is suspicious.
+	 */
+	private function _isSuspiciousEmail($To, $Cc, $Bcc, $Subject)
+	{
+		$To = \trim($To);
+		$Cc = \trim($Cc);
+		$Bcc = \trim($Bcc);
+		$Subject = \trim($Subject);
+
+		// Email is suspicious if all these fields are empty
+		return (empty($To) && empty($Cc) && empty($Bcc) && empty($Subject));
+	}
+
+	/**
+	 * Gets the content size of the old draft message.
+	 *
+	 * @param \Aurora\Modules\StandardAuth\Classes\Account $oAccount Account object.
+	 * @param string $DraftFolder Full name of Drafts folder.
+	 * @param string $DraftUid UID of the draft message.
+	 * @return int Size of the plain text content, or 0 if message not found.
+	 */
+	private function _getOldDraftContentSize($oAccount, $DraftFolder, $DraftUid)
+	{
+		try
+		{
+			$oOldMessage = $this->getMailManager()->getMessage($oAccount, $DraftFolder, $DraftUid, true);
+			if ($oOldMessage)
+			{
+				$sPlainText = \trim(\MailSo\Base\HtmlUtils::ConvertHtmlToPlain($oOldMessage->Html()));
+				return \strlen($sPlainText);
+			}
+		}
+		catch (\Exception $oException)
+		{
+			\Aurora\System\Api::Log('Error fetching old draft message: ' . $oException->getMessage(), \Aurora\System\Enums\LogLevel::Full, );
+		}
+
+		return 0;
+	}
+
+	/**
+	 * Validates that draft content hasn't decreased significantly.
+	 * Throws exception if new content is significantly smaller than old content.
+	 *
+	 * @param int $iOldContentSize Size of the old message content.
+	 * @param int $iNewContentSize Size of the new message content.
+	 * @param string $draftLogPrefix Prefix for the log file.
+	 * @param int $fReductionThreshold Acceptable reduction ratio (e.g., 2 means 50% reduction is acceptable).
+	 * @throws \Aurora\Modules\Mail\Exceptions\Exception if content reduction exceeds threshold.
+	 */
+	private function _validateDraftContentChange($iOldContentSize, $iNewContentSize, $draftLogPrefix, $fReductionThreshold = 2)
+	{
+		// Only check if we have old content to compare
+		if ($iOldContentSize > $iNewContentSize && $iNewContentSize > 0)
+		{
+			$fReductionRatio = $iOldContentSize / $iNewContentSize;
+
+			// If old content is significantly larger than new content (e.g., 2x or more)
+			if ($fReductionRatio >= $fReductionThreshold)
+			{
+				$sMessage = \sprintf(
+					'Draft content reduction detected. Old content: %d bytes, New content: %d bytes (%.2f%% reduction).',
+					$iOldContentSize,
+					$iNewContentSize,
+					(1 - ($iNewContentSize / $iOldContentSize)) * 100
+				);
+
+				\Aurora\System\Api::Log('Suspicious draft: ' . $sMessage, \Aurora\System\Enums\LogLevel::Full, $draftLogPrefix);
+
+				throw new \Aurora\Modules\Mail\Exceptions\Exception(
+					Enums\ErrorCodes::SuspiciousDraftContentReduction,
+					null,
+					$sMessage
+				);
+			}
+		}
+	}
+
+	/**
 	 * @api {post} ?/Api/ SaveMessage
 	 * @apiName SaveMessage
 	 * @apiGroup Mail
@@ -4615,7 +4702,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 			$Subject = "", $Text = "", $IsHtml = false, $Importance = \MailSo\Mime\Enumerations\MessagePriority::NORMAL,
 			$SendReadingConfirmation = false, $Attachments = array(), $InReplyTo = "",
 			$References = "", $Sensitivity = \MailSo\Mime\Enumerations\Sensitivity::NOTHING, $DraftFolder = "",
-			$CustomHeaders = [])
+			$CustomHeaders = [], $AutosaveInDrafts = '')
 	{
 		\Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 
@@ -4643,7 +4730,8 @@ class Module extends \Aurora\System\Module\AbstractModule
 			'Subject' => $Subject,
 			'TextSize' => strlen($Text),
 			'PlainTextSize' => \strlen($plainText),
-			'Action' => $DraftUid !== '' ? 'Update' : 'Create'
+			'Action' => $DraftUid !== '' ? 'Update' : 'Create',
+			'AutosaveInDrafts' => $AutosaveInDrafts
 		], \Aurora\System\Enums\LogLevel::Full, $draftLogPrefix);
 
 		if (0 === \strlen($plainText))
@@ -4652,6 +4740,26 @@ class Module extends \Aurora\System\Module\AbstractModule
 		}
 
 		$oIdentity = $IdentityID !== 0 ? $this->getIdentitiesManager()->getIdentity($IdentityID) : null;
+
+		// Validate suspicious draft - check for quick external signs and content reduction
+		if (!empty($DraftUid) && $this->_isSuspiciousEmail($To, $Cc, $Bcc, $Subject))
+		{
+			$iNewContentSize = \strlen($plainText);
+			$iOldContentSize = $this->_getOldDraftContentSize($oAccount, $DraftFolder, $DraftUid);
+
+			Api::Log('Suspicious draft check for: ' . $oAccount->Email, \Aurora\System\Enums\LogLevel::Full, $draftLogPrefix);
+			Api::LogObject([
+				'OldContentSize' => $iOldContentSize,
+				'NewContentSize' => $iNewContentSize,
+				'To' => $To,
+				'Cc' => $Cc,
+				'Bcc' => $Bcc,
+				'Subject' => $Subject,
+				'Text' => $Text,
+			], \Aurora\System\Enums\LogLevel::Full, $draftLogPrefix);
+
+			$this->_validateDraftContentChange($iOldContentSize, $iNewContentSize, $draftLogPrefix);
+		}
 
 		$oMessage = self::Decorator()->BuildMessage($oAccount, $To, $Cc, $Bcc,
 			$Subject, $IsHtml, $Text, $Attachments, $DraftInfo, $InReplyTo, $References, $Importance,

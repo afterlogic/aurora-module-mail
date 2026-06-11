@@ -3190,10 +3190,10 @@ class Manager extends \Aurora\System\Managers\AbstractManager
 			foreach ($aBodyPeekMimeIndexes as $aTextMimeData)
 			{
 				$sLine = \MailSo\Imap\Enumerations\FetchType::BODY_PEEK.'['.$aTextMimeData[0].']';
-				if (\is_numeric($iBodyTextLimit) && 0 < $iBodyTextLimit && $iBodyTextLimit < $aTextMimeData[1])
-				{
-					$sLine .= '<0.'.((int) $iBodyTextLimit).'>';
-				}
+				// if (\is_numeric($iBodyTextLimit) && 0 < $iBodyTextLimit && $iBodyTextLimit < $aTextMimeData[1])
+				// {
+				// 	$sLine .= '<0.'.((int) $iBodyTextLimit).'>';
+				// }
 
 				$aFetchItems[] = $sLine;
 			}

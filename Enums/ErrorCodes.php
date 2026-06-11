@@ -32,6 +32,7 @@ class ErrorCodes
 	const CannotUploadMessageFileNotEml = 4016;
 	const DomainIsNotAllowedForLoggingIn = 4017;
 	const TenantQuotaExceeded = 4018;
+	const SuspiciousDraftContentReduction = 4019;
 
 	/**
 	 * @var array
@@ -55,5 +56,6 @@ class ErrorCodes
 		'CannotUploadMessageFileNotEml' => self::CannotUploadMessageFileNotEml,
 		'DomainIsNotAllowedForLoggingIn' => self::DomainIsNotAllowedForLoggingIn,
 		'TenantQuotaExceeded' => self::TenantQuotaExceeded,
+		'SuspiciousDraftContentReduction' => self::SuspiciousDraftContentReduction,
 	];
 }
