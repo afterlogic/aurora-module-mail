@@ -7033,50 +7033,70 @@ class Module extends \Aurora\System\Module\AbstractModule
 
     public function onAfterGetAutodiscover(&$aArgs, &$mResult)
     {
-        $sIncomingServer = \trim($this->oModuleSettings->ExternalHostNameOfLocalImap);
-        $sOutgoingServer = \trim($this->oModuleSettings->ExternalHostNameOfLocalSmtp);
-        $sEmail = $aArgs['Email'];
+        $sIncomingServer = \trim((string) $this->oModuleSettings->ExternalHostNameOfLocalImap);
+        $sOutgoingServer = \trim((string) $this->oModuleSettings->ExternalHostNameOfLocalSmtp);
+        $sEmail = isset($aArgs['Email']) ? (string) $aArgs['Email'] : '';
+
+        if (!\filter_var($sEmail, FILTER_VALIDATE_EMAIL)) {
+            return;
+        }
 
         if (0 < \strlen($sIncomingServer) && 0 < \strlen($sOutgoingServer)) {
             $iIncomingPort = 143;
             $iOutgoingPort = 25;
 
+            // NOTE: The original `preg_replace()` call had the pattern and replacement
+            // arguments swapped, so the port was never stripped from the host. Fixed below.
             $aMatch = array();
             if (\preg_match('/:([\d]+)$/', $sIncomingServer, $aMatch) && !empty($aMatch[1]) && \is_numeric($aMatch[1])) {
-                $sIncomingServer = \preg_replace('/:[\d]+$/', $sIncomingServer, '');
+                $sIncomingServer = \preg_replace('/:[\d]+$/', '', $sIncomingServer);
                 $iIncomingPort = (int) $aMatch[1];
             }
 
             $aMatch = array();
             if (\preg_match('/:([\d]+)$/', $sOutgoingServer, $aMatch) && !empty($aMatch[1]) && \is_numeric($aMatch[1])) {
-                $sOutgoingServer = \preg_replace('/:[\d]+$/', $sOutgoingServer, '');
+                $sOutgoingServer = \preg_replace('/:[\d]+$/', '', $sOutgoingServer);
                 $iOutgoingPort = (int) $aMatch[1];
             }
 
+            // Hosts must be valid domain names or IP addresses as a safety and configuration sanity check.
+            if (!\filter_var($sIncomingServer, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)
+                && !\filter_var($sIncomingServer, FILTER_VALIDATE_IP)) {
+                return;
+            }
+            if (!\filter_var($sOutgoingServer, FILTER_VALIDATE_DOMAIN, FILTER_FLAG_HOSTNAME)
+                && !\filter_var($sOutgoingServer, FILTER_VALIDATE_IP)) {
+                return;
+            }
+
+            $sEmailXml    = \htmlspecialchars($sEmail, ENT_XML1 | ENT_QUOTES, 'UTF-8');
+            $sIncomingXml = \htmlspecialchars($sIncomingServer, ENT_XML1 | ENT_QUOTES, 'UTF-8');
+            $sOutgoingXml = \htmlspecialchars($sOutgoingServer, ENT_XML1 | ENT_QUOTES, 'UTF-8');
+
             $sResult = \implode("\n", array(
-'		<Account>',
-'			<AccountType>email</AccountType>',
-'			<Action>settings</Action>',
-'			<Protocol>',
-'				<Type>IMAP</Type>',
-'				<Server>' . $sIncomingServer . '</Server>',
-'				<LoginName>' . $sEmail . '</LoginName>',
-'				<Port>' . $iIncomingPort . '</Port>',
-'				<SSL>' . (993 === $iIncomingPort ? 'on' : 'off') . '</SSL>',
-'				<SPA>off</SPA>',
-'				<AuthRequired>on</AuthRequired>',
-'			</Protocol>',
-'			<Protocol>',
-'				<Type>SMTP</Type>',
-'				<Server>' . $sOutgoingServer . '</Server>',
-'				<LoginName>' . $sEmail . '</LoginName>',
-'				<Port>' . $iOutgoingPort . '</Port>',
-'				<SSL>' . (465 === $iOutgoingPort ? 'on' : 'off') . '</SSL>',
-'				<SPA>off</SPA>',
-'				<AuthRequired>on</AuthRequired>',
-'			</Protocol>',
-'		</Account>'
-));
+    '		<Account>',
+    '			<AccountType>email</AccountType>',
+    '			<Action>settings</Action>',
+    '			<Protocol>',
+    '				<Type>IMAP</Type>',
+    '				<Server>' . $sIncomingXml . '</Server>',
+    '				<LoginName>' . $sEmailXml . '</LoginName>',
+    '				<Port>' . $iIncomingPort . '</Port>',
+    '				<SSL>' . (993 === $iIncomingPort ? 'on' : 'off') . '</SSL>',
+    '				<SPA>off</SPA>',
+    '				<AuthRequired>on</AuthRequired>',
+    '			</Protocol>',
+    '			<Protocol>',
+    '				<Type>SMTP</Type>',
+    '				<Server>' . $sOutgoingXml . '</Server>',
+    '				<LoginName>' . $sEmailXml . '</LoginName>',
+    '				<Port>' . $iOutgoingPort . '</Port>',
+    '				<SSL>' . (465 === $iOutgoingPort ? 'on' : 'off') . '</SSL>',
+    '				<SPA>off</SPA>',
+    '				<AuthRequired>on</AuthRequired>',
+    '			</Protocol>',
+    '		</Account>'
+    ));
             $mResult = $mResult . $sResult;
         }
     }
