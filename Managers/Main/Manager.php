@@ -590,8 +590,10 @@ class Manager extends \Aurora\System\Managers\AbstractManager
         $aFoldersOrderList = $this->getFoldersOrder($oAccount);
         $aFoldersOrderList = is_array($aFoldersOrderList) && 0 < count($aFoldersOrderList) ? $aFoldersOrderList : null;
 
-        $oFolderCollection->sort(function ($oFolderA, $oFolderB) use ($aFoldersOrderList) {
-            if (!$aFoldersOrderList) {
+        $aFoldersOrderFlipped = $aFoldersOrderList ? array_flip($aFoldersOrderList) : null;
+
+        $oFolderCollection->sort(function ($oFolderA, $oFolderB) use ($aFoldersOrderFlipped) {
+            if (!$aFoldersOrderFlipped) {
                 if (\Aurora\Modules\Mail\Enums\FolderType::Custom !== $oFolderA->getType() || \Aurora\Modules\Mail\Enums\FolderType::Custom !== $oFolderB->getType()) {
                     if ($oFolderA->getType() === $oFolderB->getType()) {
                         return 0;
@@ -600,8 +602,8 @@ class Manager extends \Aurora\System\Managers\AbstractManager
                     return $oFolderA->getType() < $oFolderB->getType() ? -1 : 1;
                 }
             } else {
-                $iPosA = array_search($oFolderA->getRawFullName(), $aFoldersOrderList);
-                $iPosB = array_search($oFolderB->getRawFullName(), $aFoldersOrderList);
+                $iPosA = isset($aFoldersOrderFlipped[$oFolderA->getRawFullName()]) ? $aFoldersOrderFlipped[$oFolderA->getRawFullName()] : false;
+                $iPosB = isset($aFoldersOrderFlipped[$oFolderB->getRawFullName()]) ? $aFoldersOrderFlipped[$oFolderB->getRawFullName()] : false;
                 if (is_int($iPosA) && is_int($iPosB)) {
                     return $iPosA < $iPosB ? -1 : 1;
                 } elseif (is_int($iPosA)) {
