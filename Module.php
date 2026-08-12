@@ -6695,15 +6695,18 @@ class Module extends \Aurora\System\Module\AbstractModule
                     if ($oUser instanceof User) {
                         $iUserId = $oUser->Id;
                         $bPrevState = \Aurora\System\Api::skipCheckUserRole(true);
-                        $oAccount = self::Decorator()->CreateAccount(
-                            $iUserId,
-                            '',
-                            $sEmail,
-                            $sMailLogin,
-                            $aArgs['Password'],
-                            array('ServerId' => $oServer->Id)
-                        );
-                        \Aurora\System\Api::skipCheckUserRole($bPrevState);
+                        try {
+                            $oAccount = self::Decorator()->CreateAccount(
+                                $iUserId,
+                                '',
+                                $sEmail,
+                                $sMailLogin,
+                                $aArgs['Password'],
+                                array('ServerId' => $oServer->Id)
+                            );
+                        } finally {
+                            \Aurora\System\Api::skipCheckUserRole($bPrevState);
+                        }
                         if ($oAccount) {
                             $oAccount->UseToAuthorize = true;
                             $oAccount->UseThreading = $oServer->EnableThreading;
@@ -7134,6 +7137,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         $aValues = \Aurora\System\Api::DecodeKeyValues($sHash);
         $sAuthToken = $aValues[\Aurora\System\Application::AUTH_TOKEN_KEY] ?? null;
         if (isset($sAuthToken)) {
+            \Aurora\System\Api::validateAuthToken($sAuthToken);
             \Aurora\System\Api::setUserId(
                 \Aurora\System\Api::getAuthenticatedUserId($sAuthToken)
             );
@@ -7190,6 +7194,7 @@ class Module extends \Aurora\System\Module\AbstractModule
         $bSafeToken = preg_match($re, $sAuthToken);
 
         if ($sAuthToken !== '' && !!$bSafeToken) {
+            \Aurora\System\Api::validateAuthToken($sAuthToken);
             \Aurora\System\Api::authorise($sAuthToken);
             $this->EntryDownloadAttachment();
         }
