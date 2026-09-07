@@ -1257,6 +1257,17 @@ class Module extends \Aurora\System\Module\AbstractModule
                 );
                 $bResult = $this->getAccountsManager()->deleteAccount($oAccount);
 
+                if ($bResult && $oAccount->UseToAuthorize) {
+                    $mRemainingAccounts = $this->getAccountsManager()->getAccounts([
+                        'IdUser' => $oAccount->IdUser,
+                        'UseToAuthorize' => true,
+                        'IsDisabled' => false
+                    ]);
+                    if (!$mRemainingAccounts || $mRemainingAccounts->isEmpty()) {
+                        \Aurora\Modules\Core\Module::Decorator()->DeleteUser($oAccount->IdUser);
+                    }
+                }
+
                 if ($bResult && $oServer && $oServer->OwnerType === \Aurora\Modules\Mail\Enums\ServerOwnerType::Account) {
                     $this->getServersManager()->deleteServer($oServer->Id);
                 }
@@ -1884,16 +1895,9 @@ class Module extends \Aurora\System\Module\AbstractModule
             \Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::SuperAdmin);
         }
 
-        $mPrimaryAccounts = $this->getAccountsManager()->getAccounts(['ServerId' => $ServerId, 'UseToAuthorize' => true]);
-        if ($mPrimaryAccounts) {
-            foreach ($mPrimaryAccounts as $oAccount) {
-                \Aurora\Modules\Core\Module::Decorator()->DeleteUser($oAccount->IdUser);
-            }
-        }
-
-        $mSecondaryAccounts = $this->getAccountsManager()->getAccounts(['ServerId' => $ServerId, 'UseToAuthorize' => false]);
-        if ($mSecondaryAccounts) {
-            foreach ($mSecondaryAccounts as $oAccount) {
+        $mAccounts = $this->getAccountsManager()->getAccounts(['ServerId' => $ServerId]);
+        if ($mAccounts) {
+            foreach ($mAccounts as $oAccount) {
                 self::Decorator()->DeleteAccount($oAccount->Id);
             }
         }
