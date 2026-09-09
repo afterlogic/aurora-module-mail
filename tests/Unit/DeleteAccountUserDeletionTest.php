@@ -153,18 +153,6 @@ class TestableMailModule extends Module
     public function updateAllocatedTenantSpace($iTenantId, $iQuota, $iNewQuota = 0)
     {
     }
-
-    public function DeleteServer($ServerId, $TenantId = 0)
-    {
-        $mAccounts = $this->getAccountsManager()->getAccounts(['ServerId' => $ServerId]);
-        if ($mAccounts) {
-            foreach ($mAccounts as $oAccount) {
-                $this->DeleteAccount($oAccount->Id);
-            }
-        }
-
-        return $this->getServersManager()->deleteServer($ServerId, $TenantId);
-    }
 }
 
 class DeleteAccountUserDeletionTest extends TestCase
@@ -208,14 +196,14 @@ class DeleteAccountUserDeletionTest extends TestCase
     {
         $ref = new \ReflectionProperty(Api::class, 'usersCache');
         $ref->setAccessible(true);
-        $ref->setValue(null, $users);
+        $ref->setValue(Api::class, $users);
     }
 
     private function clearUsersCache()
     {
         $ref = new \ReflectionProperty(Api::class, 'usersCache');
         $ref->setAccessible(true);
-        $ref->setValue(null, []);
+        $ref->setValue(Api::class, []);
     }
 
     private function createMockAccount($id, $idUser, $useToAuthorize, $email, $isDisabled = false)
@@ -268,7 +256,7 @@ class DeleteAccountUserDeletionTest extends TestCase
         $this->assertCount(0, $this->fakeCoreDecorator->deleteUserCalls);
     }
 
-    public function testDeleteServerDeletesAllAccountsWithoutDirectlyDeletingUsers()
+    public function testDeleteServerDeletesAllAccountsAndDeletesUserWhenLastUseToAuthorizeAccountRemoved()
     {
         $this->createMockAccount(1, 100, true, 'user@example.com');
         $this->createMockAccount(2, 200, false, 'user2@example.com');
@@ -278,11 +266,17 @@ class DeleteAccountUserDeletionTest extends TestCase
             200 => new FakeUser(200, 'user2@example.com', 0)
         ]);
 
+        var_dump('Module::GetName():', \Aurora\Modules\Mail\Module::GetName());
+        var_dump('Module::Decorator():', \Aurora\Modules\Mail\Module::Decorator());
+        var_dump('Decorator class:', get_class(\Aurora\Modules\Mail\Module::Decorator()));
+
         $result = $this->testableModule->DeleteServer(1, 0);
 
         $this->assertTrue($result);
         $this->assertEquals([1, 2], $this->accountsManager->deletedAccounts);
         $this->assertEquals([1], $this->testableModule->getServersManager()->deletedServers);
+        $this->assertCount(1, $this->fakeCoreDecorator->deleteUserCalls);
+        $this->assertEquals(100, $this->fakeCoreDecorator->deleteUserCalls[0]);
     }
 
     public function testDeleteServerDeletesUserWhenLastUseToAuthorizeAccountRemoved()
