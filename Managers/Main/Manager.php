@@ -519,6 +519,31 @@ class Manager extends \Aurora\System\Managers\AbstractManager
         return $oImapClient->GetNamespace();
     }
 
+    public static function compareFolders($oFolderA, $oFolderB, $aFoldersOrderFlipped)
+    {
+        if (!$aFoldersOrderFlipped) {
+            if (\Aurora\Modules\Mail\Enums\FolderType::Custom !== $oFolderA->getType() || \Aurora\Modules\Mail\Enums\FolderType::Custom !== $oFolderB->getType()) {
+                if ($oFolderA->getType() === $oFolderB->getType()) {
+                    return 0;
+                }
+
+                return $oFolderA->getType() < $oFolderB->getType() ? -1 : 1;
+            }
+        } else {
+            $iPosA = isset($aFoldersOrderFlipped[$oFolderA->getRawFullName()]) ? $aFoldersOrderFlipped[$oFolderA->getRawFullName()] : false;
+            $iPosB = isset($aFoldersOrderFlipped[$oFolderB->getRawFullName()]) ? $aFoldersOrderFlipped[$oFolderB->getRawFullName()] : false;
+            if (is_int($iPosA) && is_int($iPosB)) {
+                return $iPosA < $iPosB ? -1 : 1;
+            } elseif (is_int($iPosA)) {
+                return -1;
+            } elseif (is_int($iPosB)) {
+                return 1;
+            }
+        }
+
+        return strnatcmp(strtolower($oFolderA->getFullName()), strtolower($oFolderB->getFullName()));
+    }
+
     /**
      * Obtains the list of IMAP folders.
      *
@@ -593,27 +618,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
         $aFoldersOrderFlipped = $aFoldersOrderList ? array_flip($aFoldersOrderList) : null;
 
         $oFolderCollection->sort(function ($oFolderA, $oFolderB) use ($aFoldersOrderFlipped) {
-            if (!$aFoldersOrderFlipped) {
-                if (\Aurora\Modules\Mail\Enums\FolderType::Custom !== $oFolderA->getType() || \Aurora\Modules\Mail\Enums\FolderType::Custom !== $oFolderB->getType()) {
-                    if ($oFolderA->getType() === $oFolderB->getType()) {
-                        return 0;
-                    }
-
-                    return $oFolderA->getType() < $oFolderB->getType() ? -1 : 1;
-                }
-            } else {
-                $iPosA = isset($aFoldersOrderFlipped[$oFolderA->getRawFullName()]) ? $aFoldersOrderFlipped[$oFolderA->getRawFullName()] : false;
-                $iPosB = isset($aFoldersOrderFlipped[$oFolderB->getRawFullName()]) ? $aFoldersOrderFlipped[$oFolderB->getRawFullName()] : false;
-                if (is_int($iPosA) && is_int($iPosB)) {
-                    return $iPosA < $iPosB ? -1 : 1;
-                } elseif (is_int($iPosA)) {
-                    return -1;
-                } elseif (is_int($iPosB)) {
-                    return 1;
-                }
-            }
-
-            return strnatcmp(strtolower($oFolderA->getFullName()), strtolower($oFolderB->getFullName()));
+            return static::compareFolders($oFolderA, $oFolderB, $aFoldersOrderFlipped);
         });
 
         if (null === $aFoldersOrderList) {

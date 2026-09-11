@@ -33,37 +33,6 @@ class FakeFolder
 
 class ManagerFolderSortTest extends TestCase
 {
-    /**
-     * Reimplementation of the comparator used in Managers\Main\Manager::getFolders()
-     * but accepting the already flipped folders-order map.
-     */
-    private function comparator($aFoldersOrderFlipped)
-    {
-        return function ($oFolderA, $oFolderB) use ($aFoldersOrderFlipped) {
-            if (!$aFoldersOrderFlipped) {
-                if (\Aurora\Modules\Mail\Enums\FolderType::Custom !== $oFolderA->getType() || \Aurora\Modules\Mail\Enums\FolderType::Custom !== $oFolderB->getType()) {
-                    if ($oFolderA->getType() === $oFolderB->getType()) {
-                        return 0;
-                    }
-
-                    return $oFolderA->getType() < $oFolderB->getType() ? -1 : 1;
-                }
-            } else {
-                $iPosA = isset($aFoldersOrderFlipped[$oFolderA->getRawFullName()]) ? $aFoldersOrderFlipped[$oFolderA->getRawFullName()] : false;
-                $iPosB = isset($aFoldersOrderFlipped[$oFolderB->getRawFullName()]) ? $aFoldersOrderFlipped[$oFolderB->getRawFullName()] : false;
-                if (is_int($iPosA) && is_int($iPosB)) {
-                    return $iPosA < $iPosB ? -1 : 1;
-                } elseif (is_int($iPosA)) {
-                    return -1;
-                } elseif (is_int($iPosB)) {
-                    return 1;
-                }
-            }
-
-            return strnatcmp(strtolower($oFolderA->getFullName()), strtolower($oFolderB->getFullName()));
-        };
-    }
-
     public function testSortRespectsProvidedFoldersOrder()
     {
         $fA = new FakeFolder('A', 'A', \Aurora\Modules\Mail\Enums\FolderType::Custom);
@@ -72,11 +41,12 @@ class ManagerFolderSortTest extends TestCase
 
         $list = [$fA, $fB, $fC];
 
-        // Suppose saved order is B, A, C
         $aFoldersOrderList = ['B', 'A', 'C'];
         $aFoldersOrderFlipped = array_flip($aFoldersOrderList);
 
-        usort($list, $this->comparator($aFoldersOrderFlipped));
+        usort($list, function ($oFolderA, $oFolderB) use ($aFoldersOrderFlipped) {
+            return \Aurora\Modules\Mail\Managers\Main\Manager::compareFolders($oFolderA, $oFolderB, $aFoldersOrderFlipped);
+        });
 
         $this->assertSame('B', $list[0]->getRawFullName());
         $this->assertSame('A', $list[1]->getRawFullName());
@@ -85,14 +55,14 @@ class ManagerFolderSortTest extends TestCase
 
     public function testFallbackSortByTypeThenName()
     {
-        // Inbox (type 1) should come before Custom (type 10)
         $inbox = new FakeFolder('INBOX', 'Inbox', \Aurora\Modules\Mail\Enums\FolderType::Inbox);
         $custom = new FakeFolder('ZFolder', 'zfolder', \Aurora\Modules\Mail\Enums\FolderType::Custom);
 
         $list = [$custom, $inbox];
 
-        // No order list -> fallback behaviour
-        usort($list, $this->comparator(null));
+        usort($list, function ($oFolderA, $oFolderB) {
+            return \Aurora\Modules\Mail\Managers\Main\Manager::compareFolders($oFolderA, $oFolderB, null);
+        });
 
         $this->assertSame('INBOX', $list[0]->getRawFullName());
         $this->assertSame('ZFolder', $list[1]->getRawFullName());
