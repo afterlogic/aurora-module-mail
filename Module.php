@@ -7306,6 +7306,8 @@ class Module extends \Aurora\System\Module\AbstractModule
     {
         $oAccount = $this->getAccountsManager()->getAccountUsedToAuthorize($aArgs['Login']);
         if (is_a($oAccount, $aArgs['Type'])) {
+            // MD5 here is mandated by the HTTP Digest Authentication protocol (RFC 2617/7616),
+            // which defines HA1 as MD5(login:realm:password) — not our choice of hash algorithm.
             $mResult = \md5($aArgs['Login'] . ':' . $aArgs['Realm'] . ':' . $oAccount->GetPassword());
             return true;
         }
