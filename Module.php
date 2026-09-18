@@ -1213,10 +1213,15 @@ class Module extends \Aurora\System\Module\AbstractModule
     /**
      * Deletes mail account.
      * @param int $AccountID Account identifier.
+     * @param bool $bSkipUserDeletionCascade Internal use only (see onBeforeDeleteUser): when
+     *   this account is being removed as part of a user deletion that's already in progress,
+     *   skip the "this was the last authorizing account, so delete the user too" step below -
+     *   the caller's own Core::DeleteUser() will finish that regardless, and recursing back
+     *   into it here would just race it.
      * @return boolean
      * @throws \Aurora\System\Exceptions\ApiException
      */
-    public function DeleteAccount($AccountID)
+    public function DeleteAccount($AccountID, $bSkipUserDeletionCascade = false)
     {
         \Aurora\System\Api::checkUserRoleIsAtLeast(\Aurora\System\Enums\UserRole::NormalUser);
 
@@ -1249,7 +1254,7 @@ class Module extends \Aurora\System\Module\AbstractModule
                 );
                 $bResult = $this->getAccountsManager()->deleteAccount($oAccount);
 
-                if ($bResult && $oAccount->UseToAuthorize) {
+                if ($bResult && $oAccount->UseToAuthorize && !$bSkipUserDeletionCascade) {
                     $mRemainingAccounts = $this->getAccountsManager()->getAccounts([
                         'IdUser' => $oAccount->IdUser,
                         'UseToAuthorize' => true,
@@ -6549,7 +6554,9 @@ class Module extends \Aurora\System\Module\AbstractModule
         $mResult = $this->getAccountsManager()->getUserAccounts($aArgs["UserId"]);
 
         foreach ($mResult as $oItem) {
-            self::Decorator()->DeleteAccount($oItem->Id);
+            // The user is already being deleted (that's why we're here) - don't let
+            // DeleteAccount() recurse back into Core::DeleteUser() for the same user.
+            self::Decorator()->DeleteAccount($oItem->Id, true);
         }
     }
 
