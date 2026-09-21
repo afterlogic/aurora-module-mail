@@ -238,7 +238,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
      * @param Builder|null $aFilters
      * @return Server|false|\Illuminate\Database\Eloquent\Model
      */
-    public function getServerByFilter(Builder $aFilters = null)
+    public function getServerByFilter(?Builder $aFilters = null)
     {
         $oServer = false;
 
@@ -256,7 +256,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
      * @param Builder|null $aFilters
      * @return \Illuminate\Database\Eloquent\Builder[]|\Illuminate\Database\Eloquent\Collection|\Illuminate\Support\Collection
      */
-    public function getServerListByFilter(Builder $aFilters = null)
+    public function getServerListByFilter(?Builder $aFilters = null)
     {
         $aFilters = ($aFilters instanceof Builder) ? $aFilters : Server::query();
 

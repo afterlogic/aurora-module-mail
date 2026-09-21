@@ -22,7 +22,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     /**
      * @param \Aurora\System\Module\AbstractModule $oModule
      */
-    public function __construct(\Aurora\System\Module\AbstractModule $oModule = null)
+    public function __construct(?\Aurora\System\Module\AbstractModule $oModule = null)
     {
         parent::__construct($oModule);
     }
@@ -136,7 +136,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
      * @param Builder $oFilters null
      * @return \Illuminate\Database\Eloquent\Collection
      */
-    public function getIdentities($iUserId, Builder $oFilters = null)
+    public function getIdentities($iUserId, ?Builder $oFilters = null)
     {
         $aResult = false;
 

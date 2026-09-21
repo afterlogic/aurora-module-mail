@@ -195,14 +195,12 @@ class DeleteAccountUserDeletionTest extends TestCase
     private function setUsersCache($users)
     {
         $ref = new \ReflectionProperty(Api::class, 'usersCache');
-        $ref->setAccessible(true);
         $ref->setValue(Api::class, $users);
     }
 
     private function clearUsersCache()
     {
         $ref = new \ReflectionProperty(Api::class, 'usersCache');
-        $ref->setAccessible(true);
         $ref->setValue(Api::class, []);
     }
 
