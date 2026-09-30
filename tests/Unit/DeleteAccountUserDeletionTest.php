@@ -178,6 +178,9 @@ class DeleteAccountUserDeletionTest extends TestCase
         $this->testableModule->serversManager = new StubServersManager();
 
         Api::$aModuleDecorators['Mail'] = $this->testableModule;
+        // Module::GetName() is derived from the class name, so self::Decorator() called on the
+        // test subclass looks for the decorator under the subclass name.
+        Api::$aModuleDecorators[TestableMailModule::GetName()] = $this->testableModule;
 
         $this->setUsersCache([
             100 => new FakeUser(100, 'user@example.com', 0)
@@ -189,6 +192,7 @@ class DeleteAccountUserDeletionTest extends TestCase
         Api::skipCheckUserRole(false);
         Api::$aModuleDecorators['Core'] = null;
         Api::$aModuleDecorators['Mail'] = null;
+        Api::$aModuleDecorators[TestableMailModule::GetName()] = null;
         $this->clearUsersCache();
     }
 
@@ -263,10 +267,6 @@ class DeleteAccountUserDeletionTest extends TestCase
             100 => new FakeUser(100, 'user@example.com', 0),
             200 => new FakeUser(200, 'user2@example.com', 0)
         ]);
-
-        var_dump('Module::GetName():', \Aurora\Modules\Mail\Module::GetName());
-        var_dump('Module::Decorator():', \Aurora\Modules\Mail\Module::Decorator());
-        var_dump('Decorator class:', get_class(\Aurora\Modules\Mail\Module::Decorator()));
 
         $result = $this->testableModule->DeleteServer(1, 0);
 
