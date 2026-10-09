@@ -25,9 +25,7 @@ class StubAccountsManager extends AccountsManager
     public $accounts = [];
     public $deletedAccounts = [];
 
-    public function __construct()
-    {
-    }
+    public function __construct() {}
 
     public function getAccountById($iAccountId)
     {
@@ -75,16 +73,12 @@ class StubServersManager
 
 class StubIdentitiesManager
 {
-    public function deleteAccountIdentities($iAccountId)
-    {
-    }
+    public function deleteAccountIdentities($iAccountId) {}
 }
 
 class StubMailManager
 {
-    public function deleteSystemFolderNames($iAccountId)
-    {
-    }
+    public function deleteSystemFolderNames($iAccountId) {}
 }
 
 class FakeUser
@@ -122,9 +116,7 @@ class TestableMailModule extends Module
         parent::__construct($sPath, $sVersion);
     }
 
-    public function init()
-    {
-    }
+    public function init() {}
 
     public function getAccountsManager()
     {
@@ -146,13 +138,9 @@ class TestableMailModule extends Module
         return $this->serversManager;
     }
 
-    public function broadcastEvent($sEvent, &$aArguments = [], &$mResult = null)
-    {
-    }
+    public function broadcastEvent($sEvent, &$aArguments = [], &$mResult = null) {}
 
-    public function updateAllocatedTenantSpace($iTenantId, $iQuota, $iNewQuota = 0)
-    {
-    }
+    public function updateAllocatedTenantSpace($iTenantId, $iQuota, $iNewQuota = 0) {}
 }
 
 class DeleteAccountUserDeletionTest extends TestCase
@@ -210,9 +198,12 @@ class DeleteAccountUserDeletionTest extends TestCase
 
     private function createMockAccount($id, $idUser, $useToAuthorize, $email, $isDisabled = false)
     {
-        $oAccount = new class extends MailAccount {
+        $oAccount = new class () extends MailAccount {
             public function __construct() {}
-            public function getServer() { return null; }
+            public function getServer()
+            {
+                return null;
+            }
         };
 
         $oAccount->Id = $id;

@@ -141,7 +141,7 @@ class Manager extends \Aurora\System\Managers\AbstractManager
     /**
      * Obtains mail accounts with specified parameters.
      * @param Array $aFilters
-     * @return Array|false
+     * @return \Illuminate\Database\Eloquent\Collection
      */
     public function getAccounts($aFilters)
     {
