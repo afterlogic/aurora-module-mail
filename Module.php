@@ -5963,7 +5963,10 @@ class Module extends \Aurora\System\Module\AbstractModule
                     $oAccount->setPassword($NewPassword);
                     if ($this->getAccountsManager()->updateAccount($oAccount)) {
                         $mResult = $oAccount;
-                        $mResult->RefreshToken = \Aurora\System\Api::UserSession()->UpdateTimestamp(\Aurora\System\Api::getAuthToken(), time());
+                        $bOwnAccount = Api::getAuthenticatedUserId() === $oAccount->IdUser;
+                        if ($bOwnAccount) {
+                            $mResult->RefreshToken = Api::UserSession()->UpdateTimestamp(Api::getAuthToken(), time());
+                        }
                         \Aurora\System\Api::LogEvent('password-change-success: ' . $oAccount->Email, self::GetName());
                         \Aurora\System\Api::UserSession()->DeleteAllAccountSessions($oAccount);
 
@@ -5971,14 +5974,10 @@ class Module extends \Aurora\System\Module\AbstractModule
                         $sXClientHeader = $this->oHttp->GetHeader('X-Client');
 
                         // Set cookie in browser only
-                        if (strtolower($sXClientHeader) === 'webclient') {
-                            $authUserId = \Aurora\System\Api::getAuthenticatedUserId();
-                            if ($authUserId === $oAccount->IdUser) {
-                                // we need to remove auth token cookie, because it is no longer valid
-                                // user will be logged out and should login with new password
-
-                                Api::unsetAuthTokenCookie();
-                            }
+                        if ($bOwnAccount && strtolower($sXClientHeader) === 'webclient') {
+                            // we need to remove auth token cookie, because it is no longer valid
+                            // user will be logged out and should login with new password
+                            Api::unsetAuthTokenCookie();
                         }
                     }
                 }
