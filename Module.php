@@ -2011,16 +2011,29 @@ class Module extends \Aurora\System\Module\AbstractModule
         }
 
         if ($SortBy === null) {
-            if ($aMessagesSortBy !== false && isset($aMessagesSortBy['Allow']) && (bool) $aMessagesSortBy['Allow'] === true) {
-                $SortBy = isset($aMessagesSortBy['DefaultSortBy']) ? $aMessagesSortBy['DefaultSortBy'] : '';
-            }
-        } else {
-            if ($aMessagesSortBy === false || isset($aMessagesSortBy['Allow']) && (bool) $aMessagesSortBy['Allow'] === false) {
-                $SortBy = '';
-            }
+            $SortBy = !empty($aMessagesSortBy['Allow']) ? ($aMessagesSortBy['DefaultSortBy'] ?? '') : '';
         }
 
-        if (empty($SortBy)) {
+        $aSortKeys = [
+            '' => '',
+            'arrival' => 'ARRIVAL',
+            'cc' => 'CC',
+            'date' => 'DATE',
+            'displayfrom' => 'DISPLAYFROM',
+            'displayto' => 'DISPLAYTO',
+            'from' => 'FROM',
+            'size' => 'SIZE',
+            'subject' => 'SUBJECT',
+            'to' => 'TO',
+        ];
+        if (!is_string($SortBy) || !isset($aSortKeys[strtolower($SortBy)])) {
+            throw new \Aurora\System\Exceptions\ApiException(\Aurora\System\Notifications::InvalidInputParameter);
+        }
+        $SortBy = $aSortKeys[strtolower($SortBy)];
+        if ($aMessagesSortBy === false || (isset($aMessagesSortBy['Allow']) && !$aMessagesSortBy['Allow'])) {
+            $SortBy = '';
+        }
+        if ($SortBy === '') {
             $SortOrder = \Aurora\System\Enums\SortOrder::ASC;
         }
 
@@ -2179,7 +2192,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
         $aSortInfo = $this->getSortInfo($SortBy, $SortOrder);
 
-        $sSortBy = \strtoupper($aSortInfo[0]);
+        $sSortBy = $aSortInfo[0];
         $sSortOrder = $aSortInfo[1] === \Aurora\System\Enums\SortOrder::DESC ? 'REVERSE' : '';
 
         return  $this->getMailManager()->getMessageList(
@@ -2268,7 +2281,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
         $aSortInfo = $this->getSortInfo($SortBy, $SortOrder);
 
-        $sSortBy = \strtoupper($aSortInfo[0]);
+        $sSortBy = $aSortInfo[0];
         $sSortOrder = $aSortInfo[1] === \Aurora\System\Enums\SortOrder::DESC ? 'REVERSE' : '';
 
         $oMessageCollectionResult = \Aurora\Modules\Mail\Classes\MessageCollection::createInstance();
@@ -2579,7 +2592,7 @@ class Module extends \Aurora\System\Module\AbstractModule
 
         $aSortInfo = $this->getSortInfo($SortBy, $SortOrder);
 
-        $sSortBy = \strtoupper($aSortInfo[0]);
+        $sSortBy = $aSortInfo[0];
         $sSortOrder = $aSortInfo[1] === \Aurora\System\Enums\SortOrder::DESC ? 'REVERSE' : '';
 
         return $this->getMailManager()->GetMessagesInfo(
